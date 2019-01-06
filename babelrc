@@ -1,0 +1,17 @@
+{
+    "presets": [
+        "es2015",
+        "stage-0"
+    ],
+    "plugins": [[
+        "@babel/plugin-transform-runtime",
+        "import",
+        {
+            "helpers": true,
+            "regenerator": true,
+            "moduleName": "babel-runtime",
+            "libraryName": "iview",
+            "libraryDirectory": "src/components"
+        }
+    ]]
+}

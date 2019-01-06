@@ -1,0 +1,10 @@
+# mac os
+.DS_Store
+
+# General
+.git
+.idea
+yarn.lock
+dist
+node_modules
+
