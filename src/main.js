@@ -17,8 +17,6 @@ const router = new VueRouter(RouterConfig);
 
 router.beforeEach((to, from, next) => {
     iView.LoadingBar.start();
-    console.log(to, from);
-
     window.document.title = to.meta.title || 'iScrum';
     next();
 });

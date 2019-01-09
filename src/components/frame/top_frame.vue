@@ -1,9 +1,9 @@
 <template>
 	<div class="layout">
 		<Layout>
-			<header-block></header-block>
+			<slot name="header"></slot>
 			<Content class="aui-content">
-				<slot></slot>
+				<slot name="content"></slot>
 			</Content>
 			<footer-block></footer-block>
 		</Layout>
@@ -11,11 +11,10 @@
 </template>
 
 <script>
-	import HeaderBlock from './block/header.vue';
-	import FooterBlock from './block/footer.vue';
+	import HeaderBlock from './header/header.vue';
+	import FooterBlock from './footer/footer.vue';
     export default {
         components: {
-            HeaderBlock,
             FooterBlock
 		}
     }

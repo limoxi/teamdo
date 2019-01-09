@@ -1,18 +1,24 @@
 <template>
 	<top-frame>
-		<ul class="aui-projects">
-			<li v-for="project in projects" :key="project.id">
-				<project-card
-					:project="project"
-				>
-				</project-card>
-			</li>
-		</ul>
+		<template slot="header">
+			<a-header></a-header>
+		</template>
+		<template slot="content">
+			<ul class="aui-projects">
+				<li v-for="project in projects" :key="project.id">
+					<project-card
+						:project="project"
+					>
+					</project-card>
+				</li>
+			</ul>
+		</template>
 	</top-frame>
 </template>
 
 <script>
 	import TopFrame from '@src/components/frame/top_frame';
+	import Header from '@src/components/frame/header/header';
 	import ProjectCard from './project_card';
 	import Resource from '@src/utils/resource';
 	var projects = [{
@@ -41,6 +47,7 @@
 		},
 		components: {
             'top-frame': TopFrame,
+			'a-header': Header,
 			'project-card': ProjectCard
 		}
     }

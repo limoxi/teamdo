@@ -3,6 +3,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -36,6 +37,7 @@ module.exports = {
         }
     },
     plugins: [
+        new CleanWebpackPlugin(['dist']),
         new VueLoaderPlugin(),
         new ExtractTextPlugin({
             filename: 'bundle.css',
@@ -46,6 +48,7 @@ module.exports = {
             inject: true,
             template: "./index.html"
         }),
+        new webpack.HotModuleReplacementPlugin()
     ],
     module: {
         rules: [
@@ -83,8 +86,8 @@ module.exports = {
                 })
             },
             {
-                test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
-                loader: 'url-loader?limit=1024'
+                test: /\.(gif|jpg|png|webp|woff|svg|eot|ttf)\??.*$/,
+                loader: 'webp-loader!url-loader?limit=1024'
             },
             {
                 test: /\.(html|tpl)$/,
@@ -102,6 +105,7 @@ module.exports = {
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         compress: true,
-        port: 9000
+        port: 9000,
+        hot: true
     }
 };
