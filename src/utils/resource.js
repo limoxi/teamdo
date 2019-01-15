@@ -5,23 +5,11 @@ import Cookies from 'js-cookie';
 import helper from './helper';
 import env from '@src/env';
 
-
-axios.interceptors.request.use(config =>{
-    config.data = qs.stringify(config.data);
-    config.headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    };
-    return config;
-});
-
-axios.interceptors.response.use(resp =>{
-    return resp;
-});
-
+axios.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 
 class Resource{
 
-    constructor(serviceName, apiHost='api.ihome.com'){
+    constructor(serviceName, apiHost=env.API_HOST || 'api.ihome.com'){
         this.serviceName = serviceName;
         this.apiHost = apiHost;
     }
@@ -31,10 +19,6 @@ class Resource{
     }
 
     _get_request_url(resource, param){
-        if(Cookies.get('sid')){
-            param = helper.extend(param, {sid: Cookies.get('sid')});
-        }
-
         let routes = resource.split('.');
         let url = ['http:/', this.apiHost];
         url.push(this.serviceName);
@@ -88,12 +72,15 @@ class Resource{
     }
 
     _request(options){
-        console.log(options.url);
+        console.log(options.url, options.data);
         options = helper.extend({
             url: options.url,
             method: options.method,
             type:'json',
             data: {},
+            headers: {
+                'Authorization': Cookies.get('token')
+            },
             async: true,
             timeout: 3000,
             onTimeout: helper.noop,
@@ -105,10 +92,11 @@ class Resource{
         }, options);
 
         axios(options).then((resp)=>{
+            console.log(resp);
             if(resp.data.code === 200){
                 options.success(resp.data.data);
             }else{
-                options.error(resp.data.data);
+                options.error(resp.data);
             }
         }).catch ((err) =>{
             options.error({

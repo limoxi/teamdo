@@ -6,17 +6,27 @@
 		</Button>
 		<DropdownMenu slot="list">
 			<DropdownItem>编辑</DropdownItem>
+			<DropdownItem>修改密码</DropdownItem>
 			<DropdownItem>退出</DropdownItem>
 		</DropdownMenu>
 	</Dropdown>
 </template>
 
 <script>
-	import Resource from '@src/utils/resource';
+    import Cookies from 'js-cookie';
+
     export default {
+        beforeCreate(){
+            let token = Cookies.get('token');
+			if(!token){
+			    this.$router.replace({'name': 'login'})
+			}
+		},
+
 		data (){
 			return {
-                nickname: '测试'
+                nickname: Cookies.get('nickname'),
+				avatar: Cookies.get('avatar')
 			}
         },
 		methods: {
