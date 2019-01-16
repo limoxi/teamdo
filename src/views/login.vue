@@ -1,23 +1,20 @@
 <template>
-	<div class="aui-login">
-		<div class="aui-i-bg"></div>
-		<div class="aui-i-form">
-			<Card>
-				<p slot="title">登陆</p>
-				<Form ref="form" :model="loginUser" :rules="ruleValidate" :label-width="80">
-					<FormItem label="登录名" prop="username">
-						<Input v-model="loginUser.username" placeholder=""></Input>
-					</FormItem>
-					<FormItem label="密码" prop="password">
-						<Input type="password" v-model="loginUser.password"></Input>
-					</FormItem>
-					<FormItem>
-						<Button type="primary" @click="handleSubmit">登陆</Button>
-						<Button @click="handleRegister" style="margin-left: 8px">注册</Button>
-					</FormItem>
-				</Form>
-			</Card>
-		</div>
+	<div class="aui-login" v-if="show">
+		<Card>
+			<p slot="title">登陆</p>
+			<Form ref="form" :model="loginUser" :rules="ruleValidate" :label-width="80">
+				<FormItem label="登录名" prop="username">
+					<Input v-model="loginUser.username" placeholder=""></Input>
+				</FormItem>
+				<FormItem label="密码" prop="password">
+					<Input type="password" v-model="loginUser.password"></Input>
+				</FormItem>
+				<FormItem>
+					<Button type="primary" @click="handleSubmit">登陆</Button>
+					<Button @click="handleRegister" style="margin-left: 8px">注册</Button>
+				</FormItem>
+			</Form>
+		</Card>
 	</div>
 </template>
 <script>
@@ -25,6 +22,7 @@
 	import Resource from '@src/utils/resource';
     import Cookies from 'js-cookie';
     export default {
+        props: ['show'],
         data () {
             return {
                 loginUser: {
@@ -52,9 +50,11 @@
 								'password': this.loginUser.password
 							},
 							'success': (data) =>{
+							    console.log(data);
                                 Cookies.set('token', data['token']);
-                                this.nickname = data.nickname;
-                                this.avatar = data.avatar;
+                                Cookies.set('nickname', data.nickname);
+                                Cookies.set('avatar', data.avatar);
+                                this.$router.replace({name: 'projects'})
                             },
 							error: (resp) =>{
                                 this.$Message.error(resp.errMsg);
@@ -74,18 +74,10 @@
 
 <style scoped lang="less">
 	.aui-login{
-		.aui-i-bg{
-			width: 100vw;
-			height: 100vh;
-			z-index: 1;
-			background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);
-		}
-		.aui-i-form{
-			width: 345px;
-			position: fixed;
-			right: 20%;
-			top: 35%;
-			z-index: 2;
-		}
+		width: 345px;
+		position: fixed;
+		right: 20%;
+		top: 35%;
+		z-index: 2;
 	}
 </style>

@@ -13,21 +13,21 @@ const Routers = [{
     meta: {
         title: '项目列表'
     },
-    component: ProjectsPage,
+    component: IndexPage,
 }, {
     path: '/login',
     name: 'login',
     meta: {
         title: '登陆'
     },
-    component: LoginPage
+    component: IndexPage
 }, {
     path: '/register',
     name: 'register',
     meta: {
         title: '注册'
     },
-    component: registerPage
+    component: IndexPage
 }, {
     path: '/projects',
     name: 'projects',

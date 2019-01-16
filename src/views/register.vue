@@ -1,13 +1,12 @@
 <template>
-	<div class="aui-login">
-		<div class="aui-i-form">
+	<div class="aui-register" v-if="show">
 
-		</div>
 	</div>
 
 </template>
 <script>
     export default {
+        props: ['show'],
         data () {
             return {
                 formValidate: {
