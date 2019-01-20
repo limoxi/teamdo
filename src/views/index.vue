@@ -1,19 +1,29 @@
 <template>
 	<div class="aui-index">
 		<div class="aui-i-bg"></div>
-		<login-block :show="showLogin"></login-block>
-		<register-block :show="showRegister"></register-block>
 		<div class="aui-i-welcome">
-			<Button  type="dashed" @click="onShowLogin">登陆</Button>
-			<Button  type="dashed" @click="onShowRegister">注册</Button>
+			<logo-svg></logo-svg>
+			<br>
+			<strong>不嘈不杂，</strong>
+			<strong>专注项目，</strong>
+			<strong>迅猛敏捷！</strong>
+			<div class="aui-i-action">
+				<Button type="text" @click="onShowLogin" v-if="hideEntry">登陆</Button>
+				<Button type="text" @click="onShowRegister" v-if="hideEntry">注册</Button>
+				<Button type="text" :to='{name: "projects"}' v-if="showEntry">项目列表</Button>
+			</div>
 		</div>
+		<login-model :show.sync="showLogin"></login-model>
+		<register-model :show.sync="showRegister"></register-model>
 	</div>
 </template>
 
 <script>
 
-	import LoginBlock from './login';
-	import RegisterBlock from './register';
+	import LoginModel from './block/login_model';
+	import RegisterModel from './block/register_model';
+	import LogoSvg from './block/logo_svg';
+	import Cookies from 'js-cookie';
 
     export default {
         data(){
@@ -23,8 +33,17 @@
 			}
 		},
 		components: {
-            'login-block': LoginBlock,
-			'register-block': RegisterBlock
+            'login-model': LoginModel,
+			'register-model': RegisterModel,
+			'logo-svg': LogoSvg
+		},
+		computed: {
+            showEntry(){
+                return !!Cookies.get('token')
+			},
+			hideEntry(){
+                return !Cookies.get('token');
+			}
 		},
 		methods: {
             onShowLogin(){
@@ -41,16 +60,28 @@
 
 <style scoped lang="less">
 	.aui-index{
+		text-align: center;
 		.aui-i-bg{
+			position: fixed;
 			width: 100vw;
 			height: 100vh;
 			z-index: 1;
 			background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);
 		}
 		.aui-i-welcome{
-			position: fixed;
-			top: 50vh;
-			left: 45vw;
+			position: relative;
+			top: 20vh;
+			z-index: 2;
+
+			strong{
+				font-size: 30px;
+			}
+
+			.aui-i-action{
+				margin-top:40px;
+				font-size: 22px;
+				text-align: center;
+			}
 		}
 	}
 </style>

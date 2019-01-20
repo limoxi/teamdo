@@ -1,25 +1,24 @@
 <template>
-	<div class="aui-login" v-if="show">
-		<Card>
-			<p slot="title">登陆</p>
-			<Form ref="form" :model="loginUser" :rules="ruleValidate" :label-width="80">
-				<FormItem label="登录名" prop="username">
-					<Input v-model="loginUser.username" placeholder=""></Input>
-				</FormItem>
-				<FormItem label="密码" prop="password">
-					<Input type="password" v-model="loginUser.password"></Input>
-				</FormItem>
-				<FormItem>
-					<Button type="primary" @click="handleSubmit">登陆</Button>
-					<Button @click="handleRegister" style="margin-left: 8px">注册</Button>
-				</FormItem>
-			</Form>
-		</Card>
-	</div>
+	<Modal
+		v-model="showModel"
+		title="登陆"
+		@on-ok="handleSubmit"
+		@on-cancel="cancel"
+		width="360"
+	>
+		<Form ref="loginForm" :model="loginUser" :rules="ruleValidate" :label-width="80">
+			<FormItem label="登录名" prop="username">
+				<Input v-model="loginUser.username" placeholder=""></Input>
+			</FormItem>
+			<FormItem label="密码" prop="password">
+				<Input type="password" v-model="loginUser.password"></Input>
+			</FormItem>
+		</Form>
+	</Modal>
 </template>
 <script>
 
-	import Resource from '@src/utils/resource';
+	import Resource from '../../utils/resource';
     import Cookies from 'js-cookie';
     export default {
         props: ['show'],
@@ -39,9 +38,19 @@
                 }
             }
         },
+        computed: {
+            showModel: {
+                get(){
+                    return this.show;
+                },
+                set(newValue){
+                    this.$emit('update:show', newValue);
+                }
+            }
+        },
         methods: {
             handleSubmit() {
-                this.$refs['form'].validate((valid) => {
+                this.$refs['loginForm'].validate((valid) => {
                     if (valid) {
                         Resource.use('iscrum').put({
 							'resource': 'rust.user.logined_user',
@@ -54,6 +63,7 @@
                                 Cookies.set('token', data['token']);
                                 Cookies.set('nickname', data.nickname);
                                 Cookies.set('avatar', data.avatar);
+                                this.resetForm();
                                 this.$router.replace({name: 'projects'})
                             },
 							error: (resp) =>{
@@ -65,19 +75,16 @@
                     }
                 })
             },
-            handleRegister() {
-                this.$router.replace({'name': 'register'});
+            cancel (){
+                this.resetForm();
+            },
+            resetForm(){
+                this.$refs['loginForm'].resetFields();
             }
         }
     }
 </script>
 
 <style scoped lang="less">
-	.aui-login{
-		width: 345px;
-		position: fixed;
-		right: 20%;
-		top: 35%;
-		z-index: 2;
-	}
+
 </style>

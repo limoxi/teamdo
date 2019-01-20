@@ -64,19 +64,13 @@ module.exports = {
                 }]
             },
             {
-                test: /iview\/.*?js$/,
+                test: /iview\/.(vue|.*?js)$/,
                 loader: 'babel-loader',
-                options: {
-                    presets: ['env']
-                }
             },
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
                 exclude: /node_modules/,
-                options: {
-                    presets: ['env']
-                }
             },
             {
                 test: /\.(css|less)$/,

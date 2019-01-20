@@ -29,5 +29,9 @@
 		font-size: 28px;
 		color: azure;
 		font-family: "Comic Sans MS",sans-serif;
+
+		.aui-i-d{
+			font-size: 18px;
+		}
 	}
 </style>

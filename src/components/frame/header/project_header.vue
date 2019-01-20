@@ -3,6 +3,9 @@
 		<logo></logo>
 		<div class="aui-i-menu">
 			<Menu mode="horizontal" theme="dark" active-name="sprint">
+				<MenuItem name="projects">
+					<router-link :to="{name: 'projects'}">项目</router-link>
+				</MenuItem>
 				<MenuItem name="sprint">
 					<router-link :to="{name: 'sprint'}">迭代</router-link>
 				</MenuItem>
