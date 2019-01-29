@@ -41,8 +41,6 @@
     export default {
 		data: function () {
 		    return {
-                nickname: '测试',
-                showModel: false,
 			}
         },
         components: {
@@ -50,9 +48,6 @@
             'profile': Profile
         },
 		methods: {
-            addProject(){
-				this.showModel = true;
-            },
             onClickLogo(){
                 this.$router.push({
 					'name': 'index'

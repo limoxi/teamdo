@@ -97,6 +97,10 @@ class Resource{
                 options.success(resp.data.data);
             }else{
                 options.error(resp.data);
+                if(resp.data.errMsg === '不合法的token'){
+                    Cookies.remove('token');
+                    window.location.href = '/';
+                }
             }
         }).catch ((err) =>{
             options.error({

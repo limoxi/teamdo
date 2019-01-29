@@ -5,17 +5,13 @@
 			<Content class="aui-content">
 				<slot name="content"></slot>
 			</Content>
-			<footer-block></footer-block>
 		</Layout>
 	</div>
 </template>
 
 <script>
-	import HeaderBlock from './header/header.vue';
-	import FooterBlock from './footer/footer.vue';
     export default {
         components: {
-            FooterBlock
 		}
     }
 </script>

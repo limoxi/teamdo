@@ -18,7 +18,7 @@
 </template>
 
 <script>
-	import Resource from '@src/utils/resource';
+	import Resource from '../../utils/resource';
     export default {
         props: ['show'],
 		data (){

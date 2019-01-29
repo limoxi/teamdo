@@ -14,15 +14,18 @@
 			</div>
 		</div>
 		<login-model :show.sync="showLogin"></login-model>
-		<register-model :show.sync="showRegister"></register-model>
+		<user-model
+			:show.sync="showRegister"
+			:registered.sync="showLogin"
+			mode="register"></user-model>
 	</div>
 </template>
 
 <script>
 
-	import LoginModel from './block/login_model';
-	import RegisterModel from './block/register_model';
-	import LogoSvg from './block/logo_svg';
+	import LoginModel from '../components/model/login_model';
+	import UserModel from '../components/model/user_model';
+	import LogoSvg from './logo_svg';
 	import Cookies from 'js-cookie';
 
     export default {
@@ -34,7 +37,7 @@
 		},
 		components: {
             'login-model': LoginModel,
-			'register-model': RegisterModel,
+			'user-model': UserModel,
 			'logo-svg': LogoSvg
 		},
 		computed: {
@@ -53,7 +56,10 @@
             onShowRegister(){
                 this.showLogin = false;
                 this.showRegister = true;
-            }
+            },
+            onRegistered(){
+                this.showLogin = true;
+			}
 		}
     }
 </script>

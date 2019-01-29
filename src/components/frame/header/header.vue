@@ -8,13 +8,13 @@
 			<Button type="primary" icon="md-add" @click="addProject">添加项目</Button>
 			<profile></profile>
 		</div>
-		<new-project-model
+		<project-model
 			:show.sync="showModel"
-		></new-project-model>
+		></project-model>
 	</Header>
 </template>
 <script>
-    import NewProjectModel from '@src/components/frame/block/blank_project_model';
+    import ProjectModel from '@src/components/model/project_model';
     import Logo from '@src/components/frame/block/logo';
     import Profile from '@src/components/frame/block/profile';
     export default {
@@ -24,7 +24,7 @@
 			}
         },
         components: {
-            'new-project-model': NewProjectModel,
+            'project-model': ProjectModel,
 			'logo': Logo,
 			'profile': Profile
         },

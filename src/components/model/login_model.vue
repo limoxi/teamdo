@@ -2,8 +2,6 @@
 	<Modal
 		v-model="showModel"
 		title="登陆"
-		@on-ok="handleSubmit"
-		@on-cancel="cancel"
 		width="360"
 	>
 		<Form ref="loginForm" :model="loginUser" :rules="ruleValidate" :label-width="80">
@@ -14,6 +12,7 @@
 				<Input type="password" v-model="loginUser.password"></Input>
 			</FormItem>
 		</Form>
+		<Button slot="footer" @click="handleSubmit">确定</Button>
 	</Modal>
 </template>
 <script>
@@ -50,6 +49,7 @@
         },
         methods: {
             handleSubmit() {
+                let self = this;
                 this.$refs['loginForm'].validate((valid) => {
                     if (valid) {
                         Resource.use('iscrum').put({
@@ -59,24 +59,19 @@
 								'password': this.loginUser.password
 							},
 							'success': (data) =>{
-							    console.log(data);
+							    self.showModel = false;
+                                self.resetForm();
                                 Cookies.set('token', data['token']);
                                 Cookies.set('nickname', data.nickname);
                                 Cookies.set('avatar', data.avatar);
-                                this.resetForm();
-                                this.$router.replace({name: 'projects'})
+                                self.$router.replace({name: 'projects'})
                             },
 							error: (resp) =>{
-                                this.$Message.error(resp.errMsg);
+                                self.$Message.error(resp.errMsg);
 							}
 						})
-                    } else {
-                        this.$Message.error('校验失败');
                     }
                 })
-            },
-            cancel (){
-                this.resetForm();
             },
             resetForm(){
                 this.$refs['loginForm'].resetFields();
