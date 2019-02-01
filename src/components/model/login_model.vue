@@ -17,8 +17,7 @@
 </template>
 <script>
 
-	import Resource from '../../utils/resource';
-    import Cookies from 'js-cookie';
+	import UserService from '@src/service/user_service';
     export default {
         props: ['show'],
         data () {
@@ -52,24 +51,18 @@
                 let self = this;
                 this.$refs['loginForm'].validate((valid) => {
                     if (valid) {
-                        Resource.use('iscrum').put({
-							'resource': 'rust.user.logined_user',
-							'data': {
-							    'username': this.loginUser.username,
-								'password': this.loginUser.password
-							},
-							'success': (data) =>{
-							    self.showModel = false;
+                        UserService.doLogin(
+                            self.loginUser.username,
+							self.loginUser.password,
+							()=>{
+                                self.showModel = false;
                                 self.resetForm();
-                                Cookies.set('token', data['token']);
-                                Cookies.set('nickname', data.nickname);
-                                Cookies.set('avatar', data.avatar);
-                                self.$router.replace({name: 'projects'})
-                            },
-							error: (resp) =>{
+                                self.$router.replace({name: 'projects'});
+							},
+                            (resp) =>{
                                 self.$Message.error(resp.errMsg);
-							}
-						})
+                            }
+						);
                     }
                 })
             },

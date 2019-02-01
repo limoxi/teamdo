@@ -10,6 +10,7 @@
 		</div>
 		<project-model
 			:show.sync="showModel"
+			@projectCreated="onProjectCreated"
 		></project-model>
 	</Header>
 </template>
@@ -32,6 +33,9 @@
             addProject(){
 				this.showModel = true;
             },
+            onProjectCreated(){
+                this.$emit('projectedCreated');
+			}
 		}
     }
 </script>

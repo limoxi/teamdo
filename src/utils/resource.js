@@ -103,6 +103,7 @@ class Resource{
                 }
             }
         }).catch ((err) =>{
+            console.warn(err);
             options.error({
                 errMsg: '网络出错',
                 innerMsg: err

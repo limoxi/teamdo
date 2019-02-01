@@ -1,7 +1,9 @@
 <template>
 	<top-frame>
 		<template slot="header">
-			<a-header></a-header>
+			<a-header
+				@projectCreated="onProjectCreated"
+			></a-header>
 		</template>
 		<template slot="content">
 			<ul class="aui-projects">
@@ -20,20 +22,11 @@
 	import TopFrame from '@src/components/frame/top_frame';
 	import Header from '@src/components/frame/header/header';
 	import ProjectCard from './project_card';
-	import Resource from '@src/utils/resource';
+	import ProjectService from '@src/service/project_service';
 
     export default {
 	    created(){
-            Resource.use('iscrum').get({
-                'resource': 'project.projects',
-                'data': {},
-                'success': (data) =>{
-                    this.projects = data.projects;
-                },
-                'error': (resp) =>{
-                    console.warn(resp.errMsg);
-                }
-            });
+	        this.getProjects();
 		},
         data(){
             return {
@@ -44,6 +37,18 @@
             'top-frame': TopFrame,
 			'a-header': Header,
 			'project-card': ProjectCard
+		},
+		methods: {
+	        getProjects(){
+                ProjectService.getProjects((projects) =>{
+                    this.projects = projects;
+                }, (resp) =>{
+                   this.$Message.error(resp.errMsg);
+				});
+			},
+            onProjectCreated(){
+                this.getProjects();
+			}
 		}
     }
 </script>

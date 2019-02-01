@@ -49,12 +49,12 @@
 		},
 		methods: {
             confirm (){
+                let self = this;
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
                         Resource.use('iscrum').put({
 							'resource': 'project.project',
 							'data': {
-                                __dev_uid: 1,
 								name: this.form.name,
 								desc: this.form.desc
 							},
@@ -64,6 +64,7 @@
 						});
                         this.$Message.success('成功创建新项目');
 						this.resetForm();
+						this.$emit('projectCreated')
                     } else {
                         this.$Message.error('请检查填写项！');
                     }

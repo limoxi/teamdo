@@ -34,30 +34,12 @@
 </template>
 <script>
 
-	import Resource from '../../utils/resource';
 	import Cookie from 'js-cookie';
 	// import Uploader from '@src/components/uploader';
+	import UserService from '@src/service/user_service';
+	import PermissionService from '@src/service/permission_service';
 
     export default {
-        created(){
-            if(this.isUpdateMode){
-                Resource.use('iscrum').get({
-                    'resource': 'rust.user.user',
-                    'data': {
-                        user_id: Cookie.get('user_id'),
-						with_options: JSON.stringify({
-							'with_group_info': true
-						})
-                    },
-					success: (data) =>{
-                        this.roleId = data.group.id;
-						this.user.username = data.username;
-						this.user.avatar = data.avatar;
-						this.user.nickname = data.nickname;
-					}
-                });
-			}
-		},
 		components: {
             // 'uploader': Uploader
 		},
@@ -92,17 +74,29 @@
 			},
             showModel: {
                 get(){
+                    let self = this;
                     if(this.show){
-                        Resource.use('iscrum').get({
-                            'resource': 'rust.permission.groups',
-                            'data': {},
-                            'success': (data) =>{
-                                this.roles = data;
-                            },
-                            'error': (resp) =>{
-                                console.log(resp);
-                            }
-                        })
+                        if(this.isUpdateMode){
+                            UserService.getUser({
+								data: {
+                                    user_id: Cookie.get('uid'),
+                                    with_options: JSON.stringify({
+                                        'with_group_info': true
+                                    })
+								},
+                                success: (data) =>{
+                                    self.roleId = data.group.id;
+                                    self.user.username = data.username;
+                                    self.user.avatar = data.avatar;
+                                    self.user.nickname = data.nickname;
+                                }
+							})
+						}
+                        PermissionService.getAllGroups((data)=>{
+                            self.roles = data;
+						}, (resp)=>{
+                            console.log(resp);
+						})
 					}
                     return this.show;
                 },
@@ -123,40 +117,29 @@
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
                         if(self.isRegisterMode){
-                            Resource.use('iscrum').put({
-								'resource': 'rust.user.registered_user',
-								'data': {
-                                    username: self.user.username,
-                                    password: self.user.password,
-                                    nickname: self.user.nickname,
-                                    group_id: self.roleId
-								},
-								success: (data) =>{
-                                    this.$Message.success('注册成功,可以登录了~');
-                                    this.$emit('update:registered', true);
-                                    self.showModel = false;
-								},
-								error: (resp) =>{
-                                    this.$Message.error(resp.errMsg || '网络故障');
-								}
-							})
+                            UserService.doRegister({
+                                username: self.user.username,
+                                password: self.user.password,
+                                nickname: self.user.nickname,
+                                group_id: self.roleId
+                            }, (data) =>{
+                                this.$Message.success('注册成功,可以登录了~');
+                                this.$emit('update:registered', true);
+                                self.showModel = false;
+                            }, (resp) =>{
+                                this.$Message.error(resp.errMsg || '网络故障');
+                            });
 						}
 
                         if(self.isUpdateMode){
-                            Resource.use('iscrum').post({
-								'resource': 'rust.user.user',
-								'data': {
-									nickname: self.user.nickname,
-                                    group_id: self.roleId
-								},
-                                success: (data) =>{
-                                    console.log(data);
-                                    self.showModel = false;
-                                },
-                                error: (resp) =>{
-                                    this.$Message.error(resp.errMsg || '网络故障');
-                                }
-							})
+                            UserService.updateUser({
+                                nickname: self.user.nickname,
+                                group_id: self.roleId
+                            }, (data) =>{
+                                self.showModel = false;
+                            }, (resp) =>{
+                                this.$Message.error(resp.errMsg || '网络故障');
+                            });
 						}
                     }
                 })

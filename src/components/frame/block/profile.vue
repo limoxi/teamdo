@@ -1,8 +1,10 @@
 <template>
 	<Dropdown :style="dropDownStyle" trigger="click" @on-click="onClickItem">
 		<Badge dot>
-			<Avatar :src="avatar" v-if="avatar" size="large"/>
-			<Avatar v-else size="large">{{nickname[0]}}</Avatar>
+			<Button>
+				<Icon type="md-person" size="15" />
+				<span>{{nickname}}</span>
+			</Button>
 		</Badge>
 
 		<DropdownMenu slot="list">
