@@ -4,6 +4,7 @@
 			<Button>
 				<Icon type="md-person" size="15" />
 				<span>{{nickname}}</span>
+				<Icon type="ios-arrow-down"></Icon>
 			</Button>
 		</Badge>
 

@@ -7,7 +7,7 @@
     "author": "aix <asia-aixiang@163.com>",
     "license": "MIT",
     "scripts": {
-        "dev": "mode=develop webpack-dev-server -w -d --progress --color --info"
+        "dev": "webpack-dev-server -w -d --progress --color --info"
     },
     "devDependencies": {
         "@babel/cli": "^7.2.3",

@@ -74,29 +74,27 @@
 			},
             showModel: {
                 get(){
-                    let self = this;
                     if(this.show){
                         if(this.isUpdateMode){
-                            UserService.getUser({
-								data: {
-                                    user_id: Cookie.get('uid'),
-                                    with_options: JSON.stringify({
-                                        'with_group_info': true
-                                    })
-								},
-                                success: (data) =>{
-                                    self.roleId = data.group.id;
-                                    self.user.username = data.username;
-                                    self.user.avatar = data.avatar;
-                                    self.user.nickname = data.nickname;
-                                }
-							})
+							UserService.getUser({
+								user_id: Cookie.get('uid'),
+								with_options: JSON.stringify({
+									'with_group_info': true
+								})
+							}).then(data =>{
+								this.roleId = data.group.id;
+								this.user.username = data.username;
+								this.user.avatar = data.avatar;
+								this.user.nickname = data.nickname;
+							}).catch (err =>{
+								this.$Message.error('获取用户信息失败');
+							});
 						}
-                        PermissionService.getAllGroups((data)=>{
-                            self.roles = data;
-						}, (resp)=>{
-                            console.log(resp);
-						})
+						PermissionService.getAllGroups().then(data =>{
+				 			this.roles = data;
+						}).catch(err =>{
+							this.$Message.error('获取角色列表失败');
+					 	});
 					}
                     return this.show;
                 },
@@ -117,32 +115,32 @@
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
                         if(self.isRegisterMode){
-                            UserService.doRegister({
-                                username: self.user.username,
-                                password: self.user.password,
-                                nickname: self.user.nickname,
-                                group_id: self.roleId
-                            }, (data) =>{
-                                this.$Message.success('注册成功,可以登录了~');
-                                this.$emit('update:registered', true);
-                                self.showModel = false;
-                            }, (resp) =>{
-                                this.$Message.error(resp.errMsg || '网络故障');
-                            });
+							UserService.doRegister({
+								username: this.user.username,
+								password: this.user.password,
+								nickname: this.user.nickname,
+								group_id: this.roleId
+							}).then(() =>{
+								this.$Message.success('注册成功,可以登录了~');
+								this.$emit('update:registered', true);
+								this.showModel = false;
+							}).catch(err =>{
+								this.$Message.error(err.errMsg);
+							});
 						}
 
                         if(self.isUpdateMode){
-                            UserService.updateUser({
-                                nickname: self.user.nickname,
-                                group_id: self.roleId
-                            }, (data) =>{
-                                self.showModel = false;
-                            }, (resp) =>{
-                                this.$Message.error(resp.errMsg || '网络故障');
-                            });
+							UserService.updateUser({
+								nickname: this.user.nickname,
+								group_id: this.roleId
+							}).then(() =>{
+								this.showModel = false;
+							}).catch(err =>{
+								this.$Message.error(err.errMsg);
+							});
 						}
                     }
-                })
+                });
             },
             resetForm(){
                 this.$refs['form'].resetFields();

@@ -5,11 +5,11 @@
 		:width="365"
 	>
 		<Form ref="form" :model="form" :rules="ruleValidate" :label-width="60">
-			<FormItem label="旧密码" prop="old_pwd">
-				<Input type="password" v-model="form.old_pwd" placeholder=""></Input>
+			<FormItem label="旧密码" prop="oldPwd">
+				<Input type="password" v-model="form.oldPwd" placeholder=""></Input>
 			</FormItem>
-			<FormItem label="新密码" prop="new_pwd">
-				<Input type="password" v-model="form.new_pwd" placeholder=""></Input>
+			<FormItem label="新密码" prop="newPwd">
+				<Input type="password" v-model="form.newPwd" placeholder=""></Input>
 			</FormItem>
 		</Form>
 		<Button slot="footer" @click="confirm">确定</Button>
@@ -17,20 +17,21 @@
 </template>
 
 <script>
-	import Resource from '../../utils/resource';
+	import UserService from '@src/service/user_service';
+	
     export default {
         props: ['show'],
 		data (){
 			return {
                 form: {
-                    old_pwd: '',
-                    new_pwd: ''
+                    oldPwd: '',
+                    newPwd: ''
                 },
                 ruleValidate: {
-                    old_pwd: [
+                    oldPwd: [
                         {required: true, message: '请填写当前密码', trigger: 'blur'}
                     ],
-                    new_pwd: [
+                    newPwd: [
                         {required: true, message: '新密码不能为空', trigger: 'blur'}
                     ]
                 }
@@ -48,23 +49,14 @@
 		},
 		methods: {
             confirm (){
-                let self = this;
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
-                        Resource.use('iscrum').post({
-							'resource': 'rust.user.password',
-							'data': {
-								old_pwd: this.form.old_pwd,
-								new_pwd: this.form.new_pwd
-							},
-							'success': (data) =>{
-                                self.showModel = false;
-                                this.$Message.success('修改密码成功,下次登录生效');
-                                this.resetForm();
-							},
-							'error': (resp) =>{
-                                this.$Message.error(resp.errMsg);
-							}
+                        UserService.updatePwd(this.form.oldPwd, this.form.newPwd).then(() =>{
+                            this.showModel = false;
+                            this.resetForm();
+                            this.$Message.success('修改密码成功,下次登录生效');
+						}).catch(err =>{
+                            this.$Message.error(resp.errMsg);
 						});
                     }
                 })

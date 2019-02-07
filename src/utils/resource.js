@@ -4,12 +4,28 @@ import qs from 'qs';
 import Cookies from 'js-cookie';
 import helper from './helper';
 import env from '@src/env';
+import Logger from '@src/utils/logger';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 
+const DEFAULT_ERROR_CODE = 555;
+const NET_ERROR = 554;
+
+class ResourceException{
+
+    constructor(obj){
+        this.code = obj.code || DEFAULT_ERROR_CODE;
+        this.errMsg = obj.errMsg;
+    }
+
+    toString(){
+        return `resource_exception: code(${this.code}, errMsg(${this.errMsg}))`;
+    }
+}
+
 class Resource{
 
-    constructor(serviceName, apiHost=env.API_HOST || 'api.ihome.com'){
+    constructor(serviceName, apiHost=env.API_HOST){
         this.serviceName = serviceName;
         this.apiHost = apiHost;
     }
@@ -71,7 +87,7 @@ class Resource{
         return this._request(options);
     }
 
-    _request(options){
+    async _request(options){
         console.log(options.url, options.data);
         options = helper.extend({
             url: options.url,
@@ -91,24 +107,31 @@ class Resource{
             end: helper.noop,
         }, options);
 
-        axios(options).then((resp)=>{
-            console.log(resp);
+        try {
+            let resp = await axios(options);
             if(resp.data.code === 200){
-                options.success(resp.data.data);
+                return resp.data.data;
             }else{
-                options.error(resp.data);
                 if(resp.data.errMsg === '不合法的token'){
                     Cookies.remove('token');
                     window.location.href = '/';
+                }else{
+                    throw new ResourceException({
+                        code: resp.data.code,
+                        errMsg: resp.data.errMsg
+                    })
                 }
             }
-        }).catch ((err) =>{
-            console.warn(err);
-            options.error({
-                errMsg: '网络出错',
-                innerMsg: err
+        }catch (err) {
+            Logger.log(err);
+            if(err instanceof ResourceException){
+                throw err;
+            }
+            throw new ResourceException({
+                code:  NET_ERROR,
+                errMsg: '网络异常'
             });
-        });
+        }
     }
 }
 

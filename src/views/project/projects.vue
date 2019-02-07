@@ -2,7 +2,7 @@
 	<top-frame>
 		<template slot="header">
 			<a-header
-				@projectCreated="onProjectCreated"
+				@projectedCreated="onProjectCreated"
 			></a-header>
 		</template>
 		<template slot="content">
@@ -39,11 +39,11 @@
 			'project-card': ProjectCard
 		},
 		methods: {
-	        getProjects(){
-                ProjectService.getProjects((projects) =>{
-                    this.projects = projects;
-                }, (resp) =>{
-                   this.$Message.error(resp.errMsg);
+			getProjects(){
+				ProjectService.getProjects().then(data =>{
+					this.projects = data;
+				}).catch(err =>{
+					this.$Message.error(err.errMsg);
 				});
 			},
             onProjectCreated(){

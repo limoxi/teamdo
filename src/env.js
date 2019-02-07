@@ -1,6 +1,6 @@
 
 
-
 export default {
-    'MODE':     process.env.mode
+    'MODE': 'develop',
+    'API_HOST': 'api.ihome.com'
 }

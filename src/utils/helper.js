@@ -30,4 +30,8 @@ export default {
         return target;
     },
 
+    delay(func, seconds){
+        setTimeout(func, seconds*1000);
+    }
+
 };

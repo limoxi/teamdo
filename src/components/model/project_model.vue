@@ -18,7 +18,7 @@
 </template>
 
 <script>
-	import Resource from '../../utils/resource';
+	import ProjectService from '@src/service/project_service';
     export default {
         props: ['show'],
 		data (){
@@ -49,22 +49,18 @@
 		},
 		methods: {
             confirm (){
-                let self = this;
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
-                        Resource.use('iscrum').put({
-							'resource': 'project.project',
-							'data': {
-								name: this.form.name,
-								desc: this.form.desc
-							},
-							'error': (resp) =>{
-							    console.warn(resp);
-							}
+						ProjectService.createProject(
+							this.form.name,
+							this.form.desc
+						).then(() =>{
+							this.$Message.success('成功创建新项目');
+							this.resetForm();
+							this.$emit('projectCreated');
+						}).catch(err =>{
+							this.$Message.error(err.errMsg);
 						});
-                        this.$Message.success('成功创建新项目');
-						this.resetForm();
-						this.$emit('projectCreated')
                     } else {
                         this.$Message.error('请检查填写项！');
                     }
@@ -72,7 +68,6 @@
 			},
             cancel (){
                 this.resetForm();
-				this.$Message.info('放弃添加新项目');
             },
 			resetForm(){
                 this.$refs['form'].resetFields();

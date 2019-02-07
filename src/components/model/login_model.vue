@@ -16,8 +16,10 @@
 	</Modal>
 </template>
 <script>
-
 	import UserService from '@src/service/user_service';
+    import Cookies from 'js-cookie';
+	import helper from '@src/utils/helper';
+
     export default {
         props: ['show'],
         data () {
@@ -48,21 +50,26 @@
         },
         methods: {
             handleSubmit() {
-                let self = this;
                 this.$refs['loginForm'].validate((valid) => {
                     if (valid) {
-                        UserService.doLogin(
-                            self.loginUser.username,
-							self.loginUser.password,
-							()=>{
-                                self.showModel = false;
-                                self.resetForm();
-                                self.$router.replace({name: 'projects'});
-							},
-                            (resp) =>{
-                                self.$Message.error(resp.errMsg);
-                            }
-						);
+						UserService.doLogin(
+							this.loginUser.username,
+							this.loginUser.password,
+						).then(data =>{
+							Cookies.set('uid', data.id);
+							Cookies.set('token', data.token);
+							Cookies.set('nickname', data.nickname);
+							Cookies.set('avatar', data.avatar);
+
+							this.showModel = false;
+							this.resetForm();
+							this.$Message.success('登陆成功, 正在跳转页面...');
+							helper.delay(() =>{
+								this.$router.replace({name: 'projects'});
+							}, 2);
+						}).catch(err =>{
+							this.$Message.error(e.errMsg);
+						});
                     }
                 })
             },

@@ -3,12 +3,20 @@ import Resource from '@src/utils/resource';
 
 class ProjectService{
 
-    static getProjects(successHandler, errorHandler){
-        Resource.use('iscrum').get({
+    static getProjects(){
+        return Resource.use('iscrum').get({
             'resource': 'project.projects',
-            'data': {},
-            'success': successHandler,
-            'error': errorHandler
+            'data': {}
+        });
+    }
+
+    static createProject(name, desc){
+        return Resource.use('iscrum').put({
+            'resource': 'project.project',
+            'data': {
+                name: name,
+                desc: desc
+            }
         });
     }
 }
