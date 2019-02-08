@@ -19,6 +19,26 @@ class ProjectService{
             }
         });
     }
+
+    static updateProject(id, name, desc){
+        return Resource.use('iscrum').post({
+            'resource': 'project.project',
+            'data': {
+                id: id,
+                name: name,
+                desc: desc
+            }
+        });
+    }
+
+    static deleteProject(id){
+        return Resource.use('iscrum').delete({
+            'resource': 'project.project',
+            'data': {
+                id: id
+            }
+        });
+    }
 }
 
 export default ProjectService;

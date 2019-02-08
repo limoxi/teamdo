@@ -19,5 +19,6 @@
 <style lang="less" scoped>
 	.aui-content{
 		min-height: 100vh;
+		background-color: #515a6e;
 	}
 </style>

@@ -9,6 +9,7 @@
 			<profile></profile>
 		</div>
 		<project-model
+			mode="create"
 			:show.sync="showModel"
 			@projectCreated="onProjectCreated"
 		></project-model>

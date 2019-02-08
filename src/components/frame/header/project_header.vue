@@ -63,6 +63,9 @@
 		div{
 			display: inline-block;
 		}
+		ul{
+			line-height: 65px;
+		}
 		.aui-i-menu{
 
 		}

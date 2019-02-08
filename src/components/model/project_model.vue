@@ -1,7 +1,7 @@
 <template>
 	<Modal
 		v-model="showModel"
-		title="创建项目"
+		:title="title"
 		@on-ok="confirm"
 		@on-cancel="cancel"
 	>
@@ -13,19 +13,19 @@
 				<Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述"></Input>
 			</FormItem>
 		</Form>
-
 	</Modal>
 </template>
 
 <script>
 	import ProjectService from '@src/service/project_service';
     export default {
-        props: ['show'],
+        props: ['show', 'mode', 'project'],
 		data (){
 			return {
                 form: {
-                    name: '',
-                    desc: ''
+                    id: this.project? this.project.id: 0,
+                    name: this.project? this.project.name: '',
+                    desc: this.project? this.project.desc: ''
                 },
                 ruleValidate: {
                     name: [
@@ -38,6 +38,9 @@
 			}
         },
 		computed: {
+            title(){
+                return this.mode === 'create'? '创建项目': '更新项目';
+			},
             showModel: {
                 get(){
                     return this.show;
@@ -51,16 +54,27 @@
             confirm (){
                 this.$refs['form'].validate((valid) => {
                     if (valid) {
-						ProjectService.createProject(
-							this.form.name,
-							this.form.desc
-						).then(() =>{
-							this.$Message.success('成功创建新项目');
-							this.resetForm();
-							this.$emit('projectCreated');
-						}).catch(err =>{
-							this.$Message.error(err.errMsg);
-						});
+                        if(this.mode === 'create'){
+                            ProjectService.createProject(
+                                this.form.name,
+                                this.form.desc
+                            ).then(() =>{
+                                this.$Message.success('成功创建新项目');
+                                this.resetForm();
+                                this.$emit('projectCreated');
+                            }).catch(err =>{
+                                this.$Message.error(err.errMsg);
+                            });
+						}else{
+                            ProjectService.updateProject(
+                                this.form.id,
+                                this.form.name,
+                                this.form.desc
+							).then(() =>{
+                                this.$Message.success('更新成功');
+                                this.$emit('projectUpdated', this.form);
+							})
+						}
                     } else {
                         this.$Message.error('请检查填写项！');
                     }

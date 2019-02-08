@@ -7,3 +7,10 @@ a{
 a:hover, a:visited, a:link, a:active {
     color: inherit;
 }
+
+/*
+图标按钮紧凑化
+ */
+.ivu-btn-icon-only{
+    padding: 0 6px !important;
+}

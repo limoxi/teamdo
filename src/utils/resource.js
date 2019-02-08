@@ -88,7 +88,7 @@ class Resource{
     }
 
     async _request(options){
-        console.log(options.url, options.data);
+        Logger.log(options.url, options.data);
         options = helper.extend({
             url: options.url,
             method: options.method,
@@ -123,7 +123,7 @@ class Resource{
                 }
             }
         }catch (err) {
-            Logger.log(err);
+            Logger.alert(err);
             if(err instanceof ResourceException){
                 throw err;
             }

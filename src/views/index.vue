@@ -25,7 +25,7 @@
 
 	import LoginModel from '../components/model/login_model';
 	import UserModel from '../components/model/user_model';
-	import LogoSvg from './logo_svg';
+	import LogoSvg from '../images/logo_svg';
 	import Cookies from 'js-cookie';
 
     export default {
@@ -72,7 +72,9 @@
 			width: 100vw;
 			height: 100vh;
 			z-index: 1;
-			background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);
+			filter: blur(2px);
+			/*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
+			background-image: url("../images/index-bg.svg");
 		}
 		.aui-i-welcome{
 			position: relative;

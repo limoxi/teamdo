@@ -10,6 +10,7 @@
 				<li v-for="project in projects" :key="project.id">
 					<project-card
 						:project="project"
+						@projectDeleted="onProjectDeleted"
 					>
 					</project-card>
 				</li>
@@ -46,8 +47,18 @@
 					this.$Message.error(err.errMsg);
 				});
 			},
+
             onProjectCreated(){
                 this.getProjects();
+			},
+
+            onProjectDeleted(projectId){
+			    for(let project of this.projects){
+			        if (project.id == projectId){
+			            this.projects.shift();
+			            break;
+					}
+				}
 			}
 		}
     }
