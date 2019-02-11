@@ -22,7 +22,7 @@
 					<router-link to="state">统计</router-link>
 				</MenuItem>
 				<MenuItem name="members">
-					<router-link to="members">成员</router-link>
+					<router-link :to="{name: 'members'}">成员</router-link>
 				</MenuItem>
 				<MenuItem name="settings">
 					<router-link to="settings">管理</router-link>
@@ -35,10 +35,11 @@
 	</Header>
 </template>
 <script>
-    import Logo from '@src/components/frame/block/logo';
-    import Profile from '@src/components/frame/block/profile';
+    import Logo from '@/components/frame/block/logo';
+    import Profile from '@/components/frame/block/profile';
 
     export default {
+        props: ['projectId'],
 		data: function () {
 		    return {
 			}

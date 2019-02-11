@@ -27,7 +27,7 @@
 <script>
     import Cookies from 'js-cookie';
     import PasswordModel from '../../model/password_model';
-    import UserModel from '@src/components/model/user_model';
+    import UserModel from '@/components/model/user_model';
 
     export default {
         beforeCreate(){

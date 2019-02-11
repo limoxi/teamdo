@@ -1,5 +1,5 @@
 
-import Resource from '@src/utils/resource';
+import Resource from '@/utils/resource';
 
 class PermissionService{
 

@@ -19,8 +19,8 @@
 
 <script>
 
-	import ProjectModel from '@src/components/model/project_model';
-	import ProjectService from '@src/service/project_service';
+	import ProjectModel from '@/components/model/project_model';
+	import ProjectService from '@/service/project_service';
 
     export default {
         props: ['project'],

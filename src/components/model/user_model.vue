@@ -35,9 +35,9 @@
 <script>
 
 	import Cookie from 'js-cookie';
-	// import Uploader from '@src/components/uploader';
-	import UserService from '@src/service/user_service';
-	import PermissionService from '@src/service/permission_service';
+	// import Uploader from '@/components/uploader';
+	import UserService from '@/service/user_service';
+	import PermissionService from '@/service/permission_service';
 
     export default {
 		components: {

@@ -16,9 +16,9 @@
 	</Modal>
 </template>
 <script>
-	import UserService from '@src/service/user_service';
+	import UserService from '@/service/user_service';
     import Cookies from 'js-cookie';
-	import helper from '@src/utils/helper';
+	import helper from '@/utils/helper';
 
     export default {
         props: ['show'],

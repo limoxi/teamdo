@@ -1,7 +1,9 @@
 <template>
 	<top-frame>
 		<template slot="header" @onChange="onChange">
-			<project-header></project-header>
+			<project-header
+				:projectId="projectId"
+			></project-header>
 		</template>
 		<template slot="content">
 			<router-view></router-view>
@@ -10,13 +12,13 @@
 </template>
 
 <script>
-	import TopFrame from '@src/components/frame/top_frame';
-	import ProjectHeader from '@src/components/frame/header/project_header';
-	import Resource from '@src/utils/resource';
+	import TopFrame from '@/components/frame/top_frame';
+	import ProjectHeader from '@/components/frame/header/project_header';
+
     export default {
         data(){
             return {
-
+				projectId: this.$route.params.id
 			}
 		},
 		components: {

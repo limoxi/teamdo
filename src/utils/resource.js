@@ -3,8 +3,8 @@ import axios from 'axios';
 import qs from 'qs';
 import Cookies from 'js-cookie';
 import helper from './helper';
-import env from '@src/env';
-import Logger from '@src/utils/logger';
+import env from '@/env';
+import Logger from '@/utils/logger';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 

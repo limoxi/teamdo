@@ -10,7 +10,8 @@ module.exports = {
     entry: './src/main.js',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: '/',
     },
     devtool: 'cheap-module-eval-source-map',
     optimization: {
@@ -80,8 +81,20 @@ module.exports = {
                 })
             },
             {
-                test: /\.(gif|jpg|png|webp|woff|svg|eot|ttf)\??.*$/,
-                loader: 'webp-loader!url-loader?limit=1024'
+                test: /\.(gif|jpg|png)$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 1024
+                }
+            },
+            {
+                test: /\.(webp|woff|svg|eot|ttf)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name]-[hash].[ext]',
+                    outputPath: path.join(__dirname, 'dist', 'assets'),
+                    publicPath: '/assets'
+                }
             },
             {
                 test: /\.(html|tpl)$/,
@@ -93,13 +106,14 @@ module.exports = {
         extensions: ['.js', '.vue', '.json'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            '@src': path.join(__dirname, 'src'),
+            '@': path.join(__dirname, 'src')
         }
     },
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         compress: true,
         port: 9000,
-        hot: true
+        hot: true,
+        historyApiFallback: true
     }
 };

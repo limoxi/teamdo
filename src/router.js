@@ -3,6 +3,7 @@ import IndexPage from './views/index';
 import ProjectsPage from './views/project/projects';
 import ProjectPage from './views/project/project';
 import SprintPage from './views/project/sprint_board';
+import MembersPage from './views/project/members';
 
 const Routers = [{
     path: '/',
@@ -29,6 +30,10 @@ const Routers = [{
         path: 'sprint',
         name: 'sprint',
         component: SprintPage
+    }, {
+        path: 'members',
+        name: 'members',
+        component: MembersPage
     }]
 }];
 

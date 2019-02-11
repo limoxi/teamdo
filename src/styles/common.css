@@ -8,6 +8,11 @@ a:hover, a:visited, a:link, a:active {
     color: inherit;
 }
 
+button:focus, button:active{
+    outline: 0;
+}
+
+
 /*
 图标按钮紧凑化
  */

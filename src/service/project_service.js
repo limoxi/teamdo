@@ -1,5 +1,5 @@
 
-import Resource from '@src/utils/resource';
+import Resource from '@/utils/resource';
 
 class ProjectService{
 
@@ -7,6 +7,18 @@ class ProjectService{
         return Resource.use('iscrum').get({
             'resource': 'project.projects',
             'data': {}
+        });
+    }
+
+    static getProject(id){
+        return Resource.use('iscrum').get({
+            'resource': 'project.project',
+            'data': {
+                'id': id,
+                'with_options': JSON.stringify({
+                    'with_manager': true
+                })
+            }
         });
     }
 
@@ -38,6 +50,38 @@ class ProjectService{
                 id: id
             }
         });
+    }
+
+    static getProjectMembers(projectId){
+        return Resource.use('iscrum').get({
+            'resource': 'project.project_users',
+            'data': {
+                'project_id': projectId,
+                'with_options': JSON.stringify({
+                    'with_role': true
+                })
+            }
+        })
+    }
+
+    static addMembers(projectId, userIds){
+        return Resource.use('iscrum').put({
+            'resource': 'project.project_users',
+            'data': {
+                'project_id': projectId,
+                'user_ids': JSON.stringify(userIds)
+            }
+        })
+    }
+
+    static deleteMembers(projectId, userIds){
+        return Resource.use('iscrum').delete({
+            'resource': 'project.project_users',
+            'data': {
+                'project_id': projectId,
+                'user_ids': JSON.stringify(userIds)
+            }
+        })
     }
 }
 

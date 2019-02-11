@@ -17,7 +17,7 @@
 </template>
 
 <script>
-	import ProjectService from '@src/service/project_service';
+	import ProjectService from '@/service/project_service';
     export default {
         props: ['show', 'mode', 'project'],
 		data (){

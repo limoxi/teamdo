@@ -1,6 +1,6 @@
 
 
-import Resource from '@src/utils/resource';
+import Resource from '@/utils/resource';
 
 class UserService{
 
@@ -9,6 +9,19 @@ class UserService{
             'resource': 'rust.user.user',
             'data': params
         });
+    }
+
+    static getAllUsers(){
+        return Resource.use('iscrum').get({
+            'resource': 'rust.user.users',
+            'data': {
+                cur_page: 1,
+                count_per_page: 99999,
+                with_options: JSON.stringify({
+                    'with_group_info': true
+                })
+            }
+        })
     }
 
     static doRegister(params){

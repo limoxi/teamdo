@@ -16,9 +16,9 @@
 	</Header>
 </template>
 <script>
-    import ProjectModel from '@src/components/model/project_model';
-    import Logo from '@src/components/frame/block/logo';
-    import Profile from '@src/components/frame/block/profile';
+    import ProjectModel from '@/components/model/project_model';
+    import Logo from '@/components/frame/block/logo';
+    import Profile from '@/components/frame/block/profile';
     export default {
 		data: function () {
 		    return {

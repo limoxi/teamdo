@@ -32,6 +32,30 @@ export default {
 
     delay(func, seconds){
         setTimeout(func, seconds*1000);
+    },
+
+    removeFromArray(el, list){
+        /**
+         * 从数组中移除指定元素
+         * 如果el是object，则按el.id查找元素
+        */
+        let index = -1;
+        if(typeof el === "object"){
+            let count = 0;
+            for(let cel of list){
+                if(cel.id == el.id){
+                    break;
+                }
+                count++;
+            }
+            index = count;
+        }else{
+            index = list.indexOf(el);
+        }
+
+        if(index !== -1){
+            list.splice(index, 1);
+        }
     }
 
 };

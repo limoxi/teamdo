@@ -17,7 +17,7 @@
 </template>
 
 <script>
-	import UserService from '@src/service/user_service';
+	import UserService from '@/service/user_service';
 	
     export default {
         props: ['show'],

@@ -1,5 +1,5 @@
 
-import env from '@src/env';
+import env from '@/env';
 
 let Logger = {
     log(msg){

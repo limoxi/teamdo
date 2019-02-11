@@ -20,10 +20,10 @@
 </template>
 
 <script>
-	import TopFrame from '@src/components/frame/top_frame';
-	import Header from '@src/components/frame/header/header';
+	import TopFrame from '@/components/frame/top_frame';
+	import Header from '@/components/frame/header/header';
 	import ProjectCard from './project_card';
-	import ProjectService from '@src/service/project_service';
+	import ProjectService from '@/service/project_service';
 
     export default {
 	    created(){
