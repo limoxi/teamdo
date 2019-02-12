@@ -4,7 +4,7 @@
 			:member="member"
 			v-for="member in members"
 			:key="member.id"
-			:showDelete="isManager"
+			:project="project"
 			@deleteMember="onDeleteMember"
 		>
 		</member-card>
@@ -92,12 +92,11 @@
             getProject(){
                 ProjectService.getProject(this.projectId).then(data =>{
                     this.project = data;
-                    console.log(this.project.manager_id == Cookies.get('uid'));
                     this.isManager = this.project.manager_id == Cookies.get('uid');
 				}).catch(err =>{
 				    this.$Message.error(err.Msg);
 				})
-			}
+			},
 		}
     }
 </script>
@@ -115,6 +114,8 @@
 
 		img{
 			width: 80px;
+			border-radius: 50px;
+			background-image: linear-gradient(-225deg, #69EACB 0%, #EACCF8 48%, #6654F1 100%);
 		}
 
 		.aui-i-add-btn{

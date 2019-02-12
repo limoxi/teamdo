@@ -1,9 +1,12 @@
 <template>
 	<Card class="aui-member-card">
+		<Tooltip content="项目管理员" v-show="isManager" placement="right">
+			<Icon type="ios-ribbon" class="aui-i-manager"/>
+		</Tooltip>
 		<Button
 			type="text" icon="md-close" slot="extra"
 			class="aui-i-extra-btn"
-			v-if="showDeleteBtn"
+			v-show="showDeleteBtn"
 			@click="onDelete"
 		></Button>
 		<img :src="avatar" alt="avatar"/>
@@ -17,18 +20,30 @@
 <script>
 
 	import defaultAvatar from '@/images/default-avatar.webp';
+    import Cookies from 'js-cookie';
 
     export default {
-        props: ['member', 'showDelete'],
+        props: ['member', 'project'],
         data(){
             return {
-                showDeleteBtn: this.showDelete
 			}
 		},
 		computed: {
             avatar(){
                 return this.member.avatar || defaultAvatar;
-			}
+			},
+            isManager(){
+                if(!this.project){
+                    return false;
+                }
+                return this.member.id == this.project.manager_id;
+			},
+            showDeleteBtn(){
+                if(!this.project){
+                    return false;
+                }
+                return this.project.manager_id == Cookies.get('uid') && this.member.id != this.project.manager_id;
+            }
 		},
 		methods: {
             onDelete(){
@@ -58,5 +73,13 @@
 			}
 		}
 
+		.ivu-tooltip{
+			font-size: 22px;
+			position: absolute;
+			top: 0;
+			left: 5px;
+			color: indianred;
+			cursor: none;
+		}
 	}
 </style>
