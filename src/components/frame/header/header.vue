@@ -1,9 +1,8 @@
 <template>
-	<Header class="aui-header">
+	<div class="aui-header">
 		<logo></logo>
-		<div class="aui-i-menu">
-			<!--<span>项目</span>-->
-		</div>
+		<div class="aui-i-menu"></div>
+		<theme-control></theme-control>
 		<div class="aui-i-action">
 			<Button type="primary" icon="md-add" @click="addProject">添加项目</Button>
 			<profile></profile>
@@ -13,12 +12,14 @@
 			:show.sync="showModel"
 			@projectCreated="onProjectCreated"
 		></project-model>
-	</Header>
+	</div>
 </template>
 <script>
     import ProjectModel from '@/components/model/project_model';
     import Logo from '@/components/frame/block/logo';
     import Profile from '@/components/frame/block/profile';
+    import ThemeControl from '@/components/frame/block/theme_control';
+
     export default {
 		data: function () {
 		    return {
@@ -28,7 +29,8 @@
         components: {
             'project-model': ProjectModel,
 			'logo': Logo,
-			'profile': Profile
+			'profile': Profile,
+            'theme-control': ThemeControl
         },
 		methods: {
             addProject(){
@@ -42,15 +44,5 @@
 </script>
 
 <style lang="less" scoped>
-	.aui-header{
-		div{
-			display: inline-block;
-		}
-		.aui-i-menu{
 
-		}
-		.aui-i-action{
-			float: right;
-		}
-	}
 </style>

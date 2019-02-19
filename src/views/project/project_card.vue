@@ -37,7 +37,7 @@
             onClickCard(){
                 this.$router.push({
 					'name': 'project',
-					'params': {id: this.cProject.id}
+					'params': {id: this.cProject.id, name: this.cProject.name}
 				})
 			},
 

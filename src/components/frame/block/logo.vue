@@ -1,5 +1,7 @@
 <template>
-	<div class="aui-logo" @click="onClickLogo"></div>
+	<div class="aui-logo" @click="onClickLogo">
+		TeamDo
+	</div>
 </template>
 
 <script>
@@ -20,11 +22,8 @@
 
 <style scoped lang="less">
 	.aui-logo{
-		height: 58px;
-		width: 140px;
-		margin-top: 10px;
-		margin-left: -50px;
+		font-family: teamdo;
+		font-size: 32px;
 		cursor: pointer;
-		background-image: url("../../../images/logo-mini.png");
 	}
 </style>

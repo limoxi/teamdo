@@ -5,6 +5,8 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+const env = require('./src/env');
+
 module.exports = {
     mode: 'development',
     entry: './src/main.js',
@@ -38,6 +40,9 @@ module.exports = {
         }
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env': env
+        }),
         new CleanWebpackPlugin(['dist']),
         new VueLoaderPlugin(),
         new ExtractTextPlugin({
@@ -77,7 +82,14 @@ module.exports = {
                 test: /\.(css|less)$/,
                 use: ExtractTextPlugin.extract({
                     fallback: "style-loader",
-                    use: ["css-loader", "less-loader"]
+                    use: [{
+                        'loader': 'css-loader'
+                    }, {
+                        'loader': 'less-loader',
+                        'options': {
+                            javascriptEnabled: true
+                        }
+                    }],
                 })
             },
             {
@@ -106,7 +118,7 @@ module.exports = {
         extensions: ['.js', '.vue', '.json'],
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-            '@': path.join(__dirname, 'src')
+            '@': path.join(__dirname, 'src'),
         }
     },
     devServer: {

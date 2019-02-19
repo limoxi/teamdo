@@ -1,0 +1,44 @@
+
+@font-face {
+    font-family: teamdo;
+    src: url('./main.ttf');
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover, a:visited, a:link, a:active {
+    color: inherit;
+}
+
+button:focus, button:active{
+    outline: 0;
+}
+
+
+/*
+图标按钮紧凑化
+ */
+.ivu-btn-icon-only{
+    padding: 0 6px !important;
+}
+
+.aui-header{
+    min-height: 60px;
+    div{
+        margin: 0 10px;
+    }
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .aui-i-menu{
+        flex-grow: 1;
+    }
+}
+
+@import "theme/dark.less";
+@import "theme/light.less";

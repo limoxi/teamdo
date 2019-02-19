@@ -1,8 +1,8 @@
 <template>
-	<Header class="aui-project-header">
+	<div class="aui-header">
 		<logo></logo>
 		<div class="aui-i-menu">
-			<Menu mode="horizontal" theme="dark" active-name="sprint">
+			<Menu mode="horizontal" :theme="menuTheme" active-name="sprint">
 				<MenuItem name="projects">
 					<router-link :to="{name: 'projects'}">项目</router-link>
 				</MenuItem>
@@ -29,24 +29,31 @@
 				</MenuItem>
 			</Menu>
 		</div>
+		<theme-control></theme-control>
+		<div class="aui-i-subtitle">
+			<strong>{{project.name}}</strong>
+		</div>
 		<div class="aui-i-profile">
 			<profile></profile>
 		</div>
-	</Header>
+	</div>
 </template>
 <script>
     import Logo from '@/components/frame/block/logo';
     import Profile from '@/components/frame/block/profile';
+    import ThemeControl from '@/components/frame/block/theme_control';
 
     export default {
-        props: ['projectId'],
+        props: ['project'],
 		data: function () {
 		    return {
+                menuTheme: localStorage.getItem('theme') || 'light'
 			}
         },
         components: {
             'logo': Logo,
-            'profile': Profile
+            'profile': Profile,
+			'theme-control': ThemeControl
         },
 		methods: {
             onClickLogo(){
@@ -60,18 +67,9 @@
 </script>
 
 <style lang="less" scoped>
-	.aui-project-header{
-		div{
-			display: inline-block;
-		}
-		ul{
-			line-height: 65px;
-		}
-		.aui-i-menu{
-
-		}
-		.aui-i-profile{
-			float: right;
+	.aui-header{
+		.aui-i-subtitle{
+			font-size: 16px;
 		}
 	}
 </style>

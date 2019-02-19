@@ -1,8 +1,8 @@
 <template>
 	<top-frame>
-		<template slot="header" @onChange="onChange">
+		<template slot="header">
 			<project-header
-				:projectId="projectId"
+				:project="project"
 			></project-header>
 		</template>
 		<template slot="content">
@@ -18,7 +18,10 @@
     export default {
         data(){
             return {
-				projectId: this.$route.params.id
+				project: {
+				    id: this.$route.params.id,
+					name: this.$route.params.name
+				}
 			}
 		},
 		components: {
@@ -27,14 +30,11 @@
 		},
 
 		methods: {
-            onChange(name){
-
-			}
 		}
     }
 </script>
 
-<style lang="less" scoped>
+<style scoped lang="less">
 	.aui-projects{
 
 		li{

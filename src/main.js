@@ -26,6 +26,8 @@ router.afterEach((to, from, next) => {
     window.scrollTo(0, 0);
 });
 
+window.EventBus = new Vue();
+
 new Vue({
     el: '#app',
     router: router,
