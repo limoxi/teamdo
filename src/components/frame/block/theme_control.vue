@@ -36,9 +36,12 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
 	div{
 		cursor: pointer;
+		&:hover{
+			transform: scale(1.1);
+		}
 	}
 	.light{
 		color: black;
@@ -46,7 +49,7 @@
 	.dark{
 		color: white;
 	}
-	.ivu-icon-md-moon:before{
+	.ivu-icon:before{
 		font-size: 20px;
 		vertical-align: baseline;
 	}

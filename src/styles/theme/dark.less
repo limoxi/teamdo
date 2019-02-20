@@ -1,4 +1,45 @@
 
-.aui-theme-dark{
+@dark-bg-color: #444;
+@dark-color: white;
 
+.aui-theme-dark{
+    .aui-header{
+        background-color: @dark-bg-color;
+        color: @dark-color;
+    }
+
+    .aui-content{
+        background-color: @dark-bg-color;
+        color: @dark-color;
+    }
+
+    .ivu-card{
+        background-color: #333;
+        border-color: #333;
+        color: @dark-color;
+        .ivu-card-head{
+            border-bottom-color: #555;
+            p{
+                color: @dark-color;
+            }
+        }
+        &:hover{
+            border-color: #555;
+        }
+        .ivu-card-extra{
+            .ivu-icon{
+                color: @dark-color;
+                &:hover{
+                    color: @dark-bg-color;
+                }
+            }
+
+        }
+    }
+    .ivu-menu-dark{
+        background-color: @dark-bg-color;
+    }
+    .ivu-menu-horizontal.ivu-menu-dark:after{
+        background: transparent;
+    }
 }

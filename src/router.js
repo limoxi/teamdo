@@ -9,9 +9,6 @@ import MembersPage from './views/project/members';
 const Routers = [{
     path: '/',
     name: 'index',
-    meta: {
-        title: '项目列表'
-    },
     component: IndexPage,
 }, {
     path: '/projects',

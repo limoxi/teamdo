@@ -2,11 +2,12 @@
 	<div class="aui-index">
 		<div class="aui-i-bg"></div>
 		<div class="aui-i-welcome">
-			<logo-svg></logo-svg>
-			<br>
-			<strong>不嘈不杂，</strong>
-			<strong>专注项目，</strong>
-			<strong>迅猛敏捷！</strong>
+			<div class="aui-i-logo">TeamDo</div>
+			<div>
+				<strong>不嘈不杂，</strong>
+				<strong>专注项目，</strong>
+				<strong>迅猛敏捷！</strong>
+			</div>
 			<div class="aui-i-action">
 				<Button type="text" @click="onShowLogin" v-if="hideEntry">登陆</Button>
 				<Button type="text" @click="onShowRegister" v-if="hideEntry">注册</Button>
@@ -25,7 +26,6 @@
 
 	import LoginModel from '../components/model/login_model';
 	import UserModel from '../components/model/user_model';
-	import LogoSvg from '../images/logo_svg';
 	import Cookies from 'js-cookie';
 
     export default {
@@ -38,7 +38,6 @@
 		components: {
             'login-model': LoginModel,
 			'user-model': UserModel,
-			'logo-svg': LogoSvg
 		},
 		computed: {
             showEntry(){
@@ -66,29 +65,36 @@
 
 <style scoped lang="less">
 	.aui-index{
-		text-align: center;
 		.aui-i-bg{
 			position: fixed;
 			width: 100vw;
 			height: 100vh;
-			z-index: 1;
 			filter: blur(2px);
 			/*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
 			background-image: url("../images/index-bg.svg");
 		}
 		.aui-i-welcome{
-			position: relative;
-			top: 20vh;
-			z-index: 2;
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			width: 100vw;
+			height: 100vh;
 
 			strong{
 				font-size: 30px;
 			}
 
+			.aui-i-logo{
+				font-size: 90px;
+				font-family: teamdo;
+				margin-bottom: 15px;
+			}
+
 			.aui-i-action{
-				margin-top:40px;
-				font-size: 22px;
-				text-align: center;
+				margin-top:20px;
+				font-size: 26px;
 			}
 		}
 	}

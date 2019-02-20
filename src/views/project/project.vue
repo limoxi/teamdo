@@ -24,6 +24,11 @@
 				}
 			}
 		},
+		created(){
+          	this.$router.push({
+				'name': 'kanban'
+			});
+		},
 		components: {
             'top-frame': TopFrame,
 			'project-header': ProjectHeader

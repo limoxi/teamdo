@@ -36,7 +36,6 @@
 			    this.$router.replace({'name': 'login'})
 			}
 		},
-
 		data (){
 			return {
 			    showPwdModel: false,

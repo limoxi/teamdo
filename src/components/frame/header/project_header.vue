@@ -2,31 +2,15 @@
 	<div class="aui-header">
 		<logo></logo>
 		<div class="aui-i-menu">
-			<Menu mode="horizontal" :theme="menuTheme" active-name="sprint">
-				<MenuItem name="projects">
-					<router-link :to="{name: 'projects'}">项目</router-link>
-				</MenuItem>
-				<MenuItem name="sprint">
-					<router-link :to="{name: 'sprint'}">迭代</router-link>
-				</MenuItem>
-				<MenuItem name="kanban">
-					<router-link to="kanban">看板</router-link>
-				</MenuItem>
-				<MenuItem name="demands">
-					<router-link to="demands">需求</router-link>
-				</MenuItem>
-				<MenuItem name="bugs">
-					<router-link to="bugs">BUG</router-link>
-				</MenuItem>
-				<MenuItem name="state">
-					<router-link to="state">统计</router-link>
-				</MenuItem>
-				<MenuItem name="members">
-					<router-link :to="{name: 'members'}">成员</router-link>
-				</MenuItem>
-				<MenuItem name="settings">
-					<router-link to="settings">管理</router-link>
-				</MenuItem>
+			<Menu mode="horizontal" :theme="menuTheme" :active-name="activeName" @on-select="onMenuChanged">
+				<MenuItem name="projects">项目</MenuItem>
+				<MenuItem name="sprint">迭代</MenuItem>
+				<MenuItem name="kanban">看板</MenuItem>
+				<MenuItem name="demands">需求</MenuItem>
+				<MenuItem name="bugs">BUG</MenuItem>
+				<MenuItem name="state">统计</MenuItem>
+				<MenuItem name="members">成员</MenuItem>
+				<MenuItem name="settings">管理</MenuItem>
 			</Menu>
 		</div>
 		<theme-control></theme-control>
@@ -47,8 +31,14 @@
         props: ['project'],
 		data: function () {
 		    return {
-                menuTheme: localStorage.getItem('theme') || 'light'
+                menuTheme: localStorage.getItem('theme') || 'light',
+                activeName: 'kanban'
 			}
+        },
+        mounted () {
+            window.EventBus.$on('themeChanged', newTheme =>{
+                this.menuTheme = newTheme;
+            })
         },
         components: {
             'logo': Logo,
@@ -56,11 +46,13 @@
 			'theme-control': ThemeControl
         },
 		methods: {
-            onClickLogo(){
-                this.$router.push({
-					'name': 'index'
-				});
-                console.log('logo clicked');
+            onMenuChanged(name){
+				if(name !== this.activeName){
+				    this.activeName = name;
+				    this.$router.push({
+						name: name
+					});
+				}
 			}
 		}
     }

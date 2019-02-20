@@ -14,7 +14,6 @@
                 this.$router.push({
                     'name': 'index'
                 });
-                console.log('logo clicked');
             }
         }
     }
