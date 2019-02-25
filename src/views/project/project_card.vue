@@ -4,7 +4,7 @@
 			<p slot="title">{{ cProject.name }}</p>
 			<span class="aui-i-action" slot="extra">
 				<Button size="large" type="text" icon="ios-brush" @click="onEdit"></Button>
-				<Button size="large" type="text" icon="ios-trash" @click="onDelete"></Button>
+				<Button size="large" type="text" icon="md-trash" @click="onDelete"></Button>
 			</span>
 			<p>{{ cProject.desc }}</p>
 			<p class="aui-i-time">{{ cProject.createdAt }}</p>

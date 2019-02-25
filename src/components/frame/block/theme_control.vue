@@ -24,7 +24,7 @@
 		},
 		computed: {
             btnType(){
-                return this.curTheme === 'light'? 'md-moon': 'md-sunny';
+                return this.curTheme === 'light'? 'md-moon': 'md-bulb';
 			},
             clss(){
                 return this.curTheme;
@@ -50,7 +50,7 @@
 		color: white;
 	}
 	.ivu-icon:before{
-		font-size: 20px;
-		vertical-align: baseline;
+		font-size: 12px;
+		vertical-align: super;
 	}
 </style>

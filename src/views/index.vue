@@ -80,7 +80,7 @@
 			align-items: center;
 			justify-content: center;
 			width: 100vw;
-			height: 100vh;
+			height: 75vh;
 
 			strong{
 				font-size: 30px;

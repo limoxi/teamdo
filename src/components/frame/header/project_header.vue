@@ -50,7 +50,10 @@
 				if(name !== this.activeName){
 				    this.activeName = name;
 				    this.$router.push({
-						name: name
+						name: name,
+						params: {
+						    project: this.project
+						}
 					});
 				}
 			}

@@ -1,20 +1,35 @@
 <template>
-	<div class="aui-kanban-header">
-		<div class="aui-i-title">操作</div>
-		<div>
-			<Button>添加泳道</Button>
-		</div>
+	<div class="aui-bord">
+		<Lane
+			v-for="lane in lanes" :key="lane.id"
+			:lane="lane" :projectId="projectId"
+		>
+		</Lane>
 	</div>
 </template>
 
 <script>
+
+	import Lane from '@/components/frame/block/lane';
+    import ProjectService from '@/service/project_service';
+	import LaneService from '@/service/lane_service';
+
     export default {
+        props: ['id'],
+		created(){
+            LaneService.getLanes(this.projectId, this.id).then(lanes =>{
+                this.lanes = lanes;
+			});
+		},
         data(){
             return {
+                'lanes': [],
+				'projectId': ProjectService.getProjectIdFromPath(this.$route.path)
 			}
 		},
 		components: {
-		}
+            'Lane': Lane
+		},
     }
 </script>
 

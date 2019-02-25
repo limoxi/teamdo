@@ -34,7 +34,7 @@
 		},
         data(){
             return{
-                projectId: this.getProjectId(),
+                projectId: ProjectService.getProjectIdFromPath(this.$route.path),
 				project: null,
 				members: [],
                 showModel: false,
@@ -51,10 +51,6 @@
             this.getProject();
 		},
 		methods: {
-            getProjectId(){
-                let splits = this.$route.path.split('/');
-                return parseInt(splits[splits.length - 2]);
-			},
             onAddMember(){
 				this.showModel = true;
 			},

@@ -19,14 +19,17 @@ const Routers = [{
     component: ProjectsPage
 }, {
     path: '/project/:id',
+    redirect: '/project/:id/kanban',
     name: 'project',
     meta: {
         title: '项目'
     },
+    props: true,
     component: ProjectPage,
     children: [{
         path: 'kanban',
         name: 'kanban',
+        props: true,
         component: KanbanPage
     }, {
         path: 'sprint',

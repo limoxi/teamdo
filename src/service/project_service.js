@@ -3,6 +3,11 @@ import Resource from '@/utils/resource';
 
 class ProjectService{
 
+    static getProjectIdFromPath(path){
+        let splits = path.split('/');
+        return parseInt(splits[splits.length - 2]);
+    }
+
     static getProjects(){
         return Resource.use('iscrum').get({
             'resource': 'project.projects',
@@ -10,13 +15,15 @@ class ProjectService{
         });
     }
 
-    static getProject(id){
+    static getProject(id, with_options={}){
         return Resource.use('iscrum').get({
             'resource': 'project.project',
             'data': {
                 'id': id,
                 'with_options': JSON.stringify({
-                    'with_manager': true
+                    'with_manager': true,
+                    'with_kanban': with_options['with_kanban'] || false,
+                    'with_sprint': with_options['with_sprint'] || false
                 })
             }
         });

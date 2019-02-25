@@ -48,7 +48,7 @@ class Resource{
 
         let params = [];
         for(let k in param){
-            let v = param[k];
+            let v = encodeURIComponent(param[k]);
             params.push(`${k}=${v}`);
         }
         let args = params.join('&');
