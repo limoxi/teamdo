@@ -1,6 +1,3 @@
-<style lang="less">
-	@import 'styles/common.less';
-</style>
 <template>
 	<div :class="theme">
 		<router-view></router-view>
@@ -16,11 +13,18 @@
         mounted () {
             window.EventBus.$on('themeChanged', newTheme =>{
                 this.theme = `aui-theme-${newTheme}`;
-			})
+			});
         },
+		created(){
+
+		},
         beforeDestroy () {
         },
         methods: {
+
         }
     }
 </script>
+<style lang="less">
+	@import 'styles/common.less';
+</style>

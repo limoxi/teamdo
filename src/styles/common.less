@@ -18,11 +18,16 @@ button:focus, button:active{
 }
 
 
-/*
-图标按钮紧凑化
- */
+//图标按钮紧凑化
 .ivu-btn-icon-only{
     padding: 0 6px !important;
+}
+
+//放大图标
+.aui-icon-scale{
+    .ivu-icon{
+        transform: scale(1.4);
+    }
 }
 
 .aui-header{
@@ -41,7 +46,7 @@ button:focus, button:active{
 }
 
 // 看板
-.aui-bord{
+.aui-board{
     display: flex;
     justify-content: flex-start;
     overflow-x: scroll;
@@ -52,6 +57,7 @@ button:focus, button:active{
     border: 1px solid #eee;
     background: #eee;
 }
+
 
 @import "theme/dark.less";
 @import "theme/light.less";

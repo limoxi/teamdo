@@ -68,7 +68,7 @@
 								this.$router.replace({name: 'projects'});
 							}, 2);
 						}).catch(err =>{
-							this.$Message.error(e.errMsg);
+							this.$Message.error(err.errMsg);
 						});
                     }
                 })

@@ -14,6 +14,18 @@ class LaneService {
         });
     }
 
+    static addLane(projectId, kanbanId, newLane){
+        return Resource.use('iscrum').put({
+            'resource': 'kanban.lane',
+            'data': {
+                'project_id': projectId,
+                'kanban_id': kanbanId,
+                'name': newLane.name,
+                'wip': newLane.wip
+            }
+        });
+    }
+
     static updateLane(projectId, newLane){
         return Resource.use('iscrum').post({
             'resource': 'kanban.lane',
@@ -21,9 +33,31 @@ class LaneService {
                 'id': newLane.id,
                 'project_id': projectId,
                 'name': newLane.name,
-                'max_task_count': newLane.max_task_count
+                'wip': newLane.wip
             }
         });
+    }
+
+    static deleteLane(projectId, lane){
+        return Resource.use('iscrum').delete({
+            'resource': 'kanban.lane',
+            'data': {
+                'id': lane.id,
+                'project_id': projectId
+            }
+        });
+    }
+
+    static resort(projectId, laneIds){
+        return Resource.use('iscrum').put({
+            'resource': 'kanban.lane.resorted_lanes',
+            'data': {
+                'project_id': projectId,
+                'ids': JSON.stringify(laneIds.map(lane =>{
+                    return lane.id;
+                }))
+            }
+        })
     }
 }
 
