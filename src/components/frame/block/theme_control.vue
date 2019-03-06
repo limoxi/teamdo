@@ -1,5 +1,5 @@
 <template>
-	<div @click="onToggleTheme" :class="clss">
+	<div @click="onToggleTheme" :class="klass">
 		{{desc}}<Icon :type="btnType" />
 	</div>
 </template>
@@ -24,9 +24,9 @@
 		},
 		computed: {
             btnType(){
-                return this.curTheme === 'light'? 'md-moon': 'md-bulb';
+                return this.curTheme === 'light'? 'md-moon': 'md-sunny';
 			},
-            clss(){
+            klass(){
                 return this.curTheme;
 			},
 			desc(){

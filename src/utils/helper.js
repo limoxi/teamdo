@@ -34,28 +34,21 @@ export default {
         setTimeout(func, seconds*1000);
     },
 
-    removeFromArray(el, list){
+    removeFromArray(el, list, key=null){
         /**
          * 从数组中移除指定元素
-         * 如果el是object，则按el.id查找元素
         */
-        let index = -1;
-        if(typeof el === "object"){
-            let count = 0;
-            for(let cel of list){
-                if(cel.id == el.id){
-                    break;
-                }
-                count++;
+        let elIndex = list.findIndex(item =>{
+            if(key){
+                return item[key] === el[key];
+            }else{
+                return item === el;
             }
-            index = count;
-        }else{
-            index = list.indexOf(el);
+        });
+        if(elIndex !== -1){
+            list.splice(elIndex, 1);
         }
-
-        if(index !== -1){
-            list.splice(index, 1);
-        }
+        return elIndex;
     }
 
 };

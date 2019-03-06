@@ -1,0 +1,181 @@
+<template>
+	<Modal
+		v-model="showModel"
+		:title="title"
+		width="750"
+		class="aui-task-model"
+	>
+		<Form ref="taskForm" :model="form" :rules="ruleValidate" :label-width="80">
+			<FormItem label="名称" prop="name">
+				<Input v-model="form.name" placeholder=""></Input>
+			</FormItem>
+			<FormItem label="关联需求" prop="need_id">
+				<Select v-model="form.need_id" style="width:180px" aria-label="needSelector">
+					<Option v-for="need in needOptions" :value="need.id" :key="need.id">
+						{{ need.name }}</Option>
+				</Select>
+			</FormItem>
+			<FormItem label="重要度" prop="importance">
+				<Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
+					<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
+						{{ option.label }}</Option>
+				</Select>
+			</FormItem>
+			<FormItem label="标签" class="aui-i-tags">
+				<Tag v-for="tag in form.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
+				<Input v-model="form.newTag">
+					<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
+				</Input>
+			</FormItem>
+			<FormItem label="描述">
+				<quill-editor v-model="form.desc"
+					ref="editor"
+					:options="editorOptions">
+				</quill-editor>
+			</FormItem>
+		</Form>
+		<Button slot="footer" @click="handleSubmit">确定</Button>
+	</Modal>
+</template>
+<script>
+	import TaskService from '@/service/task_service';
+    import Cookies from 'js-cookie';
+	import helper from '@/utils/helper';
+
+    export default {
+        props: ['show', 'mode', 'task', 'projectId'],
+        data () {
+            return {
+                form: {
+                    name: '',
+                    desc: '',
+                    importance: 0,
+                    newTag: '',
+                    tags: [],
+                    need_id: 0
+                },
+                needOptions: [],
+                importanceOptions: [{
+                    'label': '0(慢慢来~)',
+                    'value': 0
+                }, {
+                    'label': '1(一般)',
+                    'value': 1
+                }, {
+                    'label': '2',
+                    'value': 2
+                }, {
+                    'label': '3',
+                    'value': 3
+                }, {
+                    'label': '4(紧急)',
+                    'value': 4
+                }, {
+                    'label': '5',
+                    'value': 5
+                }, {
+                    'label': '6',
+                    'value': 6
+                }, {
+                    'label': '7(非常紧急)',
+                    'value': 7
+                }, {
+                    'label': '8',
+                    'value': 8
+                }, {
+                    'label': '9',
+                    'value': 9
+                }],
+                editorOptions:{
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline'],        // toggled buttons
+            				['blockquote', 'code-block'],
+                			[{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'align': [] }],
+                            ['link', 'image'],
+                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+						]
+					}
+				},
+                ruleValidate: {
+                    name: [
+                        { required: true, message: '任务标题不能为空', trigger: 'blur' }
+                    ],
+                    // need: [
+                    //     { required: true, message: '必须关联一个需求', trigger: 'blur' }
+                    // ],
+                    // importance: [
+                    //     { required: true, message: '请选择重要程度', trigger: 'change' }
+                    // ]
+                }
+            }
+        },
+        computed: {
+            showModel: {
+                get(){
+                    return this.show;
+                },
+                set(newValue){
+                    this.$emit('update:show', newValue);
+                }
+            },
+            title(){
+                return this.mode === 'create'? '添加任务': '编辑任务';
+			}
+        },
+        methods: {
+            onAddTag(){
+                if(this.form.newTag !== ''){
+                    if(this.form.tags.includes(this.form.newTag)){
+                        this.$Message.warning('标签已存在');
+                        return;
+					}
+                    this.form.tags.push(this.form.newTag);
+                    this.form.newTag = '';
+				}
+			},
+            onDeleteTag(event, name){
+				if(name !== ''){
+					helper.removeFromArray(name, this.form.tags);
+				}
+			},
+			actionDone(eventName){
+                this.showModel = false;
+                this.resetForm();
+                this.$Message.success('操作成功');
+                this.$emit(eventName);
+			},
+            handleSubmit() {
+                this.$refs['taskForm'].validate((valid) => {
+                    if (valid) {
+                        if(this.mode === 'create'){
+                            TaskService.addTask(this.projectId, this.form).then(()=>{
+                                this.actionDone('taskAdded');
+							}).catch(err=>{
+                                this.$Message.error(err.errMsg);
+							});
+						}else{
+                            TaskService.updateTask(this.projectId, this.form).then(()=>{
+                                    this.actionDone('taskUpdated');
+							}).catch(err=>{
+                                this.$Message.error(err.errMsg);
+                            });
+						}
+                    }else{
+                        this.$Message.error('请检查填写项');
+					}
+                })
+            },
+            resetForm(){
+                this.$refs['taskForm'].resetFields();
+            }
+        }
+    }
+</script>
+
+<style scoped lang="less">
+	.aui-task-model{
+	}
+
+</style>

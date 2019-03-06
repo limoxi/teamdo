@@ -4,7 +4,7 @@
 		<div class="aui-i-menu"></div>
 		<theme-control></theme-control>
 		<div class="aui-i-action">
-			<Button type="primary" icon="md-add" @click="addProject" class="aui-icon-scale">添加项目</Button>
+			<Button icon="md-add" @click="addProject" class="aui-icon-scale">添加项目</Button>
 			<profile></profile>
 		</div>
 		<project-model

@@ -1,6 +1,6 @@
 <template>
 	<div class="aui-task">
-
+		{{task.name}}
 	</div>
 </template>
 

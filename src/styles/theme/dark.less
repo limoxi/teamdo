@@ -1,5 +1,6 @@
 
 @dark-bg-color: #444;
+@darker-bg-color: #333;
 @dark-color: white;
 
 .aui-theme-dark{
@@ -14,8 +15,8 @@
     }
 
     .ivu-card{
-        background-color: #333;
-        border-color: #333;
+        background-color: @darker-bg-color;
+        border-color: @darker-bg-color;
         color: @dark-color;
         .ivu-card-head{
             border-bottom-color: #555;
@@ -42,6 +43,33 @@
     .ivu-menu-horizontal.ivu-menu-dark:after{
         background: transparent;
     }
+
+    .ivu-btn-default{
+        background-color: @darker-bg-color;
+        border-color: @darker-bg-color;
+        color: white;
+    }
+
+    .ivu-select-selection{
+        background-color: @darker-bg-color;
+        border-color: @darker-bg-color;
+        color: white;
+    }
+
+    .ivu-form .ivu-form-item-label{
+        color: white;
+    }
+
+    .ivu-table-wrapper{
+        border-color: @darker-bg-color;
+    }
+    .ivu-table {
+        th, td{
+            background-color: @darker-bg-color;
+            color: white;
+        }
+    }
+
 
     .aui-lane{
         background-color: @dark-bg-color;

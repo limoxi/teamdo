@@ -10,7 +10,9 @@
 				</DropdownMenu>
 			</Dropdown>
 		</div>
-		<Task v-for="task in tasks" :key="task.id"></Task>
+		<div class="aui-i-tasks">
+			<Task v-for="task in tasks" :key="task.id" :task="task"></Task>
+		</div>
 		<lane-model
 			:show.sync="showLaneModel"
 			:projectId="projectId"
@@ -28,7 +30,7 @@
     export default {
         props: ['lane', 'projectId', 'kanbanId'],
 		created(){
-
+			this.getTasks();
 		},
 		data(){
             return {
@@ -41,6 +43,13 @@
 			'lane-model': LaneModel
 		},
 		methods: {
+            getTasks(){
+                LaneService.getTasks(this.projectId, this.lane.id).then(data=>{
+                    this.tasks = data['tasks'];
+				}).catch(err=>{
+                    this.$Message.error(err.errMsg);
+				})
+			},
             onClickAction(name){
                 if(name === 'edit'){
 					this.showLaneModel = true;
@@ -88,6 +97,9 @@
 					cursor: pointer;
 				}
 			}
+		}
+
+		.aui-i-tasks{
 		}
 	}
 </style>

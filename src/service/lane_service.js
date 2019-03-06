@@ -59,6 +59,16 @@ class LaneService {
             }
         })
     }
+
+    static getTasks(projectId, laneId){
+        return Resource.use('iscrum').get({
+            'resource': 'kanban.lane.tasks',
+            'data': {
+                'project_id': projectId,
+                'lane_id': laneId
+            }
+        })
+    }
 }
 
 export default LaneService;
