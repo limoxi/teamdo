@@ -14,6 +14,7 @@
 			<Lane
 				v-for="lane in lanes" :key="lane.id"
 				:lane="lane"
+				:lanes="lanes"
 				:projectId="projectId"
 				@laneDeleted="onDeleteLane"
 			>

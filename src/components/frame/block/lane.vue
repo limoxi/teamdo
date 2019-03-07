@@ -11,7 +11,8 @@
 			</Dropdown>
 		</div>
 		<div class="aui-i-tasks">
-			<Task v-for="task in tasks" :key="task.id" :task="task"></Task>
+			<Task v-for="task in tasks" :key="task.id"
+				  :task="task" :lane="lane" :lanes="lanes" :projectId="projectId"></Task>
 		</div>
 		<lane-model
 			:show.sync="showLaneModel"
@@ -28,7 +29,7 @@
     import LaneService from '@/service/lane_service';
 
     export default {
-        props: ['lane', 'projectId', 'kanbanId'],
+        props: ['lane', 'projectId', 'kanbanId', 'lanes'],
 		created(){
 			this.getTasks();
 		},

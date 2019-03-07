@@ -51,6 +51,17 @@ class TaskService {
             }
         });
     }
+
+    static switchLane(projectId, task, targetLane){
+        return Resource.use('iscrum').put({
+            'resource': 'kanban.lane.swimming_task',
+            'data': {
+                'project_id': projectId,
+                'task_id': task.id,
+                'target_lane_id': targetLane.id
+            }
+        });
+    }
 }
 
 export default TaskService;
