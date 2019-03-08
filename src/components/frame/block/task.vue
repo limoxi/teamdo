@@ -1,14 +1,20 @@
 <template>
 	<div class="aui-task">
 		<div class="aui-i-header">
-			<span>Task&nbsp;{{task.id}}</span>
-			<Button icon="md-arrow-round-forward" @click="onClickNext"></Button>
+			<div>
+				Task&nbsp;{{task.id}}
+			</div>
+			<div class="aui-i-action">
+				<Button icon="md-resize" class="aui-icon-scale"></Button>
+				<Button icon="md-swap" class="aui-icon-scale"></Button>
+				<Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
+			</div>
 		</div>
 		<div class="aui-i-body">
 			{{task.name}}
 		</div>
 		<div class="aui-i-users">
-			<div v-for="user in task.task_users" :key="user.id">
+			<div v-for="user in task.task_users" :key="user.id" :style="user.is_assignor?'float:right;':''">
 				<Tooltip :content="user.nickname" placement="top">
 					<Avatar :src="user.avatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
 				</Tooltip>
@@ -20,6 +26,7 @@
 <script>
 
     import TaskService from '@/service/task_service';
+    import events from '@/service/global_events';
 
     export default {
         props: ['projectId', 'task', 'lane', 'lanes'],
@@ -38,7 +45,7 @@
 					}
 				}
                 TaskService.switchLane(this.projectId, this.task, targetLane).then(()=>{
-                    window.EventBus.$emit('taskLaneSwitched', [this.lane, targetLane]);
+                    window.EventBus.$emit(events.TASK_SWITCHED, [this.lane, targetLane]);
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
 				});
@@ -49,8 +56,43 @@
 
 <style scoped lang="less">
 	.aui-task{
-		height: 150px;
-		width: 200px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		margin: 5px 0;
+		min-height: 150px;
 		border-radius: 2px;
+		background-color: #eee;
+
+		&:hover{
+			.aui-i-header{
+				.aui-i-action{
+					display: inline-block;
+				}
+			}
+		}
+
+		.aui-i-header{
+			display: flex;
+			justify-content: space-between;
+			background-color: burlywood;
+			padding: 5px;
+			font-size: 14px;
+			font-weight: bold;
+
+			.aui-i-action{
+				display: none;
+				line-height: 0;
+			}
+		}
+
+		.aui-i-body{
+			padding: 5px;
+			font-size: 14px;
+		}
+
+		.aui-i-users{
+			padding: 5px;
+		}
 	}
 </style>

@@ -27,11 +27,19 @@
 	import Task from './task';
 	import LaneModel from '@/components/model/lane_model';
     import LaneService from '@/service/lane_service';
+    import events from '@/service/global_events';
 
     export default {
         props: ['lane', 'projectId', 'kanbanId', 'lanes'],
 		created(){
 			this.getTasks();
+			window.EventBus.$on(events.TASK_SWITCHED, (lanes) =>{
+			    for(let l of lanes){
+			        if(l.id === this.lane.id){
+                        this.getTasks();
+					}
+				}
+			});
 		},
 		data(){
             return {
