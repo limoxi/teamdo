@@ -10,7 +10,7 @@
 				<Input v-model="form.name" placeholder=""></Input>
 			</FormItem>
 			<FormItem label="WIP" prop="wip">
-				<InputNumber :max="15" :min="2" v-model="form.wip" :editable="false"></InputNumber>
+				<InputNumber :max="15" :min="1" v-model="form.wip" :editable="false"></InputNumber>
 			</FormItem>
 		</Form>
 		<Button slot="footer" @click="confirm">确定</Button>
@@ -23,11 +23,6 @@
         props: ['show', 'mode', 'lane', 'projectId', 'kanbanId'],
 		data (){
 			return {
-                form: {
-                    id: this.lane? this.lane.id: 0,
-                    name: this.lane? this.lane.name: '',
-                    wip: this.lane? this.lane.wip: 0
-                },
                 ruleValidate: {
                     name: [
                         {required: true, message: '泳道名称不能为空', trigger: 'blur'}
@@ -49,6 +44,13 @@
 				set(newValue){
                     this.$emit('update:show', newValue);
 				}
+			},
+			form(){
+                return {
+                    id: this.lane? this.lane.id: 0,
+                    name: this.lane? this.lane.name: '',
+                    wip: this.lane? this.lane.wip: 1
+                }
 			}
 		},
 		methods: {

@@ -1,11 +1,11 @@
 <template>
-	<div class="aui-task">
+	<div :class="headerClasses">
 		<div class="aui-i-header">
 			<div>
 				Task&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
-				<Button icon="md-resize" class="aui-icon-scale"></Button>
+				<Button icon="md-expand" class="aui-icon-scale" @click="onClickEdit"></Button>
 				<Button icon="md-swap" class="aui-icon-scale"></Button>
 				<Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
 			</div>
@@ -27,9 +27,27 @@
 
     import TaskService from '@/service/task_service';
     import events from '@/service/global_events';
+    import TaskModel from '@/components/model/task_model';
 
     export default {
         props: ['projectId', 'task', 'lane', 'lanes'],
+		data(){
+            return {
+			}
+		},
+		computed: {
+            headerClasses(){
+                let sufix = 'default';
+                if(this.task.importance>=1 && this.task.importance<=3){
+                    sufix = 'normal';
+				}else if(this.task.importance>=4 && this.task.importance<=6){
+                    sufix = 'warning';
+				}else if(this.task.importance>=7){
+                    sufix = 'sos';
+				}
+                return `aui-task aui-task-level-${sufix}`;
+			}
+		},
 		methods: {
             onClickNext(){
                 let targetLane;
@@ -49,6 +67,9 @@
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
 				});
+			},
+            onClickEdit(){
+                window.EventBus.$emit(events.TASK_EXPANDED, this.task);
 			}
 		}
     }
@@ -62,7 +83,6 @@
 		margin: 5px 0;
 		min-height: 150px;
 		border-radius: 2px;
-		background-color: #eee;
 
 		&:hover{
 			.aui-i-header{
@@ -75,7 +95,6 @@
 		.aui-i-header{
 			display: flex;
 			justify-content: space-between;
-			background-color: burlywood;
 			padding: 5px;
 			font-size: 14px;
 			font-weight: bold;

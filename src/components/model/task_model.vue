@@ -5,36 +5,53 @@
 		width="750"
 		class="aui-task-model"
 	>
-		<Form ref="taskForm" :model="form" :rules="ruleValidate" :label-width="80">
-			<FormItem label="名称" prop="name">
-				<Input v-model="form.name" placeholder=""></Input>
-			</FormItem>
-			<FormItem label="关联需求" prop="need_id">
-				<Select v-model="form.need_id" style="width:180px" aria-label="needSelector">
-					<Option v-for="need in needOptions" :value="need.id" :key="need.id">
-						{{ need.name }}</Option>
-				</Select>
-			</FormItem>
-			<FormItem label="重要度" prop="importance">
-				<Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
-					<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-						{{ option.label }}</Option>
-				</Select>
-			</FormItem>
-			<FormItem label="标签" class="aui-i-tags">
-				<Tag v-for="tag in form.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
-				<Input v-model="form.newTag">
-					<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
-				</Input>
-			</FormItem>
-			<FormItem label="描述">
-				<quill-editor v-model="form.desc"
-					ref="editor"
-					:options="editorOptions">
-				</quill-editor>
-			</FormItem>
-		</Form>
-		<Button slot="footer" @click="handleSubmit">确定</Button>
+		<template v-if="this.mode==='create'">
+			<Form ref="taskForm" :model="form" :rules="ruleValidate" :label-width="80">
+				<FormItem label="名称" prop="name">
+					<Input v-model="form.name" placeholder=""></Input>
+				</FormItem>
+				<FormItem label="关联需求" prop="need_id">
+					<Select v-model="form.need_id" style="width:180px" aria-label="needSelector">
+						<Option v-for="need in needOptions" :value="need.id" :key="need.id">
+							{{ need.name }}</Option>
+					</Select>
+				</FormItem>
+				<FormItem label="重要度" prop="importance">
+					<Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
+						<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
+							{{ option.label }}</Option>
+					</Select>
+				</FormItem>
+				<FormItem label="标签" class="aui-i-tags">
+					<Tag v-for="tag in form.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
+					<Input v-model="form.newTag">
+						<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
+					</Input>
+				</FormItem>
+				<FormItem label="描述">
+					<quill-editor v-model="form.desc"
+								  ref="editor"
+								  :options="editorOptions">
+					</quill-editor>
+				</FormItem>
+			</Form>
+			<Button slot="footer" @click="handleSubmit">确定</Button>
+		</template>
+		<template v-else>
+			<div>
+				<div>{{task.name}}</div>
+				<div>{{task.importance}}</div>
+				<div>
+					<Tag v-for="(name, index) in task.tags" :key="index" :color="rangeColor()">{{name}}</Tag>
+				</div>
+				<div>{{task.need_id}}</div>
+				<div><span v-html="task.desc"></span></div>
+			</div>
+			<div slot="footer">
+				<Button @click="onFetchLogs">动态</Button>
+				<Button @click="onAddRemark">备注</Button>
+			</div>
+		</template>
 	</Modal>
 </template>
 <script>
@@ -53,7 +70,7 @@
                     newTag: '',
                     tags: [],
                     need_id: 0
-                },
+				},
                 needOptions: [],
                 importanceOptions: [{
                     'label': '0(慢慢来~)',
@@ -101,13 +118,7 @@
                 ruleValidate: {
                     name: [
                         { required: true, message: '任务标题不能为空', trigger: 'blur' }
-                    ],
-                    // need: [
-                    //     { required: true, message: '必须关联一个需求', trigger: 'blur' }
-                    // ],
-                    // importance: [
-                    //     { required: true, message: '请选择重要程度', trigger: 'change' }
-                    // ]
+                    ]
                 }
             }
         },
@@ -121,10 +132,13 @@
                 }
             },
             title(){
-                return this.mode === 'create'? '添加任务': '编辑任务';
+                return this.mode === 'create'? '添加任务': '任务详情';
 			}
         },
         methods: {
+            rangeColor(){
+                return '#'+(Math.random()*0xffffff<<0).toString(16);
+			},
             onAddTag(){
                 if(this.form.newTag !== ''){
                     if(this.form.tags.includes(this.form.newTag)){
@@ -145,6 +159,12 @@
                 this.resetForm();
                 this.$Message.success('操作成功');
                 this.$emit(eventName);
+			},
+            onFetchLogs(){
+
+			},
+            onAddRemark(){
+
 			},
             handleSubmit() {
                 this.$refs['taskForm'].validate((valid) => {

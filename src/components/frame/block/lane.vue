@@ -1,6 +1,6 @@
 <template>
 	<div class="aui-lane">
-		<div class="aui-i-header">
+		<div :class="className">
 			<p class="aui-i-title">{{lane.name}}&nbsp;∙&nbsp;({{tasks.length}}/{{lane.wip}})</p>
 			<Dropdown trigger="click" placement="bottom-end" @on-click="onClickAction">
 				<Icon type="md-more" size="22" class="aui-i-action"/>
@@ -14,23 +14,16 @@
 			<Task v-for="task in tasks" :key="task.id"
 				  :task="task" :lane="lane" :lanes="lanes" :projectId="projectId"></Task>
 		</div>
-		<lane-model
-			:show.sync="showLaneModel"
-			:projectId="projectId"
-			mode="edit"
-			:lane="lane"
-		></lane-model>
 	</div>
 </template>
 
 <script>
 	import Task from './task';
-	import LaneModel from '@/components/model/lane_model';
     import LaneService from '@/service/lane_service';
     import events from '@/service/global_events';
 
     export default {
-        props: ['lane', 'projectId', 'kanbanId', 'lanes'],
+        props: ['lane', 'projectId', 'kanbanId', 'lanes', 'index'],
 		created(){
 			this.getTasks();
 			window.EventBus.$on(events.TASK_SWITCHED, (lanes) =>{
@@ -48,8 +41,16 @@
 			}
 		},
 		components: {
-            'Task': Task,
-			'lane-model': LaneModel
+            'Task': Task
+		},
+		computed:{
+            className(){
+                if(this.index===0 || this.index===this.lanes.length-1){
+                    return 'aui-i-header';
+				}else{
+                    return 'aui-i-header aui-a-draggable';
+				}
+			}
 		},
 		methods: {
             getTasks(){
@@ -61,7 +62,7 @@
 			},
             onClickAction(name){
                 if(name === 'edit'){
-					this.showLaneModel = true;
+					window.EventBus.$emit(events.LANE_EDITTING, this.lane);
 				}else if(name === 'del'){
                     this.$Modal.confirm({
                         title: '删除泳道',
@@ -83,6 +84,9 @@
 </script>
 
 <style scoped lang="less">
+	.ghost{
+		visibility: hidden;
+	}
 	.aui-lane{
 		outline: 0;
 		height: 100vh;
@@ -96,6 +100,9 @@
 		.aui-i-header{
 			display: flex;
 			justify-content: space-between;
+			&:hover{
+				cursor: grab;
+			}
 			.aui-i-title{
 				font-size: 16px;
 				font-weight: bold;
@@ -103,7 +110,7 @@
 			.aui-i-action{
 				&:hover{
 					transform: scale(1.1);
-					cursor: pointer;
+					cursor: auto;
 				}
 			}
 		}

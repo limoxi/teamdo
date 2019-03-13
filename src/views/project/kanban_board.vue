@@ -11,21 +11,30 @@
 			@end="drag = false"
 			@change="onListChange"
 		>
-			<Lane
-				v-for="lane in lanes" :key="lane.id"
-				:lane="lane"
-				:lanes="lanes"
-				:projectId="projectId"
-				@laneDeleted="onDeleteLane"
-			>
-			</Lane>
+				<Lane
+					v-for="(lane, index) in lanes"
+					:key="lane.id"
+					:index="index"
+					:lane="lane"
+					:lanes="lanes"
+					:projectId="projectId"
+					@laneDeleted="onDeleteLane"
+				>
+				</Lane>
 		</draggable>
 		<lane-model
 			:show.sync="showLaneModel"
 			:projectId="projectId"
 			:kanbanId="id"
-			mode="create"
+			:lane="chosenLane"
+			:mode="laneModelMode"
 		></lane-model>
+		<task-model
+			mode="mod"
+			:show.sync="showTaskModel"
+			:projectId="projectId"
+			:task="chosenTask"
+		></task-model>
 	</div>
 
 </template>
@@ -36,11 +45,22 @@
     import ProjectService from '@/service/project_service';
 	import LaneService from '@/service/lane_service';
     import LaneModel from '@/components/model/lane_model';
+    import TaskModel from '@/components/model/task_model';
+    import events from '@/service/global_events';
 
     export default {
         props: ['id'],
 		created(){
-            window.EventBus.$on('laneUpdated', this.getLanes);
+            window.EventBus.$on(events.LANE_UPDATED, this.getLanes);
+            window.EventBus.$on(events.TASK_EXPANDED, task=>{
+                this.chosenTask = task;
+                this.showTaskModel = true;
+			});
+            window.EventBus.$on(events.LANE_EDITTING, lane=>{
+               	this. laneModelMode = 'mod';
+               	this.chosenLane = lane;
+               	this.showLaneModel = true;
+			});
             this.getLanes();
 		},
         data(){
@@ -53,16 +73,21 @@
                     disabled: false,
                     ghostClass: "ghost",
                     chosenClass: "chosen",
-					handle: '.aui-board > .aui-lane > .aui-i-header'
+					handle: '.aui-board > .aui-lane > .aui-a-draggable'
 				},
 				'drag': false,
-				'showLaneModel': false
+				'laneModelMode': 'create',
+				'showLaneModel': false,
+				'chosenLane': null,
+				'showTaskModel': false,
+				'chosenTask': {}
 			}
 		},
 		components: {
             'Lane': Lane,
 			'draggable': draggable,
-            'lane-model': LaneModel
+            'lane-model': LaneModel,
+			'task-model': TaskModel
 		},
 		methods: {
             onListChange(event){
@@ -72,6 +97,7 @@
 				})
 			},
             onAddLane(){
+                this.laneModelMode = 'create';
 				this.showLaneModel = true;
 			},
             onDeleteLane(deletedLane){
