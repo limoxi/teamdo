@@ -29,7 +29,7 @@
 			<Table :data="tasks" :columns="columns" border>
 				<template slot-scope="{ row, index }" slot="action">
 					<Tooltip content="进入看板" placement="top">
-						<Button icon="ios-eye" @click="onClickToKanban(row.id)"></Button>
+						<Button icon="ios-eye" class="aui-icon-scale" @click="onClickToKanban(row.id)"></Button>
 					</Tooltip>
 				</template>
 			</Table>

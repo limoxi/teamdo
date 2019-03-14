@@ -21,16 +21,18 @@
 	import Task from './task';
     import LaneService from '@/service/lane_service';
     import events from '@/service/global_events';
+    import helper from '@/utils/helper';
 
     export default {
         props: ['lane', 'projectId', 'kanbanId', 'lanes', 'index'],
 		created(){
 			this.getTasks();
-			window.EventBus.$on(events.TASK_SWITCHED, (lanes) =>{
-			    for(let l of lanes){
-			        if(l.id === this.lane.id){
-                        this.getTasks();
-					}
+
+			window.EventBus.$on(events.TASK_SWITCHED, (task, srcLaneId, destLaneId) =>{
+			    if(srcLaneId === this.lane.id){
+			        helper.removeFromArray(task, this.tasks, 'id');
+				}else if(destLaneId === this.lane.id){
+			        this.tasks.push(task);
 				}
 			});
 		},
@@ -53,6 +55,9 @@
 			}
 		},
 		methods: {
+            isFull(){
+				return this.tasks.length === this.lane.wip;
+            },
             getTasks(){
                 LaneService.getTasks(this.projectId, this.lane.id).then(data=>{
                     this.tasks = data['tasks'];

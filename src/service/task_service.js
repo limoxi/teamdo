@@ -52,13 +52,13 @@ class TaskService {
         });
     }
 
-    static switchLane(projectId, task, targetLane){
+    static switchLane(projectId, task, targetLaneId){
         return Resource.use('iscrum').put({
             'resource': 'kanban.lane.swimming_task',
             'data': {
                 'project_id': projectId,
                 'task_id': task.id,
-                'target_lane_id': targetLane.id
+                'target_lane_id': targetLaneId
             }
         });
     }

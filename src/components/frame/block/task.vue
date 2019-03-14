@@ -6,7 +6,13 @@
 			</div>
 			<div class="aui-i-action">
 				<Button icon="md-expand" class="aui-icon-scale" @click="onClickEdit"></Button>
-				<Button icon="md-swap" class="aui-icon-scale"></Button>
+				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
+					<Button icon="md-swap" class="aui-icon-scale"></Button>
+					<DropdownMenu slot="list">
+						<DropdownItem :name="l.id"
+							  v-for="l in lanes" :key="l.id" v-if="lane.id !== l.id">{{l.name}}</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
 				<Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
 			</div>
 		</div>
@@ -62,11 +68,18 @@
                         break;
 					}
 				}
-                TaskService.switchLane(this.projectId, this.task, targetLane).then(()=>{
-                    window.EventBus.$emit(events.TASK_SWITCHED, [this.lane, targetLane]);
+                TaskService.switchLane(this.projectId, this.task, targetLane.id).then(()=>{
+                    window.EventBus.$emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLane.id);
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
 				});
+			},
+            onClickSwitch(targetLaneId){
+                TaskService.switchLane(this.projectId, this.task, targetLaneId).then(()=>{
+                    window.EventBus.$emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
+                }).catch(err=>{
+                    this.$Message.warning(err.errMsg);
+                });
 			},
             onClickEdit(){
                 window.EventBus.$emit(events.TASK_EXPANDED, this.task);
@@ -96,6 +109,7 @@
 			display: flex;
 			justify-content: space-between;
 			padding: 5px;
+			color: #fff;
 			font-size: 14px;
 			font-weight: bold;
 
@@ -113,5 +127,31 @@
 		.aui-i-users{
 			padding: 5px;
 		}
+	}
+
+	// 重要度主题
+	.aui-task-level-default {
+		.aui-i-header {
+			background-color: #777;
+		}
+		border: 1px solid #777;
+	}
+	.aui-task-level-normal {
+		.aui-i-header {
+			background-color: green;
+		}
+		border: 1px solid orange;
+	}
+	.aui-task-level-warning{
+		.aui-i-header{
+			background-color: orange;
+		}
+		border: 1px solid orange;
+	}
+	.aui-task-level-sos{
+		.aui-i-header{
+			background-color: #FF3300;
+		}
+		border: 1px solid #FF3300;
 	}
 </style>
