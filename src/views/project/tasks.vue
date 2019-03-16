@@ -1,32 +1,13 @@
 <template>
 	<div class="aui-tasks">
 		<div class="aui-i-action">
-			<Form ref="filterForm" :model="filters">
-				<FormItem label="任务状态">
-					<Select v-model="filters.status" style="width:180px" aria-label="statusFilter" @on-change="onStatusFilterChange">
-						<Option v-for="option in statusOptions" :value="option.value" :key="option.value">
-							{{ option.label }}</Option>
-					</Select>
-				</FormItem>
-				<FormItem label="重要度">
-					<Select v-model="filters.importance" style="width:180px" aria-label="importanceFilter" @on-change="onImportanceFilterChange">
-						<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-							{{ option.label }}</Option>
-					</Select>
-				</FormItem>
-				<FormItem label="参与者">
-					<Select v-model="filters.users" style="width:180px" aria-label="userFilter" @on-change="onUserFilterChange">
-						<Option v-for="user in projectUsers" :value="user.id" :key="user.id">
-							{{ user.nickname }}</Option>
-					</Select>
-				</FormItem>
-				<FormItem>
-					<Button icon="md-add" @click="showTaskModel" class="aui-icon-scale">添加任务</Button>
-				</FormItem>
-			</Form>
+			<Button icon="md-add" @click="showTaskModel" class="aui-icon-scale">添加任务</Button>
 		</div>
+
 		<div class="aui-i-list">
-			<Table :data="tasks" :columns="columns" border>
+			<Table :data="tasks" :columns="columns" border
+				   @on-sort-change="onSort"
+			>
 				<template slot-scope="{ row, index }" slot="action">
 					<Tooltip content="进入看板" placement="top">
 						<Button icon="ios-eye" class="aui-icon-scale" @click="onClickToKanban(row.id)"></Button>
@@ -70,17 +51,19 @@
                 })
             },
             onChangePage(){},
-            onStatusFilterChange(val){
-                alert(val);
+            onSort(data){
+                let orderType = data['order'];
+				let field = data['key'];
+                let orderFields = [];
+                if(orderType === 'asc'){
+                    orderFields.push(field);
+				}else{
+                    orderFields.push('-'+field);
+				}
+                this.getTasks(null, orderFields);
 			},
-			onImportanceFilterChange(val){
-                alert(val);
-			},
-            onUserFilterChange(val){
-                alert(val);
-			},
-            getTasks(){
-                TaskService.getTasks(this.projectId).then(data=>{
+            getTasks(filters=null, orderFields=null){
+                TaskService.getTasks(this.projectId, filters, orderFields).then(data=>{
                     this.tasks = data['tasks'];
                     this.pageInfo = data['page_info'];
 				}).catch(err=>{
@@ -133,11 +116,6 @@
                     'label': '已放弃',
                     'value': 3
                 }],
-				'filters': {
-		          	'status': null,
-					'importance': null,
-					'users': null
-				},
 				'columns': [{
 		            'title': '编号',
 					'key': 'id',
@@ -148,7 +126,36 @@
 				}, {
 		            'title': '重要度',
 					'key': 'importance',
-                    'sortable': 'custom'
+                    'sortable': 'custom',
+                    'filters': [{
+                        'label': '普通',
+                        'value': 0
+                    }, {
+                        'label': '紧急',
+                        'value': 1
+                    }, {
+                        'label': '非常紧急',
+                        'value': 2
+                    }],
+                    'filterMultiple': false,
+                    'filterRemote': (values) =>{
+                        let filters = {};
+                        if(values.length === 0){
+
+                        }else{
+                            let level = values[0]
+                            let importance = [];
+                            if(level === 0){
+                                importance = [0, 3];
+							}else if(level === 1){
+                                importance = [4, 6];
+							}else if(level === 2){
+                                importance = [7, 9];
+							}
+                            filters['importance__range'] = importance;
+                        }
+                        this.getTasks(filters);
+                    }
 				}, {
 		            'title': '故事点',
 					'key': 'story_point'
@@ -169,6 +176,32 @@
                     'key': 'updated_at',
                     'className': 'aui-i-timewidth',
                     'sortable': 'custom'
+                }, {
+                    'title': '状态',
+                    'key': 'status',
+                    'filters': [{
+                        'label': '未开始',
+						'value': 0
+					}, {
+                        'label': '进行中',
+                        'value': 1
+                    }, {
+                        'label': '已完成',
+                        'value': 2
+                    }, {
+                        'label': '已放弃',
+                        'value': 3
+                    }],
+					'filterMultiple': false,
+					'filterRemote': (values) =>{
+                        let filters = {};
+                        if(status.length === 0){
+
+						}else{
+                            filters['status'] = values[0];
+						}
+						this.getTasks(filters);
+					}
                 }, {
 		            'title': '操作',
 					'key': 'action',

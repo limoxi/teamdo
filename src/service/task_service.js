@@ -4,12 +4,21 @@ import Resource from '@/utils/resource';
 
 class TaskService {
 
-    static getTasks(projectId){
+    static getTasks(projectId, filters=null, orderFields=null){
+        let data = {
+            'project_id': projectId
+        }
+        if(filters){
+            data['filters'] = JSON.stringify(filters)
+        }
+
+        if(orderFields){
+            data['order_fields'] = JSON.stringify(orderFields)
+        }
+
         return Resource.use('iscrum').get({
             'resource': 'task.tasks',
-            'data': {
-                'project_id': projectId
-            }
+            'data': data
         });
     }
 

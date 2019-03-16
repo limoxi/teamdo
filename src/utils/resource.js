@@ -6,7 +6,16 @@ import helper from './helper';
 import env from '@/env';
 import Logger from '@/utils/logger';
 
-axios.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
+const CONTENT_TYPE = 'application/json; charset=UTF-8' //application/x-www-form-urlencoded
+
+axios.defaults.headers.post['Content-Type'] = CONTENT_TYPE;
+
+axios.interceptors.request.use(function (config) {
+    if(config.method === 'post' && CONTENT_TYPE === 'application/x-www-form-urlencoded'){
+        config.data = qs.stringify(config.data);
+    }
+    return config;
+});
 
 const DEFAULT_ERROR_CODE = 555;
 const NET_ERROR = 554;
@@ -92,7 +101,6 @@ class Resource{
         options = helper.extend({
             url: options.url,
             method: options.method,
-            type:'json',
             data: {},
             headers: {
                 'Authorization': Cookies.get('token')
@@ -100,11 +108,8 @@ class Resource{
             async: true,
             timeout: 3000,
             onTimeout: helper.noop,
-            before: helper.noop,
-            progress: helper.noop,
             success: helper.noop,
             error: helper.noop,
-            end: helper.noop,
         }, options);
 
         try {
