@@ -4,7 +4,7 @@ import Resource from '@/utils/resource';
 
 class TaskService {
 
-    static getTasks(projectId, filters=null, orderFields=null){
+    static getTasks(projectId, filters=null, orderFields=null, page=null){
         let data = {
             'project_id': projectId
         }
@@ -12,8 +12,13 @@ class TaskService {
             data['filters'] = JSON.stringify(filters)
         }
 
-        if(orderFields){
+        if(orderFields.length > 0){
             data['order_fields'] = JSON.stringify(orderFields)
+        }
+
+        if(page){
+            data['cur_page'] = page.cur_page;
+            data['count_per_page'] = page.count_per_page;
         }
 
         return Resource.use('iscrum').get({
@@ -70,6 +75,36 @@ class TaskService {
                 'target_lane_id': targetLaneId
             }
         });
+    }
+
+    static finish(projectId, task){
+        return Resource.use('iscrum').put({
+            'resource': 'task.finished_task',
+            'data': {
+                'project_id': projectId,
+                'task_id': task.id
+            }
+        });
+    }
+
+    static undoTask(projectId, task){
+        return Resource.use('iscrum').put({
+            'resource': 'task.undid_task',
+            'data': {
+                'project_id': projectId,
+                'task_id': task.id
+            }
+        })
+    }
+
+    static abortTask(projectId, task){
+        return Resource.use('iscrum').put({
+            'resource': 'task.aborted_task',
+            'data': {
+                'project_id': projectId,
+                'task_id': task.id
+            }
+        })
     }
 }
 

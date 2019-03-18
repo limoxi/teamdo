@@ -5,7 +5,8 @@
 				Task&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
-				<Button icon="md-expand" class="aui-icon-scale" @click="onClickEdit"></Button>
+				<Button icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
+				<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
 				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
 					<Button icon="md-swap" class="aui-icon-scale"></Button>
 					<DropdownMenu slot="list">
@@ -62,6 +63,11 @@
                     let cl = this.lanes[index];
                     if(cl.id === this.lane.id){
                         if(index === this.lanes.length - 1){
+                            TaskService.finish(this.projectId, this.task).then(()=>{
+                                window.EventBus.$emit(events.TASK_REMOVED, this.task, this.lane.id);
+                            }).catch(err=>{
+                                this.$Message.warning(err.errMsg);
+                            });
                             return;
 						}
                         targetLane = this.lanes[index+1];
@@ -83,6 +89,13 @@
 			},
             onClickEdit(){
                 window.EventBus.$emit(events.TASK_EXPANDED, this.task);
+			},
+            onClickUndo(){
+                TaskService.undoTask(this.projectId, this.task).then(()=>{
+                    window.EventBus.$emit(events.TASK_REMOVED, this.task, this.lane.id);
+				}).catch(err=>{
+                    this.$Message.warning(err.errMsg);
+                });
 			}
 		}
     }
@@ -132,26 +145,22 @@
 	// 重要度主题
 	.aui-task-level-default {
 		.aui-i-header {
-			background-color: #777;
+			background-color: #99CCCC;
 		}
-		border: 1px solid #777;
 	}
 	.aui-task-level-normal {
 		.aui-i-header {
 			background-color: green;
 		}
-		border: 1px solid orange;
 	}
 	.aui-task-level-warning{
 		.aui-i-header{
 			background-color: orange;
 		}
-		border: 1px solid orange;
 	}
 	.aui-task-level-sos{
 		.aui-i-header{
 			background-color: #FF3300;
 		}
-		border: 1px solid #FF3300;
 	}
 </style>

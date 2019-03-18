@@ -10,18 +10,33 @@
 			>
 				<template slot-scope="{ row, index }" slot="action">
 					<Tooltip content="进入看板" placement="top">
-						<Button icon="ios-eye" class="aui-icon-scale" @click="onClickToKanban(row.id)"></Button>
+						<Button icon="logo-buffer" class="aui-icon-scale"
+								v-if="row.status==='未开始'"
+								@click="onClickToKanban(row)"></Button>
+					</Tooltip>
+					<Tooltip content="放弃任务" placement="top">
+						<Button icon="md-close" class="aui-icon-scale"
+								v-if="row.status==='未开始'"
+								@click="onClickAbort(row)"></Button>
 					</Tooltip>
 				</template>
 			</Table>
-			<div style="float: right;">
-				<Page :total="pageInfo.total_count" :current="pageInfo.page" @on-change="onChangePage"></Page>
+			<div class="aui-paginator">
+				<Page
+					:total="pageInfo.total_object_count"
+					:current="pageInfo.cur_page"
+					:page-size="pageInfo.count_per_page"
+					  size="small"
+					  @on-change="onChangePage"
+					show-elevator
+				></Page>
 			</div>
 		</div>
 		<task-model
 			mode="create"
 			:show.sync="showModel"
 			:projectId="projectId"
+			@taskAdded="onTaskAdded"
 		></task-model>
 	</div>
 </template>
@@ -36,36 +51,63 @@
             this.getTasks();
 		},
         methods: {
-            onClickToKanban(taskId){
-                TaskService.appendToKanban(this.projectId, 'kanban', taskId).then(()=>{
+            resetData(){
+                this.filters = {};
+                this.orderFields = [];
+                this.pageInfo['cur_page'] = 1;
+			},
+            onTaskAdded(){
+                this.resetData();
+                this.getTasks();
+			},
+            onClickToKanban(task){
+                TaskService.appendToKanban(this.projectId, 'kanban', task.id).then(()=>{
+                    task.status = '进行中';
                     this.$Message.success('操作成功');
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
-				})
+				});
 			},
             onClickToSprint(taskId){
                 TaskService.appendToKanban(this.projectId, 'sprint', taskId).then(()=>{
                     this.$Message.success('操作成功');
                 }).catch(err=>{
                     this.$Message.warning(err.errMsg);
-                })
+                });
             },
-            onChangePage(){},
+            onClickAbort(task){
+                TaskService.abortTask(this.projectId, task).then(()=>{
+                    task.status = '已放弃';
+                    this.$Message.success('操作成功');
+                }).catch(err=>{
+                    this.$Message.warning(err.errMsg);
+                });
+			},
+            onChangePage(targetPageNum){
+                this.pageInfo.targetPage = targetPageNum;
+                this.getTasks();
+			},
             onSort(data){
+                this.orderFields = [];
                 let orderType = data['order'];
 				let field = data['key'];
                 let orderFields = [];
                 if(orderType === 'asc'){
-                    orderFields.push(field);
+                    this.orderFields.push(field);
 				}else{
-                    orderFields.push('-'+field);
+                    this.orderFields.push('-'+field);
 				}
-                this.getTasks(null, orderFields);
+                this.getTasks();
 			},
-            getTasks(filters=null, orderFields=null){
-                TaskService.getTasks(this.projectId, filters, orderFields).then(data=>{
+            getTasks(){
+                let page = {
+                    cur_page: this.pageInfo.targetPage,
+					count_per_page: this.pageInfo.count_per_page
+				}
+                TaskService.getTasks(this.projectId, this.filters, this.orderFields, page).then(data=>{
                     this.tasks = data['tasks'];
                     this.pageInfo = data['page_info'];
+                    this.pageInfo.targetPage = this.pageInfo.cur_page;
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
 				})
@@ -79,9 +121,16 @@
 		},
 		data(){
 		    return {
+		        'filters': {},
+				'orderFields': [],
                 'projectId': ProjectService.getProjectIdFromPath(this.$route.path),
 		        'tasks': [],
-                'pageInfo': {},
+                'pageInfo': {
+		            'targetPage': 1,
+		            'cur_page': 1,
+					'count_per_page': 15,
+					'total_object_count': 0
+                },
 				'showModel': false,
 				'projectUsers': [{
 		            'id': 0,
@@ -139,9 +188,8 @@
                     }],
                     'filterMultiple': false,
                     'filterRemote': (values) =>{
-                        let filters = {};
                         if(values.length === 0){
-
+                            delete this.filters['importance__range'];
                         }else{
                             let level = values[0]
                             let importance = [];
@@ -152,9 +200,9 @@
 							}else if(level === 2){
                                 importance = [7, 9];
 							}
-                            filters['importance__range'] = importance;
+                            this.filters['importance__range'] = importance;
                         }
-                        this.getTasks(filters);
+                        this.getTasks();
                     }
 				}, {
 		            'title': '故事点',
@@ -170,12 +218,14 @@
 		            'title': '创建时间',
 					'key': 'created_at',
 					'className': 'aui-i-timewidth',
-                    'sortable': 'custom'
+                    'sortable': 'custom',
+                    'width': '150'
 				}, {
                     'title': '最后更新时间',
                     'key': 'updated_at',
                     'className': 'aui-i-timewidth',
-                    'sortable': 'custom'
+                    'sortable': 'custom',
+					'width': '150'
                 }, {
                     'title': '状态',
                     'key': 'status',
@@ -194,13 +244,12 @@
                     }],
 					'filterMultiple': false,
 					'filterRemote': (values) =>{
-                        let filters = {};
-                        if(status.length === 0){
-
+                        if(values.length === 0){
+							delete this.filters['status'];
 						}else{
-                            filters['status'] = values[0];
+                            this.filters['status'] = values[0];
 						}
-						this.getTasks(filters);
+						this.getTasks();
 					}
                 }, {
 		            'title': '操作',
@@ -228,7 +277,6 @@
 		.aui-i-list{
 			.aui-i-timewidth{
 				display: table-cell;
-				width: 100px;
 			}
 		}
 	}

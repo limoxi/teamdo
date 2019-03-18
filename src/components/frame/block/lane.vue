@@ -35,6 +35,12 @@
 			        this.tasks.push(task);
 				}
 			});
+
+            window.EventBus.$on(events.TASK_REMOVED, (task, laneId) =>{
+                if(laneId === this.lane.id){
+                    helper.removeFromArray(task, this.tasks, 'id');
+                }
+            });
 		},
 		data(){
             return {
