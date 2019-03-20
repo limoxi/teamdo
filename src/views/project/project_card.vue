@@ -37,7 +37,7 @@
             onClickCard(){
                 this.$router.push({
 					'name': 'project',
-					'params': {id: this.cProject.id, name: this.cProject.name}
+					'params': {projectId: this.cProject.id, name: this.cProject.name}
 				})
 			},
 
@@ -55,7 +55,7 @@
                     cancelText: '再想想',
                     onOk: () =>{
                         ProjectService.deleteProject(this.cProject.id).then(() =>{
-							this.$emit('projectDeleted', this.cProject.id);
+							this.$emit('projectDeleted', this.cProject);
                         }).catch(err =>{
                             this.$Message.error(err.errMsg);
                         });

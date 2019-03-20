@@ -41,6 +41,19 @@ class TaskService {
         })
     }
 
+    static addSubTask(projectId, task, parentTask){
+        return Resource.use('iscrum').put({
+            'resource': 'task.sub_task',
+            'data': {
+                'project_id': projectId,
+                'parent_task_id': parentTask.id,
+                'name': task.name,
+                'desc': task.desc,
+                'tags': task.tags.join(',')
+            }
+        })
+    }
+
     static updateTask(projectId, task){
         return Resource.use('iscrum').post({
             'resource': 'task.task',

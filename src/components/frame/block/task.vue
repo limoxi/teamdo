@@ -5,8 +5,9 @@
 				Task&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
-				<Button icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
+				<Button v-show="inFirstLane" icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
 				<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
+				<Button icon="md-git-branch" class="aui-icon-scale" @click="onClickAddSub"></Button>
 				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
 					<Button icon="md-swap" class="aui-icon-scale"></Button>
 					<DropdownMenu slot="list">
@@ -37,7 +38,7 @@
     import TaskModel from '@/components/model/task_model';
 
     export default {
-        props: ['projectId', 'task', 'lane', 'lanes'],
+        props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane'],
 		data(){
             return {
 			}
@@ -96,6 +97,9 @@
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
                 });
+			},
+            onClickAddSub(){
+				window.EventBus.$emit(events.SUB_TASK_EDITTING, this.task);
 			}
 		}
     }
@@ -144,23 +148,24 @@
 
 	// 重要度主题
 	.aui-task-level-default {
-		.aui-i-header {
-			background-color: #99CCCC;
-		}
+		background-color: #66CC99;
+		/*.aui-i-header {*/
+			/*background-color: #99CCCC;*/
+		/*}*/
 	}
 	.aui-task-level-normal {
-		.aui-i-header {
-			background-color: green;
-		}
+		background-color: #6699FF;
+		/*.aui-i-header {*/
+			/*background-color: green;*/
+		/*}*/
 	}
 	.aui-task-level-warning{
-		.aui-i-header{
-			background-color: orange;
-		}
+		background-color: #FF9900;
+		/*.aui-i-header{*/
+			/*background-color: orange;*/
+		/*}*/
 	}
 	.aui-task-level-sos{
-		.aui-i-header{
-			background-color: #FF3300;
-		}
+		background-color: #FD6E6A;
 	}
 </style>

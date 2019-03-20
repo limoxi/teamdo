@@ -19,8 +19,9 @@
 
 <script>
     import LaneService from '@/service/lane_service';
+    import helper from '@/utils/helper';
     export default {
-        props: ['show', 'mode', 'lane', 'projectId', 'kanbanId'],
+        props: ['show', 'mode', 'lane', 'projectId', 'kanbanType'],
 		data (){
 			return {
                 ruleValidate: {
@@ -46,20 +47,27 @@
 				}
 			},
 			form(){
-                return {
-                    id: this.lane? this.lane.id: 0,
-                    name: this.lane? this.lane.name: '',
-                    wip: this.lane? this.lane.wip: 1
-                }
+                if(helper.isEmptyObject(this.lane)){
+                    return {
+                        id: 0,
+                        name: '',
+                        wip: 1
+					}
+				}else{
+                    return {
+                        id: this.lane.id,
+                        name: this.lane.name,
+                        wip: this.lane.wip
+                    }
+				}
 			}
 		},
 		methods: {
             confirm (){
                 this.$refs['form'].validate((valid) => {
-                    console.log(this.form);
                     if (valid) {
                         if(this.mode === 'create'){
-                            LaneService.addLane(this.projectId, this.kanbanId, this.form).then(()=>{
+                            LaneService.addLane(this.projectId, this.kanbanType, this.form).then(()=>{
                                 window.EventBus.$emit('laneUpdated');
                                 this.$Message.success('泳道已添加');
                                 this.showModel = false;
@@ -77,6 +85,7 @@
                                 window.EventBus.$emit('laneUpdated');
                                 this.$Message.success('泳道已更新');
                                 this.showModel = false;
+                                this.resetForm();
                             }).catch(err =>{
                                 this.$Message.error(err.errMsg);
                             });

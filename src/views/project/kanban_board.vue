@@ -11,30 +11,19 @@
 			@end="drag = false"
 			@change="onListChange"
 		>
-				<Lane
-					v-for="(lane, index) in lanes"
-					:key="lane.id"
-					:index="index"
-					:lane="lane"
-					:lanes="lanes"
-					:projectId="projectId"
-					@laneDeleted="onDeleteLane"
-				>
-				</Lane>
+			<Lane
+				v-for="(lane, index) in lanes"
+				:key="lane.id"
+				:index="index"
+				:lane="lane"
+				:lanes="lanes"
+				:projectId="projectId"
+				:kanbanType="kanbanType"
+				@laneDeleted="onDeleteLane"
+			>
+			</Lane>
+			<div class="aui-i-blank"></div>
 		</draggable>
-		<lane-model
-			:show.sync="showLaneModel"
-			:projectId="projectId"
-			:kanbanId="id"
-			:lane="chosenLane"
-			:mode="laneModelMode"
-		></lane-model>
-		<task-model
-			mode="mod"
-			:show.sync="showTaskModel"
-			:projectId="projectId"
-			:task="chosenTask"
-		></task-model>
 	</div>
 
 </template>
@@ -44,29 +33,20 @@
 	import Lane from '@/components/frame/block/lane';
     import ProjectService from '@/service/project_service';
 	import LaneService from '@/service/lane_service';
-    import LaneModel from '@/components/model/lane_model';
-    import TaskModel from '@/components/model/task_model';
+
     import events from '@/service/global_events';
 
     export default {
-        props: ['id'],
+        props: ['projectId'],
 		created(){
             window.EventBus.$on(events.LANE_UPDATED, this.getLanes);
-            window.EventBus.$on(events.TASK_EXPANDED, task=>{
-                this.chosenTask = task;
-                this.showTaskModel = true;
-			});
-            window.EventBus.$on(events.LANE_EDITTING, lane=>{
-               	this. laneModelMode = 'mod';
-               	this.chosenLane = lane;
-               	this.showLaneModel = true;
-			});
+
             this.getLanes();
 		},
         data(){
             return {
+                'kanbanType': 'normal',
                 'lanes': [],
-				'projectId': ProjectService.getProjectIdFromPath(this.$route.path),
 				'dragOptions': {
                     animation: 200,
                     group: "description",
@@ -76,18 +56,13 @@
 					handle: '.aui-board > .aui-lane > .aui-a-draggable'
 				},
 				'drag': false,
-				'laneModelMode': 'create',
-				'showLaneModel': false,
 				'chosenLane': null,
-				'showTaskModel': false,
-				'chosenTask': {}
 			}
 		},
 		components: {
             'Lane': Lane,
 			'draggable': draggable,
-            'lane-model': LaneModel,
-			'task-model': TaskModel
+
 		},
 		methods: {
             onListChange(event){
@@ -97,8 +72,7 @@
 				})
 			},
             onAddLane(){
-                this.laneModelMode = 'create';
-				this.showLaneModel = true;
+                window.EventBus.$emit(events.LANE_ADDING, this.kanbanType);
 			},
             onDeleteLane(deletedLane){
                 let laneIndex = this.lanes.findIndex(lane =>{
@@ -107,7 +81,7 @@
 				this.lanes.splice(laneIndex, 1);
 			},
 			getLanes(){
-                LaneService.getLanes(this.projectId, this.id).then(lanes =>{
+                LaneService.getLanes(this.projectId, this.kanbanType).then(lanes =>{
                     this.lanes = lanes;
                 });
 			},
@@ -122,17 +96,5 @@
 </script>
 
 <style lang="less" scoped>
-	.aui-kanban-header{
-		display: flex;
-		justify-content: flex-start;
-		padding: 0 80px;
 
-		div{
-			margin: 0 10px;
-		}
-
-		.aui-i-title{
-			font-size: 20px;
-		}
-	}
 </style>

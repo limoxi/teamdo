@@ -32,7 +32,7 @@
 		data: function () {
 		    return {
                 menuTheme: localStorage.getItem('theme') || 'light',
-                activeName: 'kanban'
+                activeName: this.getDefaultActiveName()
 			}
         },
         mounted () {
@@ -46,6 +46,16 @@
 			'theme-control': ThemeControl
         },
 		methods: {
+            getDefaultActiveName(){
+                let defaultName = 'kanban';
+                let path = this.$route.path;
+                let splits = path.split('/');
+                let l = splits.length;
+                if(splits[l - 3] === 'project'){
+                    defaultName = splits[l-1];
+                }
+                return defaultName;
+            },
             onMenuChanged(name){
 				if(name !== this.activeName){
 				    this.activeName = name;

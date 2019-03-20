@@ -19,8 +19,8 @@ const Routers = [{
     },
     component: ProjectsPage
 }, {
-    path: '/project/:id',
-    redirect: '/project/:id/kanban',
+    path: '/project/:projectId',
+    redirect: '/project/:projectId/kanban',
     name: 'project',
     meta: {
         title: '项目'

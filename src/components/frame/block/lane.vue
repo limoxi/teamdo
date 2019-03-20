@@ -12,7 +12,10 @@
 		</div>
 		<div class="aui-i-tasks">
 			<Task v-for="task in tasks" :key="task.id"
-				  :task="task" :lane="lane" :lanes="lanes" :projectId="projectId"></Task>
+				  :task="task" :lane="lane" :lanes="lanes"
+				  :projectId="projectId"
+				  :inFirstLane="index===0"
+			></Task>
 		</div>
 	</div>
 </template>
@@ -24,7 +27,7 @@
     import helper from '@/utils/helper';
 
     export default {
-        props: ['lane', 'projectId', 'kanbanId', 'lanes', 'index'],
+        props: ['lane', 'projectId', 'kanbanType', 'lanes', 'index'],
 		created(){
 			this.getTasks();
 
@@ -73,7 +76,7 @@
 			},
             onClickAction(name){
                 if(name === 'edit'){
-					window.EventBus.$emit(events.LANE_EDITTING, this.lane);
+					window.EventBus.$emit(events.LANE_EDITTING, this.lane, this.kanbanType);
 				}else if(name === 'del'){
                     this.$Modal.confirm({
                         title: '删除泳道',

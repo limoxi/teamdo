@@ -5,24 +5,24 @@
 		width="750"
 		class="aui-task-model"
 	>
-		<template v-if="this.mode==='create'">
+		<template v-if="this.mode==='create'||this.mode==='addSub'">
 			<Form ref="taskForm" :model="form" :rules="ruleValidate" :label-width="80">
 				<FormItem label="名称" prop="name">
 					<Input v-model="form.name" placeholder=""></Input>
 				</FormItem>
-				<FormItem label="关联需求" prop="need_id">
+				<FormItem label="关联需求" prop="need_id" v-show="this.mode === 'create'">
 					<Select v-model="form.need_id" style="width:180px" aria-label="needSelector">
 						<Option v-for="need in needOptions" :value="need.id" :key="need.id">
 							{{ need.name }}</Option>
 					</Select>
 				</FormItem>
-				<FormItem label="重要度" prop="importance">
+				<FormItem label="重要度" prop="importance" v-show="this.mode === 'create'">
 					<Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
 						<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
 							{{ option.label }}</Option>
 					</Select>
 				</FormItem>
-				<FormItem label="标签" class="aui-i-tags">
+				<FormItem label="标签" class="aui-i-tags" v-show="this.mode === 'create'">
 					<Tag v-for="tag in form.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
 					<Input v-model="form.newTag">
 						<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
@@ -132,7 +132,7 @@
                 }
             },
             title(){
-                return this.mode === 'create'? '添加任务': '任务详情';
+                return this.mode === 'create'? '添加任务': this.mode === 'addSub'? '添加子任务': '任务详情';
 			}
         },
         methods: {
@@ -175,6 +175,12 @@
 							}).catch(err=>{
                                 this.$Message.error(err.errMsg);
 							});
+						}else if(this.mode === 'addSub'){
+                            TaskService.addSubTask(this.projectId, this.form, this.task).then(()=>{
+                                this.actionDone('taskAdded');
+                            }).catch(err=>{
+                                this.$Message.error(err.errMsg);
+                            });
 						}else{
                             TaskService.updateTask(this.projectId, this.form).then(()=>{
                                     this.actionDone('taskUpdated');

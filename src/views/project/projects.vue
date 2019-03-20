@@ -24,6 +24,7 @@
 	import Header from '@/components/frame/header/header';
 	import ProjectCard from './project_card';
 	import ProjectService from '@/service/project_service';
+	import helper from '@/utils/helper';
 
     export default {
 	    created(){
@@ -52,13 +53,8 @@
                 this.getProjects();
 			},
 
-            onProjectDeleted(projectId){
-			    for(let project of this.projects){
-			        if (project.id == projectId){
-			            this.projects.shift();
-			            break;
-					}
-				}
+            onProjectDeleted(project){
+			    helper.removeFromArray(project, this.projects, 'id');
 			}
 		}
     }

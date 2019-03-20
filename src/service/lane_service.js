@@ -4,22 +4,22 @@ import Resource from '@/utils/resource';
 
 class LaneService {
 
-    static getLanes(projectId, kanbanId) {
+    static getLanes(projectId, kanbanType) {
         return Resource.use('iscrum').get({
             'resource': 'kanban.lanes',
             'data': {
                 'project_id': projectId,
-                'kanban_id': kanbanId
+                'kanban_type': kanbanType
             }
         });
     }
 
-    static addLane(projectId, kanbanId, newLane){
+    static addLane(projectId, kanbanType, newLane){
         return Resource.use('iscrum').put({
             'resource': 'kanban.lane',
             'data': {
                 'project_id': projectId,
-                'kanban_id': kanbanId,
+                'kanban_type': kanbanType,
                 'name': newLane.name,
                 'wip': newLane.wip
             }
