@@ -23,10 +23,10 @@
 					</Select>
 				</FormItem>
 				<FormItem label="标签" class="aui-i-tags" v-show="this.mode === 'create'">
-					<Tag v-for="tag in form.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
-					<Input v-model="form.newTag">
-						<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
-					</Input>
+					<Select v-model="form.tags" style="width:180px" aria-label="tagsSelector">
+						<Option v-for="tag in tags" :value="tag.value" :key="tag.value">
+							{{ tag.label }}</Option>
+					</Select>
 				</FormItem>
 				<FormItem label="描述">
 					<quill-editor v-model="form.desc"
@@ -39,10 +39,9 @@
 		</template>
 		<template v-else>
 			<div>
-				<div>{{task.name}}</div>
 				<div>{{task.importance}}</div>
 				<div>
-					<Tag v-for="(name, index) in task.tags" :key="index" :color="rangeColor()">{{name}}</Tag>
+					<Tag>{{task.tag}}</Tag>
 				</div>
 				<div>{{task.need_id}}</div>
 				<div><span v-html="task.desc"></span></div>
@@ -61,6 +60,9 @@
 
     export default {
         props: ['show', 'mode', 'task', 'projectId'],
+		created(){
+
+		},
         data () {
             return {
                 form: {
@@ -72,10 +74,8 @@
                     need_id: 0
 				},
                 needOptions: [],
+				tagOptions: [],
                 importanceOptions: [{
-                    'label': '0(慢慢来~)',
-                    'value': 0
-                }, {
                     'label': '1(一般)',
                     'value': 1
                 }, {
@@ -132,28 +132,18 @@
                 }
             },
             title(){
-                return this.mode === 'create'? '添加任务': this.mode === 'addSub'? '添加子任务': '任务详情';
+                let title = '';
+                if(this.mode === 'create'){
+                    title = '添加任务';
+				}else if(this.mode === 'addSub'){
+                    title = '添加子任务';
+				}else{
+                    title = '任务详情 - '+this.task.name;
+				}
+                return title;
 			}
         },
         methods: {
-            rangeColor(){
-                return '#'+(Math.random()*0xffffff<<0).toString(16);
-			},
-            onAddTag(){
-                if(this.form.newTag !== ''){
-                    if(this.form.tags.includes(this.form.newTag)){
-                        this.$Message.warning('标签已存在');
-                        return;
-					}
-                    this.form.tags.push(this.form.newTag);
-                    this.form.newTag = '';
-				}
-			},
-            onDeleteTag(event, name){
-				if(name !== ''){
-					helper.removeFromArray(name, this.form.tags);
-				}
-			},
 			actionDone(eventName){
                 this.showModel = false;
                 this.resetForm();

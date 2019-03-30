@@ -46,10 +46,9 @@ class TaskService {
             'resource': 'task.sub_task',
             'data': {
                 'project_id': projectId,
-                'parent_task_id': parentTask.id,
+                'task_id': parentTask.id,
                 'name': task.name,
-                'desc': task.desc,
-                'tags': task.tags.join(',')
+                'desc': task.desc
             }
         })
     }

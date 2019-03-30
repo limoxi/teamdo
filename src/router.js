@@ -6,6 +6,7 @@ import SprintPage from './views/project/sprint_board';
 import KanbanPage from './views/project/kanban_board';
 import MembersPage from './views/project/members';
 import TasksPage from './views/project/tasks';
+import SettingsPage from './views/project/settings';
 
 const Routers = [{
     path: '/',
@@ -35,15 +36,23 @@ const Routers = [{
     }, {
         path: 'sprint',
         name: 'sprint',
+        props: true,
         component: SprintPage
     }, {
         path: 'tasks',
         name: 'tasks',
+        props: true,
         component: TasksPage
     }, {
         path: 'members',
         name: 'members',
+        props: true,
         component: MembersPage
+    }, {
+        path: 'settings',
+        name: 'settings',
+        props: true,
+        component: SettingsPage
     }]
 }];
 

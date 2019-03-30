@@ -110,6 +110,7 @@
 		margin: 5px;
 		border-radius: 5px;
 		border: 1px solid white;
+		overflow: scroll;
 
 		.aui-i-header{
 			display: flex;

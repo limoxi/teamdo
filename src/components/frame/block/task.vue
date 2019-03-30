@@ -2,12 +2,12 @@
 	<div :class="headerClasses">
 		<div class="aui-i-header">
 			<div>
-				Task&nbsp;{{task.id}}
+				{{task.is_sub_task? '子任务 '+task.parent_id+' -': '任务'}}&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
 				<Button v-show="inFirstLane" icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
 				<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
-				<Button icon="md-git-branch" class="aui-icon-scale" @click="onClickAddSub"></Button>
+				<Button v-show="!task.is_sub_task" icon="md-git-branch" class="aui-icon-scale" @click="onClickAddSub"></Button>
 				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
 					<Button icon="md-swap" class="aui-icon-scale"></Button>
 					<DropdownMenu slot="list">
@@ -46,7 +46,7 @@
 		computed: {
             headerClasses(){
                 let sufix = 'default';
-                if(this.task.importance>=1 && this.task.importance<=3){
+                if(this.task.importance<=3){
                     sufix = 'normal';
 				}else if(this.task.importance>=4 && this.task.importance<=6){
                     sufix = 'warning';
@@ -107,6 +107,7 @@
 
 <style scoped lang="less">
 	.aui-task{
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
@@ -148,24 +149,23 @@
 
 	// 重要度主题
 	.aui-task-level-default {
-		background-color: #66CC99;
-		/*.aui-i-header {*/
-			/*background-color: #99CCCC;*/
-		/*}*/
+		.aui-i-header {
+			background-color: #66CC99;
+		}
 	}
 	.aui-task-level-normal {
-		background-color: #6699FF;
-		/*.aui-i-header {*/
-			/*background-color: green;*/
-		/*}*/
+		.aui-i-header{
+			background-color: #66CC99;
+		}
 	}
 	.aui-task-level-warning{
-		background-color: #FF9900;
-		/*.aui-i-header{*/
-			/*background-color: orange;*/
-		/*}*/
+		.aui-i-header{
+			background-color: #FF9900;
+		}
 	}
 	.aui-task-level-sos{
-		background-color: #FD6E6A;
+		.aui-i-header{
+			background-color: #FD6E6A;
+		}
 	}
 </style>

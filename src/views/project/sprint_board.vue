@@ -4,6 +4,7 @@
 
 <script>
     export default {
+        props: ['projectId'],
         data(){
             return {
 			}

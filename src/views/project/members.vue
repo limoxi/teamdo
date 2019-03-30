@@ -28,13 +28,13 @@
     import helper from '@/utils/helper';
 
     export default {
+        props: ['projectId'],
         components: {
             'member-card': MemberCard,
 			'user-select-model': UserSelectModel
 		},
         data(){
             return{
-                projectId: ProjectService.getProjectIdFromPath(this.$route.path),
 				project: null,
 				members: [],
                 showModel: false,

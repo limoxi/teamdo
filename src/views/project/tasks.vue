@@ -47,6 +47,7 @@
 	import TaskModel from '@/components/model/task_model';
 
     export default {
+        props: ['projectId'],
         created(){
             this.getTasks();
 		},
@@ -123,7 +124,6 @@
 		    return {
 		        'filters': {},
 				'orderFields': [],
-                'projectId': ProjectService.getProjectIdFromPath(this.$route.path),
 		        'tasks': [],
                 'pageInfo': {
 		            'targetPage': 1,
@@ -168,14 +168,19 @@
 				'columns': [{
 		            'title': '编号',
 					'key': 'id',
-                    'sortable': 'custom'
+                    'sortable': 'custom',
+					'width': 80,
+					'align': 'center'
 				}, {
 		            'title': '标题',
-					'key': 'name'
+					'key': 'name',
+					'minWidth': 240,
 				}, {
 		            'title': '重要度',
 					'key': 'importance',
                     'sortable': 'custom',
+					'width': 75,
+					'align': 'center',
                     'filters': [{
                         'label': '普通',
                         'value': 0
@@ -206,7 +211,8 @@
                     }
 				}, {
 		            'title': '故事点',
-					'key': 'story_point'
+					'key': 'story_point',
+					'width': 75
 				}, {
 		            'title': '参与用户',
 					'key': 'users',
@@ -229,6 +235,7 @@
                 }, {
                     'title': '状态',
                     'key': 'status',
+					'width': 100,
                     'filters': [{
                         'label': '未开始',
 						'value': 0
