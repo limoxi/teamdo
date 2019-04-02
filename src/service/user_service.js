@@ -5,14 +5,14 @@ import Resource from '@/utils/resource';
 class UserService{
 
     static getUser(params){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'rust.user.user',
             'data': params
         });
     }
 
     static getAllUsers(){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'rust.user.users',
             'data': {
                 cur_page: 1,
@@ -25,21 +25,21 @@ class UserService{
     }
 
     static doRegister(params){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'rust.user.registered_user',
             'data': params
         });
     }
 
     static updateUser(params){
-        return Resource.use('iscrum').post({
+        return Resource.post({
             'resource': 'rust.user.user',
             'data': params
         });
     }
 
     static doLogin(username, password){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'rust.user.logined_user',
             'data': {
                 'username': username,
@@ -49,7 +49,7 @@ class UserService{
     }
 
     static updatePwd(oldP, newP){
-        return Resource.use('iscrum').post({
+        return Resource.post({
             'resource': 'rust.user.password',
             'data': {
                 old_pwd: oldP,

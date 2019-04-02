@@ -7,6 +7,7 @@ import env from '@/env';
 import Logger from '@/utils/logger';
 
 const CONTENT_TYPE = 'application/json; charset=UTF-8' //application/x-www-form-urlencoded
+const HTTP_SCHEME = 'http';
 
 axios.defaults.headers.post['Content-Type'] = CONTENT_TYPE;
 
@@ -32,9 +33,11 @@ class ResourceException{
     }
 }
 
+let defaultResource;
+
 class Resource{
 
-    constructor(serviceName, apiHost=env.API_HOST){
+    constructor(serviceName=env.DEFAULT_BACKEND, apiHost=env.API_HOST){
         this.serviceName = serviceName;
         this.apiHost = apiHost;
     }
@@ -43,17 +46,46 @@ class Resource{
         return new this(serviceName);
     }
 
-    _get_request_url(resource, param){
-        let routes = resource.split('.');
-        let url = ['http:/', this.apiHost];
-        url.push(this.serviceName);
+    uploadImage(base64Str){
+        return this.put({
+            'resource': 'upload.image',
+            'data': {
+                'encoded_image': base64Str
+            }
+        })
+    }
 
-        if(routes.length === 3){
-            url.push(`${routes[0]}.${routes[1]}/${routes[2]}`);
-        }else if(routes.length === 2){
-            url.push(`${routes[0]}/${routes[1]}`);
+    static get(options){
+        if(!defaultResource){
+            defaultResource = new Resource();
         }
-        url = url.join('/');
+        return defaultResource.get(options);
+    }
+
+    static put(options){
+        if(!defaultResource){
+            defaultResource = new Resource();
+        }
+        return defaultResource.put(options);
+    }
+
+    static post(options){
+        if(!defaultResource){
+            defaultResource = new Resource();
+        }
+        return defaultResource.post(options);
+    }
+
+    static delete(options){
+        if(!defaultResource){
+            defaultResource = new Resource();
+        }
+        return defaultResource.delete(options);
+    }
+
+
+    _get_request_url(resource, param){
+        let url = `${HTTP_SCHEME}://${this.apiHost}/${this.serviceName}/${resource.replace(/\./g, '/')}/`;
 
         let params = [];
         for(let k in param){

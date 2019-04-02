@@ -4,7 +4,7 @@ import Resource from '@/utils/resource';
 class PermissionService{
 
     static getAllGroups(){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'rust.permission.groups',
             'data': {}
         });

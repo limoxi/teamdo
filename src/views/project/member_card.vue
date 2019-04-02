@@ -60,6 +60,7 @@
 		text-align: center;
 		img{
 			width: 80px;
+			border-radius: 50px;
 		}
 		.aui-i-hr{
 			border-bottom: 1px dashed grey;

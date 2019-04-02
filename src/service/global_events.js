@@ -9,4 +9,5 @@ export default {
     'TASK_REMOVED': 'taskRemoved', // 任务被移除泳道
     'TASK_UNDO': 'taskUndo', // 任务被回退到任务池中
     'SUB_TASK_EDITTING': 'subTaskEditting', // 增加子任务
+    'USER_UPDATED': 'userUpdated', // 用户信息已更新
 }

@@ -2,28 +2,26 @@
 	<Modal
 		v-model="showModel"
 		:title="title"
-		width="450"
+		width="365"
 	>
 		<Form ref="form" :model="user" :rules="ruleValidate" :label-width="80">
-			<!--<FormItem label="头像" prop="avatar">-->
-				<!--<uploader-->
-					<!--ref="upload"-->
-				<!--&gt;-->
-					<!--<div style="width: 58px;height:58px;line-height: 58px;">-->
-						<!--<Icon type="ios-camera" size="20"></Icon>-->
-					<!--</div>-->
-				<!--</uploader>-->
-			<!--</FormItem>-->
+			<FormItem label="" prop="avatar" style="margin-left:43px;">
+				<uploader
+					ref="upload"
+					:src.sync="user.avatar"
+				>
+				</uploader>
+			</FormItem>
 			<FormItem label="登录名" prop="username" v-if="!isUpdateMode">
 				<Input v-model="user.username" placeholder=""></Input>
 			</FormItem>
 			<FormItem label="昵称" prop="nickname">
-				<Input v-model="user.nickname" placeholder=""></Input>
+				<Input v-model="user.nickname" placeholder="" style="width:200px"></Input>
 			</FormItem>
 			<FormItem label="密码" prop="password" v-if="isRegisterMode">
 				<Input type="password" v-model="user.password"></Input>
 			</FormItem>
-			<FormItem>
+			<FormItem label="职位">
 				<Select v-model="roleId" style="width:200px" :clearable="true" label="请选择职位">
 					<Option v-for="role in roles" :value="role.id" :key="role.id">{{ role.name }}</Option>
 				</Select>
@@ -35,13 +33,14 @@
 <script>
 
 	import Cookie from 'js-cookie';
-	// import Uploader from '@/components/uploader';
+	import Uploader from '@/components/uploader';
 	import UserService from '@/service/user_service';
 	import PermissionService from '@/service/permission_service';
+    import events from '@/service/global_events';
 
     export default {
 		components: {
-            // 'uploader': Uploader
+            'uploader': Uploader
 		},
         props: ['show', 'mode'],
         data () {
@@ -117,6 +116,7 @@
                         if(self.isRegisterMode){
 							UserService.doRegister({
 								username: this.user.username,
+								avatar: this.user.avatar,
 								password: this.user.password,
 								nickname: this.user.nickname,
 								group_id: this.roleId
@@ -131,10 +131,13 @@
 
                         if(self.isUpdateMode){
 							UserService.updateUser({
+                                avatar: this.user.avatar,
 								nickname: this.user.nickname,
 								group_id: this.roleId
 							}).then(() =>{
+                                window.EventBus.$emit(events.USER_UPDATED, this.user);
 								this.showModel = false;
+                                this.$Message.success('修改信息成功~');
 							}).catch(err =>{
 								this.$Message.error(err.errMsg);
 							});

@@ -28,6 +28,7 @@
     import Cookies from 'js-cookie';
     import PasswordModel from '../../model/password_model';
     import UserModel from '@/components/model/user_model';
+    import events from '@/service/global_events';
 
     export default {
         beforeCreate(){
@@ -35,6 +36,12 @@
 			if(!token){
 			    this.$router.replace({'name': 'login'})
 			}
+
+			window.EventBus.$on(events.USER_UPDATED, (user)=>{
+                this.nickname = user.nickname;
+                Cookies.set('nickname', user.nickname);
+                Cookies.set('avatar', user.avatar);
+			})
 		},
 		data (){
 			return {

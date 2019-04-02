@@ -5,7 +5,7 @@ import Resource from '@/utils/resource';
 class LaneService {
 
     static getLanes(projectId, kanbanType) {
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'kanban.lanes',
             'data': {
                 'project_id': projectId,
@@ -15,7 +15,7 @@ class LaneService {
     }
 
     static addLane(projectId, kanbanType, newLane){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'kanban.lane',
             'data': {
                 'project_id': projectId,
@@ -27,7 +27,7 @@ class LaneService {
     }
 
     static updateLane(projectId, newLane){
-        return Resource.use('iscrum').post({
+        return Resource.post({
             'resource': 'kanban.lane',
             'data': {
                 'id': newLane.id,
@@ -39,7 +39,7 @@ class LaneService {
     }
 
     static deleteLane(projectId, lane){
-        return Resource.use('iscrum').delete({
+        return Resource.delete({
             'resource': 'kanban.lane',
             'data': {
                 'id': lane.id,
@@ -49,7 +49,7 @@ class LaneService {
     }
 
     static resort(projectId, laneIds){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'kanban.lane.resorted_lanes',
             'data': {
                 'project_id': projectId,
@@ -61,7 +61,7 @@ class LaneService {
     }
 
     static getTasks(projectId, laneId){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'kanban.lane.tasks',
             'data': {
                 'project_id': projectId,

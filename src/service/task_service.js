@@ -21,14 +21,14 @@ class TaskService {
             data['count_per_page'] = page.count_per_page;
         }
 
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'task.tasks',
             'data': data
         });
     }
 
     static addTask(projectId, task){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'task.task',
             'data': {
                 'project_id': projectId,
@@ -42,7 +42,7 @@ class TaskService {
     }
 
     static addSubTask(projectId, task, parentTask){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'task.sub_task',
             'data': {
                 'project_id': projectId,
@@ -54,7 +54,7 @@ class TaskService {
     }
 
     static updateTask(projectId, task){
-        return Resource.use('iscrum').post({
+        return Resource.post({
             'resource': 'task.task',
             'data': {
                 'project_id': projectId,
@@ -68,7 +68,7 @@ class TaskService {
     }
 
     static appendToKanban(projectId, type, taskId){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'kanban.lane_task',
             'data': {
                 'project_id': projectId,
@@ -79,7 +79,7 @@ class TaskService {
     }
 
     static switchLane(projectId, task, targetLaneId){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'kanban.lane.swimming_task',
             'data': {
                 'project_id': projectId,
@@ -90,7 +90,7 @@ class TaskService {
     }
 
     static finish(projectId, task){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'task.finished_task',
             'data': {
                 'project_id': projectId,
@@ -100,7 +100,7 @@ class TaskService {
     }
 
     static undoTask(projectId, task){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'task.undid_task',
             'data': {
                 'project_id': projectId,
@@ -110,7 +110,7 @@ class TaskService {
     }
 
     static abortTask(projectId, task){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'task.aborted_task',
             'data': {
                 'project_id': projectId,

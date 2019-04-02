@@ -9,14 +9,14 @@ class ProjectService{
     }
 
     static getProjects(){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'project.projects',
             'data': {}
         });
     }
 
     static getProject(id, with_options={}){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'project.project',
             'data': {
                 'id': id,
@@ -30,7 +30,7 @@ class ProjectService{
     }
 
     static createProject(name, desc){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'project.project',
             'data': {
                 name: name,
@@ -40,7 +40,7 @@ class ProjectService{
     }
 
     static updateProject(id, name, desc){
-        return Resource.use('iscrum').post({
+        return Resource.post({
             'resource': 'project.project',
             'data': {
                 id: id,
@@ -51,7 +51,7 @@ class ProjectService{
     }
 
     static deleteProject(id){
-        return Resource.use('iscrum').delete({
+        return Resource.delete({
             'resource': 'project.project',
             'data': {
                 id: id
@@ -60,7 +60,7 @@ class ProjectService{
     }
 
     static getProjectMembers(projectId){
-        return Resource.use('iscrum').get({
+        return Resource.get({
             'resource': 'project.project_users',
             'data': {
                 'project_id': projectId,
@@ -72,7 +72,7 @@ class ProjectService{
     }
 
     static addMembers(projectId, userIds){
-        return Resource.use('iscrum').put({
+        return Resource.put({
             'resource': 'project.project_users',
             'data': {
                 'project_id': projectId,
@@ -82,7 +82,7 @@ class ProjectService{
     }
 
     static deleteMembers(projectId, userIds){
-        return Resource.use('iscrum').delete({
+        return Resource.delete({
             'resource': 'project.project_users',
             'data': {
                 'project_id': projectId,

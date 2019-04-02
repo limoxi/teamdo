@@ -1,19 +1,48 @@
+<style lang="less" scoped>
+	.aui-uploader{
+		&:hover{
+			.aui-i-btn{
+				display: block;
+			}
+			.ivu-upload{
+				background: rgba(255,255,255,0.6);
+			}
+		}
+		.aui-i-image{
+			width:80px;
+			border-radius: 55px;
+		}
+		.aui-i-btn{
+			display: none;
+			position: absolute;
+			margin-left: 15px;
+			margin-top: -3px;
+		}
+		.ivu-upload{
+			position: absolute;
+			width: 80px;
+			height: 80px;
+			top: 0;
+			border-radius: 45px;
+		}
+	}
+</style>
 <template>
-	<div>
-		<img :src="fileB64"  alt=""/>
+	<div class="aui-uploader">
+		<img :src="imgSrc" alt="image" class="aui-i-image"/>
 		<Upload
 			ref="upload"
-			:show-upload-list="true"
-			:on-success="()=>{}"
+			:show-upload-list="false"
 			:format="['jpg','jpeg','png', 'icon']"
 			:max-size="500"
 			:on-format-error="handleFormatError"
 			:on-exceeded-size="handleMaxSize"
 			:before-upload="handleBeforeUpload"
 			action="#"
-			style="display: inline-block;width:58px;"
 		>
-			<slot></slot>
+			<div class="aui-i-btn">
+				<Icon type="ios-camera" size="50"></Icon>
+			</div>
 		</Upload>
 	</div>
 
@@ -21,27 +50,47 @@
 <script>
 
     import Resource from '@/utils/resource';
+    import defaultAvatar from '@/images/default-avatar.webp';
 
     export default {
+        props: ['src'],
         data () {
             return {
-                'file': null
 			}
         },
+		computed:{
+            imgSrc: {
+                get(){
+                    return !!this.src ? this.src: defaultAvatar;
+				},
+				set(newVal){
+                    this.$emit('update:src', newVal);
+				}
+			}
+		},
         methods: {
             handleUploaded (file){
-                console.log(file);
+                let that = this;
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onloadend = function(){
+                    let img = new Image();
+                    img.src = this.result;
+                    img.onload = () =>{
+						let compressedImage = that.compress(img);
+                        that.imgSrc = compressedImage;
+                    };
+                }
             },
             handleBeforeUpload(file){
                 this.file = file;
-                this.compressImage(file);
                 this.handleUploaded(file);
                 return false;
             },
-            compress(image){
+            compress(img){
                 let canvas = document.createElement("canvas");
-                let width = image.width;
-                let height = image.height;
+                let width = img.width;
+                let height = img.height;
                 canvas.width = width;
                 canvas.height = height;
 
@@ -49,7 +98,6 @@
                 ctx.fillStyle = "#fff";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, width, height);
-
                 //进行最小压缩
                 return canvas.toDataURL("image/jpeg", 0.1);
         	},
@@ -63,11 +111,11 @@
                     let result = this.result;
                     let img = new Image();
                     img.src = result;
-                    img.onload = function() {
+                    img.onload = function () {
                         let data = self.compress(img);
                         self.imgUrl = result;
-
-
+                    };
+                }
 			},
             handleFormatError (file) {
                 this.$Notice.warning({
