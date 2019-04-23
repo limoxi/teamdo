@@ -59,14 +59,15 @@ class ProjectService{
         });
     }
 
-    static getProjectMembers(projectId){
+    static getProjectMembers(projectId, filters={}){
         return Resource.get({
             'resource': 'project.project_users',
             'data': {
                 'project_id': projectId,
                 'with_options': JSON.stringify({
                     'with_role': true
-                })
+                }),
+                'filters': JSON.stringify(filters)
             }
         })
     }

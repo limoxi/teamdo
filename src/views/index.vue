@@ -26,7 +26,7 @@
 
 	import LoginModel from '../components/model/login_model';
 	import UserModel from '../components/model/user_model';
-	import Cookies from 'js-cookie';
+	import helper from '@/utils/helper';
 
     export default {
         data(){
@@ -41,10 +41,10 @@
 		},
 		computed: {
             showEntry(){
-                return !!Cookies.get('token')
+                return !!helper.storage.get('token')
 			},
 			hideEntry(){
-                return !Cookies.get('token');
+                return !helper.storage.get('token');
 			}
 		},
 		methods: {

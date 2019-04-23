@@ -1,7 +1,6 @@
 
 import axios from 'axios';
 import qs from 'qs';
-import Cookies from 'js-cookie';
 import helper from './helper';
 import env from '@/env';
 import Logger from '@/utils/logger';
@@ -135,7 +134,7 @@ class Resource{
             method: options.method,
             data: {},
             headers: {
-                'Authorization': Cookies.get('token')
+                'Authorization': helper.storage.get('token')
             },
             async: true,
             timeout: 3000,
@@ -150,7 +149,7 @@ class Resource{
                 return resp.data.data;
             }else{
                 if(resp.data.errMsg === '不合法的token'){
-                    Cookies.remove('token');
+                    helper.storage.remove('token');
                     window.location.href = '/';
                 }else{
                     throw new ResourceException({

@@ -100,7 +100,7 @@ module.exports = {
                 }
             },
             {
-                test: /\.(webp|woff|svg|eot|ttf)$/,
+                test: /\.(webp|woff|woff2|svg|eot|ttf)$/,
                 loader: 'file-loader',
                 options: {
                     name: '[name]-[hash].[ext]',

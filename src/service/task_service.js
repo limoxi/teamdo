@@ -4,7 +4,7 @@ import Resource from '@/utils/resource';
 
 class TaskService {
 
-    static getTasks(projectId, filters=null, orderFields=null, page=null){
+    static getTasks(projectId, filters=null, withOptions=null, orderFields=null, page=null){
         let data = {
             'project_id': projectId
         }
@@ -21,8 +21,27 @@ class TaskService {
             data['count_per_page'] = page.count_per_page;
         }
 
+        if(withOptions){
+            data['with_options'] = JSON.stringify(withOptions);
+        }
+
         return Resource.get({
             'resource': 'task.tasks',
+            'data': data
+        });
+    }
+
+    static getTask(projectId, taskId){
+        let data = {
+            'project_id': projectId,
+            'task_id': taskId,
+            'with_options': JSON.stringify({
+                'with_detail': true
+            })
+        };
+
+        return Resource.get({
+            'resource': 'task.task',
             'data': data
         });
     }
@@ -36,7 +55,7 @@ class TaskService {
                 'importance': task.importance,
                 'desc': task.desc,
                 'need_id': task.need_id,
-                'tags': task.tags.join(',')
+                'NUT': task.NUT
             }
         })
     }
@@ -62,7 +81,7 @@ class TaskService {
                 'name': task.name,
                 'importance': task.importance,
                 'desc': task.desc,
-                'tags': task.tags.join(',')
+                'NUT': task.NUT
             }
         })
     }
@@ -97,6 +116,16 @@ class TaskService {
                 'task_id': task.id
             }
         });
+    }
+
+    static finishSubTask(projectId, task){
+        return Resource.put({
+            'resource': 'task.finished_sub_task',
+            'data': {
+                'project_id': projectId,
+                'task_id': task.id
+            }
+        })
     }
 
     static undoTask(projectId, task){

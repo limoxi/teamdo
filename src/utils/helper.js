@@ -1,4 +1,30 @@
 
+let storage = window.localStorage;
+
+class LocalStorage{
+
+    get(key, defaultValue) {
+        if (!key) return;
+        return JSON.parse(storage.getItem(key)) || defaultValue;
+    }
+
+    set(key, value) {
+        if (typeof value === 'function') {
+            value = value();
+            storage.setItem(key, value);
+        }else{
+            storage.setItem(key, JSON.stringify(value));
+        }
+    }
+
+    remove(key){
+        storage.removeItem(key);
+    }
+
+    clear() {
+        storage.clear();
+    }
+}
 
 export default {
     noop(){},
@@ -49,6 +75,8 @@ export default {
             list.splice(elIndex, 1);
         }
         return elIndex;
-    }
+    },
+
+    storage: new LocalStorage(),
 
 };

@@ -12,18 +12,31 @@
 			<FormItem label="WIP" prop="wip">
 				<InputNumber :max="15" :min="1" v-model="form.wip" :editable="false"></InputNumber>
 			</FormItem>
+			<FormItem label="任务终点" prop="endPoint">
+				<Switch v-model="form.endPoint">
+					<span slot="open">是</span>
+					<span slot="close">否</span>
+				</Switch>
+			</FormItem>
+			<FormItem label="权限" prop="validRoles">
+				<Select v-model="form.validRoles" multiple>
+					<Option v-for="role in roles" :value="role.id" :key="role.id">{{ role.name }}</Option>
+				</Select>
+			</FormItem>
 		</Form>
 		<Button slot="footer" @click="confirm">确定</Button>
 	</Modal>
 </template>
 
 <script>
+    import PermissionService from '@/service/permission_service';
     import LaneService from '@/service/lane_service';
     import helper from '@/utils/helper';
     export default {
         props: ['show', 'mode', 'lane', 'projectId', 'kanbanType'],
 		data (){
 			return {
+                roles: [],
                 ruleValidate: {
                     name: [
                         {required: true, message: '泳道名称不能为空', trigger: 'blur'}
@@ -40,6 +53,13 @@
 			},
             showModel: {
                 get(){
+                    if(this.show){
+                        PermissionService.getAllGroups().then(data =>{
+                            this.roles = data;
+                        }).catch(err =>{
+                            this.$Message.error('获取角色列表失败');
+                        });
+					}
                     return this.show;
 				},
 				set(newValue){
@@ -51,13 +71,17 @@
                     return {
                         id: 0,
                         name: '',
-                        wip: 1
+                        wip: 1,
+                        endPoint: false,
+                        validRoles: []
 					}
 				}else{
                     return {
                         id: this.lane.id,
                         name: this.lane.name,
-                        wip: this.lane.wip
+                        wip: this.lane.wip,
+                        endPoint: this.lane.end_point,
+                        validRoles: this.lane.valid_roles || []
                     }
 				}
 			}
@@ -77,10 +101,9 @@
 							})
 						}else{
                             let newLane = {
-                                id: this.lane.id,
-                                name: this.form.name,
-                                wip: this.form.wip
+                                id: this.lane.id
                             };
+                            helper.extend(newLane, this.form);
                             LaneService.updateLane(this.projectId, newLane).then(() =>{
                                 window.EventBus.$emit('laneUpdated');
                                 this.$Message.success('泳道已更新');

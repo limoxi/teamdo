@@ -20,7 +20,7 @@
 <script>
 
 	import defaultAvatar from '@/images/default-avatar.webp';
-    import Cookies from 'js-cookie';
+	import helper from '@/utils/helper';
 
     export default {
         props: ['member', 'project'],
@@ -42,7 +42,7 @@
                 if(!this.project){
                     return false;
                 }
-                return this.project.manager_id == Cookies.get('uid') && this.member.id != this.project.manager_id;
+                return this.project.manager_id == helper.storage.get('uid') && this.member.id != this.project.manager_id;
             }
 		},
 		methods: {

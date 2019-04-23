@@ -16,17 +16,14 @@
 							{{ need.name }}</Option>
 					</Select>
 				</FormItem>
-				<FormItem label="重要度" prop="importance" v-show="this.mode === 'create'">
+				<FormItem label="优先级" prop="importance" v-show="this.mode === 'create'">
 					<Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
 						<Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
 							{{ option.label }}</Option>
 					</Select>
 				</FormItem>
-				<FormItem label="标签" class="aui-i-tags" v-show="this.mode === 'create'">
-					<Select v-model="form.tags" style="width:180px" aria-label="tagsSelector">
-						<Option v-for="tag in tags" :value="tag.value" :key="tag.value">
-							{{ tag.label }}</Option>
-					</Select>
+				<FormItem label="故事点" prop="NUT" v-show="this.mode === 'create'">
+					<InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
 				</FormItem>
 				<FormItem label="描述">
 					<quill-editor v-model="form.desc"
@@ -40,9 +37,7 @@
 		<template v-else>
 			<div>
 				<div>{{task.importance}}</div>
-				<div>
-					<Tag>{{task.tag}}</Tag>
-				</div>
+				<div>{{task.NUT}}</div>
 				<div>{{task.need_id}}</div>
 				<div><span v-html="task.desc"></span></div>
 			</div>
@@ -55,22 +50,18 @@
 </template>
 <script>
 	import TaskService from '@/service/task_service';
-    import Cookies from 'js-cookie';
+	import events from '@/service/global_events';
 	import helper from '@/utils/helper';
 
     export default {
         props: ['show', 'mode', 'task', 'projectId'],
-		created(){
-
-		},
         data () {
             return {
                 form: {
                     name: '',
                     desc: '',
                     importance: 0,
-                    newTag: '',
-                    tags: [],
+                    NUT: 1,
                     need_id: 0
 				},
                 needOptions: [],
@@ -134,11 +125,11 @@
             title(){
                 let title = '';
                 if(this.mode === 'create'){
-                    title = '添加任务';
+                    title = '添加用户故事';
 				}else if(this.mode === 'addSub'){
-                    title = '添加子任务';
+                    title = '添加任务';
 				}else{
-                    title = '任务详情 - '+this.task.name;
+                    title = '详情 - '+this.task.name;
 				}
                 return title;
 			}
@@ -168,6 +159,7 @@
 						}else if(this.mode === 'addSub'){
                             TaskService.addSubTask(this.projectId, this.form, this.task).then(()=>{
                                 this.actionDone('taskAdded');
+                                window.EventBus.$emit(events.SUB_TASK_ADDED);
                             }).catch(err=>{
                                 this.$Message.error(err.errMsg);
                             });

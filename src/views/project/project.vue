@@ -21,6 +21,14 @@
 				:projectId="projectId"
 				:task="modelTask"
 			></task-model>
+			<user-select-model
+				:show.sync="showUserSelectModel"
+				:projectId="projectId"
+				:singleSelect="selectSingleUser"
+				:forProject="userSelectForProject"
+				:filters="userSelectFilters"
+				@memberSelected="onUserSelected"
+			></user-select-model>
 		</template>
 	</top-frame>
 </template>
@@ -30,6 +38,7 @@
 	import ProjectHeader from '@/components/frame/header/project_header';
     import LaneModel from '@/components/model/lane_model';
     import TaskModel from '@/components/model/task_model';
+    import UserSelectModel from '@/components/model/user_select_model';
 	import ProjectService from '@/service/project_service';
     import events from '@/service/global_events';
 	import helper from '@/utils/helper';
@@ -45,10 +54,11 @@
             window.EventBus.$on(events.LANE_ADDING, kanbanType=>{
                 this.kanbanType = kanbanType;
                 this.showLaneModel = true;
+                this.laneModelMode = 'create';
             });
 
             window.EventBus.$on(events.LANE_EDITTING, (lane, kanbanType)=>{
-                this. laneModelMode = 'mod';
+                this.laneModelMode = 'mod';
                 this.kanbanType = kanbanType;
                 this.modelLane = lane;
                 this.showLaneModel = true;
@@ -64,6 +74,16 @@
                 this.showTaskModel = true;
                 this.taskModelMode = 'addSub';
                 this.modelTask = task;
+            });
+
+            window.EventBus.$on(events.SELECTING_USERS, data=>{
+                this.showUserSelectModel = true;
+                if(!helper.isEmptyObject(data)){
+                    this.selectSingleUser = !!data.singleSelect;
+                    this.userSelectForProject = data.forProject;
+					this.userSelectFilters = data.filters || {};
+                    this.userSelectCallback = data.callback;
+				}
             });
 
         },
@@ -84,13 +104,20 @@
                 modelLane: {},
                 kanbanType: 'normal',
 
+                showUserSelectModel: false,
+                userSelectForProject: false,
+                selectSingleUser: false,
+                userSelectFilters: {},
+                userSelectCallback: ()=>{}
+
 			}
 		},
 		components: {
             'top-frame': TopFrame,
 			'project-header': ProjectHeader,
             'task-model': TaskModel,
-            'lane-model': LaneModel
+            'lane-model': LaneModel,
+            'user-select-model': UserSelectModel
 		},
 
 		methods: {
@@ -114,6 +141,9 @@
                         }
                     }
                 });
+			},
+            onUserSelected(ids){
+                this.userSelectCallback(ids);
 			}
 		}
     }

@@ -1,24 +1,36 @@
 <template>
 	<div class="aui-tasks">
 		<div class="aui-i-action">
-			<Button icon="md-add" @click="showTaskModel" class="aui-icon-scale">添加任务</Button>
+			<Button icon="md-add" @click="showTaskModel" class="aui-icon-scale">添加</Button>
 		</div>
 
 		<div class="aui-i-list">
-			<Table :data="tasks" :columns="columns" border
+			<Table :data="tasks" :columns="columns"
 				   @on-sort-change="onSort"
+				   @on-row-click="onClickRow"
 			>
 				<template slot-scope="{ row, index }" slot="action">
+					<Tooltip content="指定责任人" placement="top">
+						<Button icon="md-person" class="aui-icon-scale"
+								v-if="row.status==='未开始'"
+								@click="onClickAssign(row)"></Button>
+					</Tooltip>
 					<Tooltip content="进入看板" placement="top">
 						<Button icon="logo-buffer" class="aui-icon-scale"
 								v-if="row.status==='未开始'"
 								@click="onClickToKanban(row)"></Button>
 					</Tooltip>
-					<Tooltip content="放弃任务" placement="top">
+					<Tooltip content="放弃" placement="top">
 						<Button icon="md-close" class="aui-icon-scale"
 								v-if="row.status==='未开始'"
 								@click="onClickAbort(row)"></Button>
 					</Tooltip>
+				</template>
+				<template slot="users" slot-scope="{ row, index }">
+					<i v-for="user in row.users" :key="user.id">{{user.nickname }}</i>
+				</template>
+				<template slot="name" slot-scope="{row, index}">
+					<span class="aui-i-taskname-link" @click="onClickTaskName(row, $event)">{{row.name}}</span>
 				</template>
 			</Table>
 			<div class="aui-paginator">
@@ -42,9 +54,11 @@
 </template>
 
 <script>
-    import ProjectService from '@/service/project_service';
     import TaskService from '@/service/task_service';
 	import TaskModel from '@/components/model/task_model';
+	import events from '@/service/global_events';
+
+	import TaskExpand from './task_expand';
 
     export default {
         props: ['projectId'],
@@ -60,6 +74,11 @@
             onTaskAdded(){
                 this.resetData();
                 this.getTasks();
+			},
+            onClickTaskName(row, event){
+                event.stopPropagation();
+                console.log(row);
+                window.EventBus.$emit(events.TASK_EXPANDED, row);
 			},
             onClickToKanban(task){
                 TaskService.appendToKanban(this.projectId, 'kanban', task.id).then(()=>{
@@ -84,9 +103,32 @@
                     this.$Message.warning(err.errMsg);
                 });
 			},
+            onClickAssign(task){
+				window.EventBus.$emit(events.SELECTING_USERS, {
+				    'forProject': true,
+					'singleSelect': true,
+					'filters': {
+				        'role': '研发'
+					},
+					'callback': this.onUserSelected
+				});
+			},
+            onUserSelected(id){
+				console.log(id);
+			},
             onChangePage(targetPageNum){
                 this.pageInfo.targetPage = targetPageNum;
                 this.getTasks();
+			},
+            onClickRow(row, index){
+                if(row._disableExpand){
+                    return;
+				}
+                for(let node of this.$children){
+                    if(node.classes && node.classes.includes("ivu-table")){
+                        node.toggleExpand(index);
+					}
+				}
 			},
             onSort(data){
                 this.orderFields = [];
@@ -104,11 +146,21 @@
                 let page = {
                     cur_page: this.pageInfo.targetPage,
 					count_per_page: this.pageInfo.count_per_page
-				}
-                TaskService.getTasks(this.projectId, this.filters, this.orderFields, page).then(data=>{
+				};
+                let withOptions = {
+                    'with_users': true,
+                    'with_sub_tasks': true,
+					'with_detail': true
+                };
+                TaskService.getTasks(this.projectId, this.filters, withOptions, this.orderFields, page).then(data=>{
                     this.tasks = data['tasks'];
                     this.pageInfo = data['page_info'];
                     this.pageInfo.targetPage = this.pageInfo.cur_page;
+                    this.tasks.map((task)=>{
+                        if(!task.sub_tasks || task.sub_tasks.length === 0){
+                            task['_disableExpand'] = true;
+						}
+					})
 				}).catch(err=>{
                     this.$Message.warning(err.errMsg);
 				})
@@ -118,7 +170,8 @@
 			},
 		},
 		components: {
-            'task-model': TaskModel
+            'task-model': TaskModel,
+            TaskExpand
 		},
 		data(){
 		    return {
@@ -166,6 +219,17 @@
                     'value': 3
                 }],
 				'columns': [{
+                    'type': 'expand',
+					'width': 10,
+                    'render': (h, params) =>{
+                        return h(TaskExpand, {
+                            props: {
+                                row: params.row,
+								projectId: this.projectId
+                            }
+                        });
+                    },
+				},{
 		            'title': '编号',
 					'key': 'id',
                     'sortable': 'custom',
@@ -175,11 +239,12 @@
 		            'title': '标题',
 					'key': 'name',
 					'minWidth': 240,
+					'slot': 'name'
 				}, {
-		            'title': '重要度',
+		            'title': '优先级',
 					'key': 'importance',
                     'sortable': 'custom',
-					'width': 75,
+					'width': 110,
 					'align': 'center',
                     'filters': [{
                         'label': '普通',
@@ -211,15 +276,12 @@
                     }
 				}, {
 		            'title': '故事点',
-					'key': 'story_point',
+					'key': 'NUT',
 					'width': 75
 				}, {
 		            'title': '参与用户',
 					'key': 'users',
-					'render': null
-				}, {
-		            'title': '标签',
-					'key': 'tag'
+                    'slot': 'users'
 				}, {
 		            'title': '创建时间',
 					'key': 'created_at',
@@ -284,6 +346,14 @@
 		.aui-i-list{
 			.aui-i-timewidth{
 				display: table-cell;
+			}
+
+			.aui-i-taskname-link{
+				word-wrap: break-word;
+				cursor: pointer;
+				&:hover{
+					color: indianred;
+				}
 			}
 		}
 	}

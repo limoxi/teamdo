@@ -21,7 +21,9 @@ class LaneService {
                 'project_id': projectId,
                 'kanban_type': kanbanType,
                 'name': newLane.name,
-                'wip': newLane.wip
+                'wip': newLane.wip,
+                'end_point': newLane.endPoint,
+                'valid_roles': JSON.stringify(newLane.validRoles)
             }
         });
     }
@@ -33,7 +35,9 @@ class LaneService {
                 'id': newLane.id,
                 'project_id': projectId,
                 'name': newLane.name,
-                'wip': newLane.wip
+                'wip': newLane.wip,
+                'end_point': newLane.endPoint,
+                'valid_roles': JSON.stringify(newLane.validRoles)
             }
         });
     }
@@ -65,7 +69,11 @@ class LaneService {
             'resource': 'kanban.lane.tasks',
             'data': {
                 'project_id': projectId,
-                'lane_id': laneId
+                'lane_id': laneId,
+                'with_options': JSON.stringify({
+                    'with_users': true,
+                    'with_sub_tasks': true
+                })
             }
         })
     }

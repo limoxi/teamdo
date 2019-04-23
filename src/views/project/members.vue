@@ -12,10 +12,7 @@
 			<img :src="avatar" alt="avatar"/>
 			<Button icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
 		</Card>
-		<user-select-model
-			:show.sync="showModel"
-			@memberSelected="onMemberSelected"
-		></user-select-model>
+
 	</div>
 </template>
 
@@ -23,21 +20,19 @@
 	import ProjectService from '@/service/project_service';
 	import MemberCard from './member_card';
     import defaultAvatar from '@/images/default-avatar.webp';
-    import UserSelectModel from '@/components/model/user_select_model';
-    import Cookies from 'js-cookie';
+
+    import events from '@/service/global_events';
     import helper from '@/utils/helper';
 
     export default {
         props: ['projectId'],
         components: {
-            'member-card': MemberCard,
-			'user-select-model': UserSelectModel
+            'member-card': MemberCard
 		},
         data(){
             return{
 				project: null,
 				members: [],
-                showModel: false,
 				isManager: false
 			}
 		},
@@ -52,7 +47,9 @@
 		},
 		methods: {
             onAddMember(){
-				this.showModel = true;
+				window.EventBus.$emit(events.SELECTING_USERS, {
+                    'callback': this.onMemberSelected
+				});
 			},
             onDeleteMember(member){
                 this.$Modal.confirm({
@@ -80,7 +77,7 @@
 			},
 			getMembers(){
                 ProjectService.getProjectMembers(this.projectId).then(data =>{
-                    this.members = data;
+                    this.members = data.users;
                 }).catch(err =>{
                     this.$Message.error(err.errMsg);
                 });
@@ -88,7 +85,7 @@
             getProject(){
                 ProjectService.getProject(this.projectId).then(data =>{
                     this.project = data;
-                    this.isManager = this.project.manager_id == Cookies.get('uid');
+                    this.isManager = this.project.manager_id == helper.storage.get('uid');
 				}).catch(err =>{
 				    this.$Message.error(err.Msg);
 				})

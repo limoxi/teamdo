@@ -21,9 +21,10 @@
 </template>
 <script>
 	import UserService from '@/service/user_service';
+	import ProjectService from '@/service/project_service';
 
     export default {
-        props: ['show'],
+        props: ['show', 'singleSelect', 'projectId', 'forProject', 'filters'],
         data () {
             return {
                 allUsers: [],
@@ -31,15 +32,20 @@
                 listStyle: {
                     width: '200px',
 					height: '200px'
-				}
+				},
             }
         },
         computed: {
             showModel: {
                 get(){
                     if(this.show){
-                        UserService.getAllUsers().then(data =>{
+                        this.resourceFunc(this.projectId, this.filters).then(data =>{
                             this.allUsers = data.users.map(user =>{
+                                if(user.group){
+                                    user.role = user.group.name;
+								}else{
+                                    user.role = user.role_text;
+								}
                                 user.key = user.id;
                                 user.label = user.nickname;
                                 user.disabled = false;
@@ -54,17 +60,33 @@
                 set(newValue){
                     this.$emit('update:show', newValue);
                 }
-            }
+            },
+			resourceFunc(){
+                if(this.forProject){
+                    return ProjectService.getProjectMembers;
+				}else{
+                    return UserService.getAllUsers;
+				}
+			}
         },
         methods: {
             render(user){
-				return `${user.nickname}-${user.group.name}`;
+				return `${user.nickname}-${user.role}`;
 			},
             onSelect(ids){
+                if(this.singleSelect){
+                    if(ids.length > 1){
+                        this.$Message.warning('只能选择一个');
+                        return;
+					}
+				}
                 this.selectedIds = ids;
 			},
             onConfirmed(){
-                this.$emit('memberSelected', this.selectedIds);
+                let data = this.singleSelect? (this.selectedIds.length===0?null:this.selectedIds[0]): this.selectedIds;
+                this.$emit('memberSelected', data);
+                this.selectedIds = [];
+				this.allUsers = [];
 			}
         }
     }

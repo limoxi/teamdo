@@ -6,7 +6,7 @@
 				<MenuItem name="projects">项目</MenuItem>
 				<MenuItem name="sprint">迭代</MenuItem>
 				<MenuItem name="kanban">看板</MenuItem>
-				<MenuItem name="tasks">任务</MenuItem>
+				<MenuItem name="tasks">用户故事</MenuItem>
 				<MenuItem name="bugs">BUG</MenuItem>
 				<MenuItem name="state">统计</MenuItem>
 				<MenuItem name="members">成员</MenuItem>

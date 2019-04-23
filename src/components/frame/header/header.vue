@@ -5,6 +5,7 @@
 		<theme-control></theme-control>
 		<div class="aui-i-action">
 			<Button icon="md-add" @click="addProject" class="aui-icon-scale">添加项目</Button>
+			<message-alert></message-alert>
 			<profile></profile>
 		</div>
 		<project-model

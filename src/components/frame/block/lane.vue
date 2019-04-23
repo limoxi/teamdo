@@ -2,7 +2,7 @@
 	<div class="aui-lane">
 		<div :class="className">
 			<p class="aui-i-title">{{lane.name}}&nbsp;∙&nbsp;({{tasks.length}}/{{lane.wip}})</p>
-			<Dropdown trigger="click" placement="bottom-end" @on-click="onClickAction">
+			<Dropdown placement="bottom-end" @on-click="onClickAction">
 				<Icon type="md-more" size="22" class="aui-i-action"/>
 				<DropdownMenu slot="list">
 					<DropdownItem name="edit">修改列</DropdownItem>
@@ -15,6 +15,7 @@
 				  :task="task" :lane="lane" :lanes="lanes"
 				  :projectId="projectId"
 				  :inFirstLane="index===0"
+				  :inLastLane="index===lanes.length-1"
 			></Task>
 		</div>
 	</div>
@@ -44,6 +45,8 @@
                     helper.removeFromArray(task, this.tasks, 'id');
                 }
             });
+
+            window.EventBus.$on(events.SUB_TASK_ADDED, this.getTasks);
 		},
 		data(){
             return {
@@ -124,7 +127,7 @@
 			}
 			.aui-i-action{
 				&:hover{
-					transform: scale(1.1);
+					transform: scale(1.2);
 					cursor: auto;
 				}
 			}

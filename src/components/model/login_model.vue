@@ -17,7 +17,6 @@
 </template>
 <script>
 	import UserService from '@/service/user_service';
-    import Cookies from 'js-cookie';
 	import helper from '@/utils/helper';
 
     export default {
@@ -56,10 +55,11 @@
 							this.loginUser.username,
 							this.loginUser.password,
 						).then(data =>{
-							Cookies.set('uid', data.id);
-							Cookies.set('token', data.token);
-							Cookies.set('nickname', data.nickname);
-							Cookies.set('avatar', data.avatar);
+                            helper.storage.set('uid', data.id);
+                            helper.storage.set('token', data.token);
+
+                            helper.storage.set('nickname', data.nickname);
+                            helper.storage.set('avatar', data.avatar);
 
 							this.showModel = false;
 							this.resetForm();

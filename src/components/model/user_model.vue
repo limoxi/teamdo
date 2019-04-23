@@ -31,8 +31,7 @@
 	</Modal>
 </template>
 <script>
-
-	import Cookie from 'js-cookie';
+	import helper from '@/utils/helper';
 	import Uploader from '@/components/uploader';
 	import UserService from '@/service/user_service';
 	import PermissionService from '@/service/permission_service';
@@ -76,7 +75,7 @@
                     if(this.show){
                         if(this.isUpdateMode){
 							UserService.getUser({
-								user_id: Cookie.get('uid'),
+								user_id: helper.storage.get('uid'),
 								with_options: JSON.stringify({
 									'with_group_info': true
 								})

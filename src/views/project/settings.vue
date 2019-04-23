@@ -1,34 +1,37 @@
 <template>
 	<div class="aui-project-settings">
-		<Divider orientation="left">标签</Divider>
-		<div class="aui-i-tags">
-			<Tag v-for="tag in settings.tags" :key="tag" :name="tag" closable @on-close="onDeleteTag">{{ tag }}</Tag>
-			<Input v-model="newTag">
-				<Button icon="ios-add" slot="append" @click="onAddTag">添加</Button>
-			</Input>
-		</div>
-		<Divider orientation="left">故事点</Divider>
-		<div class="aui-i-story">
-			<p>4小时/故事点</p>
-		</div>
-		<Divider orientation="left">消息通知</Divider>
-		<div class="aui-i-notify">
-			<CheckboxGroup v-model="notifyTypes">
-				<Checkbox label="desktop">
-					<Icon type="logo-twitter"></Icon>
-					<span>桌面通知</span>
-				</Checkbox>
-				<Checkbox label="ding">
-					<Icon type="logo-twitter"></Icon>
-					<span>钉钉通知通知</span>
-				</Checkbox>
-			</CheckboxGroup>
-			<Input prefix="ios-contact" v-model="dingToken">
-				<span slot="prepend">钉机器人Token</span>
-				<Button slot="append" @click="onSetDingToken">确定</Button>
-			</Input>
-
-		</div>
+		<Card title="项目设置" icon="ios-options" :padding="0" shadow class="aui-i-card">
+			<CellGroup>
+				<Cell title="小时/故事点" label="时间对故事点的估算">
+					<InputNumber :max="6" :min="2" v-model="settings.HNUT"
+								 :editable="editable" slot="extra"></InputNumber>
+				</Cell>
+				<Cell title="工作时间" label="任务耗时只在工作时间范围内统计">
+					<TimePicker format="HH:mm" type="timerange" placement="bottom-end"
+						:open="openTimePicker"
+						:value="settings.workingTimeRange"
+						confirm
+						transfer
+						:steps="[1, 30]"
+						@on-ok="onConfirmPicker"
+						@on-change="onPickerChange"
+						slot="extra"
+					>
+						<a href="javascript:void(0)" @click="onSelectWorkingTime" class="aui-icon-scale">
+							<Icon type="md-clock"></Icon>
+							<template v-if="settings.workingTimeRange.length===0">设置工作时间</template>
+							<template v-else>{{ settings.workingTimeRange.join('~') }}</template>
+						</a>
+					</TimePicker>
+				</Cell>
+				<Cell title="任务进度" label="开启任务进度功能">
+					<Switch v-model="settings.enableTaskDOC" slot="extra"></Switch>
+				</Cell>
+				<Cell title="桌面通知">
+					<Switch v-model="settings.desktopNotify" slot="extra"></Switch>
+				</Cell>
+			</CellGroup>
+		</Card>
 	</div>
 </template>
 
@@ -37,7 +40,6 @@
 	import MemberCard from './member_card';
     import defaultAvatar from '@/images/default-avatar.webp';
     import UserSelectModel from '@/components/model/user_select_model';
-    import Cookies from 'js-cookie';
     import helper from '@/utils/helper';
 
     export default {
@@ -46,69 +48,46 @@
             'member-card': MemberCard,
 			'user-select-model': UserSelectModel
 		},
-		created(){
-
-		},
         data(){
             return{
                 settings: {
-                    tags: []
+                    enableTaskDOC: true,
+                    desktopNotify: false,
+					HNUT: 4,
+                    workingTimeRange: ['12:30','18:00']
 				},
-                newTag: '',
-                dingToken: '',
+                openTimePicker: false
 			}
 		},
 		computed: {
-            avatar(){
-                return defaultAvatar;
+            editable(){
+               return  true;
 			}
 		},
         created(){
-            this.getMembers();
-            this.getProject();
 		},
 		methods: {
-            onAddTag(){
-                if(this.newTag !== ''){
-                    if(this.settings.tags.includes(this.newTag)){
-                        this.$Message.warning('标签已存在');
-                        return;
-                    }
-                    this.settings.tags.push(this.newTag);
-                    this.newTag = '';
-                }
-            },
-            onDeleteTag(event, name){
-                if(name !== ''){
-                    helper.removeFromArray(name, this.settings.tags);
-                }
-            },
-            onSetDingToken(){
-
+            onSelectWorkingTime(){
+				this.openTimePicker = true;
+			},
+			onConfirmPicker(){
+                this.openTimePicker = false;
+			},
+            onPickerChange(value){
+                this.settings.workingTimeRange = value;
 			}
 		}
     }
 </script>
 
 <style lang="less" scoped>
-	.aui-project-members{
+	.aui-project-settings{
 		display: flex;
-		flex-wrap: wrap;
-		margin: 15px;
-	}
-	.aui-add-member{
-		text-align: center;
-		width: 150px;
-		margin-left: 5px;
+		justify-content: center;
 
-		img{
-			width: 80px;
-			border-radius: 50px;
-			background-image: linear-gradient(-225deg, #69EACB 0%, #EACCF8 48%, #6654F1 100%);
+		.aui-i-card{
+			width: 68vw;
 		}
 
-		.aui-i-add-btn{
-			margin-top: 10px;
-		}
 	}
 </style>

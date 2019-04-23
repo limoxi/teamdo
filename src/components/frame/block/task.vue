@@ -2,30 +2,60 @@
 	<div :class="headerClasses">
 		<div class="aui-i-header">
 			<div>
-				{{task.is_sub_task? '子任务 '+task.parent_id+' -': '任务'}}&nbsp;{{task.id}}
+				用户故事&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
 				<Button v-show="inFirstLane" icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
-				<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
-				<Button v-show="!task.is_sub_task" icon="md-git-branch" class="aui-icon-scale" @click="onClickAddSub"></Button>
+				<Button v-show="!inFirstLane&&!inLastLane" icon="md-flash" class="aui-icon-scale" @click="onClickFlash"></Button>
+				<Button icon="md-book" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
+				<Button icon="md-add" class="aui-icon-scale" @click="onClickAddSub"></Button>
 				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
 					<Button icon="md-swap" class="aui-icon-scale"></Button>
 					<DropdownMenu slot="list">
-						<DropdownItem :name="l.id"
-							  v-for="l in lanes" :key="l.id" v-if="lane.id !== l.id">{{l.name}}</DropdownItem>
+						<DropdownItem v-for="l in lanes" :key="l.id" :name="l.id"
+									  v-if="lane.id !== l.id">{{l.name}}</DropdownItem>
 					</DropdownMenu>
 				</Dropdown>
 				<Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
 			</div>
 		</div>
 		<div class="aui-i-body">
-			{{task.name}}
-		</div>
-		<div class="aui-i-users">
-			<div v-for="user in task.task_users" :key="user.id" :style="user.is_assignor?'float:right;':''">
-				<Tooltip :content="user.nickname" placement="top">
-					<Avatar :src="user.avatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
-				</Tooltip>
+			<div class="aui-i-status">
+				<Tag :color="importanceColor">{{importanceDesc}}</Tag>
+				<Tag color="primary">{{task.NUT}}点 / {{task.elapsed_time||0}}</Tag>
+				<Tag color="cadetblue" v-if="task.sub_tasks.length > 0"
+					 checkable fade class="aui-i-sub-tasks" @on-change="toggleSubTasks">
+					{{task.sub_tasks.filter(st=>{return st.status==='已完成'}).length}} / {{task.sub_tasks.length}} 任务
+				</Tag>
+			</div>
+			<div class="aui-i-sub-tasks" v-if="showSubTasks">
+				<div v-for="subTask in task.sub_tasks" :key="subTask.id" class="aui-task-type-sub_task">
+					<div class="aui-i-header">
+						<div>
+							<span>任务 {{subTask.id}}</span>
+							<Tag color="#669999" style="margin-top: -1px">{{subTask.elapsed_time || 0}}</Tag>
+							<Tag color="#669999" style="margin-top: -1px">{{subTask.status}}</Tag>
+						</div>
+						<div class="aui-i-action" style="display: inline-block;line-height: 23px;">
+							<Button v-if="subTask.status!=='已完成'" icon="md-close" class="aui-icon-scale" @click="onClickAbortSubTask"></Button>
+							<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(subTask)"></Button>
+							<Button v-if="subTask.status!=='已完成'" icon="md-checkmark" class="aui-icon-scale" @click="onClickFinishSubTask(subTask)"></Button>
+						</div>
+					</div>
+					<div class="aui-i-body">
+						{{subTask.name}}
+					</div>
+				</div>
+			</div>
+			<div class="aui-i-name">
+				{{task.name}}
+			</div>
+			<div class="aui-i-users">
+				<div v-for="user in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
+					<Tooltip :content="user.nickname" placement="top">
+						<Avatar :src="user.avatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
+					</Tooltip>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -35,28 +65,63 @@
 
     import TaskService from '@/service/task_service';
     import events from '@/service/global_events';
-    import TaskModel from '@/components/model/task_model';
+    import helper from '@/utils/helper';
 
     export default {
-        props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane'],
+        props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'],
 		data(){
             return {
+                showSubTasks: false
 			}
 		},
 		computed: {
             headerClasses(){
-                let sufix = 'default';
-                if(this.task.importance<=3){
-                    sufix = 'normal';
-				}else if(this.task.importance>=4 && this.task.importance<=6){
-                    sufix = 'warning';
-				}else if(this.task.importance>=7){
-                    sufix = 'sos';
+                return `aui-task aui-task-type-${this.task.type}`;
+			},
+            importanceDesc(){
+                let imp = this.task.importance;
+                let str = '';
+                if(imp <= 3){
+                    str = '一般';
+				}else if(imp <= 6){
+                    str = '紧急';
+				}else if(imp <= 9){
+                    str = '非常紧急';
 				}
-                return `aui-task aui-task-level-${sufix}`;
+                return str;
+			},
+			importanceColor(){
+                let imp = this.importanceDesc;
+                let clr = 'success';
+                if(imp === '紧急'){
+                    clr = 'warning';
+				}else if(imp === '非常紧急'){
+                    clr = 'error';
+				}
+                return clr;
 			}
 		},
 		methods: {
+            toggleSubTasks(checked){
+                this.showSubTasks = !checked;
+			},
+            onChangeDOC(task){
+				console.log(task.DOC);
+			},
+            onClickAbortSubTask(subTask){
+                TaskService.abortSubTask(this.projectId, subTask).then(()=>{
+                    helper.removeFromArray(subTask, task.sub_tasks, 'id')
+                }).catch(err=>{
+                    this.$Message.warning(err.errMsg);
+                });
+			},
+            onClickFinishSubTask(subTask){
+                TaskService.finishSubTask(this.projectId, subTask).then(()=>{
+                    helper.removeFromArray(subTask, task.sub_tasks, 'id')
+                }).catch(err=>{
+                    this.$Message.warning(err.errMsg);
+                });
+			},
             onClickNext(){
                 let targetLane;
                 for(let index in this.lanes){
@@ -88,8 +153,15 @@
                     this.$Message.warning(err.errMsg);
                 });
 			},
-            onClickEdit(){
-                window.EventBus.$emit(events.TASK_EXPANDED, this.task);
+            onClickEdit(selectedTask){
+                TaskService.getTask(this.projectId, selectedTask.id).then(task=>{
+                    window.EventBus.$emit(events.TASK_EXPANDED, task);
+				}).catch(err=>{
+				   	this.$Message.error(err.errMsg);
+				});
+			},
+            onClickFlash(){
+                console.log('notify');
 			},
             onClickUndo(){
                 TaskService.undoTask(this.projectId, this.task).then(()=>{
@@ -140,30 +212,47 @@
 		.aui-i-body{
 			padding: 5px;
 			font-size: 14px;
+			display: flex;
+			justify-content: flex-start;
+			flex-direction: column;
+
+			.aui-i-name{
+				min-height: 45px;
+				display: flex;
+				align-items: center;
+			}
+
+			.aui-i-sub-tasks{
+				border-radius: 5px;
+				overflow: hidden;
+
+				.aui-task-type-sub_task {
+					margin-top: 2px;
+					.aui-i-header, .aui-i-body{
+						background-color: cadetblue;
+						color: whitesmoke;
+					}
+				}
+			}
+
+			.aui-i-users{
+				padding: 5px;
+			}
 		}
 
-		.aui-i-users{
-			padding: 5px;
+		.aui-task-type-sub_task{
+			min-height: 50px;
 		}
+
 	}
 
-	// 重要度主题
-	.aui-task-level-default {
+	// 任务类型主题
+	.aui-task-type-task {
 		.aui-i-header {
-			background-color: #66CC99;
-		}
-	}
-	.aui-task-level-normal {
-		.aui-i-header{
-			background-color: #66CC99;
-		}
-	}
-	.aui-task-level-warning{
-		.aui-i-header{
 			background-color: #FF9900;
 		}
 	}
-	.aui-task-level-sos{
+	.aui-task-type-bug{
 		.aui-i-header{
 			background-color: #FD6E6A;
 		}
