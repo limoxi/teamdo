@@ -18,7 +18,8 @@
 		<user-model
 			:show.sync="showRegister"
 			:registered.sync="showLogin"
-			mode="register"></user-model>
+			mode="register">
+		</user-model>
 	</div>
 </template>
 
@@ -37,7 +38,7 @@
 		},
 		components: {
             'login-model': LoginModel,
-			'user-model': UserModel,
+			'user-model': UserModel
 		},
 		computed: {
             showEntry(){
@@ -72,6 +73,9 @@
 			filter: blur(2px);
 			/*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
 			background-image: url("../images/index-bg.svg");
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-size: cover;
 		}
 		.aui-i-welcome{
 			position: absolute;

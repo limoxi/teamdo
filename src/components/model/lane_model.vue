@@ -10,7 +10,7 @@
 				<Input v-model="form.name" placeholder=""></Input>
 			</FormItem>
 			<FormItem label="WIP" prop="wip">
-				<InputNumber :max="15" :min="1" v-model="form.wip" :editable="false"></InputNumber>
+				<InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
 			</FormItem>
 			<FormItem label="任务终点" prop="endPoint">
 				<Switch v-model="form.endPoint">

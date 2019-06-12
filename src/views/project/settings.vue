@@ -25,7 +25,7 @@
 					</TimePicker>
 				</Cell>
 				<Cell title="任务进度" label="开启任务进度功能">
-					<Switch v-model="settings.enableTaskDOC" slot="extra"></Switch>
+					<Switch v-model="settings.enableTaskProgress" slot="extra"></Switch>
 				</Cell>
 				<Cell title="桌面通知">
 					<Switch v-model="settings.desktopNotify" slot="extra"></Switch>
@@ -51,7 +51,7 @@
         data(){
             return{
                 settings: {
-                    enableTaskDOC: true,
+                    enableTaskProgress: true,
                     desktopNotify: false,
 					HNUT: 4,
                     workingTimeRange: ['12:30','18:00']

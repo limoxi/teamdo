@@ -6,14 +6,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const env = require('./src/env');
+var isDev = env.MODE === 'develop';
 
 module.exports = {
-    mode: 'development',
+    mode: env.MODE,
     entry: './src/main.js',
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: '/',
+        publicPath: '/'
     },
     devtool: 'cheap-module-eval-source-map',
     optimization: {
@@ -52,7 +53,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             inject: true,
-            template: "./index.html"
+            template: "./index.html",
+            minify: !isDev
         }),
         new webpack.HotModuleReplacementPlugin()
     ],
@@ -104,7 +106,7 @@ module.exports = {
                 loader: 'file-loader',
                 options: {
                     name: '[name]-[hash].[ext]',
-                    outputPath: path.join(__dirname, 'dist', 'assets'),
+                    outputPath: 'assets',
                     publicPath: '/assets'
                 }
             },

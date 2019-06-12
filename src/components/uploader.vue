@@ -50,6 +50,7 @@
 <script>
 
     import Resource from '@/utils/resource';
+    import ImageCompressor from '@/service/image_compressor';
     import defaultAvatar from '@/images/default-avatar.webp';
 
     export default {
@@ -61,7 +62,7 @@
 		computed:{
             imgSrc: {
                 get(){
-                    return !!this.src ? this.src: defaultAvatar;
+                    return this.src || defaultAvatar;
 				},
 				set(newVal){
                     this.$emit('update:src', newVal);
@@ -69,54 +70,13 @@
 			}
 		},
         methods: {
-            handleUploaded (file){
-                let that = this;
-                let reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onloadend = function(){
-                    let img = new Image();
-                    img.src = this.result;
-                    img.onload = () =>{
-						let compressedImage = that.compress(img);
-                        that.imgSrc = compressedImage;
-                    };
-                }
-            },
             handleBeforeUpload(file){
-                this.file = file;
-                this.handleUploaded(file);
+                new ImageCompressor(file).compress().then(compressedDataUrl =>{
+                    this.imgSrc = compressedDataUrl;
+				});
                 return false;
             },
-            compress(img){
-                let canvas = document.createElement("canvas");
-                let width = img.width;
-                let height = img.height;
-                canvas.width = width;
-                canvas.height = height;
 
-                let ctx = canvas.getContext("2d");
-                ctx.fillStyle = "#fff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, width, height);
-                //进行最小压缩
-                return canvas.toDataURL("image/jpeg", 0.1);
-        	},
-            async getCompressB64Image(file){
-                let self = this;
-                let reader = new FileReader();
-                //将图片转成base64格式
-                reader.readAsDataURL(file);
-                //读取成功后的回调
-                reader.onloadend = function() {
-                    let result = this.result;
-                    let img = new Image();
-                    img.src = result;
-                    img.onload = function () {
-                        let data = self.compress(img);
-                        self.imgUrl = result;
-                    };
-                }
-			},
             handleFormatError (file) {
                 this.$Notice.warning({
                     title: '文件格式错误',

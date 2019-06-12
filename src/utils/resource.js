@@ -5,13 +5,13 @@ import helper from './helper';
 import env from '@/env';
 import Logger from '@/utils/logger';
 
-const CONTENT_TYPE = 'application/json; charset=UTF-8' //application/x-www-form-urlencoded
+const CONTENT_TYPE = 'application/json; charset=UTF-8'; //application/x-www-form-urlencoded
 const HTTP_SCHEME = 'http';
 
 axios.defaults.headers.post['Content-Type'] = CONTENT_TYPE;
 
 axios.interceptors.request.use(function (config) {
-    if(config.method === 'post' && CONTENT_TYPE === 'application/x-www-form-urlencoded'){
+    if(config.method === 'post' && config.headers['Content-Type'] === 'application/x-www-form-urlencoded'){
         config.data = qs.stringify(config.data);
     }
     return config;
@@ -45,13 +45,23 @@ class Resource{
         return new this(serviceName);
     }
 
-    uploadImage(base64Str){
-        return this.put({
-            'resource': 'upload.image',
-            'data': {
-                'encoded_image': base64Str
-            }
-        })
+    uploadFile(data){
+        let formData = new FormData();
+        formData.append("name", data.filename);
+        formData.append("file", data.file);
+        let resource = 'uploaded_resource.image';
+
+        axios.post(this._get_request_url(resource, {
+            '_method': 'put'
+        }), formData, {
+            headers: {
+                'Authorization': helper.storage.get('token'),
+                'Content-Type': 'multipart/form-data'
+            },
+            async: true,
+            timeout: 3000,
+            resource: resource
+        });
     }
 
     static get(options){
@@ -141,6 +151,7 @@ class Resource{
             onTimeout: helper.noop,
             success: helper.noop,
             error: helper.noop,
+            resource: options.resource
         }, options);
 
         try {

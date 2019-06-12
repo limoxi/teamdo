@@ -26,10 +26,11 @@
 					<InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
 				</FormItem>
 				<FormItem label="描述">
-					<quill-editor v-model="form.desc"
-								  ref="editor"
-								  :options="editorOptions">
-					</quill-editor>
+					<v-editor @on-change="onDescChange"></v-editor>
+<!--					<quill-editor v-model="form.desc"-->
+<!--								  ref="editor"-->
+<!--								  :options="editorOptions">-->
+<!--					</quill-editor>-->
 				</FormItem>
 			</Form>
 			<Button slot="footer" @click="handleSubmit">确定</Button>
@@ -39,7 +40,9 @@
 				<div>{{task.importance}}</div>
 				<div>{{task.NUT}}</div>
 				<div>{{task.need_id}}</div>
-				<div><span v-html="task.desc"></span></div>
+				<div>
+					<v-editor :dataStr="task.desc" :readonly="true"></v-editor>
+				</div>
 			</div>
 			<div slot="footer">
 				<Button @click="onFetchLogs">动态</Button>
@@ -52,18 +55,16 @@
 	import TaskService from '@/service/task_service';
 	import events from '@/service/global_events';
 	import helper from '@/utils/helper';
+    import VEditor from '@/components/veditor/v_editor';
 
     export default {
         props: ['show', 'mode', 'task', 'projectId'],
+		components: {
+        	'v-editor': VEditor
+		},
         data () {
             return {
-                form: {
-                    name: '',
-                    desc: '',
-                    importance: 0,
-                    NUT: 1,
-                    need_id: 0
-				},
+                form: this.defaultForm(),
                 needOptions: [],
 				tagOptions: [],
                 importanceOptions: [{
@@ -135,6 +136,15 @@
 			}
         },
         methods: {
+            defaultForm(){
+                return {
+                    name: '',
+                    desc: '',
+                    importance: 0,
+                    NUT: 1,
+                    need_id: 0
+                }
+			},
 			actionDone(eventName){
                 this.showModel = false;
                 this.resetForm();
@@ -147,12 +157,16 @@
             onAddRemark(){
 
 			},
+            onDescChange(desc){
+			    this.form.desc = desc;
+			},
             handleSubmit() {
                 this.$refs['taskForm'].validate((valid) => {
                     if (valid) {
                         if(this.mode === 'create'){
                             TaskService.addTask(this.projectId, this.form).then(()=>{
                                 this.actionDone('taskAdded');
+                                this.form = this.defaultForm();
 							}).catch(err=>{
                                 this.$Message.error(err.errMsg);
 							});
@@ -160,12 +174,14 @@
                             TaskService.addSubTask(this.projectId, this.form, this.task).then(()=>{
                                 this.actionDone('taskAdded');
                                 window.EventBus.$emit(events.SUB_TASK_ADDED);
+                                this.form = this.defaultForm();
                             }).catch(err=>{
                                 this.$Message.error(err.errMsg);
                             });
 						}else{
                             TaskService.updateTask(this.projectId, this.form).then(()=>{
-                                    this.actionDone('taskUpdated');
+								this.actionDone('taskUpdated');
+                                this.form = this.defaultForm();
 							}).catch(err=>{
                                 this.$Message.error(err.errMsg);
                             });

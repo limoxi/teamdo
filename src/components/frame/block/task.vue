@@ -25,7 +25,7 @@
 				<Tag color="primary">{{task.NUT}}点 / {{task.elapsed_time||0}}</Tag>
 				<Tag color="cadetblue" v-if="task.sub_tasks.length > 0"
 					 checkable fade class="aui-i-sub-tasks" @on-change="toggleSubTasks">
-					{{task.sub_tasks.filter(st=>{return st.status==='已完成'}).length}} / {{task.sub_tasks.length}} 任务
+					{{task.sub_tasks.filter(st=>{return st.status!=='进行中'}).length}} / {{task.sub_tasks.length}} 任务
 				</Tag>
 			</div>
 			<div class="aui-i-sub-tasks" v-if="showSubTasks">
@@ -37,13 +37,14 @@
 							<Tag color="#669999" style="margin-top: -1px">{{subTask.status}}</Tag>
 						</div>
 						<div class="aui-i-action" style="display: inline-block;line-height: 23px;">
-							<Button v-if="subTask.status!=='已完成'" icon="md-close" class="aui-icon-scale" @click="onClickAbortSubTask"></Button>
+							<Button v-if="subTask.status==='进行中'" icon="md-close" class="aui-icon-scale" @click="onClickAbortSubTask(subTask)"></Button>
 							<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(subTask)"></Button>
-							<Button v-if="subTask.status!=='已完成'" icon="md-checkmark" class="aui-icon-scale" @click="onClickFinishSubTask(subTask)"></Button>
+							<Button v-if="subTask.status==='进行中'" icon="md-checkmark" class="aui-icon-scale" @click="onClickFinishSubTask(subTask)"></Button>
 						</div>
 					</div>
 					<div class="aui-i-body">
-						{{subTask.name}}
+						<s v-if="subTask.status==='已放弃'">{{subTask.name}}</s>
+						<span v-else>{{subTask.name}}</span>
 					</div>
 				</div>
 			</div>
@@ -105,19 +106,19 @@
             toggleSubTasks(checked){
                 this.showSubTasks = !checked;
 			},
-            onChangeDOC(task){
-				console.log(task.DOC);
+            onChangeProgress(task){
+				console.log(task.progress);
 			},
             onClickAbortSubTask(subTask){
-                TaskService.abortSubTask(this.projectId, subTask).then(()=>{
-                    helper.removeFromArray(subTask, task.sub_tasks, 'id')
+                TaskService.abortTask(this.projectId, subTask).then(()=>{
+                    helper.removeFromArray(subTask, this.task.sub_tasks, 'id')
                 }).catch(err=>{
                     this.$Message.warning(err.errMsg);
                 });
 			},
             onClickFinishSubTask(subTask){
-                TaskService.finishSubTask(this.projectId, subTask).then(()=>{
-                    helper.removeFromArray(subTask, task.sub_tasks, 'id')
+                TaskService.finish(this.projectId, subTask).then(()=>{
+                    subTask.status = '已完成';
                 }).catch(err=>{
                     this.$Message.warning(err.errMsg);
                 });

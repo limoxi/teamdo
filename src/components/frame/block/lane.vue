@@ -1,7 +1,7 @@
 <template>
 	<div class="aui-lane">
 		<div :class="className">
-			<p class="aui-i-title">{{lane.name}}&nbsp;∙&nbsp;({{tasks.length}}/{{lane.wip}})</p>
+			<p class="aui-i-title">{{lane.name}}&nbsp;∙&nbsp;({{tasks.length}}/{{lane.wip || '∞'}})</p>
 			<Dropdown placement="bottom-end" @on-click="onClickAction">
 				<Icon type="md-more" size="22" class="aui-i-action"/>
 				<DropdownMenu slot="list">

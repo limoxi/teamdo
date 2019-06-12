@@ -16,6 +16,7 @@
 				</li>
 			</ul>
 		</template>
+		<v-editor></v-editor>
 	</top-frame>
 </template>
 
@@ -38,7 +39,8 @@
 		components: {
             'top-frame': TopFrame,
 			'a-header': Header,
-			'project-card': ProjectCard
+			'project-card': ProjectCard,
+
 		},
 		methods: {
 			getProjects(){

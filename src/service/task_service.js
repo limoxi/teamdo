@@ -118,16 +118,6 @@ class TaskService {
         });
     }
 
-    static finishSubTask(projectId, task){
-        return Resource.put({
-            'resource': 'task.finished_sub_task',
-            'data': {
-                'project_id': projectId,
-                'task_id': task.id
-            }
-        })
-    }
-
     static undoTask(projectId, task){
         return Resource.put({
             'resource': 'task.undid_task',
