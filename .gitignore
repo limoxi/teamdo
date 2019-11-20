@@ -5,6 +5,7 @@
 .git
 .idea
 yarn.lock
+.yarnclean
 dist
 node_modules
 

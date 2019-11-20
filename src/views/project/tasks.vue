@@ -233,7 +233,7 @@
 		            'title': '编号',
 					'key': 'id',
                     'sortable': 'custom',
-					'width': 80,
+					'width': 90,
 					'align': 'center'
 				}, {
 		            'title': '标题',
@@ -244,7 +244,7 @@
 		            'title': '优先级',
 					'key': 'importance',
                     'sortable': 'custom',
-					'width': 110,
+					'width': 120,
 					'align': 'center',
                     'filters': [{
                         'label': '普通',
@@ -277,7 +277,7 @@
 				}, {
 		            'title': '故事点',
 					'key': 'NUT',
-					'width': 75
+					'width': 90
 				}, {
 		            'title': '参与用户',
 					'key': 'users',

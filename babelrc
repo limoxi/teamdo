@@ -11,7 +11,7 @@
             "helpers": true,
             "regenerator": true,
             "moduleName": "babel-runtime",
-            "libraryName": "iview",
+            "libraryName": "view-design",
             "libraryDirectory": "src/components"
         }
     ]]

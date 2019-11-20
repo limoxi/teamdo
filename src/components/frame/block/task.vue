@@ -5,12 +5,12 @@
 				用户故事&nbsp;{{task.id}}
 			</div>
 			<div class="aui-i-action">
-				<Button v-show="inFirstLane" icon="ios-undo" class="aui-icon-scale" @click="onClickUndo"></Button>
-				<Button v-show="!inFirstLane&&!inLastLane" icon="md-flash" class="aui-icon-scale" @click="onClickFlash"></Button>
-				<Button icon="md-book" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
-				<Button icon="md-add" class="aui-icon-scale" @click="onClickAddSub"></Button>
+				<Button v-show="inFirstLane" icon="ios-undo" @click="onClickUndo"></Button>
+				<Button v-show="!inFirstLane&&!inLastLane" icon="md-flash" @click="onClickFlash"></Button>
+				<Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
+				<Button icon="md-add" @click="onClickAddSub"></Button>
 				<Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
-					<Button icon="md-swap" class="aui-icon-scale"></Button>
+					<Button icon="md-swap"></Button>
 					<DropdownMenu slot="list">
 						<DropdownItem v-for="l in lanes" :key="l.id" :name="l.id"
 									  v-if="lane.id !== l.id">{{l.name}}</DropdownItem>
@@ -205,8 +205,17 @@
 			font-weight: bold;
 
 			.aui-i-action{
+				position: absolute;
+				top: 3px;
+				right: 5px;
 				display: none;
-				line-height: 0;
+
+				.ivu-btn-icon-only{
+					width: 26px;
+					height: 26px;
+					border-radius: 4px;
+					border: none;
+				}
 			}
 		}
 

@@ -7,6 +7,7 @@
 			</p>
 			<Button slot="extra" icon="md-qr-scanner" class="aui-icon-scale" @click="onClickExpand(task)"></Button>
 			<Tag color="primary">{{task.elapsed_time||0}}</Tag>
+			<editor :readonly="true" :content="task.desc"></editor>
 		</Card>
 	</div>
 </template>
@@ -14,10 +15,13 @@
 <script>
     import TaskService from '@/service/task_service';
     import events from '@/service/global_events';
+    import Editor from '@/components/editor/editor';
 
     export default {
         props: ['row', 'projectId'],
-		components:{},
+		components:{
+			Editor,
+		},
 
         data(){
             return{

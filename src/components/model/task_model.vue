@@ -26,11 +26,7 @@
 					<InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
 				</FormItem>
 				<FormItem label="描述">
-					<v-editor @on-change="onDescChange"></v-editor>
-<!--					<quill-editor v-model="form.desc"-->
-<!--								  ref="editor"-->
-<!--								  :options="editorOptions">-->
-<!--					</quill-editor>-->
+					<editor @onUpdate="onDescChange" :menu-items="editor.menuItems"></editor>
 				</FormItem>
 			</Form>
 			<Button slot="footer" @click="handleSubmit">确定</Button>
@@ -40,8 +36,9 @@
 				<div>{{task.importance}}</div>
 				<div>{{task.NUT}}</div>
 				<div>{{task.need_id}}</div>
+				{{task.desc}}
 				<div>
-					<v-editor :dataStr="task.desc" :readonly="true"></v-editor>
+					<editor :content="task.desc" :readonly="true"></editor>
 				</div>
 			</div>
 			<div slot="footer">
@@ -54,19 +51,38 @@
 <script>
 	import TaskService from '@/service/task_service';
 	import events from '@/service/global_events';
-	import helper from '@/utils/helper';
-    import VEditor from '@/components/veditor/v_editor';
+    import Editor from '@/components/editor/editor';
 
     export default {
         props: ['show', 'mode', 'task', 'projectId'],
 		components: {
-        	'v-editor': VEditor
+			Editor,
 		},
         data () {
             return {
                 form: this.defaultForm(),
                 needOptions: [],
 				tagOptions: [],
+				editor: {
+                	menuItems: [
+						'bold',
+						'italic',
+						'strike',
+						'underline',
+						'ordered_list',
+						'bullet_list',
+						'horizontal_rule',
+						'blockquote',
+						'code_block',
+						'heading-1',
+						'heading-2',
+						'heading-3',
+						'paragraph',
+						'image',
+						'undo',
+						'redo',
+					]
+				},
                 importanceOptions: [{
                     'label': '1(一般)',
                     'value': 1
@@ -95,18 +111,6 @@
                     'label': '9',
                     'value': 9
                 }],
-                editorOptions:{
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            ['bold', 'italic', 'underline'],        // toggled buttons
-            				['blockquote', 'code-block'],
-                			[{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'align': [] }],
-                            ['link', 'image'],
-                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-						]
-					}
-				},
                 ruleValidate: {
                     name: [
                         { required: true, message: '任务标题不能为空', trigger: 'blur' }

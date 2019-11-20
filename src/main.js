@@ -2,16 +2,14 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import App from './app.vue';
 import Routers from './router.js';
-import VueQuillEditor from 'vue-quill-editor';
-import iView from 'iview';
-import 'iview/dist/styles/iview.css';
+import ViewUI from 'view-design';
+import 'view-design/dist/styles/iview.css';
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
-Vue.use(VueQuillEditor);
 Vue.use(VueRouter);
-Vue.use(iView);
+Vue.use(ViewUI);
 
 // The routing configuration
 const RouterConfig = {
@@ -21,13 +19,13 @@ const RouterConfig = {
 const router = new VueRouter(RouterConfig);
 
 router.beforeEach((to, from, next) => {
-    iView.LoadingBar.start();
+    ViewUI.LoadingBar.start();
     window.document.title = to.meta.title || 'iScrum';
     next();
 });
 
 router.afterEach((to, from, next) => {
-    iView.LoadingBar.finish();
+    ViewUI.LoadingBar.finish();
     window.scrollTo(0, 0);
 });
 

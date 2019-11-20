@@ -4,6 +4,14 @@
     src: url('./main.ttf');
 }
 
+.ProseMirror [contenteditable="false"] {
+    white-space: normal;
+}
+
+.ProseMirror [contenteditable="true"] {
+    white-space: pre-wrap;
+}
+
 a{
     text-decoration: none;
     color: inherit;
@@ -20,7 +28,7 @@ button:focus, button:active{
 
 //图标按钮紧凑化
 .ivu-btn-icon-only{
-    padding: 0 6px !important;
+    padding: 0 !important;
 }
 
 //弹窗中的表单留有右边距
@@ -33,7 +41,7 @@ button:focus, button:active{
 //放大图标
 .aui-icon-scale{
     .ivu-icon{
-        transform: scale(1.4);
+        transform: scale(1.2);
     }
 }
 
