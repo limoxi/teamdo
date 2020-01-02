@@ -4,9 +4,6 @@ import App from './app.vue';
 import Routers from './router.js';
 import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
 
 Vue.use(VueRouter);
 Vue.use(ViewUI);

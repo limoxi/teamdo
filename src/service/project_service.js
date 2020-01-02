@@ -11,7 +11,11 @@ class ProjectService{
     static getProjects(){
         return Resource.get({
             'resource': 'project.projects',
-            'data': {}
+            'data': {
+                'with_option': JSON.stringify({
+                    'with_users': true
+                })
+            }
         });
     }
 

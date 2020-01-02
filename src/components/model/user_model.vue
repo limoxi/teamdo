@@ -21,11 +21,6 @@
 			<FormItem label="密码" prop="password" v-if="isRegisterMode">
 				<Input type="password" v-model="user.password"></Input>
 			</FormItem>
-			<FormItem label="职位">
-				<Select v-model="roleId" style="width:200px" :clearable="true" label="请选择职位">
-					<Option v-for="role in roles" :value="role.id" :key="role.id">{{ role.name }}</Option>
-				</Select>
-			</FormItem>
 		</Form>
 		<Button slot="footer" @click="handleSubmit">确定</Button>
 	</Modal>
@@ -34,7 +29,6 @@
 	import helper from '@/utils/helper';
 	import Uploader from '@/components/uploader';
 	import UserService from '@/service/user_service';
-	import PermissionService from '@/service/permission_service';
     import events from '@/service/global_events';
 
     export default {
@@ -44,8 +38,6 @@
         props: ['show', 'mode'],
         data () {
             return {
-                roles: [],
-                roleId: 0,
                 user: {
                     username: '',
                     nickname: '',
@@ -59,9 +51,6 @@
                     ],
                     password: [
                         { required: true, message: '请输入密码', trigger: 'blur' }
-                    ],
-                    roleId: [
-                        { required: true, message: '请选择职位', trigger: 'change' }
                     ]
                 }
             }
@@ -76,11 +65,7 @@
                         if(this.isUpdateMode){
 							UserService.getUser({
 								user_id: helper.storage.get('uid'),
-								with_options: JSON.stringify({
-									'with_group_info': true
-								})
 							}).then(data =>{
-								this.roleId = data.group.id;
 								this.user.username = data.username;
 								this.user.avatar = data.avatar;
 								this.user.nickname = data.nickname;
@@ -88,11 +73,6 @@
 								this.$Message.error('获取用户信息失败');
 							});
 						}
-						PermissionService.getAllGroups().then(data =>{
-				 			this.roles = data;
-						}).catch(err =>{
-							this.$Message.error('获取角色列表失败');
-					 	});
 					}
                     return this.show;
                 },
@@ -118,13 +98,12 @@
 								avatar: this.user.avatar,
 								password: this.user.password,
 								nickname: this.user.nickname,
-								group_id: this.roleId
 							}).then(() =>{
 								this.$Message.success('注册成功,可以登录了~');
 								this.$emit('update:registered', true);
 								this.showModel = false;
 							}).catch(err =>{
-								this.$Message.error(err.errMsg);
+								this.$Message.error(err.errMsg);抠
 							});
 						}
 
@@ -132,7 +111,6 @@
 							UserService.updateUser({
                                 avatar: this.user.avatar,
 								nickname: this.user.nickname,
-								group_id: this.roleId
 							}).then(() =>{
                                 window.EventBus.$emit(events.USER_UPDATED, this.user);
 								this.showModel = false;

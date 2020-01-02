@@ -48,8 +48,6 @@
 
 </template>
 <script>
-
-    import Resource from '@/utils/resource';
     import ImageCompressor from '@/service/image_compressor';
     import defaultAvatar from '@/images/default-avatar.webp';
 

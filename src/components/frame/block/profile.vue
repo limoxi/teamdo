@@ -34,10 +34,11 @@
     import PasswordModel from '../../model/password_model';
     import UserModel from '@/components/model/user_model';
     import events from '@/service/global_events';
+	import Cookies from 'js-cookie';
 
     export default {
         beforeCreate(){
-            let token = helper.storage.get('token');
+            let token = Cookies.get('token');
 			if(!token){
 			    this.$router.replace({'name': 'login'})
 			}
@@ -84,7 +85,8 @@
                 this.showMessages = true;
 			},
             logout(){
-                helper.storage.remove('token');
+                Cookies.remove('token');
+                helper.storage.clear();
                 this.$router.replace({'name': 'index'})
 			}
 		}

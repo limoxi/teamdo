@@ -7,7 +7,13 @@
 				<Button size="large" type="text" icon="md-trash" @click="onDelete"></Button>
 			</span>
 			<p>{{ cProject.desc }}</p>
-			<p class="aui-i-time">{{ cProject.createdAt }}</p>
+			<p class="aui-i-users">
+				<Avatar v-for="user in cProject.users" :key="user.id"
+					:src="user.avatar || defaultAvatar"
+					:size="user.id === cProject.user_id? 45: 35"
+				/>
+			</p>
+			<p class="aui-i-time">{{ cProject.created_at }}</p>
 		</Card>
 		<project-model
 			:show.sync="showModel"
@@ -21,6 +27,7 @@
 
 	import ProjectModel from '@/components/model/project_model';
 	import ProjectService from '@/service/project_service';
+	import defaultAvatar from '@/images/default-avatar.webp';
 
     export default {
         props: ['project'],
@@ -28,6 +35,7 @@
             return {
                 cProject: this.project,
                 showModel: false,
+				defaultAvatar,
             }
         },
 		components:{
@@ -100,6 +108,12 @@
 			.ivu-btn-icon-only .ivu-btn-large{
 				font-size: 16px;
 			}
+		}
+
+		.aui-i-users{
+			margin-top: 15px;
+			margin-bottom: -35px;
+			width: 60%;
 		}
 	}
 

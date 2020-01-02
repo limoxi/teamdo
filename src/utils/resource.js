@@ -4,6 +4,7 @@ import qs from 'qs';
 import helper from './helper';
 import env from '@/env';
 import Logger from '@/utils/logger';
+import Cookies from 'js-cookie';
 
 const CONTENT_TYPE = 'application/json; charset=UTF-8'; //application/x-www-form-urlencoded
 const HTTP_SCHEME = 'http';
@@ -55,7 +56,7 @@ class Resource{
             '_method': 'put'
         }), formData, {
             headers: {
-                'Authorization': helper.storage.get('token'),
+                'Authorization': Cookies.get('token'),
                 'Content-Type': 'multipart/form-data'
             },
             async: true,
@@ -93,10 +94,12 @@ class Resource{
     }
 
 
-    _get_request_url(resource, param){
+    _get_request_url(resource, param=null){
         let url = `${HTTP_SCHEME}://${this.apiHost}/${this.serviceName}/${resource.replace(/\./g, '/')}/`;
 
         let params = [];
+        param = param || {};
+        param['__timestamp'] = new Date().getTime();
         for(let k in param){
             let v = encodeURIComponent(param[k]);
             params.push(`${k}=${v}`);
@@ -115,9 +118,8 @@ class Resource{
 
     put(options){
         let resource = options.resource;
-        let param = {'_method': 'put'};
-        options.url = this._get_request_url(resource, param);
-        options.method = 'post';
+        options.url = this._get_request_url(resource);
+        options.method = 'put';
         return this._request(options);
     }
 
@@ -133,19 +135,22 @@ class Resource{
         let resource = options.resource;
         let param = {'_method': 'delete'};
         options.url = this._get_request_url(resource, param);
-        options.method = 'post';
+        options.method = 'delete';
         return this._request(options);
     }
 
     async _request(options){
         Logger.log(options.url, options.data);
+        let token = Cookies.get('token');
+        let headers = {};
+        if(token){
+            headers['Authorization'] = token;
+        }
         options = helper.extend({
             url: options.url,
             method: options.method,
             data: {},
-            headers: {
-                'Authorization': helper.storage.get('token')
-            },
+            headers: headers,
             async: true,
             timeout: 3000,
             onTimeout: helper.noop,
@@ -156,18 +161,13 @@ class Resource{
 
         try {
             let resp = await axios(options);
-            if(resp.data.code === 200){
+            if(resp.data.state !== 'error'){
                 return resp.data.data;
             }else{
-                if(resp.data.errMsg === '不合法的token'){
-                    helper.storage.remove('token');
-                    window.location.href = '/';
-                }else{
-                    throw new ResourceException({
-                        code: resp.data.code,
-                        errMsg: resp.data.errMsg
-                    })
-                }
+                throw new ResourceException({
+                    code: resp.data.code,
+                    errMsg: resp.data.data.errMsg
+                })
             }
         }catch (err) {
             Logger.alert(err);

@@ -18,6 +18,7 @@
 <script>
 	import UserService from '@/service/user_service';
 	import helper from '@/utils/helper';
+	import Cookies from "js-cookie";
 
     export default {
         props: ['show'],
@@ -56,16 +57,15 @@
 							this.loginUser.password,
 						).then(data =>{
                             helper.storage.set('uid', data.id);
-                            helper.storage.set('token', data.token);
-
                             helper.storage.set('nickname', data.nickname);
                             helper.storage.set('avatar', data.avatar);
+							Cookies.set('token', data.token);
 
-							this.showModel = false;
 							this.resetForm();
 							this.$Message.success('登陆成功, 正在跳转页面...');
 							helper.delay(() =>{
 								this.$router.replace({name: 'projects'});
+								this.showModel = false;
 							}, 2);
 						}).catch(err =>{
 							this.$Message.error(err.errMsg);
