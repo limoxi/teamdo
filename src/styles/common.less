@@ -1,87 +1,98 @@
+html {
+  min-width: 550px;
+}
+
+*::-webkit-scrollbar {/*滚动条整体样式*/
+  display: none;
+}
 
 @font-face {
-    font-family: teamdo;
-    src: url('./main.ttf');
+  font-family: teamdo;
+  src: url('./main.ttf');
 }
 
 .ProseMirror [contenteditable="false"] {
-    white-space: normal;
+  white-space: normal;
 }
 
 .ProseMirror [contenteditable="true"] {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
-a{
-    text-decoration: none;
-    color: inherit;
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 a:hover, a:visited, a:link, a:active {
-    color: inherit;
+  color: inherit;
 }
 
-button:focus, button:active{
-    outline: 0;
+button:focus, button:active {
+  outline: 0;
 }
 
 
 //图标按钮紧凑化
-.ivu-btn-icon-only{
-    padding: 0 !important;
+.ivu-btn-icon-only {
+  padding: 0 !important;
 }
 
 //弹窗中的表单留有右边距
-.ivu-modal-body{
-    .ivu-form-item-content{
-        margin-right: 15px;
-    }
+.ivu-modal-body {
+  .ivu-form-item-content {
+    margin-right: 15px;
+  }
 }
 
 //放大图标
-.aui-icon-scale{
-    .ivu-icon{
-        transform: scale(1.2);
-    }
+.aui-icon-scale {
+  .ivu-icon {
+    transform: scale(1.2);
+  }
 }
 
 // 分页器
-.aui-paginator{
-    float: right;
-    margin: 10px 0;
+.aui-paginator {
+  float: right;
+  margin: 10px 0;
 }
 
-.aui-header{
-    min-height: 60px;
-    div{
-        margin: 0 10px;
-    }
+.aui-header {
+  min-height: 60px;
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  div {
+    margin: 0 10px;
+  }
 
-    .aui-i-menu{
-        flex-grow: 1;
-    }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .aui-i-menu {
+    overflow: hidden;
+    min-width: 140px;
+    max-height: 58px;
+    flex-grow: 1;
+  }
 }
 
 // 看板
-.aui-board{
-    display: flex;
-    justify-content: flex-start;
-    overflow-x: scroll;
-    margin: 0 5px;
-    height: 100vh;
-    width: 100vw;
-    border-radius: 5px;
-    border: 1px solid #eee;
-    background: #eee;
+.aui-board {
+  display: flex;
+  justify-content: flex-start;
+  overflow-x: scroll;
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  //border-radius: 5px;
+  //border: 1px solid #eee;
+  //background: #eee;
 
-    // 右边留一点空白
-    .aui-i-blank{
-        min-width:5px;
-    }
+  // 右边留一点空白
+  .aui-i-blank {
+    min-width: 5px;
+  }
 }
 
 

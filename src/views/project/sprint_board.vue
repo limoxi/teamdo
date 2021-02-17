@@ -1,17 +1,15 @@
 <template>
-	<div>askdjaksdjaksd</div>
+  <div>askdjaksdjaksd</div>
 </template>
 
 <script>
-    export default {
-        props: ['projectId'],
-        data(){
-            return {
-			}
-		},
-		components: {
-		}
-    }
+export default {
+  props: ['projectId'],
+  data() {
+    return {}
+  },
+  components: {}
+}
 </script>
 
 <style lang="less" scoped>

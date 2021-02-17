@@ -1,120 +1,122 @@
 <template>
-	<div @click="onClickCard">
-		<Card class="aui-project-card">
-			<p slot="title">{{ cProject.name }}</p>
-			<span class="aui-i-action" slot="extra">
+  <div @click="onClickCard">
+    <Card class="aui-project-card">
+      <p slot="title">{{ cProject.name }}</p>
+      <span class="aui-i-action" slot="extra">
 				<Button size="large" type="text" icon="ios-brush" @click="onEdit"></Button>
 				<Button size="large" type="text" icon="md-trash" @click="onDelete"></Button>
 			</span>
-			<p>{{ cProject.desc }}</p>
-			<p class="aui-i-users">
-				<Avatar v-for="user in cProject.users" :key="user.id"
-					:src="user.avatar || defaultAvatar"
-					:size="user.id === cProject.user_id? 45: 35"
-				/>
-			</p>
-			<p class="aui-i-time">{{ cProject.created_at }}</p>
-		</Card>
-		<project-model
-			:show.sync="showModel"
-			@projectUpdated="onProjectUpdated"
-			:project="cProject"
-		></project-model>
-	</div>
+      <p>{{ cProject.desc }}</p>
+      <p class="aui-i-users">
+        <Avatar v-for="user in cProject.users" :key="user.id"
+                :src="user.avatar || defaultAvatar"
+                :size="user.id === cProject.user_id? 45: 35"
+        />
+      </p>
+      <p class="aui-i-time">{{ cProject.created_at }}</p>
+    </Card>
+    <project-model
+        :show.sync="showModel"
+        @projectUpdated="onProjectUpdated"
+        :project="cProject"
+    ></project-model>
+  </div>
 </template>
 
 <script>
 
-	import ProjectModel from '@/components/model/project_model';
-	import ProjectService from '@/service/project_service';
-	import defaultAvatar from '@/images/default-avatar.webp';
+import ProjectModel from '@/components/model/project_model';
+import ProjectService from '@/service/project_service';
+import defaultAvatar from '@/images/default-avatar.webp';
 
-    export default {
-        props: ['project'],
-        data: function () {
-            return {
-                cProject: this.project,
-                showModel: false,
-				defaultAvatar,
-            }
-        },
-		components:{
-            'project-model': ProjectModel
-		},
-		methods: {
-            onClickCard(){
-                this.$router.push({
-					'name': 'project',
-					'params': {projectId: this.cProject.id, name: this.cProject.name}
-				})
-			},
-
-            onEdit(e){
-				e.stopPropagation();
-				this.showModel = true;
-			},
-
-			onDelete(e){
-                e.stopPropagation();
-                this.$Modal.confirm({
-                    title: '删除项目',
-                    content: '<strong>确定要删除该项目么？</strong><p>删除后该项目关联的所有数据都将一并清除！！！</p>',
-                    okText: '确认',
-                    cancelText: '再想想',
-                    onOk: () =>{
-                        ProjectService.deleteProject(this.cProject.id).then(() =>{
-							this.$emit('projectDeleted', this.cProject);
-                        }).catch(err =>{
-                            this.$Message.error(err.errMsg);
-                        });
-                    }
-                });
-			},
-
-            onProjectUpdated(project){
-                this.cProject = project;
-			}
-		}
+export default {
+  props: ['project'],
+  data: function () {
+    return {
+      cProject: this.project,
+      showModel: false,
+      defaultAvatar,
     }
+  },
+  components: {
+    'project-model': ProjectModel
+  },
+  methods: {
+    onClickCard() {
+      this.$router.push({
+        'name': 'project',
+        'params': {projectId: this.cProject.id, name: this.cProject.name}
+      })
+    },
+
+    onEdit(e) {
+      e.stopPropagation();
+      this.showModel = true;
+    },
+
+    onDelete(e) {
+      e.stopPropagation();
+      this.$Modal.confirm({
+        title: '删除项目',
+        content: '<strong>确定要删除该项目么？</strong><p>删除后该项目关联的所有数据都将一并清除！！！</p>',
+        okText: '确认',
+        cancelText: '再想想',
+        onOk: () => {
+          ProjectService.deleteProject(this.cProject.id).then(() => {
+            this.$emit('projectDeleted', this.cProject);
+          }).catch(err => {
+            this.$Message.error(err.errMsg);
+          });
+        }
+      });
+    },
+
+    onProjectUpdated(project) {
+      this.cProject.name = project.name;
+      this.cProject.desc = project.desc;
+    }
+  }
+}
 </script>
 
 <style lang="less" scoped>
-	.aui-project-card{
-		&:hover{
-			.aui-i-action{
-				display: inline-block;
-			}
-		}
-		cursor: pointer;
+.aui-project-card {
+  &:hover {
+    .aui-i-action {
+      display: inline-block;
+    }
+  }
 
-		.aui-i-time{
-			text-align: right;
-		}
+  cursor: pointer;
 
-		.ivu-card-extra{
-			top: 5px;
-		}
+  .aui-i-time {
+    text-align: right;
+  }
 
-		.ivu-card-head{
-			p{
-				font-size: 18px;
-			}
-		}
+  .ivu-card-extra {
+    top: 5px;
+  }
 
-		.aui-i-action{
-			display: none;
-			margin-top: -15px;
+  .ivu-card-head {
+    p {
+      font-size: 18px;
+    }
+  }
 
-			.ivu-btn-icon-only .ivu-btn-large{
-				font-size: 16px;
-			}
-		}
+  .aui-i-action {
+    display: none;
+    margin-top: -15px;
 
-		.aui-i-users{
-			margin-top: 15px;
-			margin-bottom: -35px;
-			width: 60%;
-		}
-	}
+    .ivu-btn-icon-only .ivu-btn-large {
+      font-size: 16px;
+    }
+  }
+
+  .aui-i-users {
+    margin-top: 15px;
+    margin-bottom: -35px;
+    width: 60%;
+  }
+}
 
 </style>

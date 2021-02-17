@@ -1,166 +1,173 @@
-
 @color-black: #333;
 @color-white: #fff;
 
-.aui-editor{
-	position: relative;
-	width: 100%;
-	min-width: 20vw;
-	min-height: 1rem;
-	.aui-is-active{
-		opacity: 1 !important;
-		visibility: visible !important;
-	}
-	.aui-menu-floating{
-		position: absolute;
-		z-index: 1;
-		margin-top: -0.25rem;
-		visibility: hidden;
-		opacity: 0;
-		transition: opacity 0.2s, visibility 0.2s;
-	}
+.aui-editor {
+  position: relative;
+  width: 100%;
+  min-width: 20vw;
+  min-height: 1rem;
 
-	.icon {
-		width: 1em;
-		height: 1em;
-		vertical-align: -0.15em;
-		fill: currentColor;
-		overflow: hidden;
-	}
+  .aui-is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 
-	.aui-editor-ext-is-active{
-		background-color: rgba(@color-black, 0.2);
-	}
+  .aui-menu-floating {
+    position: absolute;
+    z-index: 1;
+    margin-top: -0.25rem;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
 
-	.aui-editor-btn{
-		font-size: 14px;
-		font-weight: bold;
-		border-radius: 5px;
-		border: none;
-		padding: 0 8px;
-		margin: 0 2px;
+  .icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
+  }
 
-		&:hover{
-			cursor: pointer;
-			background-color: rgba(@color-black, 0.2);
-		}
-	}
+  .aui-editor-ext-is-active {
+    background-color: rgba(@color-black, 0.2);
+  }
 
-	.aui-editor-content{
-		height: 200px;
-		overflow-y: hidden;
-		border: 1px solid lightgray;
-		border-radius: 5px;
-		word-wrap: break-word;
-		word-break: break-word;
+  .aui-editor-btn {
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    padding: 0 8px;
+    margin: 0 2px;
 
-		.ProseMirror{
-			height: 100%;
-			padding: 5px;
-			line-height: 25px;
-			overflow-y: scroll;
-		}
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(@color-black, 0.2);
+    }
+  }
 
-		pre{
-			padding: 0.7rem 1rem;
-			border-radius: 5px;
-			background: @color-black;
-			color: @color-white;
-			font-size: 0.8rem;
-			overflow-x: auto;
+  .aui-editor-content {
+    height: 200px;
+    overflow-y: hidden;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    word-wrap: break-word;
+    word-break: break-word;
 
-			code {
-				display: block;
-			}
-		}
+    .ProseMirror {
+      height: 100%;
+      padding: 5px;
+      line-height: 25px;
+      overflow-y: scroll;
+    }
 
-		p code {
-			display: inline-block;
-			padding: 0 0.4rem;
-			border-radius: 5px;
-			font-size: 0.8rem;
-			font-weight: bold;
-			background: rgba(@color-black, 0.1);
-			color: rgba(@color-black, 0.8);
-		}
+    pre {
+      padding: 0.7rem 1rem;
+      border-radius: 5px;
+      background: @color-black;
+      color: @color-white;
+      font-size: 0.8rem;
+      overflow-x: auto;
 
-		ul, ol {
-			padding-left: 1rem;
-		}
+      code {
+        display: block;
+      }
+    }
 
-		li > p, li > ol, li > ul {
-			margin: 0;
-		}
+    p code {
+      display: inline-block;
+      padding: 0 0.4rem;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      background: rgba(@color-black, 0.1);
+      color: rgba(@color-black, 0.8);
+    }
 
-		a {
-			color: inherit;
-		}
+    ul, ol {
+      padding-left: 1rem;
+    }
 
-		blockquote {
-			margin-inline-start: 0;
-			border-left: 3px solid rgba(@color-black, 0.1);
-			color: rgba(@color-black, 0.8);
-			padding-left: 0.8rem;
-			font-style: italic;
+    li > p, li > ol, li > ul {
+      margin: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    blockquote {
+      margin-inline-start: 0;
+      border-left: 3px solid rgba(@color-black, 0.1);
+      color: rgba(@color-black, 0.8);
+      padding-left: 0.8rem;
+      font-style: italic;
 
 
-			p {
-				margin: 0;
-			}
-		}
+      p {
+        margin: 0;
+      }
+    }
 
-		img {
-			max-width: 100%;
-			border-radius: 3px;
-		}
+    img {
+      max-width: 100%;
+      border-radius: 3px;
+    }
 
-		table {
-			border-collapse: collapse;
-			table-layout: fixed;
-			width: 100%;
-			margin: 0;
-			overflow: hidden;
+    table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 100%;
+      margin: 0;
+      overflow: hidden;
 
-			td, th {
-				min-width: 1em;
-				border: 2px solid grey;
-				padding: 3px 5px;
-				vertical-align: top;
-				box-sizing: border-box;
-				position: relative;
-				> * {
-					margin-bottom: 0;
-				}
-			}
+      td, th {
+        min-width: 1em;
+        border: 2px solid grey;
+        padding: 3px 5px;
+        vertical-align: top;
+        box-sizing: border-box;
+        position: relative;
 
-			th {
-				font-weight: bold;
-				text-align: left;
-			}
+        > * {
+          margin-bottom: 0;
+        }
+      }
 
-			.selectedCell:after {
-				z-index: 2;
-				position: absolute;
-				content: "";
-				left: 0; right: 0; top: 0; bottom: 0;
-				background: rgba(200, 200, 255, 0.4);
-				pointer-events: none;
-			}
+      th {
+        font-weight: bold;
+        text-align: left;
+      }
 
-			.column-resize-handle {
-				position: absolute;
-				right: -2px; top: 0; bottom: 0;
-				width: 4px;
-				z-index: 20;
-				background-color: #adf;
-				pointer-events: none;
-			}
-		}
+      .selectedCell:after {
+        z-index: 2;
+        position: absolute;
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(200, 200, 255, 0.4);
+        pointer-events: none;
+      }
 
-		.tableWrapper {
-			margin: 1em 0;
-			overflow-x: auto;
-		}
-	}
+      .column-resize-handle {
+        position: absolute;
+        right: -2px;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        z-index: 20;
+        background-color: #adf;
+        pointer-events: none;
+      }
+    }
+
+    .tableWrapper {
+      margin: 1em 0;
+      overflow-x: auto;
+    }
+  }
 }
 

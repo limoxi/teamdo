@@ -1,14 +1,13 @@
-
 import Resource from '@/utils/resource';
 
-class PermissionService{
+class PermissionService {
 
-    static getAllGroups(){
-        return Resource.get({
-            'resource': 'rust.permission.groups',
-            'data': {}
-        });
-    }
+  static getAllGroups() {
+    return Resource.get({
+      'resource': 'rust.permission.groups',
+      'data': {}
+    });
+  }
 }
 
 export default PermissionService;

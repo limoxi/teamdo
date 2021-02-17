@@ -21,71 +21,71 @@ import settings from '../config/config';
 let indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
 
 class EasyDB {
-    constructor(dbName, tableName) {
-        this.dbName = dbName;
-        this.tableName = tableName;
-        this.db = null;
-        this.table = null;
-    }
+  constructor(dbName, tableName) {
+    this.dbName = dbName;
+    this.tableName = tableName;
+    this.db = null;
+    this.table = null;
+  }
 
-    static open(dbName, tableName) {
-        let instance = new EasyDB(dbName, tableName);
+  static open(dbName, tableName) {
+    let instance = new EasyDB(dbName, tableName);
 
-        return new Promise((resolve, reject) => {
-            let request = indexedDB.open(this.dbname);
+    return new Promise((resolve, reject) => {
+      let request = indexedDB.open(this.dbname);
 
-            request.onerror = e => {
-                console.error('本地数据库创建/打开失败', e);
-                reject(e.target.errorCode);
-            };
-            request.onsuccess = e => {
-                instance.db = e.target.result;
-                instance.table = instance.db.transaction(tableName, 'readwrite').objectStore(tableName);
-                resolve(instance);
-            };
+      request.onerror = e => {
+        console.error('本地数据库创建/打开失败', e);
+        reject(e.target.errorCode);
+      };
+      request.onsuccess = e => {
+        instance.db = e.target.result;
+        instance.table = instance.db.transaction(tableName, 'readwrite').objectStore(tableName);
+        resolve(instance);
+      };
 
-            request.onupgradeneeded = e => {
-                console.log('升级数据库 ' + dbName + 'to version ' + request.result.version);
-                instance.db = e.target.result;
-                for(let tableName of settings.localTables){
-                    if(!instance.db.objectStoreNames.contains(tableName)){
-                        instance.table = instance.db.createObjectStore(tableName, {keyPath: 'mid'});
-                    }
-                }
-                resolve(instance);
-            };
+      request.onupgradeneeded = e => {
+        console.log('升级数据库 ' + dbName + 'to version ' + request.result.version);
+        instance.db = e.target.result;
+        for (let tableName of settings.localTables) {
+          if (!instance.db.objectStoreNames.contains(tableName)) {
+            instance.table = instance.db.createObjectStore(tableName, {keyPath: 'mid'});
+          }
+        }
+        resolve(instance);
+      };
 
-        });
-    }
+    });
+  }
 
-    set(blob) {
-        return new Promise((resolve, reject) => {
-            let request = this.table.put(blob);
-            request.onsuccess = resolve;
-            request.onerror = reject;
-        });
+  set(blob) {
+    return new Promise((resolve, reject) => {
+      let request = this.table.put(blob);
+      request.onsuccess = resolve;
+      request.onerror = reject;
+    });
 
-    }
+  }
 
-    get(name) {
-        return new Promise((resolve, reject) => {
-            let tmpRequest = null;
-            if (name) {
-                tmpRequest = this.table.get(name);
-                tmpRequest.onsuccess = function (e) {
-                    resolve(e.target.result);
-                };
-                tmpRequest.onerror = reject;
+  get(name) {
+    return new Promise((resolve, reject) => {
+      let tmpRequest = null;
+      if (name) {
+        tmpRequest = this.table.get(name);
+        tmpRequest.onsuccess = function (e) {
+          resolve(e.target.result);
+        };
+        tmpRequest.onerror = reject;
 
-            } else {
-                tmpRequest = this.table.getAll();
-                tmpRequest.onsuccess = function (e) {
-                    resolve(e.target.result);
-                };
-                tmpRequest.onerror = reject;
-            }
-        });
-    }
+      } else {
+        tmpRequest = this.table.getAll();
+        tmpRequest.onsuccess = function (e) {
+          resolve(e.target.result);
+        };
+        tmpRequest.onerror = reject;
+      }
+    });
+  }
 }
 
 export default EasyDB;
