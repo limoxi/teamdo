@@ -14,8 +14,8 @@
 
 <script>
 import TaskService from '@/service/task_service';
-import events from '@/service/global_events';
 import Editor from '@/components/editor/editor';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['row', 'projectId'],
@@ -32,7 +32,7 @@ export default {
   methods: {
     onClickExpand(selectedTask) {
       TaskService.getTask(this.projectId, selectedTask.id).then(task => {
-        window.EventBus.$emit(events.TASK_EXPANDED, task);
+        EventBus.emit(events.TASK_EXPANDED, task);
       }).catch(err => {
         this.$Message.error(err.errMsg);
       });

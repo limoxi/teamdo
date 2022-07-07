@@ -1,82 +1,62 @@
 <template>
   <div @click="onClickCard">
     <Card class="aui-project-card">
-      <p slot="title">{{ cProject.name }}</p>
-      <span class="aui-i-action" slot="extra">
-				<Button size="large" type="text" icon="ios-brush" @click="onEdit"></Button>
-				<Button size="large" type="text" icon="md-trash" @click="onDelete"></Button>
-			</span>
-      <p>{{ cProject.desc }}</p>
+      <template #title>
+        <p>{{ project.name }}</p>
+      </template>
+      <template #extra>
+        <span class="aui-i-action">
+          <Button size="large" type="text" icon="md-create" @click="onEdit"></Button>
+          <Button size="large" type="text" icon="md-trash" @click="onDelete"></Button>
+        </span>
+      </template>
+
+      <p>{{ project.desc }}</p>
       <p class="aui-i-users">
-        <Avatar v-for="user in cProject.users" :key="user.id"
-                :src="user.avatar || defaultAvatar"
-                :size="user.id === cProject.user_id? 45: 35"
+        <Avatar v-for="user in project.users" :key="user.id"
+          :src="user.avatar || defaultAvatar"
+          :size="user.id === project.user_id? 45: 35"
         />
       </p>
-      <p class="aui-i-time">{{ cProject.created_at }}</p>
+      <p class="aui-i-time">{{ project.created_at }}</p>
     </Card>
-    <project-model
-        :show.sync="showModel"
-        @projectUpdated="onProjectUpdated"
-        :project="cProject"
-    ></project-model>
   </div>
 </template>
 
-<script>
-
-import ProjectModel from '@/components/model/project_model';
-import ProjectService from '@/service/project_service';
+<script setup>
+import {Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
+import {events, EventBus} from '@/service/event_bus'
+import {useRouter} from 'vue-router'
+const router = useRouter()
 
-export default {
-  props: ['project'],
-  data: function () {
-    return {
-      cProject: this.project,
-      showModel: false,
-      defaultAvatar,
-    }
-  },
-  components: {
-    'project-model': ProjectModel
-  },
-  methods: {
-    onClickCard() {
-      this.$router.push({
-        'name': 'project',
-        'params': {projectId: this.cProject.id, name: this.cProject.name}
-      })
-    },
+const props = defineProps(['project'])
 
-    onEdit(e) {
-      e.stopPropagation();
-      this.showModel = true;
-    },
-
-    onDelete(e) {
-      e.stopPropagation();
-      this.$Modal.confirm({
-        title: '删除项目',
-        content: '<strong>确定要删除该项目么？</strong><p>删除后该项目关联的所有数据都将一并清除！！！</p>',
-        okText: '确认',
-        cancelText: '再想想',
-        onOk: () => {
-          ProjectService.deleteProject(this.cProject.id).then(() => {
-            this.$emit('projectDeleted', this.cProject);
-          }).catch(err => {
-            this.$Message.error(err.errMsg);
-          });
-        }
-      });
-    },
-
-    onProjectUpdated(project) {
-      this.cProject.name = project.name;
-      this.cProject.desc = project.desc;
-    }
-  }
+const onClickCard = () => {
+  router.push({
+    name: 'project',
+    params: {projectId: props.project.id, name: props.project.name}
+  })
 }
+
+const onEdit = (e) => {
+  e.stopPropagation();
+  EventBus.emit(events.EDIT_PROJECT, props.project)
+}
+
+const onDelete = (e) => {
+  e.stopPropagation();
+  Modal.confirm({
+    title: '删除项目',
+    content: '<strong>确定要删除该项目么？</strong><p>删除后该项目关联的所有数据都将一并清除！！！</p>',
+    okText: '确认',
+    cancelText: '再想想',
+    onOk: () => {
+      EventBus.emit(events.DELETE_PROJECT, props.project)
+    }
+  });
+}
+
 </script>
 
 <style lang="less" scoped>

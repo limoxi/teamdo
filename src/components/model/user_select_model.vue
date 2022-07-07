@@ -16,7 +16,6 @@
 </template>
 <script>
 import UserService from '@/service/user_service';
-import events from '@/service/global_events';
 
 export default {
   props: ['show', 'projectId'],

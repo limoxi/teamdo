@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :style="dropDownStyle" trigger="click" @on-click="onClickItem">
+  <Dropdown :style="dropDownStyle" trigger="click" placement="bottom-end" @on-click="onClickItem">
     <Badge dot>
       <Button>
         <Icon type="md-person" size="15"/>
@@ -8,20 +8,23 @@
       </Button>
     </Badge>
 
-    <DropdownMenu slot="list">
-      <DropdownItem name="modeProfile">编辑</DropdownItem>
-      <DropdownItem name="modePwd">修改密码</DropdownItem>
-      <DropdownItem name="message">
-        <Icon type="md-notifications" style="margin-right:5px;"></Icon>
-        消息
-      </DropdownItem>
-      <DropdownItem name="logout">退出</DropdownItem>
-    </DropdownMenu>
+    <template #list>
+      <DropdownMenu>
+        <DropdownItem name="modeProfile">编辑</DropdownItem>
+        <DropdownItem name="modePwd">修改密码</DropdownItem>
+        <DropdownItem name="message">
+          <Icon type="md-notifications" style="margin-right:5px;"></Icon>
+          消息
+        </DropdownItem>
+        <DropdownItem name="logout">退出</DropdownItem>
+      </DropdownMenu>
+    </template>
+
     <password-model
-        :show.sync="showPwdModel"
+        v-model:show="showPwdModel"
     ></password-model>
     <user-model
-        :show.sync="showUserModel"
+        v-model:show="showUserModel"
         mode="update"
     ></user-model>
     <Drawer title="新消息" placement="right" :closable="false" v-model="showMessages">
@@ -36,7 +39,7 @@
 import helper from '@/utils/helper';
 import PasswordModel from '../../model/password_model';
 import UserModel from '@/components/model/user_model';
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 import Cookies from 'js-cookie';
 
 export default {
@@ -46,7 +49,7 @@ export default {
       this.$router.replace({'name': 'login'})
     }
 
-    window.EventBus.$on(events.USER_UPDATED, (user) => {
+    EventBus.on(events.USER_UPDATED, (user) => {
       this.nickname = user.nickname;
       helper.storage.set('nickname', user.nickname);
       helper.storage.set('avatar', user.avatar);

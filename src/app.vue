@@ -4,6 +4,7 @@
   </div>
 </template>
 <script>
+import {events, EventBus} from '@/service/event_bus'
 export default {
   data() {
     return {
@@ -11,7 +12,7 @@ export default {
     }
   },
   mounted() {
-    window.EventBus.$on('themeChanged', newTheme => {
+    EventBus.on(events.THEME_CHANGED, newTheme => {
       this.theme = `aui-theme-${newTheme}`;
     });
   },

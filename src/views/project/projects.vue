@@ -1,62 +1,112 @@
 <template>
   <top-frame>
-    <template slot="header">
-      <a-header
-          @projectedCreated="onProjectCreated"
-      ></a-header>
+    <template #header>
+      <a-header />
     </template>
-    <template slot="content">
-      <ul class="aui-projects">
-        <li v-for="project in projects" :key="project.id">
-          <project-card
-              :project="project"
-              @projectDeleted="onProjectDeleted"
-          >
-          </project-card>
-        </li>
-      </ul>
+    <template #content>
+      <template v-if="loadingProjects">
+        <Skeleton
+            loading
+            animated
+            :title="false"
+            :paragraph="{ rows: 5, width: ['100%', '80%', '60%', '40%', '20%'] }"
+        />
+      </template>
+      <template v-else>
+        <ul class="aui-projects" v-if="projects.length > 0">
+          <li v-for="project in projects" :key="project.id">
+            <project-card :project="project"></project-card>
+          </li>
+        </ul>
+        <Result v-else type="warning" title="还没有任何项目">
+          <template #desc>
+            新建一个项目吧~
+          </template>
+          <template #actions>
+            <Button icon="md-add" @click="addProject" class="aui-icon-scale">添加项目</Button>
+          </template>
+        </Result>
+      </template>
     </template>
-    <v-editor></v-editor>
   </top-frame>
+  <project-model
+      v-model:show="showModel"
+      @projectCreated="onProjectsUpdated"
+      @projectUpdated="onProjectsUpdated"
+      :project="null"
+      :mode="projectMode"
+  ></project-model>
 </template>
 
 <script>
 import TopFrame from '@/components/frame/top_frame';
 import Header from '@/components/frame/header/header';
+import ProjectModel from '@/components/model/project_model';
 import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
+import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 
 export default {
   created() {
+    EventBus.on(events.CREATING_PROJECT, ()=>{
+      this.addProject()
+    })
+    EventBus.on(events.EDIT_PROJECT, (project)=>{
+      this.editProject(project)
+    })
+    EventBus.on(events.DELETE_PROJECT, (project)=>{
+      this.deleteProject(project)
+    })
     this.getProjects();
   },
+
   data() {
     return {
-      projects: []
+      loadingProjects:true,
+      projects: [],
+      projectMode: 'create',
+      editingProject: {},
+      showModel: false,
     }
   },
   components: {
-    'top-frame': TopFrame,
-    'a-header': Header,
-    'project-card': ProjectCard,
-
+    TopFrame,
+    ProjectModel,
+    ProjectCard,
+    'a-header': Header
   },
   methods: {
-    getProjects() {
-      ProjectService.getProjects().then(data => {
-        this.projects = data;
+    addProject() {
+      this.projectMode = 'create'
+      this.showModel = true
+    },
+
+    editProject(project) {
+      this.projectMode = 'edit'
+      this.editingProject = project
+      this.showModel = true
+    },
+
+    deleteProject(project){
+      ProjectService.deleteProject(project.id).then(() => {
+        helper.removeFromArray(project, this.projects, 'id');
       }).catch(err => {
         this.$Message.error(err.errMsg);
       });
     },
 
-    onProjectCreated() {
-      this.getProjects();
+    getProjects() {
+      ProjectService.getProjects().then(data => {
+        this.projects = data;
+        this.loadingProjects = false
+      }).catch(err => {
+        this.$Message.error(err.errMsg);
+      });
     },
 
-    onProjectDeleted(project) {
-      helper.removeFromArray(project, this.projects, 'id');
+    onProjectsUpdated() {
+      this.getProjects();
     }
   }
 }

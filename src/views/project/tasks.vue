@@ -1,67 +1,40 @@
 <template>
   <div class="aui-tasks">
-    <div class="aui-i-action">
-      <Button icon="md-add" @click="showTaskModel" class="aui-icon-scale">添加</Button>
+    <Table border :data="tasks" :columns="columns"
+       @on-sort-change="onSort"
+       @on-row-click="onClickRow"
+    >
+      <template #users="{ row, index }">
+        <i v-for="user in row.users" :key="user.id">{{ user.nickname }}</i>
+      </template>
+      <template #name="{row, index}">
+        <span class="aui-i-taskname-link" @click="onClickTaskName(row, $event)">{{ row.name }}</span>
+      </template>
+    </Table>
+    <div class="aui-paginator">
+      <Page
+          :total="pageInfo.total_count"
+          :current="pageInfo.cur_page"
+          :page-size="pageInfo.page_size"
+          size="small"
+          @on-change="onChangePage"
+          show-elevator
+      ></Page>
     </div>
-
-    <div class="aui-i-list">
-      <Table :data="tasks" :columns="columns"
-             @on-sort-change="onSort"
-             @on-row-click="onClickRow"
-      >
-        <template slot-scope="{ row, index }" slot="action">
-          <Tooltip content="指定责任人" placement="top">
-            <Button icon="md-person" class="aui-icon-scale"
-                    v-if="row.status==='未开始'"
-                    @click="onClickAssign(row)"></Button>
-          </Tooltip>
-          <Tooltip content="进入看板" placement="top">
-            <Button icon="logo-buffer" class="aui-icon-scale"
-                    v-if="row.status==='未开始'"
-                    @click="onClickToKanban(row)"></Button>
-          </Tooltip>
-          <Tooltip content="放弃" placement="top">
-            <Button icon="md-close" class="aui-icon-scale"
-                    v-if="row.status==='未开始'"
-                    @click="onClickAbort(row)"></Button>
-          </Tooltip>
-        </template>
-        <template slot="users" slot-scope="{ row, index }">
-          <i v-for="user in row.users" :key="user.id">{{ user.nickname }}</i>
-        </template>
-        <template slot="name" slot-scope="{row, index}">
-          <span class="aui-i-taskname-link" @click="onClickTaskName(row, $event)">{{ row.name }}</span>
-        </template>
-      </Table>
-      <div class="aui-paginator">
-        <Page
-            :total="pageInfo.total_count"
-            :current="pageInfo.cur_page"
-            :page-size="pageInfo.page_size"
-            size="small"
-            @on-change="onChangePage"
-            show-elevator
-        ></Page>
-      </div>
-    </div>
-    <task-model
-        mode="create"
-        :show.sync="showModel"
-        :projectId="projectId"
-        @taskAdded="onTaskAdded"
-    ></task-model>
   </div>
 </template>
 
 <script>
 import TaskService from '@/service/task_service';
-import TaskModel from '@/components/model/task_model';
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 
 import TaskExpand from './task_expand';
 
 export default {
   props: ['projectId'],
+  components: {
+    TaskExpand
+  },
   created() {
     this.getTasks();
   },
@@ -78,38 +51,7 @@ export default {
     onClickTaskName(row, event) {
       event.stopPropagation();
       console.log(row);
-      window.EventBus.$emit(events.TASK_EXPANDED, row);
-    },
-    onClickToKanban(task) {
-      TaskService.appendToKanban(this.projectId, 'kanban', task.id).then(() => {
-        task.status = '进行中';
-        this.$Message.success('操作成功');
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickToSprint(taskId) {
-      TaskService.appendToKanban(this.projectId, 'sprint', taskId).then(() => {
-        this.$Message.success('操作成功');
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickAbort(task) {
-      TaskService.abortTask(this.projectId, task).then(() => {
-        task.status = '已放弃';
-        this.$Message.success('操作成功');
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickAssign(task) {
-      window.EventBus.$emit(events.SELECTING_USER, {
-        'callback': this.onUserSelected
-      });
-    },
-    onUserSelected(id) {
-      console.log(id);
+      EventBus.emit(events.TASK_EXPANDED, row);
     },
     onChangePage(targetPageNum) {
       this.pageInfo.targetPage = targetPageNum;
@@ -159,14 +101,7 @@ export default {
       }).catch(err => {
         this.$Message.warning(err.errMsg);
       })
-    },
-    showTaskModel() {
-      this.showModel = true;
-    },
-  },
-  components: {
-    'task-model': TaskModel,
-    TaskExpand
+    }
   },
   data() {
     return {
@@ -179,7 +114,6 @@ export default {
         'page_size': 15,
         'total_count': 0
       },
-      'showModel': false,
       'projectUsers': [{
         'id': 0,
         'nickname': '全部'
@@ -214,17 +148,6 @@ export default {
         'value': 3
       }],
       'columns': [{
-        'type': 'expand',
-        'width': 10,
-        'render': (h, params) => {
-          return h(TaskExpand, {
-            props: {
-              row: params.row,
-              projectId: this.projectId
-            }
-          });
-        },
-      }, {
         'title': '编号',
         'key': 'id',
         'sortable': 'custom',
@@ -315,10 +238,6 @@ export default {
           }
           this.getTasks();
         }
-      }, {
-        'title': '操作',
-        'key': 'action',
-        'slot': 'action'
       }]
     }
   }
@@ -327,30 +246,17 @@ export default {
 
 <style scoped lang="less">
 .aui-tasks {
-  .aui-i-action {
-    .ivu-form-item {
-      margin-bottom: 0;
-      margin-right: 15px;
-      display: inline-flex;
-    }
+  margin: 0 30px 0 8px;
+  .aui-i-timewidth {
+    display: table-cell;
   }
 
-  & > div {
-    margin: 5px 15px;
-  }
+  .aui-i-taskname-link {
+    word-wrap: break-word;
+    cursor: pointer;
 
-  .aui-i-list {
-    .aui-i-timewidth {
-      display: table-cell;
-    }
-
-    .aui-i-taskname-link {
-      word-wrap: break-word;
-      cursor: pointer;
-
-      &:hover {
-        color: indianred;
-      }
+    &:hover {
+      color: indianred;
     }
   }
 }

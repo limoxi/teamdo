@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import {events, EventBus} from '@/service/event_bus'
 export default {
   data() {
     return {
@@ -13,11 +14,11 @@ export default {
     }
   },
   created() {
-    window.EventBus.$on('helpRequested', helpText => {
+    EventBus.on(events.HELP_REQUEST, helpText => {
       console.log('bingo~', helpText);
       this.showHelp = true;
     });
-    window.EventBus.$on('helpDone', () => {
+    EventBus.on('helpDone', () => {
       console.log('see you~');
       this.showHelp = false;
     });

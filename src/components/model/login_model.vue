@@ -3,16 +3,16 @@
       v-model="showModel"
       title="登陆"
       width="360"
+      :mask-closable="false"
   >
-    <Form ref="loginForm" :model="loginUser" :rules="ruleValidate" :label-width="80">
-      <FormItem label="登录名" prop="username">
-        <Input v-model="loginUser.username" placeholder=""></Input>
-      </FormItem>
-      <FormItem label="密码" prop="password">
-        <Input type="password" v-model="loginUser.password"></Input>
-      </FormItem>
-    </Form>
-    <Button slot="footer" @click="handleSubmit">确定</Button>
+    <Login @on-submit="handleSubmit">
+      <Mobile name="phone" placeholder="请输入手机号" />
+      <Password name="password" placeholder="请输入密码" />
+      <Submit />
+    </Login>
+    <template #footer>
+      <span style="display: none"></span>
+    </template>
   </Modal>
 </template>
 <script>
@@ -24,18 +24,6 @@ export default {
   props: ['show'],
   data() {
     return {
-      loginUser: {
-        username: '',
-        password: ''
-      },
-      ruleValidate: {
-        username: [
-          {required: true, message: '登陆名不能为空', trigger: 'blur'}
-        ],
-        password: [
-          {required: true, message: '密码不能为空', trigger: 'blur'}
-        ]
-      }
     }
   },
   computed: {
@@ -49,32 +37,27 @@ export default {
     }
   },
   methods: {
-    handleSubmit() {
-      this.$refs['loginForm'].validate((valid) => {
-        if (valid) {
-          UserService.doLogin(
-              this.loginUser.username,
-              this.loginUser.password,
-          ).then(data => {
-            helper.storage.set('uid', data.id);
-            helper.storage.set('nickname', data.nickname);
-            helper.storage.set('avatar', data.avatar);
-            Cookies.set('token', data.token);
+    handleSubmit(valid, { phone, password }) {
+      if(!valid) {
+        this.$Message.error('登录失败');
+        return
+      }
+      UserService.doLogin(phone, password).then(data => {
+        helper.storage.set('uid', data.id);
+        helper.storage.set('nickname', data.nickname);
+        helper.storage.set('avatar', data.avatar);
+        Cookies.set('token', data.token);
 
-            this.resetForm();
-            this.$Message.success('登陆成功, 正在跳转页面...');
-            helper.delay(() => {
-              this.$router.replace({name: 'projects'});
-              this.showModel = false;
-            }, 2);
-          }).catch(err => {
-            this.$Message.error(err.errMsg);
-          });
-        }
-      })
-    },
-    resetForm() {
-      this.$refs['loginForm'].resetFields();
+        this.showModel = false;
+        this.$Message.success({
+          content: '登陆成功, 正在跳转页面...',
+          onClose: () => {
+            this.$router.replace({name: 'projects'});
+          }
+        })
+      }).catch(err => {
+        this.$Message.error(err.errMsg);
+      });
     }
   }
 }

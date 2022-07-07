@@ -1,4 +1,4 @@
-<template slot="footer">
+<template #footer>
   <footer class="aui-footer">
     <a href="https://github.com/limoxi" target="_blank">
       <Icon class="aui-i-github" type="logo-github"/>&nbsp;&nbsp;Developed By Aix</a>

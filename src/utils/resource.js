@@ -39,7 +39,7 @@ let defaultResource;
 
 class Resource {
 
-  constructor(serviceName = env.DEFAULT_BACKEND, apiHost = env.API_HOST) {
+  constructor(serviceName = 'iteamdo', apiHost = env.APP_API_HOST) {
     this.serviceName = serviceName;
     this.apiHost = apiHost;
   }

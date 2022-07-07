@@ -2,13 +2,12 @@
   <div :class="headerClasses">
     <div class="aui-i-header">
       <div>
-        用户故事&nbsp;{{ task.id }}
+        Story&nbsp;{{ task.id }}
       </div>
       <div class="aui-i-action">
         <Button v-show="inFirstLane" icon="ios-undo" @click="onClickUndo"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
         <Button v-show="!inFirstLane&&!inLastLane" icon="ios-flash" @click="onClickFlash"></Button>
-        <Button icon="md-add" @click="onClickAddSub"></Button>
         <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
           <Button icon="md-swap"></Button>
           <DropdownMenu slot="list">
@@ -23,37 +22,7 @@
     <div class="aui-i-body">
       <div class="aui-i-status">
         <Tag :color="importanceColor">{{ importanceDesc }}</Tag>
-        <Tag color="primary">{{ task.NUT }}点 / {{ task.elapsed_time || 0 }}</Tag>
-        <Tag color="cadetblue" v-if="task.sub_tasks.length > 0"
-             checkable fade class="aui-i-sub-tasks" @on-change="toggleSubTasks">
-          {{
-            task.sub_tasks.filter(st => {
-              return st.status !== '进行中'
-            }).length
-          }} / {{ task.sub_tasks.length }} 任务
-        </Tag>
-      </div>
-      <div class="aui-i-sub-tasks" v-if="showSubTasks">
-        <div v-for="subTask in task.sub_tasks" :key="subTask.id" class="aui-task-type-sub_task">
-          <div class="aui-i-header">
-            <div>
-              <span>任务 {{ subTask.id }}</span>
-              <Tag color="#669999" style="margin-top: -1px">{{ subTask.elapsed_time || 0 }}</Tag>
-              <Tag color="#669999" style="margin-top: -1px">{{ subTask.status }}</Tag>
-            </div>
-            <div class="aui-i-action" style="display: inline-block;line-height: 23px;">
-              <Button v-if="subTask.status==='进行中'" icon="md-close" class="aui-icon-scale"
-                      @click="onClickAbortSubTask(subTask)"></Button>
-              <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(subTask)"></Button>
-              <Button v-if="subTask.status==='进行中'" icon="md-checkmark" class="aui-icon-scale"
-                      @click="onClickFinishSubTask(subTask)"></Button>
-            </div>
-          </div>
-          <div class="aui-i-body">
-            <s v-if="subTask.status==='已放弃'">{{ subTask.name }}</s>
-            <span v-else>{{ subTask.name }}</span>
-          </div>
-        </div>
+        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>
       </div>
       <div class="aui-i-name">
         {{ task.name }}
@@ -72,7 +41,7 @@
 <script>
 
 import TaskService from '@/service/task_service';
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import defaultAvatar from '@/images/default-avatar.webp';
 
@@ -80,7 +49,6 @@ export default {
   props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'],
   data() {
     return {
-      showSubTasks: false,
       defaultAvatar: defaultAvatar
     }
   },
@@ -112,25 +80,8 @@ export default {
     }
   },
   methods: {
-    toggleSubTasks(checked) {
-      this.showSubTasks = !checked;
-    },
     onChangeProgress(task) {
       console.log(task.progress);
-    },
-    onClickAbortSubTask(subTask) {
-      TaskService.abortTask(this.projectId, subTask).then(() => {
-        helper.removeFromArray(subTask, this.task.sub_tasks, 'id')
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickFinishSubTask(subTask) {
-      TaskService.finish(this.projectId, subTask).then(() => {
-        subTask.status = '已完成';
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
     },
     onClickNext() {
       let targetLane;
@@ -140,7 +91,7 @@ export default {
         if (cl.id === this.lane.id) {
           if (index === this.lanes.length - 1) {
             TaskService.finish(this.projectId, this.task).then(() => {
-              window.EventBus.$emit(events.TASK_REMOVED, this.task, this.lane.id);
+              EventBus.emit(events.TASK_REMOVED, this.task, this.lane.id);
             }).catch(err => {
               this.$Message.warning(err.errMsg);
             });
@@ -151,21 +102,21 @@ export default {
         }
       }
       TaskService.switchLane(this.projectId, 'kanban', this.task, targetLane.id).then(() => {
-        window.EventBus.$emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLane.id);
+        EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLane.id);
       }).catch(err => {
         this.$Message.warning(err.errMsg);
       });
     },
     onClickSwitch(targetLaneId) {
       TaskService.switchLane(this.projectId, 'kanban', this.task, targetLaneId).then(() => {
-        window.EventBus.$emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
+        EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
       }).catch(err => {
         this.$Message.warning(err.errMsg);
       });
     },
     onClickEdit(selectedTask) {
       TaskService.getTask(this.projectId, selectedTask.id).then(task => {
-        window.EventBus.$emit(events.TASK_EXPANDED, task);
+        EventBus.emit(events.TASK_EXPANDED, task);
       }).catch(err => {
         this.$Message.error(err.errMsg);
       });
@@ -175,13 +126,10 @@ export default {
     },
     onClickUndo() {
       TaskService.undoTask(this.projectId, this.task).then(() => {
-        window.EventBus.$emit(events.TASK_REMOVED, this.task, this.lane.id);
+        EventBus.emit(events.TASK_REMOVED, this.task, this.lane.id);
       }).catch(err => {
         this.$Message.warning(err.errMsg);
       });
-    },
-    onClickAddSub() {
-      window.EventBus.$emit(events.SUB_TASK_EDITING, this.task);
     }
   }
 }

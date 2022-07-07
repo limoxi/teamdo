@@ -4,13 +4,12 @@
     <div class="aui-i-menu">
       <Menu mode="horizontal" :theme="menuTheme" :active-name="activeName" @on-select="onMenuChanged">
         <MenuItem name="projects">项目</MenuItem>
-        <MenuItem name="sprint">迭代</MenuItem>
+<!--        <MenuItem name="sprint">迭代</MenuItem>-->
         <MenuItem name="kanban">看板</MenuItem>
-        <MenuItem name="tasks">用户故事</MenuItem>
-        <MenuItem name="bugs">BUG</MenuItem>
-        <MenuItem name="state">统计</MenuItem>
+<!--        <MenuItem name="tasks">用户故事</MenuItem>-->
+<!--        <MenuItem name="state">统计</MenuItem>-->
         <MenuItem name="members">成员</MenuItem>
-        <MenuItem name="settings">管理</MenuItem>
+<!--        <MenuItem name="settings">管理</MenuItem>-->
       </Menu>
     </div>
     <theme-control></theme-control>
@@ -26,6 +25,7 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['project'],
@@ -35,15 +35,15 @@ export default {
       activeName: this.getDefaultActiveName()
     }
   },
-  mounted() {
-    window.EventBus.$on('themeChanged', newTheme => {
+  created() {
+    EventBus.on(events.THEME_CHANGED, newTheme => {
       this.menuTheme = newTheme;
     })
   },
   components: {
-    'logo': Logo,
-    'profile': Profile,
-    'theme-control': ThemeControl
+    Logo,
+    Profile,
+    ThemeControl
   },
   methods: {
     getDefaultActiveName() {
@@ -62,7 +62,7 @@ export default {
         this.$router.push({
           name: name,
           params: {
-            project: this.project
+            projectId: this.project.id
           }
         });
       }

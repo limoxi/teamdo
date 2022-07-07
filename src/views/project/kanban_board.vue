@@ -6,22 +6,28 @@
     <draggable
         class="aui-board"
         v-model="lanes"
-        :options="dragOptions"
+        item-key="id"
+        :animation="200"
+        group="lanes"
+        :disabled="false"
+        ghostClass="ghost"
+        chosenClass="chosen"
+        handle=".aui-board > .aui-lane > .aui-a-draggable"
         @start="drag = true"
         @end="drag = false"
-        @change="onListChange"
+        @sort="onListChange"
     >
-      <Lane
-          v-for="(lane, index) in lanes"
-          :key="lane.id"
+      <template #item="{element, index}">
+        <Lane
+          :key="element.id"
           :index="index"
-          :lane="lane"
+          :lane="element"
           :lanes="lanes"
           :projectId="projectId"
           :kanbanType="kanbanType"
           @laneDeleted="onDeleteLane"
-      >
-      </Lane>
+        />
+      </template>
       <div class="aui-i-blank"></div>
     </draggable>
   </div>
@@ -29,17 +35,17 @@
 </template>
 
 <script>
-import draggable from 'vuedraggable';
+import Draggable from 'vuedraggable';
 import Lane from '@/components/frame/block/lane';
 import ProjectService from '@/service/project_service';
 import LaneService from '@/service/lane_service';
 
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['projectId'],
   created() {
-    window.EventBus.$on(events.LANE_UPDATED, this.getLanes);
+    EventBus.on(events.LANE_UPDATED, this.getLanes);
 
     this.getLanes();
   },
@@ -60,21 +66,21 @@ export default {
     }
   },
   components: {
-    'Lane': Lane,
-    'draggable': draggable,
+    Lane,
+    Draggable,
 
   },
   methods: {
     onListChange(event) {
       LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
-        this.$Message.success('泳道排序完成');
+        this.$Message.success('排序完成');
       }).catch(err => {
         console.log(err);
-        this.$Message.error('泳道排序失败');
+        this.$Message.error('排序失败');
       })
     },
     onAddLane() {
-      window.EventBus.$emit(events.LANE_ADDING, this.kanbanType);
+      EventBus.emit(events.LANE_ADDING, this.kanbanType);
     },
     onDeleteLane(deletedLane) {
       let laneIndex = this.lanes.findIndex(lane => {
@@ -88,10 +94,10 @@ export default {
       });
     },
     onFocus() {
-      window.EventBus.$emit('helpRequested', 'Try Ctrl + N');
+      EventBus.emit(events.HELP_REQUEST, 'Try Ctrl + N');
     },
     onBlur() {
-      window.EventBus.$emit('helpDone');
+      EventBus.emit(events.HELP_DONE);
     }
   }
 }

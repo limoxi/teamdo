@@ -7,37 +7,27 @@
       <Button icon="md-add" @click="addProject" class="aui-icon-scale">添加项目</Button>
       <profile></profile>
     </div>
-    <project-model
-        mode="create"
-        :show.sync="showModel"
-        @projectCreated="onProjectCreated"
-    ></project-model>
   </div>
 </template>
 <script>
-import ProjectModel from '@/components/model/project_model';
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   data: function () {
     return {
-      showModel: false,
     }
   },
   components: {
-    'project-model': ProjectModel,
     'logo': Logo,
     'profile': Profile,
     'theme-control': ThemeControl
   },
   methods: {
-    addProject() {
-      this.showModel = true;
-    },
-    onProjectCreated() {
-      this.$emit('projectedCreated');
+    addProject(){
+      EventBus.emit(events.CREATING_PROJECT)
     }
   }
 }

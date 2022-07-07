@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import {events, EventBus} from '@/service/event_bus'
 export default {
   data() {
     return {
@@ -20,7 +21,7 @@ export default {
         this.curTheme = 'light';
       }
       window.localStorage.setItem('theme', this.curTheme);
-      window.EventBus.$emit('themeChanged', this.curTheme);
+      EventBus.emit(events.THEME_CHANGED, this.curTheme);
     }
   },
   computed: {

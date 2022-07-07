@@ -20,7 +20,7 @@ import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
 import defaultAvatar from '@/images/default-avatar.webp';
 
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 
 export default {
@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     onAddMember() {
-      window.EventBus.$emit(events.SELECTING_USER, {
+      EventBus.emit(events.SELECTING_USER, {
         'callback': this.onMemberSelected
       });
     },

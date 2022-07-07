@@ -2,13 +2,13 @@
   <Modal
       v-model="showModel"
       :title="title"
-      width="1020"
+      :fullscreen="true"
       class="aui-task-model"
       @on-visible-change="onVisibleChange"
   >
     <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
       <FormItem label="名称" prop="name">
-        <Input v-model="form.name" placeholder="某人可以做某事" style="width: 50%"></Input>
+        <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
       </FormItem>
 <!--        <FormItem label="关联需求" prop="need_id" v-show="this.mode === 'create'">-->
 <!--          <Select v-model="form.need_id" style="width:180px" aria-label="needSelector">-->
@@ -28,16 +28,18 @@
         <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
       </FormItem>
       <FormItem label="描述">
-        <editor @onUpdate="onDescChange" :content="!!task? task.desc: ''" scene="task" :readonly="mode==='view'"></editor>
+        <editor @onUpdate="onDescChange" :content="!!task? task.desc: ''" :readonly="mode==='view'"></editor>
       </FormItem>
     </Form>
-    <Button slot="footer" @click="handleSubmit">确定</Button>
+    <template #footer>
+      <Button @click="handleSubmit">确定</Button>
+    </template>
   </Modal>
 </template>
 <script>
-import TaskService from '@/service/task_service';
-import events from '@/service/global_events';
-import Editor from '@/components/editor_v2/editor';
+import TaskService from '@/service/task_service'
+import {events, EventBus} from '@/service/event_bus'
+import Editor from '@/components/editor/editor'
 
 export default {
   props: ['show', 'mode', 'task', 'projectId'],
@@ -49,26 +51,6 @@ export default {
       form: this.defaultForm(),
       needOptions: [],
       tagOptions: [],
-      editor: {
-        menuItems: [
-          'bold',
-          'italic',
-          'strike',
-          'underline',
-          'ordered_list',
-          'bullet_list',
-          'horizontal_rule',
-          'blockquote',
-          'code_block',
-          'heading-1',
-          'heading-2',
-          'heading-3',
-          'paragraph',
-          'image',
-          'undo',
-          'redo',
-        ]
-      },
       importanceOptions: [{
         'label': '1(一般)',
         'value': 1
@@ -117,8 +99,6 @@ export default {
       let title = '';
       if (this.mode === 'create') {
         title = '添加用户故事';
-      } else if (this.mode === 'addSub') {
-        title = '添加子任务';
       } else {
         title = '详情 - ' + this.task.name;
       }
@@ -131,8 +111,7 @@ export default {
         name: '',
         desc: {},
         importance: 0,
-        NUT: 1,
-        need_id: 0
+        NUT: 1
       }
     },
     onVisibleChange(show){
@@ -158,23 +137,23 @@ export default {
     handleSubmit() {
       this.$refs['taskForm'].validate((valid) => {
         if (valid) {
+          const desc = Editor.getContent()
+          const taskData = {
+            name: this.form.name,
+            desc: desc,
+            importance: this.form.importance,
+            NUT: this.form.NUT
+          }
           if (this.mode === 'create') {
-            TaskService.addTask(this.projectId, this.form).then(() => {
+            TaskService.addTask(this.projectId, taskData).then(() => {
               this.actionDone('taskAdded');
-              this.form = this.defaultForm();
-            }).catch(err => {
-              this.$Message.error(err.errMsg);
-            });
-          } else if (this.mode === 'addSub') {
-            TaskService.addSubTask(this.projectId, this.form, this.task).then(() => {
-              this.actionDone('taskAdded');
-              window.EventBus.$emit(events.SUB_TASK_ADDED);
               this.form = this.defaultForm();
             }).catch(err => {
               this.$Message.error(err.errMsg);
             });
           } else {
-            TaskService.updateTask(this.projectId, this.form).then(() => {
+            taskData.id = this.task.id
+            TaskService.updateTask(this.projectId, taskData).then(() => {
               this.actionDone('taskUpdated');
               this.form = this.defaultForm();
             }).catch(err => {

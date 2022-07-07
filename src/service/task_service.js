@@ -40,26 +40,26 @@ class TaskService {
     let data = {
       'project_id': projectId,
       'task_id': taskId,
-      'with_options': JSON.stringify({
-        'with_detail': true
-      })
+      'with_options': {
+        'with_detail': true,
+        'with_users': true
+      }
     };
 
     return Resource.get({
-      'resource': 'task.task',
+      'resource': 'kanban.lane.task',
       'data': data
-    });
+    })
   }
 
   static addTask(projectId, task) {
     return Resource.put({
-      'resource': 'project.task',
+      'resource': 'kanban.lane.task',
       'data': {
         'project_id': parseInt(projectId),
         'name': task.name,
         'importance': task.importance,
         'desc': JSON.stringify(task.desc),
-        'need_id': task.need_id,
         'NUT': task.NUT
       }
     })
@@ -79,7 +79,7 @@ class TaskService {
 
   static updateTask(projectId, task) {
     return Resource.post({
-      'resource': 'task.task',
+      'resource': 'kanban.lane.task',
       'data': {
         'project_id': projectId,
         'id': task.id,

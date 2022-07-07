@@ -1,141 +1,131 @@
 <template>
   <top-frame>
-    <template slot="header">
+    <template #header>
       <project-header
           :project="project"
       ></project-header>
     </template>
-    <template slot="content">
+    <template #content>
       <router-view></router-view>
-      <!-- model -->
-      <lane-model
-          :show.sync="showLaneModel"
-          :projectId="projectId"
-          :kanbanType="kanbanType"
-          :lane="modelLane"
-          :mode="laneModelMode"
-      ></lane-model>
-      <task-model
-          :mode="taskModelMode"
-          :show.sync="showTaskModel"
-          :projectId="projectId"
-          :task="modelTask"
-      ></task-model>
-      <user-select-model
-          :show.sync="showUserSelectModel"
-          :projectId="projectId"
-          @userSelected="onUserSelected"
-      ></user-select-model>
     </template>
   </top-frame>
+  <!-- model -->
+  <lane-model
+      v-model:show="showLaneModel"
+      :projectId="projectId"
+      :kanbanType="kanbanType"
+      :lane="modelLane"
+      :mode="laneModelMode"
+  ></lane-model>
+  <task-model
+      :mode="taskModelMode"
+      v-model:show="showTaskModel"
+      :projectId="projectId"
+      :task="modelTask"
+      @taskAdded="onTaskAdded"
+  ></task-model>
+  <user-select-model
+      v-model:show="showUserSelectModel"
+      :projectId="projectId"
+      @userSelected="onUserSelected"
+  ></user-select-model>
 </template>
 
-<script>
+<script setup>
 import TopFrame from '@/components/frame/top_frame';
 import ProjectHeader from '@/components/frame/header/project_header';
 import LaneModel from '@/components/model/lane_model';
 import TaskModel from '@/components/model/task_model';
 import UserSelectModel from '@/components/model/user_select_model';
 import ProjectService from '@/service/project_service';
-import events from '@/service/global_events';
+import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
+import {ref, onMounted} from 'vue'
 
-export default {
-  props: ['projectId', 'name'],
-  provide() {
-    return {}
-  },
-  created() {
+const props = defineProps(['projectId', 'name'])
+let showTaskModel = ref(false)
+let showLaneModel = ref(false)
+let showUserSelectModel = ref(false)
+let taskModelMode = ref('mod')
+let laneModelMode = ref('create')
+let modelTask = ref({})
+let modelLane = ref({})
+const kanbanType = 'kanban'
 
-    window.EventBus.$on(events.LANE_ADDING, kanbanType => {
-      this.kanbanType = kanbanType;
-      this.showLaneModel = true;
-      this.laneModelMode = 'create';
-    });
+onMounted(() => {
+  EventBus.on(events.LANE_ADDING, kanbanType => {
+    showLaneModel.value = true;
+    laneModelMode.value = 'create';
+  });
 
-    window.EventBus.$on(events.LANE_EDITTING, (lane, kanbanType) => {
-      this.laneModelMode = 'mod';
-      this.kanbanType = kanbanType;
-      this.modelLane = lane;
-      this.showLaneModel = true;
-    });
+  EventBus.on(events.LANE_EDITING, (lane, kanbanType) => {
+    laneModelMode.value = 'mod';
+    modelLane.value = lane;
+    showLaneModel.value = true;
+  });
 
-    window.EventBus.$on(events.TASK_EXPANDED, task => {
-      this.showTaskModel = true;
-      this.taskModelMode = 'mod';
-      this.modelTask = task;
-    });
-
-    window.EventBus.$on(events.SUB_TASK_EDITING, task => {
-      this.showTaskModel = true;
-      this.taskModelMode = 'addSub';
-      this.modelTask = task;
-    });
-
-    window.EventBus.$on(events.SELECTING_USER, data => {
-      this.showUserSelectModel = true;
-      if (!helper.isEmptyObject(data)) {
-        this.userSelectCallback = data.callback;
-      }
-    });
-
-  },
-  data() {
-    return {
-      project: {
-        id: this.projectId,
-        name: this.name,
-        kanban: {},
-        sprint: {}
-      },
-      showTaskModel: false,
-      taskModelMode: 'mod',
-      modelTask: {},
-
-      showLaneModel: false,
-      laneModelMode: 'create',
-      modelLane: {},
-      kanbanType: 'kanban',
-
-      showUserSelectModel: false,
-      userSelectCallback: () => {}
+  EventBus.on(events.TASK_ADDING, (lane, kanbanType) => {
+    showTaskModel.value = true;
+    taskModelMode.value = 'create';
+    modelTask.value = {
+      lane: lane,
+      kanbanType: kanbanType
     }
-  },
-  components: {
-    'top-frame': TopFrame,
-    'project-header': ProjectHeader,
-    'task-model': TaskModel,
-    'lane-model': LaneModel,
-    'user-select-model': UserSelectModel
-  },
+  });
 
-  methods: {
-    getProject() {
-      ProjectService.getProject(this.projectId).then(data => {
-        this.project = {
-          id: data.id,
-          name: data.name
-        };
-        if (!helper.isEmptyObject(data.kanban)) {
-          this.project['kanban'] = {
-            id: data.kanban.id
-          }
-        }
-        if (!helper.isEmptyObject(data.sprint)) {
-          this.project['sprint'] = {
-            id: data.sprint.id,
-            name: data.sprint.name,
-            startTime: data.sprint.start_time,
-            endTime: data.sprint.endTime
-          }
-        }
-      });
-    },
-    onUserSelected(targetUserId) {
-      this.userSelectCallback(targetUserId);
+  EventBus.on(events.TASK_EXPANDED, task => {
+    showTaskModel.value = true;
+    taskModelMode.value = 'mod';
+    modelTask.value = task;
+  });
+
+  EventBus.on(events.SUB_TASK_EDITING, task => {
+    showTaskModel.value = true;
+    taskModelMode.value = 'addSub';
+    modelTask.value = task;
+  });
+
+  EventBus.on(events.SELECTING_USER, data => {
+    showUserSelectModel.value = true;
+    if (!helper.isEmptyObject(data)) {
+      userSelectCallback.value = data.callback;
     }
-  }
+  });
+
+  getProject()
+})
+
+let project = ref({
+  id: props.projectId,
+  name: props.name,
+  kanban: {}
+})
+
+const userSelectCallback = (selectedUserId) =>{
+
 }
+
+const getProject = () => {
+  ProjectService.getProject(props.projectId).then(data => {
+    project.value.id = data.id
+    project.value.name = data.name
+
+    if (!helper.isEmptyObject(data.kanban)) {
+      project.value.kanban = {
+        id: data.kanban.id
+      }
+    }
+  })
+}
+
+const onUserSelected = (targetUserId) => {
+  userSelectCallback(targetUserId)
+}
+
+const onTaskAdded = () => {
+
+}
+
 </script>
 
 <style scoped lang="less">

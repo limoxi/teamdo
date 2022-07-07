@@ -4,9 +4,8 @@
     <div class="aui-i-welcome">
       <div class="aui-i-logo">TeamDo</div>
       <div>
-        <strong>不嘈不杂，</strong>
-        <strong>专注项目，</strong>
-        <strong>迅猛敏捷！</strong>
+        <strong>嘈杂No，</strong>
+        <strong>专注Yes</strong>
       </div>
       <div class="aui-i-action">
         <Button type="text" @click="onShowLogin" v-if="hideEntry">登陆</Button>
@@ -14,10 +13,10 @@
         <Button type="text" :to='{name: "projects"}' v-if="showEntry">项目列表</Button>
       </div>
     </div>
-    <login-model :show.sync="showLogin"></login-model>
+    <login-model v-model:show="showLogin"></login-model>
     <user-model
-        :show.sync="showRegister"
-        :registered.sync="showLogin"
+        v-model:show="showRegister"
+        v-model:registered="showLogin"
         mode="register">
     </user-model>
   </div>
@@ -66,13 +65,14 @@ export default {
 
 <style scoped lang="less">
 .aui-index {
+  user-select: none;
   .aui-i-bg {
     position: fixed;
     width: 100vw;
     height: 100vh;
     filter: blur(2px);
     /*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
-    background-image: url("../images/index-bg.svg");
+    background-image: url("@/images/index-bg.svg");
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;

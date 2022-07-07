@@ -18,11 +18,11 @@
           <span slot="close">否</span>
         </Switch>
       </FormItem>
-      <FormItem label="权限" prop="validRoles">
-        <Select v-model="form.validRoles" multiple>
-          <Option v-for="role in roles" :value="role.id" :key="role.id">{{ role.name }}</Option>
-        </Select>
-      </FormItem>
+<!--      <FormItem label="权限" prop="validRoles">-->
+<!--        <Select v-model="form.validRoles" multiple>-->
+<!--          <Option v-for="role in roles" :value="role.id" :key="role.id">{{ role.name }}</Option>-->
+<!--        </Select>-->
+<!--      </FormItem>-->
     </Form>
     <Button slot="footer" @click="confirm">确定</Button>
   </Modal>
@@ -32,6 +32,7 @@
 import PermissionService from '@/service/permission_service';
 import LaneService from '@/service/lane_service';
 import helper from '@/utils/helper';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['show', 'mode', 'lane', 'projectId', 'kanbanType'],
@@ -54,13 +55,13 @@ export default {
     },
     showModel: {
       get() {
-        if (this.show) {
-          PermissionService.getAllGroups().then(data => {
-            this.roles = data;
-          }).catch(err => {
-            this.$Message.error('获取角色列表失败');
-          });
-        }
+        // if (this.show) {
+        //   PermissionService.getAllGroups().then(data => {
+        //     this.roles = data;
+        //   }).catch(err => {
+        //     this.$Message.error('获取角色列表失败');
+        //   });
+        // }
         return this.show;
       },
       set(newValue) {
@@ -93,7 +94,7 @@ export default {
         if (valid) {
           if (this.mode === 'create') {
             LaneService.addLane(this.projectId, this.kanbanType, this.form).then(() => {
-              window.EventBus.$emit('laneUpdated');
+              EventBus.emit(events.LANE_UPDATED);
               this.$Message.success('泳道已添加');
               this.showModel = false;
               this.resetForm();
@@ -106,7 +107,7 @@ export default {
             };
             helper.extend(newLane, this.form);
             LaneService.updateLane(this.projectId, newLane).then(() => {
-              window.EventBus.$emit('laneUpdated');
+              EventBus.emit(events.LANE_UPDATED);
               this.$Message.success('泳道已更新');
               this.showModel = false;
               this.resetForm();

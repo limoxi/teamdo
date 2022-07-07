@@ -7,10 +7,10 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="项目名" prop="name">
-        <Input v-model="form.name" placeholder=""></Input>
+        <Input v-model="form.name" placeholder="" />
       </FormItem>
       <FormItem label="简介" prop="desc">
-        <Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述"></Input>
+        <Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述" />
       </FormItem>
     </Form>
   </Modal>
@@ -24,9 +24,9 @@ export default {
   data() {
     return {
       form: {
-        id: this.project ? this.project.id : 0,
-        name: this.project ? this.project.name : '',
-        desc: this.project ? this.project.desc : ''
+        id: this.isCreateMode ? 0 : this.project && this.project.id,
+        name: this.isCreateMode ? '' : this.project && this.project.name,
+        desc: this.isCreateMode ? '' : this.project && this.project.desc
       },
       ruleValidate: {
         name: [
@@ -49,13 +49,16 @@ export default {
       set(newValue) {
         this.$emit('update:show', newValue);
       }
+    },
+    isCreateMode(){
+      return this.mode === 'create'
     }
   },
   methods: {
     confirm() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          if (this.mode === 'create') {
+          if (this.isCreateMode) {
             ProjectService.createProject(
                 this.form.name,
                 this.form.desc
