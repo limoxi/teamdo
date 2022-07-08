@@ -54,7 +54,7 @@ class TaskService {
 
   static addTask(projectId, task) {
     return Resource.put({
-      'resource': 'kanban.lane.task',
+      'resource': 'project.task',
       'data': {
         'project_id': parseInt(projectId),
         'name': task.name,

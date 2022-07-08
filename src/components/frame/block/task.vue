@@ -8,14 +8,19 @@
         <Button v-show="inFirstLane" icon="ios-undo" @click="onClickUndo"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
         <Button v-show="!inFirstLane&&!inLastLane" icon="ios-flash" @click="onClickFlash"></Button>
-        <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">
-          <Button icon="md-swap"></Button>
-          <DropdownMenu slot="list">
-            <DropdownItem v-for="l in lanes" :key="l.id" :name="l.id"
-                          v-if="lane.id !== l.id">{{ l.name }}
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+<!--        <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">-->
+<!--          <Button icon="md-swap"></Button>-->
+<!--          <template #list>-->
+<!--            <DropdownMenu>-->
+<!--              <DropdownItem-->
+<!--                  v-for="l in lanes" :key="l.id" :name="l.id"-->
+<!--                  v-if="lane.id !== l.id"-->
+<!--              >-->
+<!--                {{ l.name }}-->
+<!--              </DropdownItem>-->
+<!--            </DropdownMenu>-->
+<!--          </template>-->
+<!--        </Dropdown>-->
         <Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>

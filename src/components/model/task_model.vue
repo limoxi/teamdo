@@ -136,11 +136,11 @@ export default {
     },
     handleSubmit() {
       this.$refs['taskForm'].validate((valid) => {
+        alert(valid)
         if (valid) {
-          const desc = Editor.getContent()
           const taskData = {
             name: this.form.name,
-            desc: desc,
+            desc: this.form.desc,
             importance: this.form.importance,
             NUT: this.form.NUT
           }
