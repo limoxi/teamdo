@@ -1,12 +1,10 @@
 import axios from 'axios';
 import qs from 'qs';
 import helper from './helper';
-import env from '@/env';
 import Logger from '@/utils/logger';
 import Cookies from 'js-cookie';
 
 const CONTENT_TYPE = 'application/json; charset=UTF-8'; //application/x-www-form-urlencoded
-const HTTP_SCHEME = 'http';
 
 axios.defaults.headers.post['Content-Type'] = CONTENT_TYPE;
 
@@ -39,9 +37,8 @@ let defaultResource;
 
 class Resource {
 
-  constructor(serviceName = 'iteamdo', apiHost = env.APP_API_HOST) {
+  constructor(serviceName = 'iteamdo') {
     this.serviceName = serviceName;
-    this.apiHost = apiHost;
   }
 
   static use(serviceName) {
@@ -97,7 +94,7 @@ class Resource {
 
 
   _get_request_url(resource, param = null) {
-    let url = `${HTTP_SCHEME}://${this.apiHost}/${this.serviceName}/${resource.replace(/\./g, '/')}/`;
+    let url = `${location.protocol}//${location.host}/${this.serviceName}/${resource.replace(/\./g, '/')}/`;
 
     let params = [];
     param = param || {};

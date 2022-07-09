@@ -7,7 +7,7 @@ const srcPath = path.join(__dirname, 'src')
 const envPrefix = 'APP_'
 
 export default defineConfig({
-    base: './',
+    base: '/',
     plugins: [
         vue()
     ],
@@ -33,8 +33,8 @@ export default defineConfig({
     server: {
         open: true,
         proxy: {
-            '/teamdo': {
-                target: 'http://localhost:8002',
+            '/iteamdo': {
+                target: 'http://njapi.vxiaocheng.com',
                 changeOrigin: true
             }
         }
