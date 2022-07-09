@@ -11,7 +11,7 @@ class LaneService {
 
   static getLanes(projectId, kanbanType) {
     return Resource.get({
-      'resource': 'kanban.lanes',
+      'resource': 'project.lanes',
       'data': {
         'project_id': projectId,
         'kanban_type': this.getIntType(kanbanType)
@@ -21,7 +21,7 @@ class LaneService {
 
   static addLane(projectId, kanbanType, newLane) {
     return Resource.put({
-      'resource': 'kanban.lane',
+      'resource': 'project',
       'data': {
         'project_id': projectId,
         'kanban_type': kanbanType,
@@ -35,7 +35,7 @@ class LaneService {
 
   static updateLane(projectId, newLane) {
     return Resource.post({
-      'resource': 'kanban.lane',
+      'resource': 'project.lane',
       'data': {
         'id': newLane.id,
         'project_id': projectId,
@@ -49,7 +49,7 @@ class LaneService {
 
   static deleteLane(projectId, lane) {
     return Resource.delete({
-      'resource': 'kanban.lane',
+      'resource': 'project.lane',
       'data': {
         'id': lane.id,
         'project_id': projectId
@@ -59,10 +59,9 @@ class LaneService {
 
   static resort(projectId, kanbanType, laneIds) {
     return Resource.put({
-      'resource': 'kanban.resorted_lanes',
+      'resource': 'project.resorted_lanes',
       'data': {
         'project_id': parseInt(projectId),
-        'kanban_type': this.getIntType(kanbanType),
         'ids': laneIds.map(lane => {
           return parseInt(lane.id);
         })
@@ -72,7 +71,7 @@ class LaneService {
 
   static getTasks(projectId, kanbanType, laneId) {
     return Resource.get({
-      'resource': 'kanban.lane.tasks',
+      'resource': 'project.lane.tasks',
       'data': {
         'project_id': projectId,
         'kanban_type': this.getIntType(kanbanType),

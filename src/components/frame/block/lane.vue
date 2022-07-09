@@ -40,8 +40,10 @@ export default {
     EventBus.on(events.TASK_SWITCHED, (task, srcLaneId, destLaneId) => {
       if (srcLaneId === this.lane.id) {
         helper.removeFromArray(task, this.tasks, 'id');
-      } else if (destLaneId === this.lane.id) {
-        this.tasks.push(task);
+      }
+
+      if (destLaneId === this.lane.id) {
+        this.tasks.unshift(task);
       }
     });
 
@@ -51,7 +53,11 @@ export default {
       }
     });
 
-    EventBus.on(events.SUB_TASK_ADDED, this.getTasks);
+    EventBus.on(events.TASK_ADDED, ({taskId, laneId}) => {
+      if (laneId === this.lane.id) {
+        this.getTasks()
+      }
+    });
   },
   data() {
     return {

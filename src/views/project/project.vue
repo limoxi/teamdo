@@ -22,7 +22,6 @@
       v-model:show="showTaskModel"
       :projectId="projectId"
       :task="modelTask"
-      @taskAdded="onTaskAdded"
   ></task-model>
   <user-select-model
       v-model:show="showUserSelectModel"
@@ -120,10 +119,6 @@ const getProject = () => {
 
 const onUserSelected = (targetUserId) => {
   userSelectCallback(targetUserId)
-}
-
-const onTaskAdded = () => {
-
 }
 
 </script>

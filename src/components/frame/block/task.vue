@@ -94,26 +94,18 @@ export default {
         index = parseInt(index);
         let cl = this.lanes[index];
         if (cl.id === this.lane.id) {
-          if (index === this.lanes.length - 1) {
-            TaskService.finish(this.projectId, this.task).then(() => {
-              EventBus.emit(events.TASK_REMOVED, this.task, this.lane.id);
-            }).catch(err => {
-              this.$Message.warning(err.errMsg);
-            });
-            return;
-          }
           targetLane = this.lanes[index + 1];
           break;
         }
       }
-      TaskService.switchLane(this.projectId, 'kanban', this.task, targetLane.id).then(() => {
+      TaskService.switchLane(this.projectId, this.task, targetLane.id).then(() => {
         EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLane.id);
       }).catch(err => {
         this.$Message.warning(err.errMsg);
       });
     },
     onClickSwitch(targetLaneId) {
-      TaskService.switchLane(this.projectId, 'kanban', this.task, targetLaneId).then(() => {
+      TaskService.switchLane(this.projectId, this.task, targetLaneId).then(() => {
         EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
       }).catch(err => {
         this.$Message.warning(err.errMsg);

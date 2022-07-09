@@ -29,6 +29,7 @@ const events = {
   'LANE_EDITING': 'LaneEditing', // 泳道信息编辑
   'TASK_ADDING': 'taskAdding', // 增加任务
   'TASK_ADDED': 'taskAdded', // 任务已添加
+  'TASK_UPDATED': 'taskUpdated', // 任务已更新
   'TASK_EXPANDED': 'taskExpanded', // 任务被选中放大
   'TASK_REMOVED': 'taskRemoved', // 任务被移除泳道
   'TASK_UNDO': 'taskUndo', // 任务被回退到任务池中

@@ -47,7 +47,7 @@ class TaskService {
     };
 
     return Resource.get({
-      'resource': 'kanban.lane.task',
+      'resource': 'project.task',
       'data': data
     })
   }
@@ -79,7 +79,7 @@ class TaskService {
 
   static updateTask(projectId, task) {
     return Resource.post({
-      'resource': 'kanban.lane.task',
+      'resource': 'project.task',
       'data': {
         'project_id': projectId,
         'id': task.id,
@@ -102,12 +102,11 @@ class TaskService {
     });
   }
 
-  static switchLane(projectId, kanbanType, task, targetLaneId) {
+  static switchLane(projectId, task, targetLaneId) {
     return Resource.put({
-      'resource': 'kanban.shuttled_task',
+      'resource': 'project.shuttled_task',
       'data': {
         'project_id': parseInt(projectId),
-        'kanban_type': this.getIntType(kanbanType),
         'task_id': task.id,
         'target_lane_id': targetLaneId
       }

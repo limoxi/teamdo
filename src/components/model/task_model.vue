@@ -119,11 +119,11 @@ export default {
         this.form = this.task;
       }
     },
-    actionDone(eventName) {
+    actionDone(eventName, data = undefined) {
       this.showModel = false;
       this.resetForm();
       this.$Message.success('操作成功');
-      this.$emit(eventName);
+      EventBus.emit(eventName, data);
     },
     onFetchLogs() {
 
@@ -136,7 +136,6 @@ export default {
     },
     handleSubmit() {
       this.$refs['taskForm'].validate((valid) => {
-        alert(valid)
         if (valid) {
           const taskData = {
             name: this.form.name,
@@ -145,8 +144,11 @@ export default {
             NUT: this.form.NUT
           }
           if (this.mode === 'create') {
-            TaskService.addTask(this.projectId, taskData).then(() => {
-              this.actionDone('taskAdded');
+            TaskService.addTask(this.projectId, taskData).then((data) => {
+              this.actionDone(events.TASK_ADDED, {
+                'taskId': data.id,
+                'laneId': data.lane_id
+              });
               this.form = this.defaultForm();
             }).catch(err => {
               this.$Message.error(err.errMsg);
@@ -154,7 +156,7 @@ export default {
           } else {
             taskData.id = this.task.id
             TaskService.updateTask(this.projectId, taskData).then(() => {
-              this.actionDone('taskUpdated');
+              this.actionDone(events.TASK_UNDO);
               this.form = this.defaultForm();
             }).catch(err => {
               this.$Message.error(err.errMsg);
