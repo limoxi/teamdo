@@ -16,12 +16,38 @@
       </div>
     </div>
     <div class="aui-i-tasks">
-      <Task v-for="task in tasks" :key="task.id"
+      <!-- <Task v-for="task in tasks" :key="task.id"
         :task="task" :lane="lane" :lanes="lanes"
         :projectId="projectId"
         :inFirstLane="index===0"
         :inLastLane="index===lanes.length-1"
-      ></Task>
+      ></Task> -->
+      <draggable
+        class="aui-i-lane-task"
+        v-model="tasks"
+        item-key="id"
+        :animation="200"
+        group="task"
+        :disabled="false"
+        ghostClass="ghost"
+        chosenClass="chosen"
+        handle=".aui-i-lane-task > .aui-task > .aui-i-body"
+        @start="drag = true"
+        @end="drag = false"
+        @sort="onListChange"
+    >
+      <template #item="{element, index}">
+          <Task 
+            :task="element"
+            :lane="lane"
+            :lanes="lanes"
+            :projectId="projectId"
+            :inFirstLane="index===0"
+            :inLastLane="index===lanes.length-1"
+          ></Task>
+      </template>
+      <div class="aui-i-blank"></div>
+    </draggable>
     </div>
   </div>
 </template>
@@ -31,9 +57,15 @@ import Task from './task';
 import LaneService from '@/service/lane_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
+import Draggable from 'vuedraggable';
 
 export default {
   props: ['lane', 'projectId', 'kanbanType', 'lanes', 'index'],
+  components: {
+    'Task': Task,
+    Draggable
+  },
+
   created() {
     this.getTasks();
 
@@ -59,15 +91,15 @@ export default {
       }
     });
   },
+
   data() {
     return {
       showLaneModel: false,
       tasks: [],
+      style: 'min-height:120px;display: block;'
     }
   },
-  components: {
-    'Task': Task
-  },
+
   computed: {
     className() {
       if (this.index === 0 || this.index === this.lanes.length - 1) {
@@ -77,10 +109,12 @@ export default {
       }
     }
   },
+
   methods: {
     isFull() {
       return this.tasks.length === this.lane.wip;
     },
+
     getTasks() {
       LaneService.getTasks(this.projectId, 'kanban', this.lane.id).then(data => {
         this.tasks = data['tasks'];
@@ -88,6 +122,16 @@ export default {
         this.$Message.error(err.errMsg);
       })
     },
+
+    onListChange(event) {
+      LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
+        this.$Message.success('排序完成');
+      }).catch(err => {
+        console.log(err);
+        this.$Message.error('排序失败');
+      })
+    },
+
     onClickAction(name) {
       if (name === 'edit') {
         EventBus.emit(events.LANE_EDITING, this.lane, this.kanbanType);
@@ -156,6 +200,10 @@ export default {
   }
 
   .aui-i-tasks {
+    .aui-i-lane-task {
+      min-height: 200px;
+      display: block;
+    }
   }
 }
 </style>

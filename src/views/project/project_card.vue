@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import {Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import {events, EventBus} from '@/service/event_bus'
@@ -34,8 +34,11 @@ const props = defineProps(['project'])
 
 const onClickCard = () => {
   router.push({
-    name: 'project',
-    params: {projectId: props.project.id, name: props.project.name}
+    name: 'kanban',
+    params: {
+      name: props.project.name,
+      projectId: props.project.id
+    }
   })
 }
 

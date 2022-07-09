@@ -44,11 +44,18 @@ import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['projectId'],
+  components: {
+    Lane,
+    Draggable,
+
+  },
+
   created() {
     EventBus.on(events.LANE_UPDATED, this.getLanes);
 
     this.getLanes();
   },
+
   data() {
     return {
       'kanbanType': 'kanban',
@@ -65,11 +72,7 @@ export default {
       'chosenLane': null,
     }
   },
-  components: {
-    Lane,
-    Draggable,
-
-  },
+  
   methods: {
     onListChange(event) {
       LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
