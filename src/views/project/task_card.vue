@@ -3,7 +3,7 @@
     <div class="aui-i-header">
       <div>
         <!--        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>-->
-        <Tag :color="importanceColor" @click="onCLickTaskNo">{{ taskNo }}&nbsp;∙&nbsp;{{ task.type_name }}</Tag>
+        <Tag :color="importanceColor" @click="onCLickTaskNo">{{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
@@ -72,7 +72,7 @@ const importanceDesc = computed(() => {
 
 const importanceColor = computed(() => {
   let imp = importanceDesc.value;
-  let clr = 'success';
+  let clr = 'primary';
   if (imp === '紧急') {
     clr = 'warning';
   } else if (imp === '非常紧急') {

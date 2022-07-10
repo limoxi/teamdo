@@ -19,16 +19,12 @@ class LaneService {
     });
   }
 
-  static addLane(projectId, kanbanType, newLane) {
+  static addLane(projectId, newLane) {
     return Resource.put({
-      'resource': 'project',
+      'resource': 'project.lane',
       'data': {
         'project_id': projectId,
-        'kanban_type': kanbanType,
-        'name': newLane.name,
-        'wip': newLane.wip,
-        'end_point': newLane.endPoint,
-        'valid_roles': JSON.stringify(newLane.validRoles)
+        'name': newLane.name
       }
     });
   }
@@ -40,9 +36,7 @@ class LaneService {
         'id': newLane.id,
         'project_id': projectId,
         'name': newLane.name,
-        'wip': newLane.wip,
-        'end_point': newLane.endPoint,
-        'valid_roles': JSON.stringify(newLane.validRoles)
+        'wip': newLane.wip
       }
     });
   }

@@ -18,7 +18,7 @@
         @sort="onListChange"
     >
       <template #item="{element, index}">
-        <Lane
+        <lane-card
           :key="element.id"
           :index="index"
           :lane="element"
@@ -36,7 +36,7 @@
 
 <script>
 import Draggable from 'vuedraggable';
-import Lane from '@/components/frame/block/lane';
+import LaneCard from './lane_card';
 import ProjectService from '@/service/project_service';
 import LaneService from '@/service/lane_service';
 
@@ -66,7 +66,7 @@ export default {
     }
   },
   components: {
-    Lane,
+    LaneCard,
     Draggable,
 
   },

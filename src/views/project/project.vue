@@ -12,19 +12,19 @@
   <!-- model -->
   <lane-model
       v-model:show="showLaneModel"
-      :projectId="projectId"
+      :projectId="parseInt(projectId)"
       :lane="modelLane"
       :mode="laneModelMode"
   ></lane-model>
   <task-model
       :mode="taskModelMode"
       v-model:show="showTaskModel"
-      :projectId="projectId"
+      :projectId="parseInt(projectId)"
       :task="modelTask"
   ></task-model>
   <user-select-model
       v-model:show="showUserSelectModel"
-      :projectId="projectId"
+      :projectId="parseInt(projectId)"
   ></user-select-model>
 </template>
 
@@ -49,9 +49,10 @@ let modelTask = ref({})
 let modelLane = ref({})
 
 onMounted(() => {
-  EventBus.on(events.LANE_ADDING, () => {
+  EventBus.on(events.LANE_ADDING, (lane) => {
     showLaneModel.value = true;
     laneModelMode.value = 'create';
+    modelLane.value = lane
   });
 
   EventBus.on(events.LANE_EDITING, (lane) => {

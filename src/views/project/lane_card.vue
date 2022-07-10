@@ -8,6 +8,7 @@
           <Icon type="md-more" size="22" class="aui-i-action" />
           <template #list>
             <DropdownMenu>
+              <DropdownItem name="add">在右边添加</DropdownItem>
               <DropdownItem name="edit">修改</DropdownItem>
               <DropdownItem name="del">删除</DropdownItem>
             </DropdownMenu>
@@ -16,18 +17,18 @@
       </div>
     </div>
     <div class="aui-i-tasks">
-      <Task v-for="task in tasks" :key="task.id"
+      <task-card v-for="task in tasks" :key="task.id"
         :task="task" :lane="lane" :lanes="lanes"
         :projectId="projectId"
         :inFirstLane="index===0"
         :inLastLane="index===lanes.length-1"
-      ></Task>
+      ></task-card>
     </div>
   </div>
 </template>
 
 <script>
-import Task from './task';
+import TaskCard from './task_card';
 import LaneService from '@/service/lane_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
@@ -66,7 +67,7 @@ export default {
     }
   },
   components: {
-    'Task': Task
+    TaskCard
   },
   computed: {
     className() {
@@ -89,8 +90,10 @@ export default {
       })
     },
     onClickAction(name) {
-      if (name === 'edit') {
-        EventBus.emit(events.LANE_EDITING, this.lane);
+      if (name === 'add') {
+        EventBus.emit(events.LANE_ADDING, this.lane)
+      } else if (name === 'edit') {
+        EventBus.emit(events.LANE_EDITING, this.lane)
       } else if (name === 'del') {
         this.$Modal.confirm({
           title: '删除泳道',
