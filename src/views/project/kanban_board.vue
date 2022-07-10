@@ -23,8 +23,7 @@
           :index="index"
           :lane="element"
           :lanes="lanes"
-          :projectId="projectId"
-          :kanbanType="kanbanType"
+          :projectId="parseInt(projectId)"
           @laneDeleted="onDeleteLane"
         />
       </template>
@@ -51,7 +50,6 @@ export default {
   },
   data() {
     return {
-      'kanbanType': 'kanban',
       'lanes': [],
       'dragOptions': {
         animation: 200,
@@ -72,7 +70,7 @@ export default {
   },
   methods: {
     onListChange(event) {
-      LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
+      LaneService.resort(this.projectId, this.lanes).then(() => {
         this.$Message.success('排序完成');
       }).catch(err => {
         console.log(err);
@@ -89,7 +87,7 @@ export default {
       this.lanes.splice(laneIndex, 1);
     },
     getLanes() {
-      LaneService.getLanes(this.projectId, this.kanbanType).then(lanes => {
+      LaneService.getLanes(this.projectId).then(lanes => {
         this.lanes = lanes;
       });
     },

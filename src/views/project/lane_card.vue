@@ -34,7 +34,7 @@ import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 
 export default {
-  props: ['lane', 'projectId', 'kanbanType', 'lanes', 'index'],
+  props: ['lane', 'projectId', 'lanes', 'index'],
   created() {
     this.getTasks();
 

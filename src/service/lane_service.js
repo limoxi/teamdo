@@ -9,22 +9,22 @@ class LaneService {
     }[type]
   }
 
-  static getLanes(projectId, kanbanType) {
+  static getLanes(projectId) {
     return Resource.get({
       'resource': 'project.lanes',
       'data': {
-        'project_id': projectId,
-        'kanban_type': this.getIntType(kanbanType)
+        'project_id': projectId
       }
     });
   }
 
-  static addLane(projectId, newLane) {
+  static addLane(projectId, newLane, afterLaneId) {
     return Resource.put({
       'resource': 'project.lane',
       'data': {
         'project_id': projectId,
-        'name': newLane.name
+        'name': newLane.name,
+        'after_lane_id': afterLaneId
       }
     });
   }
@@ -51,7 +51,7 @@ class LaneService {
     });
   }
 
-  static resort(projectId, kanbanType, laneIds) {
+  static resort(projectId, laneIds) {
     return Resource.put({
       'resource': 'project.resorted_lanes',
       'data': {

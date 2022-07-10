@@ -88,7 +88,7 @@ export default {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.isCreateMode) {
-            LaneService.addLane(this.projectId, this.form).then(() => {
+            LaneService.addLane(this.projectId, this.form, this.lane ? this.lane.id : 0).then(() => {
               EventBus.emit(events.LANE_UPDATED);
               this.$Message.success('泳道已添加');
               this.showModel = false;
