@@ -14,7 +14,6 @@
 <script setup>
 import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
-import defaultAvatar from '@/images/default-.webp';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import {ref, inject, onMounted} from "vue";
