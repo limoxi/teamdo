@@ -2,35 +2,53 @@
   <Modal
       v-model="showModel"
       :title="title"
-      :fullscreen="true"
       class="aui-task-model"
-      @on-visible-change="onVisibleChange"
+      width="1500"
   >
-    <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
-      <FormItem label="名称" prop="name">
-        <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
-      </FormItem>
-<!--        <FormItem label="关联需求" prop="need_id" v-show="this.mode === 'create'">-->
-<!--          <Select v-model="form.need_id" style="width:180px" aria-label="needSelector">-->
-<!--            <Option v-for="need in needOptions" :value="need.id" :key="need.id">-->
-<!--              {{ need.name }}-->
-<!--            </Option>-->
-<!--          </Select>-->
-<!--        </FormItem>-->
-      <FormItem label="优先级" prop="importance">
-        <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
-          <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-            {{ option.label }}
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem label="故事点" prop="NUT">
-        <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
-      </FormItem>
-      <FormItem label="描述">
-        <editor @onUpdate="onDescChange" :content="!!task? task.desc: ''" :readonly="mode==='view'"></editor>
-      </FormItem>
-    </Form>
+    <div class="task-model-main">
+      <div class="task-info">
+        <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
+          <FormItem label="名称" prop="name">
+            <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
+          </FormItem>
+          <FormItem label="优先级" prop="importance">
+            <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
+              <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
+                {{ option.label }}
+              </Option>
+            </Select>
+          </FormItem>
+          <FormItem label="故事点" prop="NUT">
+            <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
+          </FormItem>
+          <FormItem label="描述" prop="desc">
+            <editor v-if="showModel" @onUpdate="onDescChange" :content="form.desc ? form.desc : ''" :readonly="mode==='view'"></editor>
+          </FormItem>
+        </Form>
+      </div>
+      <div class="task-log">
+        <div class="task-header">
+          <span class="task-log-title">参与者{{ task.users ? task.users.length : 0 }}</span>
+          <div class="aui-i-users">
+            <div v-for="user in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
+              <Tooltip :content="user.nickname" placement="top">
+                <Avatar :src="user.avatar||defaultAvatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+        <div class="task-log-list">
+          <ul>
+            <li>
+              <!-- <span>{{ record.operationName }}创建了任务</span>
+              <span>{{ record.updateAt }}</span> -->
+              <span>创建了任务</span>
+              <span>周五</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <template #footer>
       <Button @click="handleSubmit">确定</Button>
     </template>
@@ -40,14 +58,17 @@
 import TaskService from '@/service/task_service'
 import {events, EventBus} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
+import defaultAvatar from '@/images/default-avatar.webp';
 
 export default {
   props: ['show', 'mode', 'task', 'projectId'],
   components: {
     Editor,
   },
+
   data() {
     return {
+      showModel: false,
       form: this.defaultForm(),
       needOptions: [],
       tagOptions: [],
@@ -83,18 +104,20 @@ export default {
         name: [
           {required: true, message: '任务标题不能为空', trigger: 'blur'}
         ]
-      }
+      },
+      defaultAvatar: defaultAvatar
     }
   },
+
   computed: {
-    showModel: {
-      get() {
-        return this.show;
-      },
-      set(newValue) {
-        this.$emit('update:show', newValue);
-      }
-    },
+    // showModel: {
+    //   get() {
+    //     return this.show;
+    //   },
+    //   set(newValue) {
+    //     this.$emit('update:show', newValue);
+    //   }
+    // },
     title() {
       let title = '';
       if (this.mode === 'create') {
@@ -105,19 +128,26 @@ export default {
       return title;
     }
   },
+
   methods: {
+    showTask (task = {}) {
+      this.form = task
+      this.showModel = true
+      console.log(this.$refs);
+    },
     defaultForm() {
       return {
         name: '',
-        desc: {},
+        desc: '',
         importance: 0,
         NUT: 1
       }
     },
     onVisibleChange(show){
       if (show && this.task){
-        this.form = this.task;
+        this.form = this.task
       }
+      console.log(this.form);
     },
     actionDone(eventName, data = undefined) {
       this.showModel = false;
@@ -144,7 +174,7 @@ export default {
             NUT: this.form.NUT
           }
           if (this.mode === 'create') {
-            TaskService.addTask(this.projectId, taskData).then((data) => {
+            TaskService.addTask(this.projectId * 1, taskData).then((data) => {
               this.actionDone(events.TASK_ADDED, {
                 'taskId': data.id,
                 'laneId': data.lane_id
@@ -155,7 +185,7 @@ export default {
             });
           } else {
             taskData.id = this.task.id
-            TaskService.updateTask(this.projectId, taskData).then(() => {
+            TaskService.updateTask(this.projectId * 1, taskData).then(() => {
               this.actionDone(events.TASK_UNDO);
               this.form = this.defaultForm();
             }).catch(err => {
@@ -176,6 +206,43 @@ export default {
 
 <style scoped lang="less">
 .aui-task-model {
+  .task-model-main{
+    width: 100%;
+    height: 600px;
+    overflow-y: auto;
+    display: flex;
+    .task-info{
+      // width: 50%;
+      flex: 1;
+    }
+    .task-log{
+      width: 35%;
+      border-left: 1px solid #ccc;
+      // padding: 0 10px;
+      .task-header{
+        padding: 0 10px;
+        .task-log-title{
+          margin-bottom: 10px;
+          display: block;
+        }
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ccc;
+      }
+      .task-log-list{
+        padding: 0 10px;
+        margin-top: 20px;
+        ul {
+          width: 100%;
+          li{
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+        }
+      }
+    }
+  }
 }
 
 </style>

@@ -73,6 +73,7 @@ onMounted(() => {
   });
 
   EventBus.on(events.TASK_EXPANDED, task => {
+    console.log(task);
     showTaskModel.value = true;
     taskModelMode.value = 'mod';
     modelTask.value = task;

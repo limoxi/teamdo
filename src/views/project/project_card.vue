@@ -23,7 +23,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import {events, EventBus} from '@/service/event_bus'

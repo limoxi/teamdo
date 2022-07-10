@@ -8,19 +8,6 @@
         <Button v-show="inFirstLane" icon="ios-undo" @click="onClickUndo"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
         <Button v-show="!inFirstLane&&!inLastLane" icon="ios-flash" @click="onClickFlash"></Button>
-<!--        <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">-->
-<!--          <Button icon="md-swap"></Button>-->
-<!--          <template #list>-->
-<!--            <DropdownMenu>-->
-<!--              <DropdownItem-->
-<!--                  v-for="l in lanes" :key="l.id" :name="l.id"-->
-<!--                  v-if="lane.id !== l.id"-->
-<!--              >-->
-<!--                {{ l.name }}-->
-<!--              </DropdownItem>-->
-<!--            </DropdownMenu>-->
-<!--          </template>-->
-<!--        </Dropdown>-->
         <Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>
@@ -40,6 +27,12 @@
         </div>
       </div>
     </div>
+    <!-- 弹窗组件 -->
+    <task-model
+      ref="taskModel"
+      :projectId="projectId"
+      :task="task"
+  ></task-model>
   </div>
 </template>
 
@@ -49,14 +42,20 @@ import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import defaultAvatar from '@/images/default-avatar.webp';
+import TaskModel from '@/components/model/task_model'
 
 export default {
   props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'],
+  components: {
+    TaskModel,
+  },
+
   data() {
     return {
       defaultAvatar: defaultAvatar
     }
   },
+
   computed: {
     headerClasses() {
       return `aui-task aui-task-type-${this.task.type}`;
@@ -84,10 +83,13 @@ export default {
       return clr;
     }
   },
+
   methods: {
+
     onChangeProgress(task) {
       console.log(task.progress);
     },
+
     onClickNext() {
       let targetLane;
       for (let index in this.lanes) {
@@ -104,6 +106,7 @@ export default {
         this.$Message.warning(err.errMsg);
       });
     },
+
     onClickSwitch(targetLaneId) {
       TaskService.switchLane(this.projectId, this.task, targetLaneId).then(() => {
         EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
@@ -111,16 +114,20 @@ export default {
         this.$Message.warning(err.errMsg);
       });
     },
+
     onClickEdit(selectedTask) {
       TaskService.getTask(this.projectId, selectedTask.id).then(task => {
-        EventBus.emit(events.TASK_EXPANDED, task);
+        // EventBus.emit(events.TASK_EXPANDED, task);
+        this.$refs.taskModel.showTask(task)
       }).catch(err => {
         this.$Message.error(err.errMsg);
       });
     },
+
     onClickFlash() {
       console.log('notify');
     },
+    
     onClickUndo() {
       TaskService.undoTask(this.projectId, this.task).then(() => {
         EventBus.emit(events.TASK_REMOVED, this.task, this.lane.id);
