@@ -13,10 +13,7 @@
 
       <p>{{ project.desc }}</p>
       <p class="aui-i-users">
-        <Avatar v-for="user in project.users" :key="user.id"
-          :src="user.avatar || defaultAvatar"
-          :size="user.id === project.user_id? 45: 35"
-        />
+        <AvatarList :list="avatars" />
       </p>
       <p class="aui-i-time">{{ project.created_at }}</p>
     </Card>
@@ -31,6 +28,13 @@ import {useRouter} from 'vue-router'
 const router = useRouter()
 
 const props = defineProps(['project'])
+
+const avatars = props.project.users.map(user => {
+  return {
+    src: user.avatar || defaultAvatar,
+    tip: user.nickname
+  }
+})
 
 const onClickCard = () => {
   router.push({

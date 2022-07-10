@@ -32,7 +32,7 @@ onMounted(() => {
     }
     ProjectService.addMember(project.id, selectedUserId).then(() => {
       Message.success('添加成员成功，正在刷新...');
-      this.getMembers();
+      getMembers();
     }).catch(err => {
       Message.error(err.errMsg);
     })
@@ -44,9 +44,9 @@ onMounted(() => {
 const getMembers = () => {
   ProjectService.getProjectMembers(project.id).then(data => {
     members.value = data;
-    data.forEach(member => {
-      if (member.user.id === currentUserId) {
-        if (member.is_manager) {
+    data.forEach(user => {
+      if (user.id === currentUserId) {
+        if (user.is_manager) {
           isManager.value = true
         }
       }

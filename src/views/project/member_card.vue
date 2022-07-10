@@ -11,8 +11,7 @@
     />
     <img :src="avatar" alt="avatar"/>
     <div class="aui-i-desc">
-      <p>{{ member.user.nickname }}</p>
-      <p>{{ member.role && member.role.name }}</p>
+      <p>{{ member.nickname }}</p>
     </div>
   </Card>
 </template>
@@ -29,7 +28,7 @@ export default {
   },
   computed: {
     avatar() {
-      return this.member.user.avatar || defaultAvatar;
+      return this.member.avatar || defaultAvatar;
     },
     isManager() {
       if (!this.project) {
