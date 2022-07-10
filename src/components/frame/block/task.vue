@@ -1,8 +1,9 @@
 <template>
   <div :class="headerClasses">
     <div class="aui-i-header">
-      <div @click="onCLickTaskNo">
-        {{ taskNo }}
+      <div>
+        <!--        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>-->
+        <Tag :color="importanceColor" @click="onCLickTaskNo">{{ taskNo }}&nbsp;∙&nbsp;{{ task.type_name }}</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
@@ -24,12 +25,11 @@
       </div>
     </div>
     <div class="aui-i-body">
-      <div class="aui-i-status">
-        <Tag :color="importanceColor">{{ importanceDesc }}</Tag>
-        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>
-      </div>
       <div class="aui-i-name">
         {{ task.name }}
+      </div>
+      <div class="aui-i-tags">
+
       </div>
       <div class="aui-i-users">
         <div v-for="user in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
@@ -37,6 +37,10 @@
             <Avatar :src="user.avatar||defaultAvatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
           </Tooltip>
         </div>
+      </div>
+      <div class="aui-i-time">
+        <Icon type="md-play" class="aui-i-up"/>
+        {{ formatTime(task.updated_at) }}
       </div>
     </div>
   </div>
@@ -77,7 +81,27 @@ const importanceColor = computed(() => {
   return clr;
 })
 
+const taskNameColor = computed(() => {
+  switch (props.task.type) {
+    case 'REQ':
+    case 'OPT':
+      return 'primary'
+    case 'BUG':
+      return 'error'
+    default:
+      return 'default'
+  }
+})
+
 const taskNo = `${project.prefix}${props.task.id}`
+
+const formatTime = (timeStr) => {
+  let sps = timeStr.split('-')
+  sps.shift()
+  sps = sps.join('-').split(':')
+  sps.pop()
+  return sps.join(':')
+}
 
 const onCLickTaskNo = () => {
   Copy({
@@ -199,6 +223,20 @@ const onClickEdit = (selectedTask) => {
 
     .aui-i-users {
       padding: 5px;
+    }
+    .aui-i-time{
+      color: grey;
+      position: absolute;
+      bottom: 2px;
+      right: 5px;
+      font-size: 10px;
+
+      .aui-i-up{
+        margin-right: -4px;
+        margin-bottom: 4px;
+        transform: rotate(-90deg) scale(0.6);
+        color: lightgreen;
+      }
     }
   }
 
