@@ -16,6 +16,7 @@
 </template>
 <script>
 import UserService from '@/service/user_service';
+import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['show', 'projectId'],
@@ -55,7 +56,7 @@ export default {
       })
     },
     onConfirmed() {
-      this.$emit('userSelected', this.selectedId);
+      EventBus.emit(events.USER_SELECTED, this.selectedId);
       this.selectedId = 0;
       this.targetUsers = [];
     }

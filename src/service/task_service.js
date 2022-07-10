@@ -123,16 +123,6 @@ class TaskService {
     });
   }
 
-  static undoTask(projectId, task) {
-    return Resource.put({
-      'resource': 'task.undid_task',
-      'data': {
-        'project_id': projectId,
-        'task_id': task.id
-      }
-    })
-  }
-
   static abortTask(projectId, task) {
     return Resource.put({
       'resource': 'task.aborted_task',

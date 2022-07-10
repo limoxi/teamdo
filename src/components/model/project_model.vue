@@ -7,7 +7,10 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="项目名" prop="name">
-        <Input v-model="form.name" placeholder="" />
+        <Input v-model="form.name" />
+      </FormItem>
+      <FormItem v-if="!isCreateMode" label="项目前缀" prop="prefix">
+        <Input v-model="form.prefix" readonly disabled />
       </FormItem>
       <FormItem label="简介" prop="desc">
         <Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述" />
@@ -26,6 +29,7 @@ export default {
       form: {
         id: this.isCreateMode ? 0 : this.project && this.project.id,
         name: this.isCreateMode ? '' : this.project && this.project.name,
+        prefix: this.isCreateMode ? '' : this.project && this.project.prefix,
         desc: this.isCreateMode ? '' : this.project && this.project.desc
       },
       ruleValidate: {

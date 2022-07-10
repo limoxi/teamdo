@@ -1,13 +1,12 @@
 <template>
   <div :class="headerClasses">
     <div class="aui-i-header">
-      <div>
-        Story&nbsp;{{ task.id }}
+      <div @click="onCLickTaskNo">
+        {{ taskNo }}
       </div>
       <div class="aui-i-action">
-        <Button v-show="inFirstLane" icon="ios-undo" @click="onClickUndo"></Button>
+        <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
-        <Button v-show="!inFirstLane&&!inLastLane" icon="ios-flash" @click="onClickFlash"></Button>
 <!--        <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">-->
 <!--          <Button icon="md-swap"></Button>-->
 <!--          <template #list>-->
@@ -43,92 +42,90 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
 import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
-import helper from '@/utils/helper';
 import defaultAvatar from '@/images/default-avatar.webp';
+import {Message, Copy} from 'view-ui-plus'
+import {computed, inject} from "vue";
 
-export default {
-  props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'],
-  data() {
-    return {
-      defaultAvatar: defaultAvatar
-    }
-  },
-  computed: {
-    headerClasses() {
-      return `aui-task aui-task-type-${this.task.type}`;
-    },
-    importanceDesc() {
-      let imp = this.task.importance;
-      let str = '';
-      if (imp <= 3) {
-        str = '一般';
-      } else if (imp <= 6) {
-        str = '紧急';
-      } else if (imp <= 9) {
-        str = '非常紧急';
-      }
-      return str;
-    },
-    importanceColor() {
-      let imp = this.importanceDesc;
-      let clr = 'success';
-      if (imp === '紧急') {
-        clr = 'warning';
-      } else if (imp === '非常紧急') {
-        clr = 'error';
-      }
-      return clr;
-    }
-  },
-  methods: {
-    onChangeProgress(task) {
-      console.log(task.progress);
-    },
-    onClickNext() {
-      let targetLane;
-      for (let index in this.lanes) {
-        index = parseInt(index);
-        let cl = this.lanes[index];
-        if (cl.id === this.lane.id) {
-          targetLane = this.lanes[index + 1];
-          break;
-        }
-      }
-      TaskService.switchLane(this.projectId, this.task, targetLane.id).then(() => {
-        EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLane.id);
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickSwitch(targetLaneId) {
-      TaskService.switchLane(this.projectId, this.task, targetLaneId).then(() => {
-        EventBus.emit(events.TASK_SWITCHED, this.task, this.lane.id, targetLaneId);
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
-    },
-    onClickEdit(selectedTask) {
-      TaskService.getTask(this.projectId, selectedTask.id).then(task => {
-        EventBus.emit(events.TASK_EXPANDED, task);
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      });
-    },
-    onClickFlash() {
-      console.log('notify');
-    },
-    onClickUndo() {
-      TaskService.undoTask(this.projectId, this.task).then(() => {
-        EventBus.emit(events.TASK_REMOVED, this.task, this.lane.id);
-      }).catch(err => {
-        this.$Message.warning(err.errMsg);
-      });
+const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
+const project = inject('project')
+const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
+const importanceDesc = computed(() => {
+  let imp = props.task.importance;
+  let str = '';
+  if (imp <= 3) {
+    str = '一般';
+  } else if (imp <= 6) {
+    str = '紧急';
+  } else if (imp <= 9) {
+    str = '非常紧急';
+  }
+  return str;
+})
+
+const importanceColor = computed(() => {
+  let imp = importanceDesc.value;
+  let clr = 'success';
+  if (imp === '紧急') {
+    clr = 'warning';
+  } else if (imp === '非常紧急') {
+    clr = 'error';
+  }
+  return clr;
+})
+
+const taskNo = `${project.prefix}${props.task.id}`
+
+const onCLickTaskNo = () => {
+  Copy({
+    text: taskNo,
+    successTip: `任务编号:${taskNo} 已复制`
+  })
+}
+
+const onClickNext = () => {
+  let targetLane;
+  for (let index in props.lanes) {
+    index = parseInt(index);
+    let cl = props.lanes[index];
+    if (cl.id === props.lane.id) {
+      targetLane = props.lanes[index + 1];
+      break;
     }
   }
+  switchLane(targetLane.id)
+}
+
+const onClickPre = () => {
+  let targetLane;
+  for (let index in props.lanes) {
+    index = parseInt(index);
+    let cl = props.lanes[index];
+    if (cl.id === props.lane.id) {
+      targetLane = props.lanes[index - 1];
+      break;
+    }
+  }
+  switchLane(targetLane.id)
+}
+
+const switchLane = (targetLaneId) => {
+  TaskService.switchLane(project.id, props.task, targetLaneId).then(() => {
+    EventBus.emit(events.TASK_SWITCHED, props.task, props.lane.id, targetLaneId);
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
+}
+
+const onClickEdit = (selectedTask) => {
+  TaskService.getTask(project.id, selectedTask.id).then(task => {
+    EventBus.emit(events.TASK_EXPANDED, task);
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
 }
 </script>
 

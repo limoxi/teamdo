@@ -80,7 +80,7 @@ export default {
       })
     },
     onAddLane() {
-      EventBus.emit(events.LANE_ADDING, this.kanbanType);
+      EventBus.emit(events.LANE_ADDING);
     },
     onDeleteLane(deletedLane) {
       let laneIndex = this.lanes.findIndex(lane => {

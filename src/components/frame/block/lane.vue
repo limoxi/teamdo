@@ -82,7 +82,7 @@ export default {
       return this.tasks.length === this.lane.wip;
     },
     getTasks() {
-      LaneService.getTasks(this.projectId, 'kanban', this.lane.id).then(data => {
+      LaneService.getTasks(this.projectId, this.lane.id).then(data => {
         this.tasks = data['tasks'];
       }).catch(err => {
         this.$Message.error(err.errMsg);
@@ -90,7 +90,7 @@ export default {
     },
     onClickAction(name) {
       if (name === 'edit') {
-        EventBus.emit(events.LANE_EDITING, this.lane, this.kanbanType);
+        EventBus.emit(events.LANE_EDITING, this.lane);
       } else if (name === 'del') {
         this.$Modal.confirm({
           title: '删除泳道',
@@ -108,7 +108,7 @@ export default {
       }
     },
     showTaskModel() {
-      EventBus.emit(events.TASK_ADDING, this.lane, this.kanbanType);
+      EventBus.emit(events.TASK_ADDING, this.lane);
     }
   }
 }

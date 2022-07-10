@@ -69,12 +69,11 @@ class LaneService {
     })
   }
 
-  static getTasks(projectId, kanbanType, laneId) {
+  static getTasks(projectId, laneId) {
     return Resource.get({
       'resource': 'project.lane.tasks',
       'data': {
         'project_id': projectId,
-        'kanban_type': this.getIntType(kanbanType),
         'lane_id': laneId,
         'with_options': {
           'with_users': true,
