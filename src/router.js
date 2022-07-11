@@ -12,7 +12,7 @@ const Routers = [{
 }, {
   name: 'project',
   path: '/project/:projectId',
-  redirect: '/project/:projectId/kanban',
+  redirect: '/project/kanban',
   meta: {
     title: '项目'
   },

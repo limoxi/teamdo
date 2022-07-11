@@ -38,8 +38,11 @@ const avatars = props.project.users.map(user => {
 
 const onClickCard = () => {
   router.push({
-    name: 'project',
-    params: {projectId: props.project.id, name: props.project.name}
+    name: 'kanban',
+    params: {
+      name: props.project.name,
+      projectId: props.project.id
+    }
   })
 }
 

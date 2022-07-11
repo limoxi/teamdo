@@ -43,11 +43,13 @@ import {events, EventBus} from '@/service/event_bus'
 
 export default {
   props: ['projectId'],
+
   created() {
     EventBus.on(events.LANE_UPDATED, this.getLanes);
 
     this.getLanes();
   },
+
   data() {
     return {
       'lanes': [],

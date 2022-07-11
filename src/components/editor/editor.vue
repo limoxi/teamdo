@@ -12,7 +12,8 @@ import {ref, onMounted, onUnmounted} from "vue";
 
 const props = defineProps(['readonly', 'content'])
 const emit = defineEmits(['onUpdate'])
-let {editor} = useEditor((root) =>
+
+let { editor } = useEditor((root) =>
   Editor.make()
       .config((ctx) => {
         ctx.set(rootCtx, root)
@@ -26,7 +27,6 @@ let {editor} = useEditor((root) =>
       .use(commonmark)
       .use(listener)
 );
-
 </script>
 
 <style lang="less">
