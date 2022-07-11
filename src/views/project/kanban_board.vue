@@ -18,13 +18,12 @@
         @sort="onListChange"
     >
       <template #item="{element, index}">
-        <Lane
+        <lane-card
           :key="element.id"
           :index="index"
           :lane="element"
           :lanes="lanes"
-          :projectId="projectId"
-          :kanbanType="kanbanType"
+          :projectId="parseInt(projectId)"
           @laneDeleted="onDeleteLane"
         />
       </template>
@@ -36,7 +35,7 @@
 
 <script>
 import Draggable from 'vuedraggable';
-import Lane from '@/components/frame/block/lane';
+import LaneCard from './lane_card';
 import ProjectService from '@/service/project_service';
 import LaneService from '@/service/lane_service';
 
@@ -51,7 +50,6 @@ export default {
   },
   data() {
     return {
-      'kanbanType': 'kanban',
       'lanes': [],
       'dragOptions': {
         animation: 200,
@@ -66,13 +64,13 @@ export default {
     }
   },
   components: {
-    Lane,
+    LaneCard,
     Draggable,
 
   },
   methods: {
     onListChange(event) {
-      LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
+      LaneService.resort(this.projectId, this.lanes).then(() => {
         this.$Message.success('排序完成');
       }).catch(err => {
         console.log(err);
@@ -80,7 +78,7 @@ export default {
       })
     },
     onAddLane() {
-      EventBus.emit(events.LANE_ADDING, this.kanbanType);
+      EventBus.emit(events.LANE_ADDING);
     },
     onDeleteLane(deletedLane) {
       let laneIndex = this.lanes.findIndex(lane => {
@@ -89,7 +87,7 @@ export default {
       this.lanes.splice(laneIndex, 1);
     },
     getLanes() {
-      LaneService.getLanes(this.projectId, this.kanbanType).then(lanes => {
+      LaneService.getLanes(this.projectId).then(lanes => {
         this.lanes = lanes;
       });
     },

@@ -13,10 +13,7 @@
 
       <p>{{ project.desc }}</p>
       <p class="aui-i-users">
-        <Avatar v-for="user in project.users" :key="user.id"
-          :src="user.avatar || defaultAvatar"
-          :size="user.id === project.user_id? 45: 35"
-        />
+        <AvatarList :list="avatars" size="large" />
       </p>
       <p class="aui-i-time">{{ project.created_at }}</p>
     </Card>
@@ -31,6 +28,13 @@ import {useRouter} from 'vue-router'
 const router = useRouter()
 
 const props = defineProps(['project'])
+
+const avatars = props.project.users.map(user => {
+  return {
+    src: user.avatar || defaultAvatar,
+    tip: user.nickname
+  }
+})
 
 const onClickCard = () => {
   router.push({
@@ -59,7 +63,7 @@ const onDelete = (e) => {
 
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .aui-project-card {
   &:hover {
     .aui-i-action {
@@ -96,6 +100,18 @@ const onDelete = (e) => {
     margin-top: 15px;
     margin-bottom: -35px;
     width: 60%;
+  }
+
+  .ivu-avatar-list{
+   margin-left: 10px;
+  }
+
+  .ivu-avatar-list-item{
+   margin-left: -10px !important;
+  }
+
+  .ivu-avatar{
+    border: none !important;
   }
 }
 

@@ -7,90 +7,76 @@
         :project="project"
         @deleteMember="onDeleteMember"
     />
-    <Card class="aui-add-member" v-if="isManager">
-      <img :src="avatar" alt="avatar"/>
-      <Button icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
-    </Card>
-
+    <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
   </div>
 </template>
 
-<script>
+<script setup>
 import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
-import defaultAvatar from '@/images/default-avatar.webp';
-
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
+import {ref, inject, onMounted} from "vue";
+import {Message} from 'view-ui-plus'
 
-export default {
-  props: ['projectId'],
-  components: {
-    'member-card': MemberCard
-  },
-  data() {
-    return {
-      project: null,
-      members: [],
-      isManager: false
+const project = inject('project')
+const members = ref([])
+const isManager = ref(false)
+const currentUserId = helper.storage.get('uid')
+
+onMounted(() => {
+  EventBus.on(events.USER_SELECTED, (selectedUserId) => {
+    if (selectedUserId === currentUserId) {
+      Message.warning('用户已是项目成员');
+      return
     }
-  },
-  computed: {
-    avatar() {
-      return defaultAvatar;
-    }
-  },
-  created() {
-    this.getMembers();
-    this.getProject();
-  },
-  methods: {
-    onAddMember() {
-      EventBus.emit(events.SELECTING_USER, {
-        'callback': this.onMemberSelected
-      });
-    },
-    onDeleteMember(member) {
-      this.$Modal.confirm({
-        title: '移除项目成员',
-        content: '<strong>确定要移除该项目成员么？</strong>',
-        okText: '确认',
-        cancelText: '再想想',
-        onOk: () => {
-          ProjectService.deleteMember(this.projectId, member.user.id).then(() => {
-            helper.removeFromArray(member, this.members);
-            this.$Message.success('操作成功');
-          }).catch(err => {
-            this.$Message.error(err.errMsg);
-          });
+    ProjectService.addMember(project.id, selectedUserId).then(() => {
+      Message.success('添加成员成功，正在刷新...');
+      getMembers();
+    }).catch(err => {
+      Message.error(err.errMsg);
+    })
+  });
+
+  getMembers()
+})
+
+const getMembers = () => {
+  ProjectService.getProjectMembers(project.id).then(data => {
+    members.value = data;
+    data.forEach(user => {
+      if (user.id === currentUserId) {
+        if (user.is_manager) {
+          isManager.value = true
         }
-      });
-    },
-    onMemberSelected(userId) {
-      ProjectService.addMember(this.projectId, userId).then(() => {
-        this.$Message.success('添加成员成功，正在刷新...');
-        this.getMembers();
-      }).catch(err => {
-        this.$Message.error(err.Msg);
-      })
-    },
-    getMembers() {
-      ProjectService.getProjectMembers(this.projectId).then(data => {
-        this.members = data;
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      });
-    },
-    getProject() {
-      ProjectService.getProject(this.projectId).then(data => {
-        this.project = data;
-        this.isManager = this.project.creator_id === helper.storage.get('uid');
-      }).catch(err => {
-        this.$Message.error(err.Msg);
-      })
-    },
-  }
+      }
+    })
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
 }
+
+const onAddMember = () => {
+  EventBus.emit(events.SELECTING_USER);
+}
+
+const onDeleteMember = (member) => {
+  this.$Modal.confirm({
+    title: '移除项目成员',
+    content: '<strong>确定要移除该项目成员么？</strong>',
+    okText: '确认',
+    cancelText: '再想想',
+    onOk: () => {
+      ProjectService.deleteMember(project.id, member.user.id).then(() => {
+        helper.removeFromArray(member, members);
+        Message.success('操作成功');
+      }).catch(err => {
+        Message.error(err.errMsg);
+      });
+    }
+  });
+}
+
 </script>
 
 <style lang="less" scoped>
@@ -100,19 +86,7 @@ export default {
   margin: 15px;
 }
 
-.aui-add-member {
-  text-align: center;
-  width: 150px;
-  margin-left: 5px;
-
-  img {
-    width: 80px;
-    border-radius: 15px;
-    background-image: linear-gradient(-225deg, #69EACB 0%, #EACCF8 48%, #6654F1 100%);
-  }
-
-  .aui-i-add-btn {
-    margin-top: 10px;
-  }
+.aui-i-add-btn {
+  margin: auto 5px;
 }
 </style>

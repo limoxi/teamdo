@@ -6,7 +6,14 @@
       class="aui-task-model"
       @on-visible-change="onVisibleChange"
   >
-    <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
+    <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="isViewMode" :label-width="80">
+      <FormItem label="任务类型" prop="type">
+        <Select v-model="form.type" style="width:180px" aria-label="typeSelector" :disabled="!isCreateMode">
+          <Option v-for="option in typeOptions" :value="option.value" :key="option.value">
+            {{ option.label }}
+          </Option>
+        </Select>
+      </FormItem>
       <FormItem label="名称" prop="name">
         <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
       </FormItem>
@@ -24,9 +31,9 @@
           </Option>
         </Select>
       </FormItem>
-      <FormItem label="故事点" prop="NUT">
-        <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
-      </FormItem>
+<!--      <FormItem label="故事点" prop="NUT">-->
+<!--        <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>-->
+<!--      </FormItem>-->
       <FormItem label="描述">
         <editor @onUpdate="onDescChange" :content="!!task? task.desc: ''" :readonly="mode==='view'"></editor>
       </FormItem>
@@ -51,6 +58,16 @@ export default {
       form: this.defaultForm(),
       needOptions: [],
       tagOptions: [],
+      typeOptions: [{
+        'label': '需求',
+        'value': 'REQ'
+      }, {
+        'label': '优化',
+        'value': 'OPT'
+      }, {
+        'label': 'BUG',
+        'value': 'BUG'
+      }],
       importanceOptions: [{
         'label': '1(一般)',
         'value': 1
@@ -82,6 +99,12 @@ export default {
       ruleValidate: {
         name: [
           {required: true, message: '任务标题不能为空', trigger: 'blur'}
+        ],
+        type: [
+          {required: true, message: '请选择任务类型', trigger: 'blur'}
+        ],
+        importance: [
+          {required: true, message: '请选择优先级', trigger: 'blur'}
         ]
       }
     }
@@ -98,11 +121,17 @@ export default {
     title() {
       let title = '';
       if (this.mode === 'create') {
-        title = '添加用户故事';
+        title = '添加任务';
       } else {
         title = '详情 - ' + this.task.name;
       }
       return title;
+    },
+    isViewMode(){
+      return this.mode==='view'
+    },
+    isCreateMode(){
+      return this.mode==='create'
     }
   },
   methods: {
@@ -141,7 +170,8 @@ export default {
             name: this.form.name,
             desc: this.form.desc,
             importance: this.form.importance,
-            NUT: this.form.NUT
+            NUT: this.form.NUT || 1,
+            type: this.form.type
           }
           if (this.mode === 'create') {
             TaskService.addTask(this.projectId, taskData).then((data) => {

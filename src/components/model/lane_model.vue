@@ -7,16 +7,10 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="泳道名称" prop="name">
-        <Input v-model="form.name" placeholder=""></Input>
+        <Input v-model="form.name" placeholder="" />
       </FormItem>
-      <FormItem label="WIP" prop="wip">
+      <FormItem label="WIP" prop="wip" v-if="!isCreateMode">
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
-      </FormItem>
-      <FormItem label="任务终点" prop="endPoint">
-        <Switch v-model="form.endPoint">
-          <span slot="open">是</span>
-          <span slot="close">否</span>
-        </Switch>
       </FormItem>
 <!--      <FormItem label="权限" prop="validRoles">-->
 <!--        <Select v-model="form.validRoles" multiple>-->
@@ -24,7 +18,9 @@
 <!--        </Select>-->
 <!--      </FormItem>-->
     </Form>
-    <Button slot="footer" @click="confirm">确定</Button>
+    <template #footer>
+      <Button slot="footer" @click="confirm">确定</Button>
+    </template>
   </Modal>
 </template>
 
@@ -35,23 +31,23 @@ import helper from '@/utils/helper';
 import {events, EventBus} from '@/service/event_bus'
 
 export default {
-  props: ['show', 'mode', 'lane', 'projectId', 'kanbanType'],
+  props: ['show', 'mode', 'lane', 'projectId'],
   data() {
     return {
       roles: [],
       ruleValidate: {
         name: [
           {required: true, message: '泳道名称不能为空', trigger: 'blur'}
-        ],
-        wip: [
-          {required: true, type: 'number', message: '请填写泳道最大任务数', trigger: 'blur'}
         ]
       }
     }
   },
   computed: {
+    isCreateMode(){
+      return this.mode === 'create'
+    },
     title() {
-      return this.mode === 'create' ? '添加泳道' : '修改泳道';
+      return this.isCreateMode ? '添加泳道' : '修改泳道';
     },
     showModel: {
       get() {
@@ -69,11 +65,11 @@ export default {
       }
     },
     form() {
-      if (helper.isEmptyObject(this.lane)) {
+      if (helper.isEmptyObject(this.lane) || this.isCreateMode) {
         return {
           id: 0,
           name: '',
-          wip: 1,
+          wip: 8,  // 默认
           endPoint: false,
           validRoles: []
         }
@@ -82,7 +78,6 @@ export default {
           id: this.lane.id,
           name: this.lane.name,
           wip: this.lane.wip,
-          endPoint: this.lane.end_point,
           validRoles: this.lane.valid_roles || []
         }
       }
@@ -92,8 +87,8 @@ export default {
     confirm() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          if (this.mode === 'create') {
-            LaneService.addLane(this.projectId, this.kanbanType, this.form).then(() => {
+          if (this.isCreateMode) {
+            LaneService.addLane(this.projectId, this.form, this.lane ? this.lane.id : 0).then(() => {
               EventBus.emit(events.LANE_UPDATED);
               this.$Message.success('泳道已添加');
               this.showModel = false;

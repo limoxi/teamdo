@@ -60,7 +60,8 @@ class TaskService {
         'name': task.name,
         'importance': task.importance,
         'desc': JSON.stringify(task.desc),
-        'NUT': task.NUT
+        'NUT': task.NUT,
+        'task_type': task.type
       }
     })
   }
@@ -121,16 +122,6 @@ class TaskService {
         'task_id': task.id
       }
     });
-  }
-
-  static undoTask(projectId, task) {
-    return Resource.put({
-      'resource': 'task.undid_task',
-      'data': {
-        'project_id': projectId,
-        'task_id': task.id
-      }
-    })
   }
 
   static abortTask(projectId, task) {

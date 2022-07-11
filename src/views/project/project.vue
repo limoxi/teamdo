@@ -12,21 +12,19 @@
   <!-- model -->
   <lane-model
       v-model:show="showLaneModel"
-      :projectId="projectId"
-      :kanbanType="kanbanType"
+      :projectId="parseInt(projectId)"
       :lane="modelLane"
       :mode="laneModelMode"
   ></lane-model>
   <task-model
       :mode="taskModelMode"
       v-model:show="showTaskModel"
-      :projectId="projectId"
+      :projectId="parseInt(projectId)"
       :task="modelTask"
   ></task-model>
   <user-select-model
       v-model:show="showUserSelectModel"
-      :projectId="projectId"
-      @userSelected="onUserSelected"
+      :projectId="parseInt(projectId)"
   ></user-select-model>
 </template>
 
@@ -39,7 +37,7 @@ import UserSelectModel from '@/components/model/user_select_model';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
-import {ref, onMounted} from 'vue'
+import {ref, provide, onMounted} from 'vue'
 
 const props = defineProps(['projectId', 'name'])
 let showTaskModel = ref(false)
@@ -49,26 +47,25 @@ let taskModelMode = ref('mod')
 let laneModelMode = ref('create')
 let modelTask = ref({})
 let modelLane = ref({})
-const kanbanType = 'kanban'
 
 onMounted(() => {
-  EventBus.on(events.LANE_ADDING, kanbanType => {
+  EventBus.on(events.LANE_ADDING, (lane) => {
     showLaneModel.value = true;
     laneModelMode.value = 'create';
+    modelLane.value = lane
   });
 
-  EventBus.on(events.LANE_EDITING, (lane, kanbanType) => {
+  EventBus.on(events.LANE_EDITING, (lane) => {
     laneModelMode.value = 'mod';
     modelLane.value = lane;
     showLaneModel.value = true;
   });
 
-  EventBus.on(events.TASK_ADDING, (lane, kanbanType) => {
+  EventBus.on(events.TASK_ADDING, (lane) => {
     showTaskModel.value = true;
     taskModelMode.value = 'create';
     modelTask.value = {
       lane: lane,
-      kanbanType: kanbanType
     }
   });
 
@@ -84,11 +81,8 @@ onMounted(() => {
     modelTask.value = task;
   });
 
-  EventBus.on(events.SELECTING_USER, data => {
+  EventBus.on(events.SELECTING_USER, () => {
     showUserSelectModel.value = true;
-    if (!helper.isEmptyObject(data)) {
-      userSelectCallback.value = data.callback;
-    }
   });
 
   getProject()
@@ -97,28 +91,17 @@ onMounted(() => {
 let project = ref({
   id: props.projectId,
   name: props.name,
-  kanban: {}
+  prefix: 'XXX'
 })
 
-const userSelectCallback = (selectedUserId) =>{
-
-}
+provide('project', project.value)
 
 const getProject = () => {
   ProjectService.getProject(props.projectId).then(data => {
     project.value.id = data.id
     project.value.name = data.name
-
-    if (!helper.isEmptyObject(data.kanban)) {
-      project.value.kanban = {
-        id: data.kanban.id
-      }
-    }
+    project.value.prefix = data.prefix
   })
-}
-
-const onUserSelected = (targetUserId) => {
-  userSelectCallback(targetUserId)
 }
 
 </script>

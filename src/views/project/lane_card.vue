@@ -13,6 +13,7 @@
           <Icon type="md-more" size="22" class="aui-i-action" />
           <template #list>
             <DropdownMenu>
+              <DropdownItem name="add">在右边添加</DropdownItem>
               <DropdownItem name="edit">修改</DropdownItem>
               <DropdownItem name="del">删除</DropdownItem>
               <DropdownItem name="check">钉钉消息</DropdownItem>
@@ -22,26 +23,27 @@
       </div>
     </div>
     <div class="aui-i-tasks">
-      <Task v-for="task in tasks"
-        :showCheckBox="showCheckBox"
+      <task-card 
+        v-for="task in tasks" 
         :key="task.id"
+        :showCheckBox="showCheckBox"
         :task="task" :lane="lane" :lanes="lanes"
         :projectId="projectId"
         :inFirstLane="index===0"
         :inLastLane="index===lanes.length-1"
-      ></Task>
+      ></task-card>
     </div>
   </div>
 </template>
 
 <script>
-import Task from './task';
+import TaskCard from './task_card';
 import LaneService from '@/service/lane_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 
 export default {
-  props: ['lane', 'projectId', 'kanbanType', 'lanes', 'index'],
+  props: ['lane', 'projectId', 'lanes', 'index'],
   created() {
     this.getTasks();
 
@@ -75,7 +77,7 @@ export default {
     }
   },
   components: {
-    'Task': Task
+    TaskCard
   },
   computed: {
     className() {
@@ -91,19 +93,20 @@ export default {
       return this.tasks.length === this.lane.wip;
     },
     getTasks() {
-      LaneService.getTasks(this.projectId, 'kanban', this.lane.id).then(data => {
-        this.tasks = (data['tasks'] || []).map(task => {
+      LaneService.getTasks(this.projectId, this.lane.id).then(data => {
+       this.tasks = (data['tasks'] || []).map(task => {
           task._checked = false
           return task
         });
-        console.log(data, 'data.....')
       }).catch(err => {
         this.$Message.error(err.errMsg);
       })
     },
     onClickAction(name) {
-      if (name === 'edit') {
-        EventBus.emit(events.LANE_EDITING, this.lane, this.kanbanType);
+      if (name === 'add') {
+        EventBus.emit(events.LANE_ADDING, this.lane)
+      } else if (name === 'edit') {
+        EventBus.emit(events.LANE_EDITING, this.lane)
       } else if (name === 'del') {
         this.$Modal.confirm({
           title: '删除泳道',
@@ -149,7 +152,7 @@ export default {
     },
 
     showTaskModel() {
-      EventBus.emit(events.TASK_ADDING, this.lane, this.kanbanType);
+      EventBus.emit(events.TASK_ADDING, this.lane);
     }
   }
 }
