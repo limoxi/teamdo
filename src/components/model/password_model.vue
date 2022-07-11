@@ -11,6 +11,9 @@
       <FormItem label="新密码" prop="newPwd">
         <Input type="password" v-model="form.newPwd" />
       </FormItem>
+      <FormItem label="确认新密码" prop="newPwdConfirmed">
+        <Input type="password" v-model="form.newPwdConfirmed" />
+      </FormItem>
     </Form>
     <template #footer>
       <Button @click="confirm">确定</Button>
@@ -27,7 +30,8 @@ export default {
     return {
       form: {
         oldPwd: '',
-        newPwd: ''
+        newPwd: '',
+        newPwdConfirmed: ''
       },
       ruleValidate: {
         oldPwd: [
@@ -35,6 +39,9 @@ export default {
         ],
         newPwd: [
           {required: true, message: '新密码不能为空', trigger: 'blur'}
+        ],
+        newPwdConfirmed: [
+          {required: true, message: '请确认新密码', trigger: 'blur'}
         ]
       }
     }
@@ -53,6 +60,10 @@ export default {
     confirm() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
+          if (this.form.newPwd !== this.form.newPwdConfirmed) {
+            this.$Message.error('新密码前后不一致！')
+            return
+          }
           UserService.updatePwd(this.form.oldPwd, this.form.newPwd).then(() => {
             this.showModel = false;
             this.resetForm();

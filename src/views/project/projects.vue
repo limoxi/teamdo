@@ -33,7 +33,7 @@
       v-model:show="showModel"
       @projectCreated="onProjectsUpdated"
       @projectUpdated="onProjectsUpdated"
-      :project="null"
+      :project="editingProject"
       :mode="projectMode"
   ></project-model>
 </template>
@@ -66,7 +66,7 @@ export default {
       loadingProjects:true,
       projects: [],
       projectMode: 'create',
-      editingProject: {},
+      editingProject: null,
       showModel: false,
     }
   },

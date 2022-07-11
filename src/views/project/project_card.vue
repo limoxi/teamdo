@@ -92,7 +92,6 @@ const onDelete = (e) => {
 
   .aui-i-action {
     display: none;
-    margin-top: -15px;
 
     .ivu-btn-icon-only .ivu-btn-large {
       font-size: 16px;

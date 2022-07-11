@@ -39,7 +39,6 @@ export default {
   methods: {
     handleSubmit(valid, { phone, password }) {
       if(!valid) {
-        this.$Message.error('登录失败');
         return
       }
       UserService.doLogin(phone, password).then(data => {

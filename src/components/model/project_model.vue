@@ -27,10 +27,10 @@ export default {
   data() {
     return {
       form: {
-        id: this.isCreateMode ? 0 : this.project && this.project.id,
-        name: this.isCreateMode ? '' : this.project && this.project.name,
-        prefix: this.isCreateMode ? '' : this.project && this.project.prefix,
-        desc: this.isCreateMode ? '' : this.project && this.project.desc
+        id: 0,
+        name: '',
+        prefix: '',
+        desc: ''
       },
       ruleValidate: {
         name: [
@@ -42,9 +42,17 @@ export default {
       }
     }
   },
+  watch: {
+    project(newV, oldV){
+      this.form.id = newV.id
+      this.form.name = newV.name
+      this.form.prefix = newV.prefix
+      this.form.desc = newV.desc
+    }
+  },
   computed: {
     title() {
-      return this.mode === 'create' ? '创建项目' : '更新项目';
+      return this.isCreateMode ? '创建项目' : '更新项目';
     },
     showModel: {
       get() {
