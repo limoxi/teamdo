@@ -2,6 +2,11 @@
   <div class="aui-lane">
     <div :class="className">
       <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ tasks.length }}/{{ lane.wip || '∞' }})</p>
+      <Button
+        type="primary"
+        v-show="showCheckBox"
+        @click="onConfirmCheckTasks"
+      >确认</Button>
       <div>
         <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
@@ -10,13 +15,16 @@
             <DropdownMenu>
               <DropdownItem name="edit">修改</DropdownItem>
               <DropdownItem name="del">删除</DropdownItem>
+              <DropdownItem name="check">钉钉消息</DropdownItem>
             </DropdownMenu>
           </template>
         </Dropdown>
       </div>
     </div>
     <div class="aui-i-tasks">
-      <Task v-for="task in tasks" :key="task.id"
+      <Task v-for="task in tasks"
+        :showCheckBox="showCheckBox"
+        :key="task.id"
         :task="task" :lane="lane" :lanes="lanes"
         :projectId="projectId"
         :inFirstLane="index===0"
@@ -63,6 +71,7 @@ export default {
     return {
       showLaneModel: false,
       tasks: [],
+      showCheckBox: false
     }
   },
   components: {
@@ -83,7 +92,11 @@ export default {
     },
     getTasks() {
       LaneService.getTasks(this.projectId, 'kanban', this.lane.id).then(data => {
-        this.tasks = data['tasks'];
+        this.tasks = (data['tasks'] || []).map(task => {
+          task._checked = false
+          return task
+        });
+        console.log(data, 'data.....')
       }).catch(err => {
         this.$Message.error(err.errMsg);
       })
@@ -105,8 +118,36 @@ export default {
             });
           }
         });
+      } else if (name === 'check') {
+        console.log(this.tasks, 'this.tasks')
+        this.showCheckBox = true
       }
     },
+
+    onConfirmCheckTasks() {
+      console.log(this.tasks, 'this.tasks')
+      const checkedTasks = this.tasks.filter(task => task._checked)
+      if (!checkedTasks.length) {
+        this.$Message.error('请选择任务卡片')
+        return
+      }
+      let msgBuf = ['### 收银上线通知']
+      checkedTasks.forEach(task => {
+        msgBuf.push(`> ${task.id}:${task.name}`)
+      })
+      msgBuf.push(' \n\n ')
+      const msg = msgBuf.join(' \n\n ')
+      LaneService.sendDingMsg(msg).then(() => {
+        this.$Message.success('消息发送成功')
+        this.tasks.forEach(task => {
+          task._checked = false
+          this.showCheckBox = false
+        })
+      }).catch(err => {
+        this.$Message.err(err.errMsg)
+      })
+    },
+
     showTaskModel() {
       EventBus.emit(events.TASK_ADDING, this.lane, this.kanbanType);
     }

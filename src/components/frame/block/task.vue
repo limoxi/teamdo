@@ -1,6 +1,7 @@
 <template>
   <div :class="headerClasses">
     <div class="aui-i-header">
+      
       <div>
         Story&nbsp;{{ task.id }}
       </div>
@@ -39,6 +40,11 @@
           </Tooltip>
         </div>
       </div>
+      <div>
+        <Checkbox v-model="task._checked" 
+          v-if="showCheckBox"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -51,7 +57,8 @@ import helper from '@/utils/helper';
 import defaultAvatar from '@/images/default-avatar.webp';
 
 export default {
-  props: ['projectId', 'task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'],
+  props: ['projectId', 'task', 'lane', 
+  'lanes', 'inFirstLane', 'inLastLane', 'showCheckBox'],
   data() {
     return {
       defaultAvatar: defaultAvatar
