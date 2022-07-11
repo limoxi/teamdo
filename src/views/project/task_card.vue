@@ -1,7 +1,7 @@
 <template>
   <div :class="headerClasses">
     <div class="aui-i-header">
-      
+
       <div>
         <!--        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>-->
         <Tag :color="importanceColor" @click="onCLickTaskNo">{{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}</Tag>
@@ -33,14 +33,18 @@
 
       </div>
       <div class="aui-i-users">
-        <div v-for="user in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
+        <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
           <Tooltip :content="user.nickname" placement="top">
-            <Avatar :src="user.avatar||defaultAvatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
+            <Avatar
+                :style="{marginLeft: '-15px', zIndex: task.users.length - index}"
+                :src="user.avatar||defaultAvatar"
+                :size="user.is_assignor? 'large': 'default'"
+            ></Avatar>
           </Tooltip>
         </div>
       </div>
       <div>
-        <Checkbox v-model="task._checked" 
+        <Checkbox v-model="task._checked"
           v-if="showCheckBox"
         />
       </div>
@@ -227,7 +231,9 @@ const onClickEdit = (selectedTask) => {
     }
 
     .aui-i-users {
-      padding: 5px;
+      display: flex;
+      justify-content: start;
+      padding-left: 15px;
     }
     .aui-i-time{
       color: grey;

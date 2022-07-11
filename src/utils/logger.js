@@ -1,9 +1,9 @@
-import env from '@/env';
+const env = import.meta.env
 
 let Logger = {
   log(msg) {
     if (env.APP_MODE === 'develop') {
-      // console.log(JSON.stringify(msg));
+      console.log(JSON.stringify(msg));
     }
   },
 

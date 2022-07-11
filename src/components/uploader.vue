@@ -1,5 +1,6 @@
 <style lang="less" scoped>
 .aui-uploader {
+  position: relative;
   &:hover {
     .aui-i-btn {
       display: block;
@@ -34,7 +35,7 @@
 <template>
   <div class="aui-uploader">
     <img :src="imgSrc" alt="image" class="aui-i-image"/>
-    <Upload
+    <upload
         ref="upload"
         :show-upload-list="false"
         :format="['jpg','jpeg','png', 'icon']"
@@ -47,7 +48,7 @@
       <div class="aui-i-btn">
         <Icon type="ios-camera" size="50"></Icon>
       </div>
-    </Upload>
+    </upload>
   </div>
 
 </template>

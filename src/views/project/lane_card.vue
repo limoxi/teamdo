@@ -50,8 +50,8 @@
             :lane="lane"
             :lanes="lanes"
             :projectId="projectId"
-            :inFirstLane="index===0"
-            :inLastLane="index===lanes.length-1"
+            :inFirstLane="isFirstLane"
+            :inLastLane="isLastLane"
           ></task-card>
       </template>
       <div class="aui-i-blank"></div>
@@ -113,6 +113,18 @@ export default {
       } else {
         return 'aui-i-header aui-a-draggable';
       }
+    },
+    isFirstLane () {
+      if (this.lanes.length === 0) {
+        return true
+      }
+      return this.lanes[0].id === this.lane.id;
+    },
+    isLastLane () {
+      if (this.lanes.length === 0) {
+        return true
+      }
+      return this.lanes[this.lanes.length-1].id === this.lane.id;
     }
   },
 

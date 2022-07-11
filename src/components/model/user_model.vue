@@ -1,27 +1,31 @@
+<style scoped lang="less">
+.aui-uploader-wrapper{
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
 <template>
   <Modal
       v-model="showModel"
       :title="title"
       width="365"
+      :footer-hide="true"
   >
     <Login @on-submit="handleSubmit">
-      <template #content v-if="isUpdateMode">
-        <div style="margin-left:43px;">
-          <uploader
-              ref="upload"
-              v-model:src="user.avatar"
-          >
-          </uploader>
-        </div>
-      </template>
-      <Mobile name="username" :value="user.username" placeholder="请输入手机号" :readonly="isUpdateMode" />
-      <UserName name="nickname" :value="user.nickname" placeholder="请输入姓名" />
-      <Password v-if="!isUpdateMode" name="password" :value="user.password" placeholder="请输入密码" />
-      <Submit />
+      <div v-if="isUpdateMode" class="aui-uploader-wrapper">
+        <uploader
+            ref="upload"
+            v-model:src="userForm.avatar"
+        >
+        </uploader>
+      </div>
+      <Mobile v-if="!isUpdateMode" name="username" v-model:username="userForm.username" placeholder="请输入手机号" />
+      <UserName name="nickname" :value="userForm.nickname" placeholder="请输入姓名" />
+      <Password v-if="!isUpdateMode" name="password" placeholder="请输入密码" />
+      <Submit>{{ btnText }}</Submit>
     </Login>
-    <template #footer>
-      <span style="display: none"></span>
-    </template>
   </Modal>
 </template>
 <script>
@@ -32,17 +36,15 @@ import {events, EventBus} from '@/service/event_bus'
 
 export default {
   components: {
-    'uploader': Uploader
+    Uploader
   },
-  props: ['show', 'mode'],
+  props: ['show', 'mode', 'user'],
   data() {
     return {
-      user: {
+      userForm: {
         username: '',
-        nickname: '',
-        avatar: '',
-        password: '',
-
+        nickname: this.user ? this.user.nickname : '',
+        avatar: this.user ? this.user.avatar : ''
       }
     }
   },
@@ -52,19 +54,6 @@ export default {
     },
     showModel: {
       get() {
-        if (this.show) {
-          if (this.isUpdateMode) {
-            UserService.getUser({
-              user_id: helper.storage.get('uid'),
-            }).then(data => {
-              this.user.username = data.username;
-              this.user.avatar = data.avatar;
-              this.user.nickname = data.nickname;
-            }).catch(err => {
-              this.$Message.error('获取用户信息失败');
-            });
-          }
-        }
         return this.show;
       },
       set(newValue) {
@@ -76,6 +65,9 @@ export default {
     },
     isUpdateMode() {
       return this.mode === 'update';
+    },
+    btnText () {
+      return this.isRegisterMode ? '注册' : '提交'
     }
   },
   methods: {

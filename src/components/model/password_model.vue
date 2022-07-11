@@ -6,13 +6,15 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="70">
       <FormItem label="旧密码" prop="oldPwd">
-        <Input type="password" v-model="form.oldPwd" placeholder=""></Input>
+        <Input type="password" v-model="form.oldPwd" />
       </FormItem>
       <FormItem label="新密码" prop="newPwd">
-        <Input type="password" v-model="form.newPwd" placeholder=""></Input>
+        <Input type="password" v-model="form.newPwd" />
       </FormItem>
     </Form>
-    <Button slot="footer" @click="confirm">确定</Button>
+    <template #footer>
+      <Button @click="confirm">确定</Button>
+    </template>
   </Modal>
 </template>
 
@@ -56,7 +58,7 @@ export default {
             this.resetForm();
             this.$Message.success('修改密码成功,下次登录生效');
           }).catch(err => {
-            this.$Message.error(resp.errMsg);
+            this.$Message.error(err.errMsg);
           });
         }
       })

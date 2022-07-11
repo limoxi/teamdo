@@ -1,21 +1,12 @@
 <template>
-  <Dropdown :style="dropDownStyle" trigger="click" placement="bottom-end" @on-click="onClickItem">
-    <Badge dot>
-      <Button>
-        <Icon type="md-person" size="15"/>
-        <span>{{ nickname }}</span>
-        <Icon type="ios-arrow-down"></Icon>
-      </Button>
-    </Badge>
+  <Dropdown :style="dropDownStyle" trigger="click" placement="bottom" @on-click="onClickItem">
+    <Avatar v-if="!avatar" :src="avatar" style="transform: scale(1.2)"/>
+    <Avatar v-else style="background-color: #2d8cf0">{{nickname[0]}}</Avatar>
 
     <template #list>
       <DropdownMenu>
         <DropdownItem name="modeProfile">编辑</DropdownItem>
         <DropdownItem name="modePwd">修改密码</DropdownItem>
-        <DropdownItem name="message">
-          <Icon type="md-notifications" style="margin-right:5px;"></Icon>
-          消息
-        </DropdownItem>
         <DropdownItem name="logout">退出</DropdownItem>
       </DropdownMenu>
     </template>
@@ -25,13 +16,9 @@
     ></password-model>
     <user-model
         v-model:show="showUserModel"
+        :user="{nickname, avatar}"
         mode="update"
     ></user-model>
-    <Drawer title="新消息" placement="right" :closable="false" v-model="showMessages">
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-    </Drawer>
   </Dropdown>
 </template>
 
@@ -41,6 +28,7 @@ import PasswordModel from '../../model/password_model';
 import UserModel from '@/components/model/user_model';
 import {events, EventBus} from '@/service/event_bus'
 import Cookies from 'js-cookie';
+import {Avatar} from "view-ui-plus";
 
 export default {
   beforeCreate() {
@@ -62,12 +50,12 @@ export default {
       dropDownStyle: 'margin-left: 20px;cursor: pointer;line-height:1.5',
       nickname: helper.storage.get('nickname'),
       avatar: helper.storage.get('avatar'),
-      showMessages: false
     }
   },
   components: {
-    'password-model': PasswordModel,
-    'user-model': UserModel,
+    Avatar,
+    PasswordModel,
+    UserModel
   },
   methods: {
     onClickItem(name) {
@@ -86,9 +74,6 @@ export default {
     },
     showEditProfileModel() {
       this.showUserModel = true;
-    },
-    handleMessages() {
-      this.showMessages = true;
     },
     logout() {
       Cookies.remove('token');

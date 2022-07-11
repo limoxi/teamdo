@@ -3,6 +3,7 @@ import qs from 'qs';
 import helper from './helper';
 import Logger from '@/utils/logger';
 import Cookies from 'js-cookie';
+import {Message} from 'view-ui-plus'
 
 const CONTENT_TYPE = 'application/json; charset=UTF-8'; //application/x-www-form-urlencoded
 
@@ -162,8 +163,19 @@ class Resource {
     try {
       let resp = await axios(options);
       if (resp.data.state !== 'error') {
-        return resp.data.data;
+        return resp.data.data
       } else {
+        if (resp.data.data.errMsg === 'Token is expired') {
+          Message.error({
+            duration: 3,
+            content: 'token已过期, 请重新登录',
+            onClose: () => {
+              Cookies.remove('token')
+              helper.storage.clear()
+              window.location.href = '/'
+            }
+          })
+        }
         throw new ResourceException({
           code: resp.data.code,
           errMsg: resp.data.data.errMsg
