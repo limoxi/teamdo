@@ -1,5 +1,5 @@
 <template>
-  <div @keyup.ctrl.78.exact="onAddLane" tabindex="0" style="outline: 0"
+  <div @keyup.ctrl.78.exact="onAddLane" tabindex="0" style="outline: 0;overflow: hidden"
        @focus="onFocus"
        @blur="onBlur"
   >

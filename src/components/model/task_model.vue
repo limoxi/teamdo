@@ -4,47 +4,23 @@
       :title="title"
       class="aui-task-model"
       width="1500"
+      @on-visible-change="onVisibleChange"
   >
-    <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="isViewMode" :label-width="80">
-      <FormItem label="任务类型" prop="type">
-        <Select v-model="form.type" style="width:180px" aria-label="typeSelector" :disabled="!isCreateMode">
-          <Option v-for="option in typeOptions" :value="option.value" :key="option.value">
-            {{ option.label }}
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem label="名称" prop="name">
-        <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
-      </FormItem>
-<!--        <FormItem label="关联需求" prop="need_id" v-show="this.mode === 'create'">-->
-<!--          <Select v-model="form.need_id" style="width:180px" aria-label="needSelector">-->
-<!--            <Option v-for="need in needOptions" :value="need.id" :key="need.id">-->
-<!--              {{ need.name }}-->
-<!--            </Option>-->
-<!--          </Select>-->
-<!--        </FormItem>-->
-      <FormItem label="优先级" prop="importance">
-        <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
-          <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-            {{ option.label }}
-          </Option>
-        </Select>
-      </FormItem>
-<!--      <FormItem label="故事点" prop="NUT">-->
-<!--        <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>-->
-<!--      </FormItem>-->
-      <FormItem label="描述">
-        <editor @onUpdate="onDescChange" :content="!!task? task.desc: ''" :readonly="mode==='view'"></editor>
-      </FormItem>
-    </Form>
     <div class="task-model-main">
       <div class="task-info">
         <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
+          <FormItem label="任务类型" prop="type">
+            <Select v-model="form.type" style="width:180px" aria-label="typeSelector" :disabled="!isCreateMode">
+              <Option v-for="option in typeOptions" :value="option.value" :key="option.value">
+                {{ option.label }}
+              </Option>
+            </Select>
+          </FormItem>
           <FormItem label="名称" prop="name">
             <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
           </FormItem>
           <FormItem label="优先级" prop="importance">
-            <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
+            <Select v-model="form.importance" @on-change="onChange" style="width:180px" aria-label="importanceSelector">
               <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
                 {{ option.label }}
               </Option>
@@ -62,7 +38,7 @@
         <div class="task-header">
           <span class="task-log-title">参与者{{ task.users ? task.users.length : 0 }}</span>
           <div class="aui-i-users">
-            <div v-for="user in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
+            <div v-for="user in task.users" :key="user.id" style="margin-right: 5px">
               <Tooltip :content="user.nickname" placement="top">
                 <Avatar :src="user.avatar||defaultAvatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
               </Tooltip>
@@ -72,8 +48,6 @@
         <div class="task-log-list">
           <ul>
             <li>
-              <!-- <span>{{ record.operationName }}创建了任务</span>
-              <span>{{ record.updateAt }}</span> -->
               <span>创建了任务</span>
               <span>周五</span>
             </li>
@@ -100,7 +74,7 @@ export default {
 
   data() {
     return {
-      showModel: false,
+      // showModel: false,
       form: this.defaultForm(),
       needOptions: [],
       tagOptions: [],
@@ -116,31 +90,31 @@ export default {
       }],
       importanceOptions: [{
         'label': '1(一般)',
-        'value': 1
+        'value': '1'
       }, {
         'label': '2',
-        'value': 2
+        'value': '2'
       }, {
         'label': '3',
-        'value': 3
+        'value': '3'
       }, {
         'label': '4(紧急)',
-        'value': 4
+        'value': '4'
       }, {
         'label': '5',
-        'value': 5
+        'value': '5'
       }, {
         'label': '6',
-        'value': 6
+        'value': '6'
       }, {
         'label': '7(非常紧急)',
-        'value': 7
+        'value': '7'
       }, {
         'label': '8',
-        'value': 8
+        'value': '8'
       }, {
         'label': '9',
-        'value': 9
+        'value': '9'
       }],
       ruleValidate: {
         name: [
@@ -158,14 +132,14 @@ export default {
   },
 
   computed: {
-    // showModel: {
-    //   get() {
-    //     return this.show;
-    //   },
-    //   set(newValue) {
-    //     this.$emit('update:show', newValue);
-    //   }
-    // },
+    showModel: {
+      get() {
+        return this.show;
+      },
+      set(newValue) {
+        this.$emit('update:show', newValue);
+      }
+    },
     title() {
       let title = '';
       if (this.mode === 'create') {
@@ -184,22 +158,25 @@ export default {
   },
 
   methods: {
+    onChange (value) {
+      console.log(value);
+    },
     showTask (task = {}) {
       this.form = task
       this.showModel = true
-      console.log(this.$refs);
     },
     defaultForm() {
       return {
         name: '',
         desc: '',
-        importance: 0,
+        importance: '0',
         NUT: 1
       }
     },
     onVisibleChange(show){
       if (show && this.task){
         this.form = this.task
+        this.form.importance = this.form.importance + ' '
       }
       console.log(this.form);
     },
@@ -219,12 +196,14 @@ export default {
       this.form.desc = desc;
     },
     handleSubmit() {
+      console.log(this.$refs['taskForm'].validate);
       this.$refs['taskForm'].validate((valid) => {
+        console.log(this.form);
         if (valid) {
           const taskData = {
             name: this.form.name,
             desc: this.form.desc,
-            importance: this.form.importance,
+            importance: this.form.importance * 1,
             NUT: this.form.NUT || 1,
             type: this.form.type
           }
@@ -282,6 +261,10 @@ export default {
         }
         padding-bottom: 15px;
         border-bottom: 1px solid #ccc;
+        .aui-i-users {
+          display: flex;
+          align-items: center;
+        }
       }
       .task-log-list{
         padding: 0 10px;
