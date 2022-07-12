@@ -50,9 +50,6 @@
               </Option>
             </Select>
           </FormItem>
-          <FormItem label="故事点" prop="NUT">
-            <InputNumber :max="6" :min="1" v-model="form.NUT"></InputNumber>
-          </FormItem>
           <FormItem label="描述" prop="desc">
             <editor v-if="showModel" @onUpdate="onDescChange" :content="form.desc ? form.desc : ''" :readonly="mode==='view'"></editor>
           </FormItem>
@@ -193,8 +190,7 @@ export default {
       return {
         name: '',
         desc: '',
-        importance: 0,
-        NUT: 1
+        importance: 0
       }
     },
     onVisibleChange(show){
@@ -225,7 +221,6 @@ export default {
             name: this.form.name,
             desc: this.form.desc,
             importance: this.form.importance,
-            NUT: this.form.NUT || 1,
             type: this.form.type
           }
           if (this.mode === 'create') {

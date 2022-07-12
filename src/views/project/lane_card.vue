@@ -222,7 +222,6 @@ export default {
   padding: 5px;
   margin: 5px;
   border-radius: 5px;
-  overflow: auto;
 
   .aui-i-header {
     display: flex;

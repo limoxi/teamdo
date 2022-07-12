@@ -60,7 +60,6 @@ class TaskService {
         'name': task.name,
         'importance': task.importance,
         'desc': JSON.stringify(task.desc),
-        'NUT': task.NUT,
         'task_type': task.type
       }
     })
@@ -86,8 +85,7 @@ class TaskService {
         'id': task.id,
         'name': task.name,
         'importance': task.importance,
-        'desc': task.desc,
-        'NUT': task.NUT
+        'desc': task.desc
       }
     })
   }

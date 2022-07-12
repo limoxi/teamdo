@@ -75,6 +75,10 @@ button:focus, button:active {
     min-width: 140px;
     max-height: 58px;
     flex-grow: 1;
+
+    .ivu-menu{
+      position: initial;
+    }
   }
 }
 
@@ -83,12 +87,10 @@ button:focus, button:active {
   display: flex;
   justify-content: flex-start;
   overflow-x: scroll;
+  overflow-y: hidden;
   margin: 0;
-  height: 100vh;
+  height: 98vh;
   width: 100vw;
-  //border-radius: 5px;
-  //border: 1px solid #eee;
-  //background: #eee;
 
   // 右边留一点空白
   .aui-i-blank {

@@ -193,10 +193,6 @@ export default {
           this.getTasks();
         }
       }, {
-        'title': '故事点',
-        'key': 'NUT',
-        'width': 90
-      }, {
         'title': '参与用户',
         'key': 'users',
         'slot': 'users'

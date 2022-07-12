@@ -1,5 +1,5 @@
 <template>
-  <div @keyup.ctrl.78.exact="onAddLane" tabindex="0" style="outline: 0"
+  <div tabindex="0" style="outline: 0"
        @focus="onFocus"
        @blur="onBlur"
   >
@@ -36,7 +36,7 @@
 <script>
 import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
-import ProjectService from '@/service/project_service';
+import ActionBar from './kanban_action_bar'
 import LaneService from '@/service/lane_service';
 
 import {events, EventBus} from '@/service/event_bus'
@@ -67,8 +67,8 @@ export default {
   },
   components: {
     LaneCard,
+    ActionBar,
     Draggable,
-
   },
   methods: {
     onListChange(event) {
@@ -78,9 +78,6 @@ export default {
         console.log(err);
         this.$Message.error('排序失败');
       })
-    },
-    onAddLane() {
-      EventBus.emit(events.LANE_ADDING);
     },
     onDeleteLane(deletedLane) {
       let laneIndex = this.lanes.findIndex(lane => {

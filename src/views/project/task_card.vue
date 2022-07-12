@@ -3,25 +3,23 @@
     <div class="aui-i-header">
 
       <div>
-        <!--        <Tag color="primary">{{ task.NUT }} / {{ task.elapsed_time || 0 }}</Tag>-->
         <Tag :color="importanceColor" @click="onCLickTaskNo">{{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
-<!--        <Dropdown trigger="click" placement="bottom" @on-click="onClickSwitch">-->
-<!--          <Button icon="md-swap"></Button>-->
-<!--          <template #list>-->
-<!--            <DropdownMenu>-->
-<!--              <DropdownItem-->
-<!--                  v-for="l in lanes" :key="l.id" :name="l.id"-->
-<!--                  v-if="lane.id !== l.id"-->
-<!--              >-->
-<!--                {{ l.name }}-->
-<!--              </DropdownItem>-->
-<!--            </DropdownMenu>-->
-<!--          </template>-->
-<!--        </Dropdown>-->
+        <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
+          <Button icon="md-jet" />
+          <template #list>
+            <DropdownMenu>
+              <template v-for="l in lanes" :key="l.id">
+                <DropdownItem :name="l.id" v-if="lane.id !== l.id">
+                  {{ l.name }}
+                </DropdownItem>
+              </template>
+            </DropdownMenu>
+          </template>
+        </Dropdown>
         <Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>
@@ -116,7 +114,7 @@ const formatTime = (timeStr) => {
 const onCLickTaskNo = () => {
   Copy({
     text: taskNo,
-    successTip: `任务编号:${taskNo} 已复制`
+    successTip: `${taskNo} 已复制`
   })
 }
 
@@ -144,6 +142,10 @@ const onClickPre = () => {
     }
   }
   switchLane(targetLane.id)
+}
+
+const onCLickSwitch = (targetLaneId) => {
+  switchLane(targetLaneId)
 }
 
 const switchLane = (targetLaneId) => {
@@ -232,7 +234,7 @@ const onClickEdit = (selectedTask) => {
 
     .aui-i-users {
       display: flex;
-      justify-content: start;
+      justify-content: flex-start;
       padding-left: 15px;
     }
     .aui-i-time{
