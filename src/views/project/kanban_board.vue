@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" style="outline: 0"
+  <div tabindex="0" style="outline: 0; overflow: hidden"
        @focus="onFocus"
        @blur="onBlur"
   >

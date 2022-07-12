@@ -34,7 +34,7 @@
         <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
           <Tooltip :content="user.nickname" placement="top">
             <Avatar
-                :style="{marginLeft: '-15px', zIndex: task.users.length - index}"
+                :style="{marginLeft: '-15px', zIndex: index}"
                 :src="user.avatar||defaultAvatar"
                 :size="user.is_assignor? 'large': 'default'"
             ></Avatar>
