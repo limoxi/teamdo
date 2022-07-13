@@ -99,7 +99,8 @@ export default {
     return {
       showLaneModel: false,
       tasks: [],
-      showCheckBox: false
+      showCheckBox: false,
+      kanbanType: null
     }
   },
   components: {
@@ -145,7 +146,17 @@ export default {
     },
 
     onListChange(event) {
-      LaneService.resort(this.projectId, this.kanbanType, this.lanes).then(() => {
+      const taskId = event.item.getAttribute('taskId')
+      const targetTasks = [...event.to.children]
+      let beforeTaskid
+      targetTasks.forEach((el, index) => {
+        if (el.getAttribute('taskId') === taskId) {
+          if (index < targetTasks.length - 1) {
+            beforeTaskid = targetTasks[index + 1].getAttribute('taskId')
+          }
+        }
+      })
+      LaneService.shuttledTask(this.projectId, taskId, this.lane.id, beforeTaskid).then(() => {
         this.$Message.success('排序完成');
       }).catch(err => {
         console.log(err);

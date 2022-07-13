@@ -63,6 +63,18 @@ class LaneService {
     })
   }
 
+  static shuttledTask (projectId, taskId, targetLaneId, beforeTaskId) {
+    return Resource.put({
+      resource: 'project.shuttled',
+      data: {
+        project_id: projectId,
+        task_id: taskId,
+        target_lane_id: targetLaneId,
+        before_task_id: beforeTaskId
+      }
+    })
+  }
+
   static getTasks(projectId, laneId) {
     return Resource.get({
       'resource': 'project.lane.tasks',

@@ -1,7 +1,6 @@
 <template>
-  <div :class="headerClasses">
+  <div :class="headerClasses" :taskId="task.id">
     <div class="aui-i-header">
-
       <div>
         <Tag :color="importanceColor" @click="onCLickTaskNo">{{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}</Tag>
       </div>
@@ -31,7 +30,7 @@
 
       </div>
       <div class="aui-i-users">
-        <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor?'float:right;':''">
+        <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor ? 'float:right;' : '' ">
           <Tooltip :content="user.nickname" placement="top">
             <Avatar
                 :style="{marginLeft: '-15px', zIndex: index}"
