@@ -4,7 +4,7 @@ import App from './app.vue'
 import Routers from './router.js'
 import ViewUIPlus from 'view-ui-plus'
 import '@/service/event_bus'
-import 'view-ui-plus/src/styles/index.less'
+import 'view-ui-plus/dist/styles/viewuiplus.css'
 
 const router = createRouter({
   history: createWebHistory(),

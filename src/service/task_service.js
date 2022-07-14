@@ -42,7 +42,8 @@ class TaskService {
       'task_id': taskId,
       'with_options': {
         'with_detail': true,
-        'with_users': true
+        'with_users': true,
+        'with_tags': true
       }
     };
 

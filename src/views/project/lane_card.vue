@@ -148,19 +148,19 @@ export default {
     onListChange(event) {
       const taskId = event.item.getAttribute('taskId')
       const targetTasks = [...event.to.children]
-      let beforeTaskid
+      let beforeTaskId
       targetTasks.forEach((el, index) => {
         if (el.getAttribute('taskId') === taskId) {
           if (index < targetTasks.length - 1) {
-            beforeTaskid = targetTasks[index + 1].getAttribute('taskId')
+            beforeTaskId = targetTasks[index + 1].getAttribute('taskId')
           }
         }
       })
-      LaneService.shuttledTask(this.projectId, taskId, this.lane.id, beforeTaskid).then(() => {
-        this.$Message.success('排序完成');
+      LaneService.shuttledTask(this.projectId, parseInt(taskId), this.lane.id, parseInt(beforeTaskId)).then(() => {
+          // pass
       }).catch(err => {
         console.log(err);
-        this.$Message.error('排序失败');
+        this.$Message.error(err.errMsg);
       })
     },
 

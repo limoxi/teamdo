@@ -3,7 +3,7 @@
       v-model="showModel"
       :title="title"
       class="aui-task-model"
-      width="1500"
+      fullscreen
       @on-visible-change="onVisibleChange"
   >
     <div class="task-model-main">
@@ -20,11 +20,21 @@
             <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
           </FormItem>
           <FormItem label="优先级" prop="importance">
-            <Select v-model="form.importance" @on-change="onChange" style="width:180px" aria-label="importanceSelector">
+            <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
               <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
                 {{ option.label }}
               </Option>
             </Select>
+          </FormItem>
+          <FormItem label="标签" prop="tags">
+            <Badge v-for="tag in form.tags" :color="tag.color" :text="tag.name" />
+            <Poptip placement="right" width="400">
+              <a>添加标签</a>
+              <template #content>
+<!--                <label-selector @on-select="onTagSelected"></label-selector>-->
+                <Input v-model="newTagName" @on-enter="onTagSelected" />
+              </template>
+            </Poptip>
           </FormItem>
           <FormItem label="描述" prop="desc">
             <editor v-if="showModel" @onUpdate="onDescChange" :content="form.desc ? form.desc : ''" :readonly="mode==='view'"></editor>
@@ -61,12 +71,14 @@
 import TaskService from '@/service/task_service'
 import {events, EventBus} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
-import defaultAvatar from '@/images/default-avatar.webp';
+import LabelSelector from '@/components/label_selector'
+import defaultAvatar from '@/images/default-avatar.webp'
 
 export default {
   props: ['show', 'mode', 'task', 'projectId'],
   components: {
     Editor,
+    LabelSelector
   },
 
   data() {
@@ -124,7 +136,8 @@ export default {
           {required: true, message: '请选择优先级', trigger: 'blur'}
         ]
       },
-      defaultAvatar: defaultAvatar
+      defaultAvatar: defaultAvatar,
+      newTagName: ''
     }
   },
 
@@ -155,26 +168,19 @@ export default {
   },
 
   methods: {
-    onChange (value) {
-      console.log(value);
-    },
-    showTask (task = {}) {
-      this.form = task
-      this.showModel = true
-    },
     defaultForm() {
       return {
         name: '',
         desc: '',
-        importance: 0
+        importance: '0',
+        tags: []
       }
     },
     onVisibleChange(show){
       if (show && this.task){
         this.form = this.task
-        this.form.importance = this.form.importance + ' '
+        this.form.importance = this.task.importance + ''
       }
-      console.log(this.form);
     },
     actionDone(eventName, data = undefined) {
       this.showModel = false;
@@ -188,19 +194,37 @@ export default {
     onAddRemark() {
 
     },
+    onTagSelected(selectedTag){
+      console.error(this.form)
+      if (this.form.tags.filter(tag => tag.name === selectedTag.name).length === 0) {
+        this.form.tags.push(selectedTag)
+      }
+    },
+    onTagCreated(){
+      const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
+      let newColor = colors[Math.floor(Math.random() * 5)]
+      for (let tag of this.form.tags) {
+        if (tag.name === this.newTagName) {
+          return
+        }
+      }
+      this.form.tags.push({
+        name: this.newTagName,
+        color: colors[Math.floor(Math.random() * 5)]
+      })
+    },
     onDescChange(desc) {
       this.form.desc = desc;
     },
     handleSubmit() {
-      console.log(this.$refs['taskForm'].validate);
       this.$refs['taskForm'].validate((valid) => {
-        console.log(this.form);
         if (valid) {
           const taskData = {
             name: this.form.name,
             desc: this.form.desc,
             importance: this.form.importance * 1,
-            type: this.form.type
+            type: this.form.type,
+            tags: []
           }
           if (this.mode === 'create') {
             TaskService.addTask(this.projectId * 1, taskData).then((data) => {
@@ -237,11 +261,10 @@ export default {
 .aui-task-model {
   .task-model-main{
     width: 100%;
-    height: 600px;
+    height: 100%;
     overflow-y: auto;
     display: flex;
     .task-info{
-      // width: 50%;
       flex: 1;
     }
     .task-log{

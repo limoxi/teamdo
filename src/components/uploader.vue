@@ -35,11 +35,11 @@
 <template>
   <div class="aui-uploader">
     <img :src="imgSrc" alt="image" class="aui-i-image"/>
-    <upload
+    <Upload
         ref="upload"
         :show-upload-list="false"
         :format="['jpg','jpeg','png', 'icon']"
-        :max-size="500"
+        :max-size="50"
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload"
@@ -48,7 +48,7 @@
       <div class="aui-i-btn">
         <Icon type="ios-camera" size="50"></Icon>
       </div>
-    </upload>
+    </Upload>
   </div>
 
 </template>

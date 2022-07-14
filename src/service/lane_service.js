@@ -65,11 +65,11 @@ class LaneService {
 
   static shuttledTask (projectId, taskId, targetLaneId, beforeTaskId) {
     return Resource.put({
-      resource: 'project.shuttled',
+      resource: 'project.shuttled_task',
       data: {
         project_id: projectId,
         task_id: taskId,
-        target_lane_id: targetLaneId,
+        target_lane_id: parseInt(targetLaneId),
         before_task_id: beforeTaskId
       }
     })
