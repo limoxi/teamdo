@@ -22,16 +22,8 @@
         </Dropdown>
       </div>
     </div>
-    <div class="aui-i-tasks">
-      <!-- <Task v-for="task in tasks" :key="task.id"
-        :task="task" :lane="lane" :lanes="lanes"
-        :projectId="projectId"
-        :inFirstLane="index===0"
-        :inLastLane="index===lanes.length-1"
-      ></task-card>
-      ></Task> -->
       <draggable
-        class="aui-i-lane-task"
+        class="aui-i-tasks"
         v-model="tasks"
         item-key="id"
         :animation="200"
@@ -39,7 +31,7 @@
         :disabled="false"
         ghostClass="ghost"
         chosenClass="chosen"
-        handle=".aui-i-lane-task > .aui-task > .aui-i-body"
+        handle=".aui-i-tasks > .aui-task > .aui-i-body"
         @start="drag = true"
         @end="drag = false"
         @sort="onListChange"
@@ -57,7 +49,6 @@
       <div class="aui-i-blank"></div>
     </draggable>
     </div>
-  </div>
 </template>
 
 <script>
@@ -159,7 +150,6 @@ export default {
       LaneService.shuttledTask(this.projectId, parseInt(taskId), this.lane.id, parseInt(beforeTaskId)).then(() => {
           // pass
       }).catch(err => {
-        console.log(err);
         this.$Message.error(err.errMsg);
       })
     },
@@ -227,10 +217,9 @@ export default {
 
 .aui-lane {
   outline: 0;
-  height: 100vh;
   width: 280px;
   flex-shrink: 0;
-  padding: 5px;
+  padding: 5px 5px 25px;
   margin: 5px;
   border-radius: 5px;
 
@@ -261,10 +250,8 @@ export default {
   }
 
   .aui-i-tasks {
-    .aui-i-lane-task {
-      min-height: 200px;
-      display: block;
-    }
+    overflow-y: scroll;
+    height: 100%;
   }
 }
 </style>
