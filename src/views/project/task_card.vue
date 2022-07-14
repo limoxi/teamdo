@@ -30,15 +30,12 @@
         <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
       </div>
       <div class="aui-i-users">
-        <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor ? 'float:right;' : '' ">
-          <Tooltip :content="user.nickname" placement="top">
+          <Tooltip v-if="!!assignor" :content="assignor.nickname" placement="top">
             <Avatar
                 :style="{marginLeft: '-15px', zIndex: index}"
-                :src="user.avatar||defaultAvatar"
-                :size="user.is_assignor? 'large': 'default'"
+                :src="assignor.avatar||defaultAvatar"
             ></Avatar>
           </Tooltip>
-        </div>
       </div>
       <div>
         <Checkbox v-model="task._checked"
@@ -98,6 +95,15 @@ const taskNameColor = computed(() => {
     default:
       return 'default'
   }
+})
+
+const assignor = computed(() => {
+  for(let user of props.task.users) {
+    if (user.is_assignor) {
+      return user
+    }
+  }
+  return null
 })
 
 const taskNo = `${project.prefix}${props.task.id}`
@@ -212,23 +218,9 @@ const onClickEdit = (selectedTask) => {
     flex-direction: column;
 
     .aui-i-name {
-      min-height: 45px;
+      min-height: 35px;
       display: flex;
       align-items: center;
-    }
-
-    .aui-i-sub-tasks {
-      border-radius: 5px;
-      overflow: hidden;
-
-      .aui-task-type-sub_task {
-        margin-top: 2px;
-
-        .aui-i-header, .aui-i-body {
-          background-color: cadetblue;
-          color: whitesmoke;
-        }
-      }
     }
 
     .aui-i-users {
@@ -239,9 +231,8 @@ const onClickEdit = (selectedTask) => {
     .aui-i-tags{
       display: flex;
       justify-content: flex-start;
-      span{
-        margin-right: 5px;
-      }
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
     .aui-i-time{
       color: grey;

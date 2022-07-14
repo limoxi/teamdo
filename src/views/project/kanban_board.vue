@@ -1,8 +1,5 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden"
-       @focus="onFocus"
-       @blur="onBlur"
-  >
+  <div tabindex="0" style="outline: 0; overflow: hidden">
     <draggable
         class="aui-board"
         v-model="lanes"
@@ -89,12 +86,6 @@ export default {
       LaneService.getLanes(this.projectId).then(lanes => {
         this.lanes = lanes;
       });
-    },
-    onFocus() {
-      EventBus.emit(events.HELP_REQUEST, 'Try Ctrl + N');
-    },
-    onBlur() {
-      EventBus.emit(events.HELP_DONE);
     }
   }
 }

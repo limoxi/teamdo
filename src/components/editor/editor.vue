@@ -19,6 +19,7 @@ let { editor } = useEditor((root) =>
         ctx.set(rootCtx, root)
         ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
+          console.log(markdown)
           emit('onUpdate', markdown)
         })
         ctx.set(defaultValueCtx, props.content || '')
