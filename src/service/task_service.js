@@ -61,7 +61,8 @@ class TaskService {
         'name': task.name,
         'importance': task.importance,
         'desc': JSON.stringify(task.desc),
-        'task_type': task.type
+        'task_type': task.type,
+        'tags': task.tags || []
       }
     })
   }
@@ -86,7 +87,8 @@ class TaskService {
         'id': task.id,
         'name': task.name,
         'importance': task.importance,
-        'desc': task.desc
+        'desc': task.desc,
+        'tags': task.tags || []
       }
     })
   }

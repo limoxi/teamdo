@@ -224,7 +224,7 @@ export default {
             desc: this.form.desc,
             importance: this.form.importance * 1,
             type: this.form.type,
-            tags: []
+            tags: this.form.tags || []
           }
           if (this.mode === 'create') {
             TaskService.addTask(this.projectId * 1, taskData).then((data) => {
