@@ -27,7 +27,7 @@
         {{ task.name }}
       </div>
       <div class="aui-i-tags">
-
+        <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
       </div>
       <div class="aui-i-users">
         <div v-for="(user, index) in task.users" :key="user.id" :style="user.is_assignor ? 'float:right;' : '' ">
@@ -235,6 +235,13 @@ const onClickEdit = (selectedTask) => {
       display: flex;
       justify-content: flex-start;
       padding-left: 15px;
+    }
+    .aui-i-tags{
+      display: flex;
+      justify-content: flex-start;
+      span{
+        margin-right: 5px;
+      }
     }
     .aui-i-time{
       color: grey;

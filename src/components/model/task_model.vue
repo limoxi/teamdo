@@ -8,7 +8,13 @@
   >
     <div class="task-model-main">
       <div class="task-info">
-        <Form ref="taskForm" :model="form" :rules="ruleValidate" :disabled="this.mode==='view'" :label-width="80">
+        <Form ref="taskForm"
+            @submit.prevent
+            :model="form"
+            :rules="ruleValidate"
+            :disabled="this.mode==='view'"
+            :label-width="80"
+        >
           <FormItem label="任务类型" prop="type">
             <Select v-model="form.type" style="width:180px" aria-label="typeSelector" :disabled="!isCreateMode">
               <Option v-for="option in typeOptions" :value="option.value" :key="option.value">
@@ -32,7 +38,7 @@
               <a>添加标签</a>
               <template #content>
 <!--                <label-selector @on-select="onTagSelected"></label-selector>-->
-                <Input v-model="newTagName" @on-enter="onTagSelected" />
+                <Input v-model="newTagName" @on-enter="onTagCreated" />
               </template>
             </Poptip>
           </FormItem>
@@ -200,12 +206,12 @@ export default {
         this.form.tags.push(selectedTag)
       }
     },
-    onTagCreated(){
+    onTagCreated(e){
       const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
       let newColor = colors[Math.floor(Math.random() * 5)]
       for (let tag of this.form.tags) {
         if (tag.name === this.newTagName) {
-          return
+          return false
         }
       }
       this.form.tags.push({

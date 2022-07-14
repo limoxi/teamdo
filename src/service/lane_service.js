@@ -83,7 +83,7 @@ class LaneService {
         'lane_id': laneId,
         'with_options': {
           'with_users': true,
-          'with_sub_tasks': true
+          'with_tags': true
         }
       }
     })
