@@ -76,7 +76,6 @@ export default {
           if (this.isRegisterMode) {
             UserService.doRegister({
               username: username,
-              avatar: this.user.avatar,
               password: password,
               nickname: nickname,
             }).then(() => {
