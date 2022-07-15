@@ -26,7 +26,7 @@ export default {
   methods: {
     onClickLogo() {
       this.$router.push({
-        'name': 'index'
+        'name': 'projects'
       });
     }
   }

@@ -4,7 +4,7 @@ html {
 }
 
 *::-webkit-scrollbar {/*滚动条整体样式*/
-  // display: none;
+   display: none;
 }
 
 @font-face {
@@ -88,13 +88,21 @@ button:focus, button:active {
   justify-content: flex-start;
   overflow-x: scroll;
   overflow-y: hidden;
-  margin: 0;
   height: calc(100% - 40px);
+  margin: 0 0 4px 0;
   width: 100vw;
 
   // 右边留一点空白
   .aui-i-blank {
     min-width: 5px;
+  }
+}
+
+// 标签（badge）
+.ivu-badge{
+   margin-right: 9px;
+  .ivu-badge-status-text{
+    font-size: 12px;
   }
 }
 

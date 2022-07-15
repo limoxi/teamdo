@@ -32,6 +32,13 @@
               </Option>
             </Select>
           </FormItem>
+          <FormItem label="执行者" prop="assignor">
+            <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector">
+              <Option v-for="option in projectUserOptions" :value="option.value" :key="option.value">
+                {{ option.label }}
+              </Option>
+            </Select>
+          </FormItem>
           <FormItem label="标签" prop="tags">
             <Tag v-for="(tag, index) in form.tags" :key="index" :color="tag.color" closable @on-close="handleCloseTag(tag.name)">{{ tag.name }}</Tag>
             <Poptip placement="bottom" width="200">
@@ -75,14 +82,17 @@
 </template>
 <script>
 import TaskService from '@/service/task_service'
+import ProjectService from "@/service/project_service"
 import {events, EventBus} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
 import LabelSelector from '@/components/label_selector'
 import defaultAvatar from '@/images/default-avatar.webp'
+import {FormItem} from "view-ui-plus";
 
 export default {
   props: ['show', 'mode', 'task', 'projectId'],
   components: {
+    FormItem,
     Editor,
     LabelSelector
   },
@@ -103,7 +113,8 @@ export default {
         'label': 'BUG',
         'value': 'BUG'
       }],
-      importanceOptions: [{
+      importanceOptions: [
+      {
         'label': '1(一般)',
         'value': '1'
       }, {
@@ -130,7 +141,9 @@ export default {
       }, {
         'label': '9',
         'value': '9'
-      }],
+      }
+      ],
+      projectUserOptions: [],
       ruleValidate: {
         name: [
           {required: true, message: '任务标题不能为空', trigger: 'blur'}
@@ -145,6 +158,10 @@ export default {
       defaultAvatar: defaultAvatar,
       newTagName: ''
     }
+  },
+
+  created() {
+    this.prepareUsers()
   },
 
   computed: {
@@ -179,6 +196,7 @@ export default {
         name: '',
         desc: '',
         importance: '0',
+        assignorId: '0',
         tags: []
       }
     },
@@ -186,6 +204,8 @@ export default {
       if (show && this.task){
         this.form = this.task
         this.form.importance = this.task.importance + ''
+        this.form.assignorId = this.task.assignor_id + ''
+        console.log(this.form)
       }
     },
     actionDone(eventName, data = undefined) {
@@ -207,9 +227,6 @@ export default {
       }
       if (this.form.tags.filter(tag => tag.name === selectedTag.name).length === 0) {
         this.form.tags.push(selectedTag)
-        if (this.mode !== 'create') {
-          this.handleSave()
-        }
       }
     },
     onTagCreated(e){
@@ -228,22 +245,8 @@ export default {
     onDescChange(desc) {
       this.form.desc = desc;
     },
-    handleSave() {
-      const taskData = {
-        id: this.task.id,
-        name: this.form.name,
-        desc: this.form.desc,
-        importance: this.form.importance * 1,
-        type: this.form.type,
-        tags: this.form.tags || []
-      }
-      TaskService.updateTask(this.projectId * 1, taskData)
-    },
     handleCloseTag(tagName) {
       this.form.tags = this.form.tags.filter(tag => tag.name !== tagName)
-      if (this.mode !== 'create') {
-        this.handleSave()
-      }
     },
     handleSubmit() {
       this.$refs['taskForm'].validate((valid) => {
@@ -252,6 +255,7 @@ export default {
             name: this.form.name,
             desc: this.form.desc,
             importance: this.form.importance * 1,
+            assignorId: this.form.assignorId * 1,
             type: this.form.type,
             tags: this.form.tags || []
           }
@@ -281,6 +285,16 @@ export default {
     },
     resetForm() {
       this.$refs['taskForm'].resetFields();
+    },
+    prepareUsers(){
+      ProjectService.getProjectMembers(this.projectId).then(users => {
+        users.forEach(user => {
+          this.projectUserOptions.push({
+            label: user.nickname,
+            value: user.id + ''
+          })
+        })
+      })
     }
   }
 }

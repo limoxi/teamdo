@@ -1,8 +1,5 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden; height: 100%;"
-       @focus="onFocus"
-       @blur="onBlur"
-  >
+  <div tabindex="0" style="outline: 0; overflow: hidden; height: 100%;">
     <action-bar @search="handleSearch"></action-bar>
     <draggable
         class="aui-board"
@@ -93,15 +90,8 @@ export default {
         this.lanes = lanes;
       });
     },
-    onFocus() {
-      EventBus.emit(events.HELP_REQUEST, 'Try Ctrl + N');
-    },
-    onBlur() {
-      EventBus.emit(events.HELP_DONE);
-    },
     handleSearch(filters) {
       this.filters = filters
-      console.log(filters)
     }
   }
 }

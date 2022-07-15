@@ -60,6 +60,7 @@ class TaskService {
         'project_id': parseInt(projectId),
         'name': task.name,
         'importance': task.importance,
+        'assignor_id': task.assignorId,
         'desc': JSON.stringify(task.desc),
         'task_type': task.type,
         'tags': task.tags || []
@@ -87,6 +88,7 @@ class TaskService {
         'id': task.id,
         'name': task.name,
         'importance': task.importance,
+        'assignor_id': task.assignorId,
         'desc': task.desc,
         'tags': task.tags || []
       }
