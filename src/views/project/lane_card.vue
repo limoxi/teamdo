@@ -32,7 +32,7 @@
       ></Task> -->
       <draggable
         class="aui-i-lane-task"
-        v-model="tasks"
+        v-model="displayTasks"
         item-key="id"
         :animation="200"
         group="task"
@@ -68,7 +68,7 @@ import helper from '@/utils/helper';
 import Draggable from 'vuedraggable';
 
 export default {
-  props: ['lane', 'projectId', 'lanes', 'index'],
+  props: ['lane', 'projectId', 'lanes', 'index', 'filters'],
   created() {
     this.getTasks();
 
@@ -126,6 +126,15 @@ export default {
         return true
       }
       return this.lanes[this.lanes.length-1].id === this.lane.id;
+    },
+    displayTasks () {
+      if (this.filters) {
+        const { nameIn } = this.filters
+        if (nameIn) {
+          return this.tasks.filter(task => task.name.includes(nameIn))
+        }
+      }
+      return this.tasks
     }
   },
 
@@ -227,7 +236,7 @@ export default {
 
 .aui-lane {
   outline: 0;
-  height: 100vh;
+  height: 100%;
   width: 280px;
   flex-shrink: 0;
   padding: 5px;

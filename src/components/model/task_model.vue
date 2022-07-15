@@ -33,12 +33,12 @@
             </Select>
           </FormItem>
           <FormItem label="标签" prop="tags">
-            <Badge v-for="tag in form.tags" :color="tag.color" :text="tag.name" />
-            <Poptip placement="right" width="400">
+            <Tag v-for="(tag, index) in form.tags" :key="index" :color="tag.color" closable @on-close="handleCloseTag(tag.name)">{{ tag.name }}</Tag>
+            <Poptip placement="bottom" width="200">
               <a>添加标签</a>
               <template #content>
-<!--                <label-selector @on-select="onTagSelected"></label-selector>-->
-                <Input v-model="newTagName" @on-enter="onTagCreated" />
+               <label-selector @on-select="onTagSelected"></label-selector>
+                <!-- <Input v-model="newTagName" @on-enter="onTagCreated" /> -->
               </template>
             </Poptip>
           </FormItem>
@@ -53,7 +53,7 @@
           <div class="aui-i-users">
             <div v-for="user in task.users" :key="user.id" style="margin-right: 5px">
               <Tooltip :content="user.nickname" placement="top">
-                <Avatar :src="user.avatar||defaultAvatar" :size="user.is_assignor? 'large': 'default'"></Avatar>
+                <Avatar :src="user.avatar || defaultAvatar" :size="user.is_assignor ? 'large' : 'default'"></Avatar>
               </Tooltip>
             </div>
           </div>
@@ -201,9 +201,15 @@ export default {
 
     },
     onTagSelected(selectedTag){
-      console.error(this.form)
+      console.log(selectedTag)
+      if (!this.form.tags) {
+        this.form.tags = []
+      }
       if (this.form.tags.filter(tag => tag.name === selectedTag.name).length === 0) {
         this.form.tags.push(selectedTag)
+        if (this.mode !== 'create') {
+          this.handleSave()
+        }
       }
     },
     onTagCreated(e){
@@ -221,6 +227,23 @@ export default {
     },
     onDescChange(desc) {
       this.form.desc = desc;
+    },
+    handleSave() {
+      const taskData = {
+        id: this.task.id,
+        name: this.form.name,
+        desc: this.form.desc,
+        importance: this.form.importance * 1,
+        type: this.form.type,
+        tags: this.form.tags || []
+      }
+      TaskService.updateTask(this.projectId * 1, taskData)
+    },
+    handleCloseTag(tagName) {
+      this.form.tags = this.form.tags.filter(tag => tag.name !== tagName)
+      if (this.mode !== 'create') {
+        this.handleSave()
+      }
     },
     handleSubmit() {
       this.$refs['taskForm'].validate((valid) => {

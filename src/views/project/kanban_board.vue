@@ -1,8 +1,9 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden"
+  <div tabindex="0" style="outline: 0; overflow: hidden; height: 100%;"
        @focus="onFocus"
        @blur="onBlur"
   >
+    <action-bar @search="handleSearch"></action-bar>
     <draggable
         class="aui-board"
         v-model="lanes"
@@ -19,6 +20,7 @@
     >
       <template #item="{element, index}">
         <lane-card
+          :filters="filters"
           :key="element.id"
           :index="index"
           :lane="element"
@@ -63,6 +65,7 @@ export default {
       },
       'drag': false,
       'chosenLane': null,
+      'filters': null
     }
   },
   components: {
@@ -95,6 +98,10 @@ export default {
     },
     onBlur() {
       EventBus.emit(events.HELP_DONE);
+    },
+    handleSearch(filters) {
+      this.filters = filters
+      console.log(filters)
     }
   }
 }

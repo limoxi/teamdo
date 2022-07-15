@@ -17,6 +17,6 @@ export default {
 
 <style lang="less" scoped>
 .aui-content {
-  min-height: 100vh;
+  height: calc(100vh - 60px);
 }
 </style>
