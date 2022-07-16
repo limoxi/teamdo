@@ -1,36 +1,61 @@
 <template>
   <div class="label-selector">
-    <Select 
+    <Card v-show="mode === 'edit'" :bordered="false">
+      <template #title>
+        <Icon type="ios-arrow-back" /> 编辑标签
+      </template>
+
+      <Input v-model="activeTagName" />
+
+      <RadioGroup v-model="activeTagColor">
+        <Radio :label="color" v-for="color in colors">
+          <span class="color-circle" :style="{ backgroundColor: color }"></span>
+        </Radio>
+      </RadioGroup>
+    </Card>
+    <Select
+      v-show="mode === 'select'"
       filterable
       allow-create
       v-model="selectedTag"
       @on-create="onCreate"
       @on-select="onSelect"
+      @mouseout="handleMouseover(-1)"
     >
       <Option v-for="(tag, index) in tags" :value="`${tag.name}:${tag.color}`" :key="tag.name" @mouseover="handleMouseover(index)">
         <Badge :color="tag.color" :text="tag.name" />
 
-        <!-- <Button class="edit-tag-button" type="primary" v-if="hoverTagIndex === index" @click.stop="handleEdit" size="small">编辑</Button> -->
+        <div class="aui-icons">
+          <!-- <Icon type="md-create" :size="16" v-show="hoverTagIndex === index" class="edit-tag" @click.stop="handleEdit(tag)"></Icon> -->
+          <Icon type="md-checkmark" :size="17" v-show="currentTags.find(ctag => ctag.name === tag.name)" class="edit-tag"></Icon>
+        </div>
       </Option>
     </Select>
   </div>
 </template>
 <script setup>
 
-import {onMounted, ref, inject} from "vue";
+import {onMounted, ref, inject, computed} from "vue";
 import TagService from "../service/tag_service";
+const project = inject('project')
+const props = defineProps(['currentTags'])
+const emit = defineEmits(['onSelect', 'mouseover', 'mouseout'])
+const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
 
 let tags = ref([])
 let selectedTag = ref({})
 let hoverTagIndex = ref(-1)
-const project = inject('project')
-const emit = defineEmits(['onSelect', 'mouseover'])
+let mode = ref('select')
+let activeTag = ref({})
+let activeTagName = ref('')
+let activeTagColor = ref('')
 
-const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
+const currentTags = computed(() => {
+  return props.currentTags
+})
 
 onMounted(() => {
   loadTags()
-  console.log(tags)
 })
 
 const loadTags = () => {
@@ -60,8 +85,11 @@ const loadTags = () => {
 //   }
 // }
 
-const handleEdit = () => {
-  console.log(111)
+const handleEdit = (tag) => {
+  mode.value = 'edit'
+  activeTag = tag
+  activeTagName.value = activeTag.name
+  activeTagColor.value = activeTag.color
 }
 
 const handleMouseover = (index) => {
@@ -95,6 +123,20 @@ const onSelect = (newTag) => {
 
 <style scoped>
 .label-selector {
-  height: 34px;
+  min-height: 34px;
+}
+.ivu-select-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.aui-icons {
+  height: 18px;
+}
+.color-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>

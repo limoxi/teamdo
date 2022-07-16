@@ -75,7 +75,7 @@ class LaneService {
     })
   }
 
-  static getTasks(projectId, laneId) {
+  static getTasks(projectId, laneId, filters = {}) {
     return Resource.get({
       'resource': 'project.lane.tasks',
       'data': {
@@ -84,7 +84,8 @@ class LaneService {
         'with_options': {
           'with_users': true,
           'with_tags': true
-        }
+        },
+        'filters': filters
       }
     })
   }

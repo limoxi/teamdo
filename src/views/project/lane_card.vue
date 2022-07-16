@@ -98,6 +98,24 @@ export default {
     TaskCard,
     Draggable
   },
+  watch: {
+    filters: {
+      handler(val) {
+        console.log(val)
+        const filters = {}
+        const { taskName, memberId } = val
+        if (taskName) {
+          filters['name__contains'] = taskName
+        }
+        if (memberId > 0) {
+          filters['assignor_id'] = memberId
+        }
+        console.log(memberId, filters)
+        this.getTasks(filters)
+      },
+      deep: true
+    }
+  },
   computed: {
     className() {
       if (this.index === 0 || this.index === this.lanes.length - 1) {
@@ -117,15 +135,6 @@ export default {
         return true
       }
       return this.lanes[this.lanes.length-1].id === this.lane.id;
-    },
-    displayTasks () {
-      if (this.filters) {
-        const { nameIn } = this.filters
-        if (nameIn) {
-          return this.tasks.filter(task => task.name.includes(nameIn))
-        }
-      }
-      return this.tasks
     }
   },
 
@@ -134,8 +143,8 @@ export default {
       return this.tasks.length === this.lane.wip;
     },
 
-    getTasks() {
-      LaneService.getTasks(this.projectId, this.lane.id).then(data => {
+    getTasks(filters) {
+      LaneService.getTasks(this.projectId, this.lane.id, filters).then(data => {
        this.tasks = (data['tasks'] || []).map(task => {
           task._checked = false
           return task

@@ -33,7 +33,7 @@
             </Select>
           </FormItem>
           <FormItem label="执行者" prop="assignor">
-            <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector">
+            <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
               <Option v-for="option in projectUserOptions" :value="option.value" :key="option.value">
                 {{ option.label }}
               </Option>
@@ -44,7 +44,7 @@
             <Poptip placement="bottom" width="200">
               <a>添加标签</a>
               <template #content>
-               <label-selector @on-select="onTagSelected"></label-selector>
+               <label-selector :currentTags="form.tags" @on-select="onTagSelected"></label-selector>
                 <!-- <Input v-model="newTagName" @on-enter="onTagCreated" /> -->
               </template>
             </Poptip>
