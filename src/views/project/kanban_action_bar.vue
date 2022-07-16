@@ -24,7 +24,7 @@ const handleSearch = (value) => {
 <style scoped lang="less">
   .aui-kanban-action-bar {
     width: 100%;
-    height: 40px;
+    height: 35px;
     display: flex;
     justify-content: flex-end;
     padding-right: 40px;

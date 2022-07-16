@@ -226,7 +226,6 @@ export default {
 
 .aui-lane {
   outline: 0;
-  height: 100%;
   width: 280px;
   flex-shrink: 0;
   padding: 5px 5px 25px;

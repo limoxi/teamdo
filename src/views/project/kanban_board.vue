@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden; height: 100%;">
+  <div tabindex="0" style="outline: 0; overflow: hidden;">
     <action-bar @search="handleSearch"></action-bar>
     <draggable
         class="aui-board"
