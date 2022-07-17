@@ -31,17 +31,26 @@
   </top-frame>
   <project-model
       v-model:show="showModel"
-      @projectCreated="onProjectsUpdated"
-      @projectUpdated="onProjectsUpdated"
+      @projectCreated="onProjectUpdated"
+      @projectUpdated="onProjectUpdated"
       :project="editingProject"
       :mode="projectMode"
   ></project-model>
+  <bot-modal
+      v-model:show="showBotModel"
+      @onSuccess="onProjectUpdated"
+      @onDelete="onProjectUpdated"
+      :projectId="editingProject ? editingProject.id : 0"
+      :mode="botMode"
+      :bot="editingBot"
+  ></bot-modal>
 </template>
 
 <script>
 import TopFrame from '@/components/frame/top_frame';
 import Header from '@/components/frame/header/header';
 import ProjectModel from '@/components/model/project_model';
+import BotModal from '@/components/model/bot_model';
 import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
@@ -58,6 +67,16 @@ export default {
     EventBus.on(events.DELETE_PROJECT, (project)=>{
       this.deleteProject(project)
     })
+
+    EventBus.on(events.ADD_BOT, (project)=>{
+      this.addBot(project)
+    })
+    EventBus.on(events.UPDATE_BOT, (project, bot)=>{
+      this.editBot(project, bot)
+    })
+    EventBus.on(events.DELETE_BOT, ()=>{
+      this.getProjects()
+    })
     this.getProjects();
   },
 
@@ -66,13 +85,17 @@ export default {
       loadingProjects:true,
       projects: [],
       projectMode: 'create',
+      botMode: 'create',
       editingProject: null,
+      editingBot: 0,
       showModel: false,
+      showBotModel: false
     }
   },
   components: {
     TopFrame,
     ProjectModel,
+    BotModal,
     ProjectCard,
     'a-header': Header
   },
@@ -96,6 +119,19 @@ export default {
       });
     },
 
+    addBot(project) {
+      this.botMode = 'create'
+      this.editingProject = project
+      this.showBotModel = true
+    },
+
+    editBot(project, bot) {
+      this.botMode = 'edit'
+      this.editingProject = project
+      this.editingBot = bot
+      this.showBotModel = true
+    },
+
     getProjects() {
       ProjectService.getProjects().then(data => {
         this.projects = data;
@@ -105,7 +141,7 @@ export default {
       });
     },
 
-    onProjectsUpdated() {
+    onProjectUpdated() {
       this.getProjects();
     }
   }

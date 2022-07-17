@@ -100,17 +100,7 @@ export default {
   },
   watch: {
     filters: {
-      handler(val) {
-        console.log(val)
-        const filters = {}
-        const { taskName, memberId } = val
-        if (taskName) {
-          filters['name__contains'] = taskName
-        }
-        if (memberId > 0) {
-          filters['assignor_id'] = memberId
-        }
-        console.log(memberId, filters)
+      handler(filters) {
         this.getTasks(filters)
       },
       deep: true

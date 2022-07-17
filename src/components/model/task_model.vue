@@ -22,8 +22,14 @@
               </Option>
             </Select>
           </FormItem>
-          <FormItem label="名称" prop="name">
-            <Input v-model="form.name" placeholder="某人可以在何时何处做某事" style="width: 50%"></Input>
+          <FormItem label="用户故事" prop="name">
+            <Input
+                type="textarea"
+                :autosize="{minRows: 1,maxRows: 3}"
+                show-word-limit
+                :maxlength="48"
+                v-model="form.name"
+                placeholder="某人可以在何时何处做某事" style="width: 90%"></Input>
           </FormItem>
           <FormItem label="优先级" prop="importance">
             <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
@@ -50,7 +56,7 @@
             </Poptip>
           </FormItem>
           <FormItem label="描述" prop="desc">
-            <editor v-if="showModel" @onUpdate="onDescChange" :content="form.desc ? form.desc : ''" :readonly="mode==='view'"></editor>
+            <editor v-if="showModel" v-model:content="form.desc" :readonly="mode==='view'"></editor>
           </FormItem>
         </Form>
       </div>
@@ -87,19 +93,16 @@ import {events, EventBus} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
 import LabelSelector from '@/components/label_selector'
 import defaultAvatar from '@/images/default-avatar.webp'
-import {FormItem} from "view-ui-plus";
 
 export default {
   props: ['show', 'mode', 'task', 'projectId'],
   components: {
-    FormItem,
     Editor,
     LabelSelector
   },
 
   data() {
     return {
-      // showModel: false,
       form: this.defaultForm(),
       needOptions: [],
       tagOptions: [],
@@ -252,7 +255,7 @@ export default {
       this.$refs['taskForm'].validate((valid) => {
         if (valid) {
           const taskData = {
-            name: this.form.name,
+            name: this.form.name.replace(/\s+/g,""),
             desc: this.form.desc,
             importance: this.form.importance * 1,
             assignorId: this.form.assignorId * 1,

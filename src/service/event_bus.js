@@ -39,6 +39,13 @@ const events = {
   'USER_UPDATED': 'userUpdated', // 用户信息已更新
   'SELECTING_USER': 'selectingUser', // 选择用户
   'USER_SELECTED': 'userSelected', // 用户已选择
+  'TASK_SELECTING': 'taskSelecting', // 选择任务中
+  'SWITCH_TASK_MODE': 'switchTaskMode', // 切换任务卡片模式
+  'TASK_CHECKED':'taskChecked', // 任务已&未选中
+  'MESSAGE_SENT': 'messageSent',  // 消息已发送
+  'ADD_BOT': 'addBot',  // 添加机器人
+  'UPDATE_BOT': 'updateBot',  // 更新机器人
+  'DELETE_BOT': 'deleteBot',  // 删除机器人
 }
 
 const eventBus = new EventBus()

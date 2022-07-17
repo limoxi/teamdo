@@ -29,7 +29,6 @@
   </Modal>
 </template>
 <script>
-import helper from '@/utils/helper';
 import Uploader from '@/components/uploader';
 import UserService from '@/service/user_service';
 import {events, EventBus} from '@/service/event_bus'
@@ -88,11 +87,12 @@ export default {
           }
 
           if (this.isUpdateMode) {
-            UserService.updateUser({
-              avatar: this.user.avatar,
+            const updatedData = {
+              avatar: this.userForm.avatar,
               nickname: nickname,
-            }).then(() => {
-              EventBus.emit(events.USER_UPDATED, this.user);
+            }
+            UserService.updateUser(updatedData).then(() => {
+              EventBus.emit(events.USER_UPDATED, updatedData);
               this.showModel = false;
               this.$Message.success('修改信息成功~');
             }).catch(err => {

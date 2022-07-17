@@ -8,7 +8,6 @@ import { listener, listenerCtx } from '@milkdown/plugin-listener';
 import { VueEditor, useEditor } from '@milkdown/vue';
 import { nord } from '@milkdown/theme-nord';
 import { commonmark } from '@milkdown/preset-commonmark';
-import {ref, onMounted, onUnmounted} from "vue";
 
 const props = defineProps(['readonly', 'content'])
 const emit = defineEmits(['onUpdate'])
@@ -19,8 +18,7 @@ let { editor } = useEditor((root) =>
         ctx.set(rootCtx, root)
         ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
         ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-          console.log(markdown)
-          emit('onUpdate', markdown)
+          emit('update:content', markdown)
         })
         ctx.set(defaultValueCtx, props.content || '')
       })
@@ -32,10 +30,6 @@ let { editor } = useEditor((root) =>
 
 <style lang="less">
 .milkdown .editor{
-  padding-top: 1em !important;
-  padding-bottom: 1em !important;
-  p {
-    line-height: 0.1 !important;
-  }
+  padding: 0.5em 1.25em !important;
 }
 </style>

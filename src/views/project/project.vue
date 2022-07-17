@@ -92,7 +92,9 @@ onMounted(() => {
 let project = ref({
   id: props.projectId,
   name: props.name,
-  prefix: 'XXX'
+  prefix: 'XXX',
+  bots: [],
+  users: []
 })
 
 provide('project', project.value)
@@ -102,6 +104,8 @@ const getProject = () => {
     project.value.id = data.id
     project.value.name = data.name
     project.value.prefix = data.prefix
+    project.value.users = data.users
+    project.value.bots = data.bots
   })
 }
 

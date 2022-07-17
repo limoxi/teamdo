@@ -2,7 +2,24 @@
   <div @click="onClickCard">
     <Card class="aui-project-card">
       <template #title>
-        <p>{{ project.name }}</p>
+        <span class="aui-i-name">{{ project.name }}</span>
+        <span>
+          <Tooltip :content="bot.name" placement="top"
+                 v-for="bot in project.bots" :key="bot.id">
+            <Avatar
+                :src="bot.avatar || defaultBotAvatar"
+                shape="square"
+                @click="onClickBot($event, bot)"
+            />
+          </Tooltip>
+
+          <Tooltip content="点击添加群机器人" placement="right">
+              <Icon type="logo-android"
+                  size="22" color="#19be6b"
+                  @click="onAddBot($event)"
+              />
+          </Tooltip>
+        </span>
       </template>
       <template #extra>
         <span class="aui-i-action">
@@ -13,7 +30,7 @@
 
       <p>{{ project.desc }}</p>
       <p class="aui-i-users">
-        <AvatarList :list="avatars" size="large" />
+        <AvatarList :list="avatars" />
       </p>
       <p class="aui-i-time">{{ project.created_at }}</p>
     </Card>
@@ -23,6 +40,7 @@
 <script setup>
 import {Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
+import defaultBotAvatar from '@/images/default-bot-avatar.png';
 import {events, EventBus} from '@/service/event_bus'
 import {useRouter} from 'vue-router'
 const router = useRouter()
@@ -35,6 +53,16 @@ const avatars = props.project.users.map(user => {
     tip: user.nickname
   }
 })
+
+const onClickBot = (e, bot) => {
+  e.stopPropagation()
+  EventBus.emit(events.UPDATE_BOT, props.project, bot)
+}
+
+const onAddBot = (e) => {
+  e.stopPropagation()
+  EventBus.emit(events.ADD_BOT, props.project)
+}
 
 const onClickCard = () => {
   router.push({
@@ -85,8 +113,16 @@ const onDelete = (e) => {
   }
 
   .ivu-card-head {
-    p {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    .aui-i-name{
       font-size: 18px;
+      margin-right: 8px;
+    }
+    .ivu-avatar{
+      transform: scale(0.7);
+      margin-top: -5px;
     }
   }
 

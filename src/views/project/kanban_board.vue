@@ -91,7 +91,6 @@ export default {
       });
     },
     handleSearch(filters) {
-      console.log(filters)
       this.filters = filters
     }
   }

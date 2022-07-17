@@ -28,7 +28,6 @@ import PasswordModel from '../../model/password_model';
 import UserModel from '@/components/model/user_model';
 import {events, EventBus} from '@/service/event_bus'
 import Cookies from 'js-cookie';
-import {Avatar} from "view-ui-plus";
 
 export default {
   beforeCreate() {
@@ -38,7 +37,8 @@ export default {
     }
 
     EventBus.on(events.USER_UPDATED, (user) => {
-      this.nickname = user.nickname;
+      this.nickname = user.nickname
+      this.avatar = user.avatar
       helper.storage.set('nickname', user.nickname);
       helper.storage.set('avatar', user.avatar);
     })
@@ -53,7 +53,6 @@ export default {
     }
   },
   components: {
-    Avatar,
     PasswordModel,
     UserModel
   },
@@ -63,8 +62,6 @@ export default {
         this.ShowPwdModel();
       } else if (name === 'modeProfile') {
         this.showEditProfileModel();
-      } else if (name === 'message') {
-        this.handleMessages();
       } else if (name === 'logout') {
         this.logout();
       }

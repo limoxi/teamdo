@@ -1,0 +1,170 @@
+<template>
+  <Modal
+      v-model="showModel"
+      title="发布分享内容"
+      :width="800"
+      @on-cancel="cancel"
+  >
+    <Form ref="form"
+        @submit.prevent
+        :model="shareData"
+        :rules="ruleValidate"
+        :label-width="80"
+    >
+      <FormItem label="分享标题" prop="title">
+        <Input
+            type="textarea"
+            :autosize="{minRows: 2,maxRows: 3}"
+            show-word-limit
+            :maxlength="48"
+            v-model="shareData.title"
+            style="width: 90%" />
+      </FormItem>
+
+      <FormItem label="类型" prop="type">
+        <Select v-model="shareData.type" style="width:180px" aria-label="botSelector">
+          <Option value="share">分享</Option>
+          <Option value="release">上线</Option>
+        </Select>
+      </FormItem>
+
+      <FormItem label="任务" prop="tasks">
+        <editor v-if="showModel" v-model:content="shareContent"></editor>
+      </FormItem>
+
+      <FormItem label="机器人" prop="botId">
+        <Select v-model="shareData.botId" style="width:180px" aria-label="botSelector">
+          <Option v-for="bot in project.bots" :value="bot.id" :key="bot.id">
+            {{ bot.name }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="@群成员" prop="atMode">
+        <RadioGroup v-model="shareData.atMode" @on-change="onChangeAtMode">
+          <Radio label="0">无</Radio>
+          <Radio label="-1">所有人</Radio>
+          <Radio label="multi">选择</Radio>
+        </RadioGroup>
+        <Select v-model="shareData.userIds" v-if="shareData.atMode==='multi'"
+            style="width:180px"
+            multiple aria-label="botSelector"
+        >
+          <Option v-for="user in project.users" :value="user.id" :key="user.id">
+            {{ user.nickname }}
+          </Option>
+        </Select>
+      </FormItem>
+    </Form>
+    <template #footer>
+      <Button slot="footer" @click="onSubmit">确定</Button>
+    </template>
+  </Modal>
+</template>
+
+<script setup>
+import MessageService from '@/service/message_service';
+import helper from '@/utils/helper';
+import {events, EventBus} from '@/service/event_bus'
+import {FormItem, Message, Option} from "view-ui-plus";
+import {computed, inject, ref} from 'vue'
+import Editor from "../editor/editor";
+
+const project = inject('project')
+const props = defineProps(['show', 'tasks'])
+const emit = defineEmits(['update:show'])
+const form = ref(null)
+const shareData = ref({
+  title: '',
+  type: 'share',
+  botId: 0,
+  userIds: [],
+  atMode: '0'
+})
+const users = ref([])
+const ruleValidate = {
+  title: [
+    {required: true, message: '标题是必须的', trigger: 'blur'}
+  ]
+}
+
+let showModel = computed({
+  get() {
+    return props.show;
+  },
+  set(newValue) {
+    emit('update:show', newValue);
+  }
+})
+
+let shareContent = computed(() => {
+    const contentList = []
+    props.tasks.sort((a, b) => a.id > b.id)
+    for(let task of props.tasks) {
+      let assignorName = task.users[0].nickname
+      task.users.forEach(user => {
+        if (user.is_assignor) {
+          assignorName = user.nickname
+        }
+      })
+      let taskDesc = `- 【${task.type_name}】${project.prefix}${task.id}. ${task.name} @${assignorName}`
+      contentList.push(taskDesc)
+    }
+    return contentList.join('  \n')
+  })
+
+const onChangeAtMode = (selectedMode) => {
+  if (selectedMode === shareData.value.atMode) return
+  switch (selectedMode) {
+    case '0':
+      shareData.value.userIds = []
+    case '-1':
+      shareData.value.userIds = [-1]
+  }
+}
+
+const onSubmit = () => {
+  form.value.validate((valid) => {
+    if (valid) {
+      let content = shareContent.value
+      if (shareData.value.atMode === 'multi') {
+        props.tasks.forEach(task => {
+          task.users.forEach(user => {
+            if (shareData.value.userIds.includes(user.id)){
+              const target = `@${user.nickname}`
+              const dest =  `@${user.phone}`
+              content = content.replaceAll(target, dest)
+            }
+          })
+        })
+      }
+      console.warn(content)
+        MessageService.sendMessage(
+            project.id,
+            shareData.value.botId,
+            shareData.value.title,
+            shareData.value.type,
+            content,
+            shareData.value.userIds
+        ).then(() => {
+          resetForm()
+          emit('update:show', false)
+        }).catch(e => {
+        Message.error(e.errMsg || '发送失败')
+      })
+    }
+  })
+}
+
+const cancel = () => {
+  resetForm()
+}
+
+const resetForm = () => {
+  form.value.resetFields();
+}
+
+</script>
+
+<style scoped lang="less">
+
+</style>

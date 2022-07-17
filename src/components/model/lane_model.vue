@@ -19,7 +19,7 @@
 <!--      </FormItem>-->
     </Form>
     <template #footer>
-      <Button slot="footer" @click="confirm">确定</Button>
+      <Button @click="confirm">确定</Button>
     </template>
   </Modal>
 </template>

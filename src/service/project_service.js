@@ -12,7 +12,8 @@ class ProjectService {
       'resource': 'project.projects',
       'data': {
         'with_options': {
-          'with_users': true
+          'with_users': true,
+          'with_bots': true
         }
       }
     });
@@ -24,9 +25,8 @@ class ProjectService {
       'data': {
         'id': id,
         'with_options':{
-          'with_manager': true,
-          'with_kanban': with_options['with_kanban'] || false,
-          'with_sprint': with_options['with_sprint'] || false
+          'with_users': true,
+          'with_bots': true
         }
       }
     });
@@ -93,6 +93,42 @@ class ProjectService {
         'user_id': userId
       }
     })
+  }
+
+  static addBot(projectId, avatar, name, token, remark) {
+    return Resource.put({
+      'resource': 'project.bot',
+      'data': {
+        project_id: projectId,
+        avatar: avatar,
+        name: name,
+        token: token,
+        remark: remark
+      }
+    });
+  }
+
+  static updateBot(projectId, botId, avatar, name, remark) {
+    return Resource.post({
+      'resource': 'project.bot',
+      'data': {
+        project_id: projectId,
+        id: botId,
+        name: name,
+        avatar: avatar,
+        remark: remark
+      }
+    });
+  }
+
+  static deleteBot(projectId, botId) {
+    return Resource.delete({
+      'resource': 'project.bot',
+      'data': {
+        project_id: projectId,
+        id: botId
+      }
+    });
   }
 }
 

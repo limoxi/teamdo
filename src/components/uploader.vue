@@ -39,7 +39,7 @@
         ref="upload"
         :show-upload-list="false"
         :format="['jpg','jpeg','png', 'icon']"
-        :max-size="50"
+        :max-size="100"
         :on-format-error="handleFormatError"
         :on-exceeded-size="handleMaxSize"
         :before-upload="handleBeforeUpload"
