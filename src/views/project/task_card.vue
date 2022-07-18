@@ -28,6 +28,7 @@
         {{ task.name }}
       </div>
       <div class="aui-i-tags">
+        <Badge :color="importanceColor" :text="importanceDesc"></Badge>
         <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
       </div>
       <div class="aui-i-users">
@@ -57,7 +58,7 @@
 import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Message, Copy, Checkbox} from 'view-ui-plus'
+import {Message, Copy, Checkbox, Badge} from 'view-ui-plus'
 import {ref, computed, inject, onMounted} from "vue";
 
 onMounted(() => {
@@ -87,11 +88,11 @@ const importanceDesc = computed(() => {
 
 const importanceColor = computed(() => {
   let imp = importanceDesc.value;
-  let clr = 'primary';
+  let clr = '#2b85e4';
   if (imp === '紧急') {
-    clr = 'warning';
+    clr = '#ff9900';
   } else if (imp === '非常紧急') {
-    clr = 'error';
+    clr = '#ed4014';
   }
   return clr;
 })

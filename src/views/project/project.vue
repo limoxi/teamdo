@@ -57,29 +57,20 @@ onMounted(() => {
 
   EventBus.on(events.LANE_EDITING, (lane) => {
     laneModelMode.value = 'mod';
-    modelLane.value = lane;
+    modelLane.value = null;
     showLaneModel.value = true;
   });
 
-  EventBus.on(events.TASK_ADDING, (lane) => {
-    showTaskModel.value = true;
+  EventBus.on(events.TASK_ADDING, () => {
     taskModelMode.value = 'create';
-    modelTask.value = {
-      lane: lane,
-    }
+    modelTask.value = {}
+    showTaskModel.value = true;
   });
 
   EventBus.on(events.TASK_EXPANDED, task => {
-    console.log(task);
-    showTaskModel.value = true;
     taskModelMode.value = 'mod';
     modelTask.value = task;
-  });
-
-  EventBus.on(events.SUB_TASK_EDITING, task => {
     showTaskModel.value = true;
-    taskModelMode.value = 'addSub';
-    modelTask.value = task;
   });
 
   EventBus.on(events.SELECTING_USER, () => {

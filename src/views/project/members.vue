@@ -5,7 +5,7 @@
         :key="member.id"
         :member="member"
         :project="project"
-        @deleteMember="onDeleteMember"
+        @onDelete="onDeleteMember"
     />
     <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
   </div>
@@ -17,7 +17,7 @@ import MemberCard from './member_card';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import {ref, inject, onMounted} from "vue";
-import {Message} from 'view-ui-plus'
+import {Message, Modal} from 'view-ui-plus'
 
 const project = inject('project')
 const members = ref([])
@@ -61,14 +61,14 @@ const onAddMember = () => {
 }
 
 const onDeleteMember = (member) => {
-  this.$Modal.confirm({
+  Modal.confirm({
     title: '移除项目成员',
     content: '<strong>确定要移除该项目成员么？</strong>',
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      ProjectService.deleteMember(project.id, member.user.id).then(() => {
-        helper.removeFromArray(member, members);
+      ProjectService.deleteMember(project.id, member.id).then(() => {
+        helper.removeFromArray(member, members.value, 'id');
         Message.success('操作成功');
       }).catch(err => {
         Message.error(err.errMsg);

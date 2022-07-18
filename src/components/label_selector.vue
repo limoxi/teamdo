@@ -18,7 +18,6 @@
       filterable
       allow-create
       v-model="selectedTag"
-      @on-create="onCreate"
       @on-select="onSelect"
       @mouseout="handleMouseover(-1)"
     >
@@ -36,9 +35,11 @@
 <script setup>
 
 import {onMounted, ref, inject, computed} from "vue";
-import TagService from "../service/tag_service";
+import TagService from "@/service/tag_service";
 const project = inject('project')
-const props = defineProps(['currentTags'])
+const props = defineProps({
+  currentTags: Array
+})
 const emit = defineEmits(['onSelect', 'mouseover', 'mouseout'])
 const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
 
@@ -49,10 +50,6 @@ let mode = ref('select')
 let activeTag = ref({})
 let activeTagName = ref('')
 let activeTagColor = ref('')
-
-const currentTags = computed(() => {
-  return props.currentTags
-})
 
 onMounted(() => {
   loadTags()

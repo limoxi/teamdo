@@ -6,7 +6,7 @@
     </div>
     <div class="aui-i-right">
       <Input
-          placeholder="输入标题筛选"
+          placeholder="用户故事筛选"
           class="aui-i-filter"
           v-model="taskName"
           clearable

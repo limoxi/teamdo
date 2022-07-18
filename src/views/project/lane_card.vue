@@ -182,7 +182,6 @@ export default {
           }
         });
       } else if (name === 'check') {
-        console.log(this.tasks, 'this.tasks')
         this.showCheckBox = true
       }
     },
@@ -212,7 +211,7 @@ export default {
     },
 
     showTaskModel() {
-      EventBus.emit(events.TASK_ADDING, this.lane);
+      EventBus.emit(events.TASK_ADDING);
     }
   }
 }
