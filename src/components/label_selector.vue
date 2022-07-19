@@ -17,7 +17,6 @@
       v-show="mode === 'select'"
       filterable
       allow-create
-      v-model="selectedTag"
       @on-select="onSelect"
       @mouseout="handleMouseover(-1)"
     >

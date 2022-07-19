@@ -61,7 +61,7 @@ class TaskService {
         'name': task.name,
         'importance': task.importance,
         'assignor_id': task.assignorId,
-        'desc': JSON.stringify(task.desc),
+        'desc': task.desc,
         'task_type': task.type,
         'tags': task.tags || []
       }
@@ -86,11 +86,22 @@ class TaskService {
       'data': {
         'project_id': projectId,
         'id': task.id,
+        'task_type': task.type,
         'name': task.name,
         'importance': task.importance,
         'assignor_id': task.assignorId,
         'desc': task.desc,
         'tags': task.tags || []
+      }
+    })
+  }
+
+  static deleteTask(projectId, task) {
+    return Resource.delete({
+      'resource': 'project.task',
+      'data': {
+        'project_id': projectId,
+        'id': task.id
       }
     })
   }

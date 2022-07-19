@@ -32,7 +32,7 @@
         <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
       </div>
       <div class="aui-i-users">
-          <Tooltip v-if="!!assignor" :content="assignor.nickname" placement="top">
+          <Tooltip v-if="!!assignor" :content="assignor.nickname" placement="right">
             <Avatar
                 :style="{marginLeft: '-15px'}"
                 :src="assignor.avatar||defaultAvatar"

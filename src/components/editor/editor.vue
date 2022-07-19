@@ -10,7 +10,7 @@ import { nord } from '@milkdown/theme-nord';
 import { commonmark } from '@milkdown/preset-commonmark';
 
 const props = defineProps(['readonly', 'content'])
-const emit = defineEmits(['onUpdate'])
+const emit = defineEmits(['update:content'])
 
 let { editor } = useEditor((root) =>
   Editor.make()

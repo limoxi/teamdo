@@ -7,6 +7,8 @@
     <div class="aui-i-right">
       <Input
           placeholder="用户故事筛选"
+          :border="false"
+          style="width: 200px"
           class="aui-i-filter"
           v-model="taskName"
           clearable
@@ -22,24 +24,24 @@
           filterable
           clearable
           v-model="selectedAssignorId"
-          placeholder="按执行人筛选"
+          placeholder="执行人"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
         <Option v-for="member in members" :value="member.id" :key="member.id">
-          <img class="member-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
+          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
         </Option>
       </Select>
       <Select
           filterable
           clearable
           v-model="selectedCreatorId"
-          placeholder="按创建人筛选"
+          placeholder="创建人"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
         <Option v-for="member in members" :value="member.id" :key="member.id">
-          <img class="member-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
+          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
         </Option>
       </Select>
     </div>
@@ -127,28 +129,18 @@ const onSwitchMode = () => {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .aui-kanban-action-bar {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 10px;
+  margin-top: 1px;
+  padding: 0 5px;
 
   .aui-i-filter {
-    width: 180px;
+    width: 130px;
     margin-left: 10px;
-    .ivu-select-item {
-      display: flex;
-      align-items: center;
-    }
   }
 
-  .member-avatar {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: block;
-    margin-right: 5px;
-  }
 }
 </style>

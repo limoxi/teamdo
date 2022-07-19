@@ -90,15 +90,6 @@ class LaneService {
     })
   }
 
-  static sendDingMsg (msg) {
-    return Resource.put({
-      resource: 'system.ding_msg',
-      data: {
-        bot_name: 'ufo',
-        msg
-      }
-    })
-  }
 }
 
 export default LaneService;

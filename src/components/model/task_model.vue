@@ -4,7 +4,15 @@
       :title="title"
       class="aui-task-model"
       fullscreen
+      footer-hide
   >
+    <template #close>
+      <ButtonGroup>
+        <Button type="text" @click="close">关闭</Button>
+        <Button v-if="mode==='mod'" type="text" class="aui-btn-danger-text" @click="handleDelete">删除</Button>
+        <Button type="text" @click="handleSubmit">确定</Button>
+      </ButtonGroup>
+    </template>
     <div class="task-model-main">
       <div class="task-info">
         <Form ref="taskForm"
@@ -15,7 +23,7 @@
             :label-width="80"
         >
           <FormItem label="任务类型" prop="type">
-            <Select v-model="form.type" style="width:180px" aria-label="typeSelector" :disabled="!isCreateMode">
+            <Select v-model="form.type" style="width:180px" aria-label="typeSelector">
               <Option v-for="option in typeOptions" :value="option.value" :key="option.value">
                 {{ option.label }}
               </Option>
@@ -37,11 +45,13 @@
               </Option>
             </Select>
           </FormItem>
-          <FormItem label="执行者" prop="assignor">
+          <FormItem label="执行者" prop="assignorId">
             <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
               <Option v-for="pu in projectUsers" :value="pu.id + ''" :key="pu.id">
+                <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
                 {{ pu.nickname }}
               </Option>
+
             </Select>
           </FormItem>
           <FormItem label="标签" prop="tags">
@@ -80,9 +90,6 @@
         </div>
       </div>
     </div>
-    <template #footer>
-      <Button @click="handleSubmit">确定</Button>
-    </template>
   </Modal>
 </template>
 <script setup>
@@ -93,7 +100,7 @@ import Editor from '@/components/editor/editor'
 import LabelSelector from '@/components/label_selector'
 import defaultAvatar from '@/images/default-avatar.webp'
 import {ref, computed, onMounted, watch} from "vue";
-import {Message} from "view-ui-plus";
+import {Message, Modal} from "view-ui-plus";
 
 const typeOptions = [{
   'label': '需求',
@@ -151,6 +158,7 @@ const props = defineProps({
   show: Boolean,
   mode: String,
   task: Object,
+  laneId: Number,
   projectId: Number
 })
 const emit = defineEmits(['update:show'])
@@ -174,29 +182,31 @@ const title = computed(() => {
   return title;
 })
 
-const isCreateMode = computed(() => {
-  return props.mode==='create'
-})
-
-const form = ref({
+let defaultForm = {
   type: 'REQ',
   name: '',
   importance: '0',
   assignorId: '0',
   tags: [],
   desc: ''
-})
+}
+
+const form = ref(defaultForm)
 const taskForm = ref(null)
 
 const projectUsers = ref([])
 let newTagName = ref('')
 
 watch(props, (newVal, oldVal) => {
-  if (newVal.mode !== 'mod') return
+  if (newVal.mode === 'create'){
+    taskForm.value.resetFields()
+    return
+  }
   const task = newVal.task
+  form.value.type = task.type
   form.value.name = task.name
   form.value.importance = task.importance + ''
-  form.value.assignorId = task.assignorId + ''
+  form.value.assignorId = task.assignor_id + ''
   form.value.tags = task.tags || []
   form.value.desc = task.desc
 })
@@ -211,19 +221,18 @@ const getProjectUsers = () => {
   })
 }
 
-const resetForm = () => {
-  taskForm.value.resetFields();
+const close = () => {
+  showModel.value = false
 }
 
 const handleCloseTag = (tagName) => {
   form.value.tags = form.value.tags.filter(tag => tag.name !== tagName)
 }
 
-const actionDone = (eventName, data = undefined) => {
-  showModel.value = false;
-  resetForm();
+const actionDone = (eventName, ...data) => {
+  EventBus.emit(eventName, ...data);
+  close()
   Message.success('操作成功');
-  EventBus.emit(eventName, data);
 }
 
 const onTagSelected = (selectedTag) => {
@@ -259,17 +268,14 @@ const handleSubmit = () => {
       }
       if (props.mode === 'create') {
         TaskService.addTask(props.projectId * 1, taskData).then((data) => {
-          actionDone(events.TASK_ADDED, {
-            'taskId': data.id,
-            'laneId': data.lane_id
-          });
+          actionDone(events.TASK_ADDED, data.id, data.lane_id)
         }).catch(err => {
           Message.error(err.errMsg);
         });
       } else {
         taskData.id = props.task.id
         TaskService.updateTask(props.projectId * 1, taskData).then(() => {
-          actionDone(events.TASK_UNDO);
+          actionDone(events.TASK_UPDATED, props.task.id, props.task.lane_id);
         }).catch(err => {
           Message.error(err.errMsg);
         });
@@ -278,10 +284,31 @@ const handleSubmit = () => {
   })
 }
 
+const handleDelete = () => {
+  Modal.confirm({
+    title: '删除任务',
+    content: `'<strong>确定要删除任务【${props.task.name}】么？</strong>'`,
+    okText: '确认',
+    cancelText: '再想想',
+    onOk: () => {
+      TaskService.deleteTask(props.projectId * 1, props.task).then(() => {
+        actionDone(events.TASK_REMOVED, props.task, props.task.lane_id)
+      }).catch(err => {
+        Message.error(err.errMsg);
+      });
+    }
+  });
+}
+
 </script>
 
 <style scoped lang="less">
 .aui-task-model {
+  .aui-btn-danger-text{
+    &:hover{
+      color: indianred;
+    }
+  }
   .task-model-main{
     width: 100%;
     height: 100%;

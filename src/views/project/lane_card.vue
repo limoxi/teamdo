@@ -2,11 +2,6 @@
   <div class="aui-lane">
     <div :class="className">
       <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ tasks.length }}/{{ lane.wip || '∞' }})</p>
-      <Button
-        type="primary"
-        v-show="showCheckBox"
-        @click="onConfirmCheckTasks"
-      >确认</Button>
       <div>
         <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
@@ -15,8 +10,7 @@
             <DropdownMenu>
               <DropdownItem name="add">在右边添加</DropdownItem>
               <DropdownItem name="edit">修改</DropdownItem>
-              <DropdownItem name="del">删除</DropdownItem>
-              <DropdownItem name="check">钉钉消息</DropdownItem>
+              <DropdownItem v-if="!isLastLane" name="del">删除</DropdownItem>
             </DropdownMenu>
           </template>
         </Dropdown>
@@ -79,7 +73,13 @@ export default {
       }
     });
 
-    EventBus.on(events.TASK_ADDED, ({taskId, laneId}) => {
+    EventBus.on(events.TASK_ADDED, (taskId, laneId) => {
+      if (laneId === this.lane.id) {
+        this.getTasks()
+      }
+    });
+
+    EventBus.on(events.TASK_UPDATED, (taskId, laneId) => {
       if (laneId === this.lane.id) {
         this.getTasks()
       }
@@ -89,9 +89,7 @@ export default {
   data() {
     return {
       showLaneModel: false,
-      tasks: [],
-      showCheckBox: false,
-      kanbanType: null
+      tasks: []
     }
   },
   components: {
@@ -181,33 +179,7 @@ export default {
             });
           }
         });
-      } else if (name === 'check') {
-        this.showCheckBox = true
       }
-    },
-
-    onConfirmCheckTasks() {
-      console.log(this.tasks, 'this.tasks')
-      const checkedTasks = this.tasks.filter(task => task._checked)
-      if (!checkedTasks.length) {
-        this.$Message.error('请选择任务卡片')
-        return
-      }
-      let msgBuf = ['### 收银上线通知']
-      checkedTasks.forEach(task => {
-        msgBuf.push(`> ${task.id}:${task.name}`)
-      })
-      msgBuf.push(' \n\n ')
-      const msg = msgBuf.join(' \n\n ')
-      LaneService.sendDingMsg(msg).then(() => {
-        this.$Message.success('消息发送成功')
-        this.tasks.forEach(task => {
-          task._checked = false
-          this.showCheckBox = false
-        })
-      }).catch(err => {
-        this.$Message.err(err.errMsg)
-      })
     },
 
     showTaskModel() {

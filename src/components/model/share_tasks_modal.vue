@@ -113,7 +113,7 @@ let shareContent = computed(() => {
   })
 
 const onChangeAtMode = (selectedMode) => {
-  if (selectedMode === shareData.value.atMode) return
+  alert(selectedMode)
   switch (selectedMode) {
     case '0':
       shareData.value.userIds = []
@@ -137,18 +137,17 @@ const onSubmit = () => {
           })
         })
       }
-      console.warn(content)
-        MessageService.sendMessage(
-            project.id,
-            shareData.value.botId,
-            shareData.value.title,
-            shareData.value.type,
-            content,
-            shareData.value.userIds
-        ).then(() => {
-          resetForm()
-          emit('update:show', false)
-        }).catch(e => {
+      MessageService.sendMessage(
+          project.id,
+          shareData.value.botId,
+          shareData.value.title,
+          shareData.value.type,
+          content,
+          shareData.value.userIds
+      ).then(() => {
+        resetForm()
+        emit('update:show', false)
+      }).catch(e => {
         Message.error(e.errMsg || '发送失败')
       })
     }
