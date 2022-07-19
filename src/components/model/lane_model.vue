@@ -7,7 +7,7 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="泳道名称" prop="name">
-        <Input v-model="form.name" placeholder="" />
+        <Input v-model="form.name" />
       </FormItem>
       <FormItem label="WIP" prop="wip" v-if="!isCreateMode">
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>

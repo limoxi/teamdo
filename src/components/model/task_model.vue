@@ -11,7 +11,7 @@
             @submit.prevent
             :model="form"
             :rules="ruleValidate"
-            :disabled="this.mode==='view'"
+            :disabled="mode==='view'"
             :label-width="80"
         >
           <FormItem label="任务类型" prop="type">
