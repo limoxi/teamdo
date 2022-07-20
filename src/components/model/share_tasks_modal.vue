@@ -113,7 +113,6 @@ let shareContent = computed(() => {
   })
 
 const onChangeAtMode = (selectedMode) => {
-  alert(selectedMode)
   switch (selectedMode) {
     case '0':
       shareData.value.userIds = []
