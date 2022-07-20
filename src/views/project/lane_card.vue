@@ -84,6 +84,10 @@ export default {
         this.getTasks()
       }
     });
+
+    EventBus.on(events.REFRESH_LANE_TASKS, () => {
+      this.getTasks()
+    });
   },
 
   data() {

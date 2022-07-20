@@ -24,7 +24,8 @@
   ></task-model>
   <user-select-model
       v-model:show="showUserSelectModel"
-      :projectId="parseInt(projectId)"
+      :projectId="selectUserInProject"
+      :taskId="selectUserInTask"
   ></user-select-model>
 </template>
 
@@ -36,13 +37,14 @@ import TaskModel from '@/components/model/task_model';
 import UserSelectModel from '@/components/model/user_select_model';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
-import helper from '@/utils/helper';
 import {ref, provide, onMounted} from 'vue'
 
 const props = defineProps(['projectId', 'name'])
 let showTaskModel = ref(false)
 let showLaneModel = ref(false)
 let showUserSelectModel = ref(false)
+let selectUserInProject = ref(0)
+let selectUserInTask = ref(0)
 let taskModelMode = ref('mod')
 let laneModelMode = ref('create')
 let modelTask = ref({})
@@ -73,7 +75,9 @@ onMounted(() => {
     showTaskModel.value = true;
   });
 
-  EventBus.on(events.SELECTING_USER, () => {
+  EventBus.on(events.SELECTING_USER, (projectId=0, taskId=0) => {
+    selectUserInProject.value = projectId
+    selectUserInTask.value = taskId
     showUserSelectModel.value = true;
   });
 

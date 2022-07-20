@@ -68,18 +68,6 @@ class TaskService {
     })
   }
 
-  static addSubTask(projectId, task, parentTask) {
-    return Resource.put({
-      'resource': 'task.sub_task',
-      'data': {
-        'project_id': projectId,
-        'task_id': parentTask.id,
-        'name': task.name,
-        'desc': task.desc
-      }
-    })
-  }
-
   static updateTask(projectId, task) {
     return Resource.post({
       'resource': 'project.task',
@@ -106,17 +94,6 @@ class TaskService {
     })
   }
 
-  static appendToKanban(projectId, kanbanType, taskId) {
-    return Resource.put({
-      'resource': 'kanban.rookie_task',
-      'data': {
-        'project_id': parseInt(projectId),
-        'kanban_type': this.getIntType(kanbanType),
-        'task_id': taskId
-      }
-    });
-  }
-
   static switchLane(projectId, task, targetLaneId) {
     return Resource.put({
       'resource': 'project.shuttled_task',
@@ -128,22 +105,13 @@ class TaskService {
     });
   }
 
-  static finish(projectId, task) {
+  static setAssignorForTask(projectId, taskId, assignorId) {
     return Resource.put({
-      'resource': 'task.finished_task',
+      'resource': 'project.task.assignor',
       'data': {
         'project_id': projectId,
-        'task_id': task.id
-      }
-    });
-  }
-
-  static abortTask(projectId, task) {
-    return Resource.put({
-      'resource': 'task.aborted_task',
-      'data': {
-        'project_id': projectId,
-        'task_id': task.id
+        'task_id': taskId,
+        'assignor_id': assignorId
       }
     })
   }

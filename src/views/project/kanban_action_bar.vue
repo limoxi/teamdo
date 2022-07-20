@@ -5,6 +5,7 @@
       <Button type="text" v-if="selectModeOn" @click="onClickShare">分享已选任务({{selectedTasks.length}})</Button>
     </div>
     <div class="aui-i-right">
+      <Icon type="md-refresh" class="aui-i-refresh" @click="onFreshTasks"/>
       <Input
           placeholder="用户故事筛选"
           :border="false"
@@ -127,6 +128,12 @@ const onSwitchMode = () => {
     EventBus.emit(events.SWITCH_TASK_MODE, 'CHECKING')
   }
 }
+
+const onFreshTasks = () => {
+  EventBus.emit(events.REFRESH_LANE_TASKS)
+  Message.success('刷新任务...')
+}
+
 </script>
 
 <style lang="less" scoped>
@@ -136,6 +143,15 @@ const onSwitchMode = () => {
   justify-content: space-between;
   margin-top: 1px;
   padding: 0 5px;
+
+  .aui-i-refresh{
+    font-size: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+    &:hover{
+      transform: scale(1.1);
+    }
+  }
 
   .aui-i-filter {
     width: 130px;

@@ -25,9 +25,12 @@ const isManager = ref(false)
 const currentUserId = helper.storage.get('uid')
 
 onMounted(() => {
-  EventBus.on(events.USER_SELECTED, (selectedUserId) => {
+  EventBus.on(events.USER_SELECTED, (_, __, selectedUserId) => {
     if (selectedUserId === currentUserId) {
       Message.warning('用户已是项目成员');
+      return
+    }
+    if (selectedUserId === 0) {
       return
     }
     ProjectService.addMember(project.id, selectedUserId).then(() => {

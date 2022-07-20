@@ -27,6 +27,7 @@ const events = {
   'LANE_ADDING': 'laneAdding', // 增加泳道
   'LANE_UPDATED': 'laneUpdated', // 泳道已更新
   'LANE_EDITING': 'LaneEditing', // 泳道信息编辑
+  'REFRESH_LANE_TASKS': 'refreshLaneTasks', // 刷新泳道任务
   'TASK_ADDING': 'taskAdding', // 增加任务
   'TASK_ADDED': 'taskAdded', // 任务已添加
   'TASK_UPDATED': 'taskUpdated', // 任务已更新

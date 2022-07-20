@@ -49,8 +49,9 @@
             style="width:180px"
             multiple aria-label="botSelector"
         >
-          <Option v-for="user in project.users" :value="user.id" :key="user.id">
-            {{ user.nickname }}
+          <Option v-for="pu in project.users" :value="pu.id" :key="pu.id">
+            <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
+            {{ pu.nickname }}
           </Option>
         </Select>
       </FormItem>
@@ -63,8 +64,7 @@
 
 <script setup>
 import MessageService from '@/service/message_service';
-import helper from '@/utils/helper';
-import {events, EventBus} from '@/service/event_bus'
+import defaultAvatar from '@/images/default-avatar.webp'
 import {FormItem, Message, Option} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
 import Editor from "../editor/editor";

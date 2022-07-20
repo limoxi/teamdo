@@ -28,25 +28,29 @@
         {{ task.name }}
       </div>
       <div class="aui-i-tags">
-        <Badge :color="importanceColor" :text="importanceDesc"></Badge>
+        <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
+        <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
         <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
       </div>
       <div class="aui-i-users">
-          <Tooltip v-if="!!assignor" :content="assignor.nickname" placement="right">
+          <Tooltip v-if="!!assignor"
+                   :content="assignor.nickname" placement="right"
+                   style="cursor: pointer" @click="onSelectAssignor">
             <Avatar
                 :style="{marginLeft: '-15px'}"
                 :src="assignor.avatar||defaultAvatar"
             ></Avatar>
           </Tooltip>
-      </div>
-      <div>
-        <Checkbox v-model="task._checked"
-          v-if="showCheckBox"
-        />
+        <Tooltip v-else content="添加执行人"
+                 placement="right" style="cursor: pointer" @click="onSelectAssignor">
+          <Avatar
+              :style="{marginLeft: '-15px'}"
+              icon="md-person"
+          ></Avatar>
+        </Tooltip>
       </div>
       <div class="aui-i-time">
         <Icon type="md-paper" v-if="task.desc.length > 0"/>
-        <Icon type="md-play" class="aui-i-up"/>
         {{ formatTime(task.updated_at) }}
       </div>
     </div>
@@ -55,22 +59,34 @@
 
 <script setup>
 
+import moment from 'moment'
+import 'moment/dist/locale/zh-cn';
 import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Message, Copy, Checkbox, Badge} from 'view-ui-plus'
+import {Message, Copy, Checkbox, Badge, Tooltip} from 'view-ui-plus'
 import {ref, computed, inject, onMounted} from "vue";
+
+moment.locale('zh-cn');
 
 onMounted(() => {
   EventBus.on(events.SWITCH_TASK_MODE, m => {
     mode.value = m
     taskSelected.value = false
   })
+  EventBus.on(events.USER_SELECTED, (_, taskId, selectedUserId) => {
+    if (taskId !== props.task.id) return
+    TaskService.setAssignorForTask(project.id, props.task.id, selectedUserId).then(() => {
+      EventBus.emit(events.TASK_UPDATED, props.task.id, props.task.lane_id)
+    }).catch(e => {
+      Message.error(e.errMsg || '设置执行人失败')
+    })
+  });
 })
 
 let mode = ref('NORMAL')
 let taskSelected = ref(false)
-const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane', 'showCheckBox'])
+const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
 const project = inject('project')
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
@@ -125,11 +141,7 @@ const onSelectChange = checked => {
 }
 
 const formatTime = (timeStr) => {
-  let sps = timeStr.split('-')
-  sps.shift()
-  sps = sps.join('-').split(':')
-  sps.pop()
-  return sps.join(':')
+  return moment(timeStr, 'YYYY-MM-DD HH:mm:ss').calendar()
 }
 
 const onCLickTaskNo = () => {
@@ -184,6 +196,11 @@ const onClickEdit = (selectedTask) => {
     Message.error(err.errMsg);
   });
 }
+
+const onSelectAssignor = () => {
+  EventBus.emit(events.SELECTING_USER, project.id, props.task.id)
+}
+
 </script>
 
 <style scoped lang="less">
@@ -248,7 +265,7 @@ const onClickEdit = (selectedTask) => {
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      margin: 5px 0;
+      margin: 10px 0;
     }
     .aui-i-time{
       color: grey;
@@ -256,13 +273,6 @@ const onClickEdit = (selectedTask) => {
       bottom: 2px;
       right: 5px;
       font-size: 10px;
-
-      .aui-i-up{
-        margin-right: -4px;
-        margin-bottom: 4px;
-        transform: rotate(-90deg) scale(0.6);
-        color: lightgreen;
-      }
     }
   }
 
