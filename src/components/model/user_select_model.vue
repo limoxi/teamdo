@@ -1,9 +1,9 @@
 <template>
   <Modal
       v-model="showModel"
-      @on-visible-change="onVisibleChange"
       title="用户列表"
       width="300"
+      @on-visible-change="onVisibleChange"
       @on-ok="onConfirmed"
   >
     <Select

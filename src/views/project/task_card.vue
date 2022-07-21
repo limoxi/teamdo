@@ -1,9 +1,12 @@
 <template>
   <div :class="headerClasses" :taskId="task.id">
     <div class="aui-i-header">
-      <div>
+      <div class="aui-i-id">
         <Checkbox v-model="taskSelected" v-if="mode==='CHECKING'" @on-change="onSelectChange" />
-        <Tag :color="importanceColor" @click="onCLickTaskNo">{{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}</Tag>
+        <Tag :color="importanceColor" @click="onCLickTaskNo">
+          {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
+        </Tag>
+        <Tag v-if="task.status === '已完成'" color="success">已完成</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
@@ -24,7 +27,7 @@
       </div>
     </div>
     <div class="aui-i-body">
-      <div class="aui-i-name">
+      <div class="aui-i-name" @dblclick="onCLickName">
         {{ task.name }}
       </div>
       <div class="aui-i-tags">
@@ -37,14 +40,12 @@
                    :content="assignor.nickname" placement="right"
                    style="cursor: pointer" @click="onSelectAssignor">
             <Avatar
-                :style="{marginLeft: '-15px'}"
                 :src="assignor.avatar||defaultAvatar"
             ></Avatar>
           </Tooltip>
         <Tooltip v-else content="添加执行人"
                  placement="right" style="cursor: pointer" @click="onSelectAssignor">
           <Avatar
-              :style="{marginLeft: '-15px'}"
               icon="md-person"
           ></Avatar>
         </Tooltip>
@@ -64,7 +65,7 @@ import 'moment/dist/locale/zh-cn';
 import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Message, Copy, Checkbox, Badge, Tooltip} from 'view-ui-plus'
+import {Message, Copy, Checkbox, Badge, Tooltip, Space} from 'view-ui-plus'
 import {ref, computed, inject, onMounted} from "vue";
 
 moment.locale('zh-cn');
@@ -151,6 +152,13 @@ const onCLickTaskNo = () => {
   })
 }
 
+const onCLickName = () => {
+  Copy({
+    text: props.task.name,
+    successTip: '用户故事已复制'
+  })
+}
+
 const onClickNext = () => {
   let targetLane;
   for (let index in props.lanes) {
@@ -210,10 +218,13 @@ const onSelectAssignor = () => {
   flex-direction: column;
   justify-content: space-between;
   margin: 5px 0;
+  padding: 10px;
   border-radius: 2px;
 
   &:hover {
     .aui-i-header {
+      .aui-i-id{
+      }
       .aui-i-action {
         display: inline-block;
       }
@@ -223,14 +234,12 @@ const onSelectAssignor = () => {
   .aui-i-header {
     display: flex;
     justify-content: space-between;
-    padding: 5px 10px;
-    //color: #fff;
     font-size: 14px;
     font-weight: bold;
 
     .aui-i-action {
       position: absolute;
-      top: 3px;
+      top: 10px;
       right: 5px;
       display: none;
 
@@ -244,7 +253,6 @@ const onSelectAssignor = () => {
   }
 
   .aui-i-body {
-    padding: 5px 10px;
     font-size: 14px;
     display: flex;
     justify-content: flex-start;
@@ -259,7 +267,6 @@ const onSelectAssignor = () => {
     .aui-i-users {
       display: flex;
       justify-content: flex-start;
-      padding-left: 15px;
     }
     .aui-i-tags{
       display: flex;
@@ -271,7 +278,7 @@ const onSelectAssignor = () => {
       color: grey;
       position: absolute;
       bottom: 2px;
-      right: 5px;
+      right: 10px;
       font-size: 10px;
     }
   }

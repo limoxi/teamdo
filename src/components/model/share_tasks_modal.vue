@@ -4,6 +4,7 @@
       title="发布分享内容"
       :width="800"
       @on-cancel="cancel"
+      @on-visible-change="onVisibleChange"
   >
     <Form ref="form"
         @submit.prevent
@@ -29,7 +30,7 @@
       </FormItem>
 
       <FormItem label="任务" prop="tasks">
-        <editor v-if="showModel" v-model:content="shareContent"></editor>
+        <editor v-if="showModel" v-model:content="shareData.content"></editor>
       </FormItem>
 
       <FormItem label="机器人" prop="botId">
@@ -78,7 +79,8 @@ const shareData = ref({
   type: 'share',
   botId: 0,
   userIds: [],
-  atMode: '0'
+  atMode: '0',
+  content: ''
 })
 const users = ref([])
 const ruleValidate = {
@@ -95,6 +97,11 @@ let showModel = computed({
     emit('update:show', newValue);
   }
 })
+
+const onVisibleChange = (isShow) => {
+  if (!isShow) return
+  shareData.value.content = shareContent.value
+}
 
 let shareContent = computed(() => {
     const contentList = []
@@ -124,7 +131,7 @@ const onChangeAtMode = (selectedMode) => {
 const onSubmit = () => {
   form.value.validate((valid) => {
     if (valid) {
-      let content = shareContent.value
+      let content = shareData.value.content
       if (shareData.value.atMode === 'multi') {
         props.tasks.forEach(task => {
           task.users.forEach(user => {

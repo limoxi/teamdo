@@ -18,12 +18,12 @@ class LaneService {
     });
   }
 
-  static addLane(projectId, newLane, afterLaneId) {
+  static addLane(projectId, newLaneName, afterLaneId) {
     return Resource.put({
       'resource': 'project.lane',
       'data': {
         'project_id': projectId,
-        'name': newLane.name,
+        'name': newLaneName,
         'after_lane_id': afterLaneId
       }
     });
@@ -33,10 +33,11 @@ class LaneService {
     return Resource.post({
       'resource': 'project.lane',
       'data': {
-        'id': newLane.id,
         'project_id': projectId,
+        'id': newLane.id,
         'name': newLane.name,
-        'wip': newLane.wip
+        'wip': newLane.wip,
+        'is_end': newLane.isEnd
       }
     });
   }

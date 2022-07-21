@@ -16,32 +16,43 @@
         </Dropdown>
       </div>
     </div>
+    <template v-if="loadingTasks">
+      <Skeleton class="aui-i-skeleton"
+          loading
+          animated
+          :title="false"
+          :paragraph="{ rows: 4, width: ['20%', '80%', '40%', '20%'] }"
+      />
+    </template>
+    <template v-else>
       <draggable
-        class="aui-i-tasks"
-        v-model="tasks"
-        item-key="id"
-        :animation="200"
-        group="task"
-        :disabled="false"
-        ghostClass="ghost"
-        chosenClass="chosen"
-        handle=".aui-i-tasks > .aui-task > .aui-i-body"
-        @start="drag = true"
-        @end="drag = false"
-        @sort="onListChange"
-    >
-      <template #item="{element, index}">
+          class="aui-i-tasks"
+          v-model="tasks"
+          item-key="id"
+          :animation="200"
+          group="task"
+          :disabled="false"
+          ghostClass="ghost"
+          chosenClass="chosen"
+          handle=".aui-i-tasks > .aui-task > .aui-i-body"
+          @start="drag = true"
+          @end="drag = false"
+          @sort="onListChange"
+      >
+        <template #item="{element, index}">
           <task-card
-            :task="element"
-            :lane="lane"
-            :lanes="lanes"
-            :projectId="projectId"
-            :inFirstLane="isFirstLane"
-            :inLastLane="isLastLane"
+              :task="element"
+              :lane="lane"
+              :lanes="lanes"
+              :projectId="projectId"
+              :inFirstLane="isFirstLane"
+              :inLastLane="isLastLane"
           ></task-card>
-      </template>
-      <div class="aui-i-blank"></div>
-    </draggable>
+        </template>
+        <div class="aui-i-blank"></div>
+      </draggable>
+    </template>
+
     </div>
 </template>
 
@@ -93,6 +104,7 @@ export default {
   data() {
     return {
       showLaneModel: false,
+      loadingTasks:true,
       tasks: []
     }
   },
@@ -137,10 +149,8 @@ export default {
 
     getTasks(filters) {
       LaneService.getTasks(this.projectId, this.lane.id, filters).then(data => {
-       this.tasks = (data['tasks'] || []).map(task => {
-          task._checked = false
-          return task
-        });
+       this.tasks = data['tasks']
+        this.loadingTasks = false
       }).catch(err => {
         this.$Message.error(err.errMsg);
       })
@@ -221,6 +231,12 @@ export default {
         cursor: auto;
       }
     }
+  }
+
+  .aui-i-skeleton{
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 2px;
   }
 
   .aui-a-draggable {

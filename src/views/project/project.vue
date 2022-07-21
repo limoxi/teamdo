@@ -51,15 +51,15 @@ let modelTask = ref({})
 let modelLane = ref({})
 
 onMounted(() => {
-  EventBus.on(events.LANE_ADDING, (lane) => {
-    showLaneModel.value = true;
+  EventBus.on(events.LANE_ADDING, lane => {
     laneModelMode.value = 'create';
     modelLane.value = lane
+    showLaneModel.value = true;
   });
 
-  EventBus.on(events.LANE_EDITING, (lane) => {
+  EventBus.on(events.LANE_EDITING, lane => {
     laneModelMode.value = 'mod';
-    modelLane.value = null;
+    modelLane.value = lane;
     showLaneModel.value = true;
   });
 

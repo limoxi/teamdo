@@ -1,6 +1,9 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden;">
-    <action-bar @search="handleSearch"></action-bar>
+  <div tabindex="0" style="outline: 0; overflow: hidden;"
+       @keydown.left="onPressLeft"
+       @keydown.right="onPressRight"
+  >
+    <action-bar @search="handleSearch" :lanes="lanes"></action-bar>
     <draggable
         class="aui-board"
         v-model="lanes"
@@ -71,11 +74,17 @@ export default {
     Draggable,
   },
   methods: {
+    onPressLeft(){
+      document.getElementsByClassName('aui-board')[0].scrollLeft -= 500
+    },
+    onPressRight(){
+      document.getElementsByClassName('aui-board')[0].scrollLeft += 500
+    },
     onListChange(event) {
       LaneService.resort(this.projectId, this.lanes).then(() => {
         this.$Message.success('排序完成');
       }).catch(err => {
-        console.log(err);
+        console.error(err);
         this.$Message.error('排序失败');
       })
     },
