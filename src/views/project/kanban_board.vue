@@ -1,11 +1,12 @@
 <template>
-  <div tabindex="0" style="outline: 0; overflow: hidden;"
+  <div class="kanban-page" tabindex="0" style="outline: 0; overflow: hidden;"
        @keydown.left="onPressLeft"
        @keydown.right="onPressRight"
   >
     <action-bar @search="handleSearch" :lanes="lanes"></action-bar>
     <draggable
         class="aui-board"
+        id="board"
         v-model="lanes"
         item-key="id"
         :animation="200"
@@ -31,6 +32,10 @@
       </template>
       <div class="aui-i-blank"></div>
     </draggable>
+
+    <div class="scrollControl" id="scrollControl">
+      <span class="scroll-button" id="scrollBtn"></span>
+    </div>
   </div>
 
 </template>
@@ -50,6 +55,8 @@ export default {
     EventBus.on(events.LANE_UPDATED, this.getLanes);
 
     this.getLanes();
+
+    this.handleScroll()
   },
 
   data() {
@@ -101,11 +108,76 @@ export default {
     },
     handleSearch(filters) {
       this.filters = filters
+    },
+
+    handleScroll () {
+      this.$nextTick(() => {
+        const scrollBtn = document.getElementById('scrollBtn')
+        const scrollControl = document.getElementById('scrollControl')
+        const webview = document.getElementById('board')
+
+        //获取最大位置
+        const nMax = scrollControl.offsetWidth - scrollBtn.offsetWidth;
+
+        scrollBtn.addEventListener('mousedown', function (event) {
+          this.style.opacity = 1
+          const initX = event.clientX
+          const initLeft = this.offsetLeft
+
+          document.onmousemove = (el) => {
+            el.preventDefault()
+            let x = el.clientX - initX + initLeft
+
+            if (x >= nMax) {
+              x = nMax
+            }
+
+            if(x <= 0){
+              x = 0
+            }
+            this.style.left = x + 'px'
+            const scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
+            webview.scrollLeft = scrollLeft
+            console.log(webview.scrollWidth);
+
+          }
+
+          document.onmouseup = (event) => {
+            document.onmousemove = null;
+            document.onmouseup = null;
+            this.style.opacity = 0.3
+          }
+        })
+      })
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-
+.kanban-page {
+  // position: relative;
+  .scrollControl{
+    display: none;
+    width: 200px;
+    height: 10px;
+    background: #ccc;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
+    .scroll-button {
+      display: inline;
+      width: 20px;
+      height: 14px;
+      background: rgb(23, 109, 240);
+      position: absolute;
+      top: -2px;
+      left: 0;
+      border-radius: 7px;
+      opacity: 0.3;
+    }
+  }
+}
 </style>
