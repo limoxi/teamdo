@@ -30,7 +30,7 @@
       <div class="aui-i-tags">
         <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
         <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
-        <Badge v-for="tag in task.tags" :color="tag.color" :text="tag.name" />
+        <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index" />
       </div>
       <div class="aui-i-users">
           <Tooltip v-if="!!assignor"

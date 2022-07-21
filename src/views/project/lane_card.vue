@@ -21,7 +21,6 @@
         v-model="tasks"
         item-key="id"
         :animation="200"
-        group="task"
         :disabled="false"
         ghostClass="ghost"
         chosenClass="chosen"
