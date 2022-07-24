@@ -27,6 +27,10 @@
       :projectId="selectUserInProject"
       :taskId="selectUserInTask"
   ></user-select-model>
+  <task-log-model
+      v-model:show="showTaskLogModel"
+      :task="modelTask"
+  ></task-log-model>
 </template>
 
 <script setup>
@@ -34,6 +38,7 @@ import TopFrame from '@/components/frame/top_frame';
 import ProjectHeader from '@/components/frame/header/project_header';
 import LaneModel from '@/components/model/lane_model';
 import TaskModel from '@/components/model/task_model';
+import TaskLogModel from '@/components/model/task_log_model';
 import UserSelectModel from '@/components/model/user_select_model';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
@@ -41,13 +46,14 @@ import {ref, provide, onMounted} from 'vue'
 
 const props = defineProps(['projectId', 'name'])
 let showTaskModel = ref(false)
+let showTaskLogModel = ref(false)
 let showLaneModel = ref(false)
 let showUserSelectModel = ref(false)
 let selectUserInProject = ref(0)
 let selectUserInTask = ref(0)
 let taskModelMode = ref('mod')
 let laneModelMode = ref('create')
-let modelTask = ref({})
+let modelTask = ref(null)
 let modelLane = ref({})
 
 onMounted(() => {
@@ -75,6 +81,11 @@ onMounted(() => {
     showTaskModel.value = true;
   });
 
+  EventBus.on(events.TASK_INSPECTING, task => {
+    modelTask.value = task;
+    showTaskLogModel.value = true;
+  });
+
   EventBus.on(events.SELECTING_USER, (projectId=0, taskId=0) => {
     selectUserInProject.value = projectId
     selectUserInTask.value = taskId
@@ -89,10 +100,11 @@ let project = ref({
   name: props.name,
   prefix: 'XXX',
   bots: [],
-  users: []
+  users: [],
+  tags: []
 })
 
-provide('project', project.value)
+provide('project', project)
 
 const getProject = () => {
   ProjectService.getProject(props.projectId).then(data => {
@@ -101,6 +113,7 @@ const getProject = () => {
     project.value.prefix = data.prefix
     project.value.users = data.users
     project.value.bots = data.bots
+    project.value.tags = data.tags
   })
 }
 

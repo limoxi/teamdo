@@ -6,11 +6,11 @@
         <Tag :color="importanceColor" @click="onCLickTaskNo">
           {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
-        <Tag v-if="task.status === '已完成'" color="success">已完成</Tag>
+        <Tag v-if="task.status === '已完成'">已完成</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
-        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit(task)"></Button>
+        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet" />
           <template #list>
@@ -44,15 +44,15 @@
             ></Avatar>
           </Tooltip>
         <Tooltip v-else content="添加执行人"
-                 placement="right" style="cursor: pointer" @click="onSelectAssignor">
+               placement="right" style="cursor: pointer" @click="onSelectAssignor">
           <Avatar
               icon="md-person"
           ></Avatar>
         </Tooltip>
       </div>
       <div class="aui-i-time">
-        <Icon type="md-paper" v-if="task.desc.length > 0"/>
-        {{ formatTime(task.updated_at) }}
+        <Icon type="md-paper" v-if="task.has_desc"/>
+        <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
       </div>
     </div>
   </div>
@@ -60,15 +60,12 @@
 
 <script setup>
 
-import moment from 'moment'
-import 'moment/dist/locale/zh-cn';
+import helper from '@/utils/helper';
 import TaskService from '@/service/task_service';
 import {events, EventBus} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Message, Copy, Checkbox, Badge, Tooltip, Space} from 'view-ui-plus'
+import {Message, Copy, Checkbox, Badge, Tooltip, Button} from 'view-ui-plus'
 import {ref, computed, inject, onMounted} from "vue";
-
-moment.locale('zh-cn');
 
 onMounted(() => {
   EventBus.on(events.SWITCH_TASK_MODE, m => {
@@ -88,7 +85,7 @@ onMounted(() => {
 let mode = ref('NORMAL')
 let taskSelected = ref(false)
 const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
-const project = inject('project')
+const project = inject('project').value
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
   let imp = props.task.importance;
@@ -139,10 +136,6 @@ const taskNo = `${project.prefix}${props.task.id}`
 
 const onSelectChange = checked => {
   EventBus.emit(events.TASK_CHECKED, props.task, checked)
-}
-
-const formatTime = (timeStr) => {
-  return moment(timeStr, 'YYYY-MM-DD HH:mm:ss').calendar()
 }
 
 const onCLickTaskNo = () => {
@@ -197,12 +190,16 @@ const switchLane = (targetLaneId) => {
   });
 }
 
-const onClickEdit = (selectedTask) => {
-  TaskService.getTask(project.id, selectedTask.id).then(task => {
+const onClickEdit = () => {
+  TaskService.getTask(project.id, props.task.id).then(task => {
     EventBus.emit(events.TASK_EXPANDED, task);
   }).catch(err => {
     Message.error(err.errMsg);
   });
+}
+
+const onClickLog = () => {
+  EventBus.emit(events.TASK_INSPECTING, props.task);
 }
 
 const onSelectAssignor = () => {
@@ -253,6 +250,7 @@ const onSelectAssignor = () => {
   }
 
   .aui-i-body {
+    margin-top: 5px;
     font-size: 14px;
     display: flex;
     justify-content: flex-start;
@@ -280,6 +278,9 @@ const onSelectAssignor = () => {
       bottom: 2px;
       right: 10px;
       font-size: 10px;
+      i{
+        margin-right: 5px;
+      }
     }
   }
 

@@ -70,7 +70,7 @@ import {FormItem, Message, Option} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
 import Editor from "../editor/editor";
 
-const project = inject('project')
+const project = inject('project').value
 const props = defineProps(['show', 'tasks'])
 const emit = defineEmits(['update:show'])
 const form = ref(null)

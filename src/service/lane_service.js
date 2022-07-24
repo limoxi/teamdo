@@ -76,7 +76,7 @@ class LaneService {
     })
   }
 
-  static getTasks(projectId, laneId, filters = {}) {
+  static getTasks(projectId, laneId, filters = {}, curPage=1, pageSize=50) {
     return Resource.get({
       'resource': 'project.lane.tasks',
       'data': {
@@ -86,7 +86,9 @@ class LaneService {
           'with_users': true,
           'with_tags': true
         },
-        'filters': filters
+        'filters': filters,
+        'cur_page': curPage,
+        'page_size': pageSize
       }
     })
   }

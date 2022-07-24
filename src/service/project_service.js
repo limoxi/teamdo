@@ -26,7 +26,8 @@ class ProjectService {
         'id': id,
         'with_options':{
           'with_users': true,
-          'with_bots': true
+          'with_bots': true,
+          'with_tags':true
         }
       }
     });

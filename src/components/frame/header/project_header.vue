@@ -9,6 +9,7 @@
 <!--        <MenuItem name="tasks">用户故事</MenuItem>-->
 <!--        <MenuItem name="state">统计</MenuItem>-->
         <MenuItem name="members">成员</MenuItem>
+        <MenuItem name="tags">标签</MenuItem>
 <!--        <MenuItem name="settings">管理</MenuItem>-->
       </Menu>
     </div>

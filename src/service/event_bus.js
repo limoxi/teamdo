@@ -35,7 +35,7 @@ const events = {
   'TASK_REMOVED': 'taskRemoved', // 任务被移除泳道
   'TASK_UNDO': 'taskUndo', // 任务被回退到任务池中
   'TASK_SWITCHED': 'taskSwitched', // 任务流转
-  'SUB_TASK_ADDED': 'sub_task_added', // 添加子任务
+  'TASK_INSPECTING': 'taskInspecting', // 查看任务变动记录
   'USER_UPDATED': 'userUpdated', // 用户信息已更新
   'SELECTING_USER': 'selectingUser', // 选择用户
   'USER_SELECTED': 'userSelected', // 用户已选择

@@ -41,7 +41,6 @@ class TaskService {
       'project_id': projectId,
       'task_id': taskId,
       'with_options': {
-        'with_detail': true,
         'with_users': true,
         'with_tags': true
       }
@@ -63,7 +62,7 @@ class TaskService {
         'assignor_id': task.assignorId,
         'desc': task.desc,
         'task_type': task.type,
-        'tags': task.tags || []
+        'tag_ids': task.tagIds
       }
     })
   }
@@ -79,7 +78,7 @@ class TaskService {
         'importance': task.importance,
         'assignor_id': task.assignorId,
         'desc': task.desc,
-        'tags': task.tags || []
+        'tag_ids': task.tagIds
       }
     })
   }
@@ -127,14 +126,13 @@ class TaskService {
     })
   }
 
-  static getTaskLogs (projectId, taskId) {
+  static getTaskLogs(projectId, taskId) {
     return Resource.get({
       'resource': 'project.task.logs',
       'data': {
         'project_id': projectId,
         'task_id': taskId,
         'with_options': {
-          'with_task': true,
           'with_actor': true,
           'with_lane': true
         }

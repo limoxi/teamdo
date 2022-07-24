@@ -161,7 +161,7 @@ export default {
 .kanban-page {
   position: relative;
   .scrollControl{
-    // display: none;
+     display: none;
     width: 200px;
     height: 10px;
     background: #ccc;

@@ -26,6 +26,7 @@
     </template>
     <template v-else>
       <draggable
+          :id="nodeId"
           class="aui-i-tasks"
           v-model="tasks"
           item-key="id"
@@ -49,7 +50,7 @@
               :inLastLane="isLastLane"
           ></task-card>
         </template>
-        <div class="aui-i-blank"></div>
+        <div class="aui-i-blank">asdasdasd</div>
       </draggable>
     </template>
 
@@ -105,7 +106,9 @@ export default {
     return {
       showLaneModel: false,
       loadingTasks:true,
-      tasks: []
+      tasks: [],
+      drag: false,
+      hasNext: true
     }
   },
   components: {
@@ -121,6 +124,9 @@ export default {
     }
   },
   computed: {
+    nodeId() {
+      return `d_l_${this.lane.id}`
+    },
     className() {
       if (this.index === 0 || this.index === this.lanes.length - 1) {
         return 'aui-i-header';
@@ -143,13 +149,9 @@ export default {
   },
 
   methods: {
-    isFull() {
-      return this.tasks.length === this.lane.wip;
-    },
-
     getTasks(filters) {
-      LaneService.getTasks(this.projectId, this.lane.id, filters).then(data => {
-       this.tasks = data['tasks']
+      LaneService.getTasks(this.projectId, this.lane.id, filters).then(resp => {
+        this.tasks = resp['tasks']
         this.loadingTasks = false
       }).catch(err => {
         this.$Message.error(err.errMsg);
@@ -157,6 +159,11 @@ export default {
     },
 
     onListChange(event) {
+      if (event.from.id === this.nodeId) {
+        if (event.from.id !== event.to.id){
+          return
+        }
+      }
       const taskId = event.item.getAttribute('taskId')
       const targetTasks = [...event.to.children]
       let beforeTaskId

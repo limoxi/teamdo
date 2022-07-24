@@ -41,7 +41,7 @@ let defaultForm = {
   isEnd: false
 }
 const form = ref(defaultForm)
-const project = inject('project')
+const project = inject('project').value
 const props = defineProps(['show', 'mode', 'lane'])
 
 watch(props, (newV, oldV) => {

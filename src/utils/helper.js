@@ -1,3 +1,7 @@
+import moment from "moment";
+import 'moment/dist/locale/zh-cn';
+moment.locale('zh-cn');
+
 let storage = window.localStorage;
 
 class LocalStorage {
@@ -79,4 +83,7 @@ export default {
 
   storage: new LocalStorage(),
 
+  formatTime(timeStr) {
+    return moment(timeStr, 'YYYY-MM-DD HH:mm:ss').calendar()
+  }
 };

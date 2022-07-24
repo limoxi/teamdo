@@ -34,13 +34,13 @@
 <script setup>
 
 import {onMounted, ref, inject, computed} from "vue";
+import {colors} from '@/utils/constant'
 import TagService from "@/service/tag_service";
-const project = inject('project')
+const project = inject('project').value
 const props = defineProps({
   currentTags: Array
 })
 const emit = defineEmits(['onSelect', 'mouseover', 'mouseout'])
-const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
 
 let tags = ref([])
 let selectedTag = ref({})

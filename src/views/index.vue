@@ -100,6 +100,9 @@ export default {
     .aui-i-action {
       margin-top: 20px;
       font-size: 26px;
+      .ivu-btn-text{
+       color: #333 !important;
+      }
     }
   }
 }

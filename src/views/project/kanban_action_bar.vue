@@ -87,7 +87,7 @@ const members = ref([])
 const taskName = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
-const project = inject('project')
+const project = inject('project').value
 let selectModeOn = ref(false)
 let showShareModal = ref(false)
 

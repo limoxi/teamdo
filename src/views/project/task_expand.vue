@@ -2,7 +2,7 @@
   <div class="aui-task-expand">
     <Card v-for="task in subTasks" :key="task.id" class="aui-i-task">
       <p slot="title">
-        <Icon type="ios-paper"></Icon>
+        <Icon type="md-paper"></Icon>
         任务&nbsp;∙&nbsp;{{ task.name }}
       </p>
       <Button slot="extra" icon="md-qr-scanner" class="aui-icon-scale" @click="onClickExpand(task)"></Button>

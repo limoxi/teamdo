@@ -19,7 +19,7 @@ import helper from '@/utils/helper';
 import {ref, inject, onMounted} from "vue";
 import {Message, Modal} from 'view-ui-plus'
 
-const project = inject('project')
+const project = inject('project').value
 const members = ref([])
 const isManager = ref(false)
 const currentUserId = helper.storage.get('uid')
