@@ -82,9 +82,12 @@
         </div>
         <div class="task-log-list">
           <ul>
-            <li>
-              <span>创建了任务</span>
-              <span>周五</span>
+            <li v-for="record in taskLogs" :key="record.id">
+              <div class="">
+                <span>{{ record.actor.nickname }}</span>
+                <span>{{ record.action }}{{ record.to_lane ? `至${record.to_lane.name}` : '' }}</span>
+              </div>
+              <span>{{ record.actor.created_at }}</span>
             </li>
           </ul>
         </div>
@@ -197,6 +200,8 @@ const taskForm = ref(null)
 const projectUsers = ref([])
 let newTagName = ref('')
 
+const taskLogs = ref([])
+
 watch(props, (newVal, oldVal) => {
   if (newVal.mode === 'create'){
     taskForm.value.resetFields()
@@ -211,14 +216,27 @@ watch(props, (newVal, oldVal) => {
   form.value.desc = task.desc
 })
 
+watch(showModel, (newVal, oldVal) => {
+  if (newVal) {
+    getTaskLogs(props.projectId, props.task.id)
+  }
+})
+
 onMounted(() => {
   getProjectUsers()
+  // getTaskLogs()
 })
 
 const getProjectUsers = () => {
   ProjectService.getProjectMembers(props.projectId).then(users => {
     projectUsers.value = users
   })
+}
+
+const getTaskLogs = async () => {
+  const logs = await TaskService.getTaskLogs(props.projectId, props.task.id)
+  console.log(logs);
+  taskLogs.value = logs
 }
 
 const close = () => {
@@ -344,6 +362,7 @@ const handleDelete = () => {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            line-height: 30px;
           }
         }
       }

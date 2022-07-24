@@ -136,9 +136,12 @@ export default {
               x = 0
             }
             this.style.left = x + 'px'
-            const scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
+            let scrollLeft = 0
+            scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
+            if (x === nMax) {
+              scrollLeft = ((webview.scrollWidth - webview.clientWidth) * (x + scrollBtn.clientWidth)) / scrollControl.clientWidth
+            }
             webview.scrollLeft = scrollLeft
-            console.log(webview.scrollWidth);
 
           }
 
@@ -156,9 +159,9 @@ export default {
 
 <style lang="less" scoped>
 .kanban-page {
-  // position: relative;
+  position: relative;
   .scrollControl{
-    display: none;
+    // display: none;
     width: 200px;
     height: 10px;
     background: #ccc;
@@ -169,6 +172,7 @@ export default {
     border-radius: 5px;
     .scroll-button {
       display: inline;
+      cursor: pointer;
       width: 20px;
       height: 14px;
       background: rgb(23, 109, 240);

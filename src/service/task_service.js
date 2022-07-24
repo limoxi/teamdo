@@ -126,6 +126,21 @@ class TaskService {
       }
     })
   }
+
+  static getTaskLogs (projectId, taskId) {
+    return Resource.get({
+      'resource': 'project.task.logs',
+      'data': {
+        'project_id': projectId,
+        'task_id': taskId,
+        'with_options': {
+          'with_task': true,
+          'with_actor': true,
+          'with_lane': true
+        }
+      }
+    })
+  }
 }
 
 export default TaskService;
