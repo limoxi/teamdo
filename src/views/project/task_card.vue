@@ -1,9 +1,9 @@
 <template>
   <div :class="headerClasses" :taskId="task.id">
     <div class="aui-i-header">
-      <div class="aui-i-id">
+      <div>
         <Checkbox v-model="taskSelected" v-if="mode==='CHECKING'" @on-change="onSelectChange" />
-        <Tag :color="importanceColor" @click="onCLickTaskNo">
+        <Tag :color="importanceColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
         <Tag v-if="task.status === '已完成'">已完成</Tag>
@@ -52,6 +52,13 @@
       </div>
       <div class="aui-i-time">
         <Icon type="md-paper" v-if="task.has_desc"/>
+        <Tooltip v-if="task.sp > 0" placement="top" class="aui-i-sp">
+          <span>{{task.sp}}/{{task.passed_sp}}</span>
+          <template #content>
+            <p>期望的故事点：{{task.sp}}</p>
+            <p>耗费的故事点：{{task.passed_sp}}</p>
+          </template>
+        </Tooltip>
         <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
       </div>
     </div>
@@ -220,8 +227,6 @@ const onSelectAssignor = () => {
 
   &:hover {
     .aui-i-header {
-      .aui-i-id{
-      }
       .aui-i-action {
         display: inline-block;
       }
@@ -280,6 +285,10 @@ const onSelectAssignor = () => {
       font-size: 10px;
       i{
         margin-right: 5px;
+      }
+
+      .aui-i-sp{
+        margin: 0 5px;
       }
     }
   }

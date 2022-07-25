@@ -1,20 +1,22 @@
 <template>
   <Modal
       v-model="showModel"
-      :title="title"
-      style="top:10%"
+      style="top:8%"
       class="aui-task-model"
-      width="80%"
-      scrollable
+      width="65%"
+      :lock-scroll="true"
       footer-hide
       :mask-closable="false"
       :closable="false"
   >
-    <div class="aui-i-action-bar">
-      <Icon v-if="mode==='mod'" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete" />
-      <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit" />
-      <Icon type="md-close" class="aui-i-action-btn close" @click="close" />
-    </div>
+    <template #header>
+      <div class="aui-i-title">{{title}}</div>
+      <div class="aui-i-action-bar">
+        <Icon v-if="mode==='mod'" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete" />
+        <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit" />
+        <Icon type="md-close" class="aui-i-action-btn close" @click="close" />
+      </div>
+    </template>
       <Form ref="taskForm"
             @submit.prevent
             :model="form"
@@ -45,6 +47,19 @@
                 v-model="form.name"
                 placeholder="某人可以在何时何处做某事" style="width: 90%"></Input>
           </FormItem>
+          <FormItem label="故事点" prop="sp">
+            <InputNumber
+                v-model="form.sp"
+                :max="28"
+                :min="0"
+                :step="1"
+                :precision="0"
+            ></InputNumber>
+            <span class="aui-i-spRemark">
+              <Icon type="md-alert" />
+              故事点是一个相对数值，1个故事点可视为最多半天工作量
+            </span>
+          </FormItem>
           <FormItem label="执行者" prop="assignorId">
             <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
               <Option v-for="pu in project.users" :value="pu.id + ''" :key="pu.id">
@@ -52,7 +67,7 @@
                 {{ pu.nickname }}
               </Option>
             </Select>
-            <span v-if="!!task" class="aui-i-users">
+            <span v-if="userCount > 0" class="aui-i-users">
               <span>参与者({{userCount}})&nbsp;&nbsp;</span>
               <Tooltip :content="user.nickname" v-for="user in task.users" :key="user.id">
                 <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
@@ -80,7 +95,7 @@
             </Select>
           </FormItem>
           <FormItem label="描述" prop="desc">
-            <editor v-model:content="form.desc" :readonly="mode==='view'"></editor>
+            <editor ref="editorInst" :content="form.desc" :readonly="mode==='view'"></editor>
           </FormItem>
     </Form>
   </Modal>
@@ -146,6 +161,7 @@ let defaultForm = {
   type: 'REQ',
   name: '',
   importance: '0',
+  sp: 0,
   assignorId: '0',
   tags: [],
   desc: ''
@@ -154,6 +170,7 @@ let defaultForm = {
 const project = inject('project').value
 const form = ref(defaultForm)
 const taskForm = ref(null)
+const editorInst = ref()
 
 const projectTags = computed(() => {
   return project.tags
@@ -170,6 +187,7 @@ watch(props, (newVal, oldVal) => {
   form.value.type = task.type
   form.value.name = task.name
   form.value.importance = task.importance + ''
+  form.value.sp = task.sp
   form.value.assignorId = task.assignor_id + ''
   form.value.tags = task.tags || []
   form.value.desc = task.desc
@@ -193,8 +211,8 @@ const handleCloseTag = (tag) => {
 
 const actionDone = (eventName, ...data) => {
   EventBus.emit(eventName, ...data);
-  close()
   Message.success('操作成功');
+  close()
 }
 
 const handleSubmit = () => {
@@ -203,8 +221,9 @@ const handleSubmit = () => {
       const taskData = {
         type: form.value.type,
         name: form.value.name.replace(/\s+/g,""),
-        desc: form.value.desc,
+        desc: editorInst.value.getContent(),
         importance: form.value.importance * 1,
+        sp: form.value.sp,
         assignorId: form.value.assignorId * 1,
         tagIds: form.value.tags.map(tag => {
           return tag.id
@@ -246,8 +265,24 @@ const handleDelete = () => {
 
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .aui-task-model {
+  .aui-i-spRemark{
+    margin-left: 10px;
+    color: darkgrey;
+    font-size: smaller;
+    i{
+      vertical-align: baseline;
+    }
+  }
+  .ivu-modal-header{
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+    border-radius: 10px 10px 0 0;
+  }
+
   .aui-i-tagFilter{
     width: 150px;
   }

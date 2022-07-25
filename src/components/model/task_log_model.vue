@@ -5,32 +5,52 @@
       :title="title"
       :footer-hide="true"
   >
-    <Timeline>
-      <TimelineItem
-        v-for="log in logs" :key="log.id"
-      >
-        <p>
-          <Space>
-            <span>{{ helper.formatTime(log.created_at) }}</span>
-            <span>
+    <template v-if="loading">
+      <Skeleton class="aui-i-skeleton"
+          loading
+          animated
+          :title="false"
+          :paragraph="{ rows: 4, width: ['80%', '80%', '60%', '60%'] }"
+      />
+    </template>
+    <template v-else>
+      <div style="margin-bottom: 20px">
+        <Space split>
+          <span>参与人({{task.users.length}})</span>
+          <span>
+            <Tooltip :content="user.nickname" v-for="user in task.users" :key="user.id"  style="margin: 0 2px">
+            <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
+          </Tooltip>
+          </span>
+        </Space>
+      </div>
+      <Timeline>
+        <TimelineItem
+            v-for="log in logs" :key="log.id"
+        >
+          <p>
+            <Space>
+              <span>{{ helper.formatTime(log.created_at) }}</span>
+              <span>
               <Tooltip :content="log.actor.nickname">
                 <Avatar :src="log.actor.avatar||defaultAvatar" size="small"></Avatar>
               </Tooltip>
               {{ log.actor.nickname }}
             </span>
-            <span>{{ log.action }}</span>
-            <template v-if="log.from_lane_id===log.to_lane_id && log.to_lane_id>0">
-              <span>在 <strong>{{log.to_lane.name}}</strong></span>
-            </template>
-            <template v-else>
-              <span v-if="log.from_lane_id>0">从 <strong>{{log.from_lane.name}}</strong></span>
-              <span v-if="log.to_lane_id>0">到 <strong>{{log.to_lane.name}}</strong></span>
-            </template>
-          </Space>
-        </p>
-      </TimelineItem>
-      <TimelineItem v-if="finished">进行中...</TimelineItem>
-    </Timeline>
+              <span>{{ log.action }}</span>
+              <template v-if="log.from_lane_id===log.to_lane_id && log.to_lane_id>0">
+                <span>在 <strong>{{log.to_lane.name}}</strong></span>
+              </template>
+              <template v-else>
+                <span v-if="log.from_lane_id>0">从 <strong>{{log.from_lane.name}}</strong></span>
+                <span v-if="log.to_lane_id>0">到 <strong>{{log.to_lane.name}}</strong></span>
+              </template>
+            </Space>
+          </p>
+        </TimelineItem>
+        <TimelineItem v-if="!finished">进行中...</TimelineItem>
+      </Timeline>
+    </template>
   </Modal>
 </template>
 
@@ -43,6 +63,7 @@ import defaultAvatar from '@/images/default-avatar.webp';
 import helper from '@/utils/helper';
 
 const logs = ref([])
+const loading = ref(true)
 const project = inject('project').value
 const props = defineProps(['show', 'task'])
 const emit = defineEmits(['update:show'])
@@ -70,8 +91,10 @@ let showModal = computed({
 
 watch(props, (newV, oldV) => {
   if (!!newV.task && newV.show){
+    loading.value = true
     TaskService.getTaskLogs(project.id, props.task.id).then(data => {
       logs.value = data
+      loading.value = false
     }).catch(err => {
       Message.error(err.errMsg);
     });

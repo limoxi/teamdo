@@ -3,17 +3,15 @@
 </template>
 
 <script setup>
-import { Editor, rootCtx, defaultValueCtx, editorViewOptionsCtx } from '@milkdown/core';
-import { replaceAll, switchTheme } from '@milkdown/utils';
-import { listener, listenerCtx } from '@milkdown/plugin-listener';
+import { Editor, rootCtx, defaultValueCtx, editorViewCtx, serializerCtx, editorViewOptionsCtx } from '@milkdown/core';
+import { replaceAll } from '@milkdown/utils';
+import { listener } from '@milkdown/plugin-listener';
 import { VueEditor, useEditor } from '@milkdown/vue';
 import { nord } from '@milkdown/theme-nord';
 import { commonmark } from '@milkdown/preset-commonmark';
 import {watch} from "vue";
-import {Col} from "view-ui-plus";
 
 const props = defineProps(['readonly', 'content'])
-const emit = defineEmits(['update:content'])
 
 watch(props, (newVal, oldVal) => {
   const ed = getInstance()
@@ -29,15 +27,22 @@ const { editor, getInstance } = useEditor((root) =>
       .config((ctx) => {
         ctx.set(rootCtx, root)
         ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
-        ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-          emit('update:content', markdown)
-        })
         ctx.set(defaultValueCtx, props.content)
       })
       .use(nord)
       .use(commonmark)
       .use(listener)
 );
+
+const getContent = () => {
+  return getInstance().action(ctx => {
+    const view = ctx.get(editorViewCtx)
+    const s = ctx.get(serializerCtx)
+    return s(view.state.doc)
+  })
+}
+
+defineExpose({getContent})
 
 </script>
 

@@ -59,6 +59,7 @@ class TaskService {
         'project_id': parseInt(projectId),
         'name': task.name,
         'importance': task.importance,
+        'sp': task.sp,
         'assignor_id': task.assignorId,
         'desc': task.desc,
         'task_type': task.type,
@@ -76,6 +77,7 @@ class TaskService {
         'task_type': task.type,
         'name': task.name,
         'importance': task.importance,
+        'sp': task.sp,
         'assignor_id': task.assignorId,
         'desc': task.desc,
         'tag_ids': task.tagIds

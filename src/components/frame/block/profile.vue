@@ -1,6 +1,6 @@
 <template>
   <Dropdown :style="dropDownStyle" trigger="click" placement="bottom" @on-click="onClickItem">
-    <Avatar v-if="avatar" :src="avatar" style="transform: scale(1.2)"/>
+    <Avatar v-if="avatar" :src="avatar" class="aui-profile-avatar"/>
     <Avatar v-else style="background-color: #2d8cf0">{{nickname[0]}}</Avatar>
 
     <template #list>
@@ -82,5 +82,10 @@ export default {
 </script>
 
 <style scoped lang="less">
-
+.aui-profile-avatar{
+  transform: scale(1.2);
+  &:hover{
+    transform: scale(1.3);
+  }
+}
 </style>

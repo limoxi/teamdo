@@ -1,8 +1,8 @@
 <template>
   <div class="aui-kanban-action-bar">
     <div class="aui-i-left">
-      <Button type="text" @click="onSwitchMode">{{ selectModeOn ? '取消选择' : '选择任务' }}</Button>
-      <Button type="text" v-if="selectModeOn" @click="onClickShare">分享({{selectedTasks.length}})</Button>
+      <Button type="text" @click="onSwitchMode">{{ selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务' }}</Button>
+      <Button type="text" v-if="selectModeOn && selectedTasks.length > 0" @click="onClickShare">分享</Button>
       <Dropdown
           trigger="click"
           v-if="selectModeOn && selectedTasks.length > 0"
@@ -196,7 +196,7 @@ const onFreshTasks = () => {
   }
 
   .aui-i-filter {
-    width: 130px;
+    width: 135px;
     margin-left: 10px;
   }
 
