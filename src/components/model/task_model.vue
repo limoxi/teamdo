@@ -80,7 +80,7 @@
             </Select>
           </FormItem>
           <FormItem label="描述" prop="desc">
-            <editor :content="form.desc" :readonly="mode==='view'"></editor>
+            <editor v-model:content="form.desc" :readonly="mode==='view'"></editor>
           </FormItem>
     </Form>
   </Modal>
