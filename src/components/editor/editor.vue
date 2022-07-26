@@ -1,5 +1,6 @@
 <template>
-  <VueEditor :editor="editor" />
+  <VueEditor :editor="editor" @click="onClickEditor($event)"/>
+  <ImagePreview v-model="showImage" :preview-list="previewImages" />
 </template>
 
 <script setup>
@@ -9,16 +10,21 @@ import { listener } from '@milkdown/plugin-listener';
 import { VueEditor, useEditor } from '@milkdown/vue';
 import { nord } from '@milkdown/theme-nord';
 import { commonmark } from '@milkdown/preset-commonmark';
-import {watch} from "vue";
+import {ref, watch} from "vue";
 
 const props = defineProps(['readonly', 'content'])
+
+const showImage = ref(false)
+const previewImages = ref([])
 
 watch(props, (newVal, oldVal) => {
   const ed = getInstance()
   if(newVal.content) {
     ed.action(replaceAll(newVal.content))
+    previewImages.value = []
   } else {
     ed.action(replaceAll(''))
+    previewImages.value = []
   }
 })
 
@@ -33,6 +39,16 @@ const { editor, getInstance } = useEditor((root) =>
       .use(commonmark)
       .use(listener)
 );
+
+const onClickEditor = (e) => {
+  if (e.target.nodeName === 'IMG') {
+    const src = e.target.getAttribute('src')
+    if (src !== '') {
+      previewImages.value.unshift(src)
+      showImage.value = true
+    }
+  }
+}
 
 const getContent = () => {
   return getInstance().action(ctx => {

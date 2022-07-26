@@ -1,6 +1,7 @@
 class EventBus {
   constructor() {
     this.events = {};
+    this.keys = []
   }
 
   emit(eventName, ...data) {
@@ -11,7 +12,14 @@ class EventBus {
     }
   }
 
-  on(eventName, fn) {
+  on(eventName, fn, key='') {
+    console.log('================', this.keys)
+    if (key !== ''){
+      if (this.keys.includes(key)) {
+        return
+      }
+      this.keys.push(key)
+    }
     this.events[eventName] = this.events[eventName] || [];
     this.events[eventName].push(fn);
   }

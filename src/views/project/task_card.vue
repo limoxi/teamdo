@@ -55,8 +55,8 @@
         <Tooltip v-if="task.sp > 0" placement="top" class="aui-i-sp">
           <span>{{task.sp}}/{{task.passed_sp}}</span>
           <template #content>
-            <p>期望的故事点：{{task.sp}}</p>
-            <p>耗费的故事点：{{task.passed_sp}}</p>
+            <p>期望故事点：{{task.sp}}</p>
+            <p>实际故事点：{{task.passed_sp}}</p>
           </template>
         </Tooltip>
         <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
@@ -79,19 +79,21 @@ onMounted(() => {
     mode.value = m
     taskSelected.value = false
   })
-  EventBus.on(events.USER_SELECTED, (_, taskId, selectedUserId) => {
+  EventBus.on(events.USER_SELECTED, (mode, _, taskId, selectedUserId) => {
+    if (mode !== selectUserEventMode) return
     if (taskId !== props.task.id) return
     TaskService.setAssignorForTask(project.id, props.task.id, selectedUserId).then(() => {
       EventBus.emit(events.TASK_UPDATED, props.task.id, props.task.lane_id)
     }).catch(e => {
       Message.error(e.errMsg || '设置执行人失败')
     })
-  });
+  }, selectUserEventMode);
 })
 
 let mode = ref('NORMAL')
 let taskSelected = ref(false)
 const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
+const selectUserEventMode = 'selectTaskAssignor:'+props.task.id
 const project = inject('project').value
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
@@ -210,7 +212,7 @@ const onClickLog = () => {
 }
 
 const onSelectAssignor = () => {
-  EventBus.emit(events.SELECTING_USER, project.id, props.task.id)
+  EventBus.emit(events.SELECTING_USER, selectUserEventMode, project.id, props.task.id)
 }
 
 </script>

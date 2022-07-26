@@ -28,7 +28,7 @@ import {events, EventBus} from '@/service/event_bus'
 import {ref, computed} from "vue";
 import {Message, Option} from "view-ui-plus";
 
-const props = defineProps(['show', 'projectId', 'taskId'])
+const props = defineProps(['show', 'projectId', 'taskId', 'mode'])
 const emit = defineEmits(['update:show'])
 let selectedUserId = ref(0)
 let users = ref([])
@@ -75,7 +75,7 @@ const searchUser = (nickname) => {
 }
 
 const onConfirmed = () => {
-  EventBus.emit(events.USER_SELECTED, props.projectId, props.taskId, selectedUserId.value)
+  EventBus.emit(events.USER_SELECTED, props.mode, props.projectId, props.taskId, selectedUserId.value)
   selectedUserId.value = 0
 }
 

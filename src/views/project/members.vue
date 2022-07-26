@@ -23,9 +23,11 @@ const project = inject('project').value
 const members = ref([])
 const isManager = ref(false)
 const currentUserId = helper.storage.get('uid')
+const eventMode = 'addProjectMember'
 
 onMounted(() => {
-  EventBus.on(events.USER_SELECTED, (_, __, selectedUserId) => {
+  EventBus.on(events.USER_SELECTED, (mode, _, __, selectedUserId) => {
+    if (mode !== eventMode) return
     if (selectedUserId === currentUserId) {
       Message.warning('用户已是项目成员');
       return
@@ -39,7 +41,7 @@ onMounted(() => {
     }).catch(err => {
       Message.error(err.errMsg);
     })
-  });
+  }, eventMode);
 
   getMembers()
 })
@@ -60,7 +62,7 @@ const getMembers = () => {
 }
 
 const onAddMember = () => {
-  EventBus.emit(events.SELECTING_USER);
+  EventBus.emit(events.SELECTING_USER, eventMode);
 }
 
 const onDeleteMember = (member) => {

@@ -28,6 +28,10 @@
         <TimelineItem
             v-for="log in logs" :key="log.id"
         >
+          <template v-if="['完成了任务', '开始了任务'].includes(log.action)" #dot>
+            <span v-if="log.action==='完成了任务'" class="aui-i-dot">🎉</span>
+            <span v-else-if="log.action==='开始了任务'" class="aui-i-dot">🚌</span>
+          </template>
           <p>
             <Space>
               <span>{{ helper.formatTime(log.created_at) }}</span>
@@ -111,5 +115,8 @@ const users = computed(() => {
 </script>
 
 <style scoped lang="less">
-
+.aui-i-dot{
+  font-size: 18px;
+  vertical-align: -webkit-baseline-middle;
+}
 </style>

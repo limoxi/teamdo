@@ -24,6 +24,7 @@
   ></task-model>
   <user-select-model
       v-model:show="showUserSelectModel"
+      :mode="selectUserMode"
       :projectId="selectUserInProject"
       :taskId="selectUserInTask"
   ></user-select-model>
@@ -51,6 +52,7 @@ let showLaneModel = ref(false)
 let showUserSelectModel = ref(false)
 let selectUserInProject = ref(0)
 let selectUserInTask = ref(0)
+let selectUserMode = ref('')
 let taskModelMode = ref('mod')
 let laneModelMode = ref('create')
 let modelTask = ref(null)
@@ -86,7 +88,8 @@ onMounted(() => {
     showTaskLogModel.value = true;
   });
 
-  EventBus.on(events.SELECTING_USER, (projectId=0, taskId=0) => {
+  EventBus.on(events.SELECTING_USER, (mode='', projectId=0, taskId=0) => {
+    selectUserMode.value = mode
     selectUserInProject.value = projectId
     selectUserInTask.value = taskId
     showUserSelectModel.value = true;
