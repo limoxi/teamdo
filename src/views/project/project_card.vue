@@ -41,9 +41,12 @@
 import {Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import defaultBotAvatar from '@/images/default-bot-avatar.png';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
 import {useRouter} from 'vue-router'
+import {inject} from "vue";
 const router = useRouter()
+
+const EventBus = inject('eventBus')
 
 const props = defineProps(['project'])
 

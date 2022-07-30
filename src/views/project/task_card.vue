@@ -23,7 +23,8 @@
             </DropdownMenu>
           </template>
         </Dropdown>
-        <Button icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
+        <Button v-if="!inLastLane"
+                icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>
     <div class="aui-i-body">
@@ -69,31 +70,44 @@
 
 import helper from '@/utils/helper';
 import TaskService from '@/service/task_service';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import {Message, Copy, Checkbox, Badge, Tooltip, Button} from 'view-ui-plus'
 import {ref, computed, inject, onMounted} from "vue";
+import {useModalStore} from '@/store'
+import {storeToRefs} from "pinia";
+
+const modalStore = useModalStore()
+const {userSelectModal} = storeToRefs(modalStore)
+
+const EventBus = inject('eventBus')
 
 onMounted(() => {
   EventBus.on(events.SWITCH_TASK_MODE, m => {
     mode.value = m
     taskSelected.value = false
+  }, eventMode)
+
+  modalStore.$subscribe((_, state) => {
+    const userSelectModal = state.userSelectModal
+    if (userSelectModal.userSelected) {
+      if (userSelectModal.taskId === props.task.id) {
+        TaskService.setAssignorForTask(project.id, props.task.id, userSelectModal.selectedUserId).then(() => {
+          EventBus.emit(events.TASK_UPDATED, props.task.id, props.task.lane_id)
+        }).catch(e => {
+          Message.error(e.errMsg || '设置执行人失败')
+        })
+      }
+    }
   })
-  EventBus.on(events.USER_SELECTED, (mode, _, taskId, selectedUserId) => {
-    if (mode !== selectUserEventMode) return
-    if (taskId !== props.task.id) return
-    TaskService.setAssignorForTask(project.id, props.task.id, selectedUserId).then(() => {
-      EventBus.emit(events.TASK_UPDATED, props.task.id, props.task.lane_id)
-    }).catch(e => {
-      Message.error(e.errMsg || '设置执行人失败')
-    })
-  }, selectUserEventMode);
 })
 
 let mode = ref('NORMAL')
 let taskSelected = ref(false)
 const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
-const selectUserEventMode = 'selectTaskAssignor:'+props.task.id
+
+const eventMode = 'selectTaskAssignor:'+props.task.id
+
 const project = inject('project').value
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
@@ -212,7 +226,10 @@ const onClickLog = () => {
 }
 
 const onSelectAssignor = () => {
-  EventBus.emit(events.SELECTING_USER, selectUserEventMode, project.id, props.task.id)
+  modalStore.show('userSelectModal', {
+    projectId: project.id,
+    taskId: props.task.id
+  })
 }
 
 </script>

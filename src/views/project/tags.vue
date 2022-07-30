@@ -36,7 +36,6 @@
 <script setup>
 import TagService from '@/service/tag_service';
 import {colors} from '@/utils/constant'
-import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import {ref, inject, onMounted, computed} from "vue";
 import {Message, Modal} from 'view-ui-plus'

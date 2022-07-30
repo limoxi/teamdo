@@ -4,9 +4,7 @@
     <div class="aui-i-menu">
       <Menu mode="horizontal" :theme="menuTheme" :active-name="activeName" @on-select="onMenuChanged">
         <MenuItem name="projects">项目</MenuItem>
-<!--        <MenuItem name="sprint">迭代</MenuItem>-->
         <MenuItem name="kanban">看板</MenuItem>
-<!--        <MenuItem name="tasks">用户故事</MenuItem>-->
 <!--        <MenuItem name="state">统计</MenuItem>-->
         <MenuItem name="members">成员</MenuItem>
         <MenuItem name="tags">标签</MenuItem>
@@ -22,52 +20,48 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
+import {ref, inject, onMounted} from "vue";
+import {useRouter} from 'vue-router'
+const router = useRouter()
 
-export default {
-  props: ['project'],
-  data: function () {
-    return {
-      menuTheme: localStorage.getItem('theme') || 'light',
-      activeName: this.getDefaultActiveName()
-    }
-  },
-  created() {
-    EventBus.on(events.THEME_CHANGED, newTheme => {
-      this.menuTheme = newTheme;
-    })
-  },
-  components: {
-    Logo,
-    Profile,
-    ThemeControl
-  },
-  methods: {
-    getDefaultActiveName() {
-      let defaultName = 'kanban';
-      let path = this.$route.path;
-      let splits = path.split('/');
-      let l = splits.length;
-      if (splits[l - 3] === 'project') {
-        defaultName = splits[l - 1];
+const EventBus = inject('eventBus')
+const props = defineProps(['project'])
+let menuTheme = ref('light')
+let activeName = ref('kanban')
+
+onMounted(() => {
+  menuTheme.value = localStorage.getItem('theme') || 'light'
+  activeName.value = getDefaultActiveName()
+
+  EventBus.on(events.THEME_CHANGED, newTheme => {
+    menuTheme.value = newTheme;
+  }, 'project_header')
+})
+
+const getDefaultActiveName = () => {
+  let defaultName = 'kanban';
+  let path = router.currentRoute.value.path;
+  let splits = path.split('/');
+  let l = splits.length;
+  if (splits[l - 3] === 'project') {
+    defaultName = splits[l - 1];
+  }
+  return defaultName;
+}
+const onMenuChanged = (name) => {
+  if (name !== activeName.value) {
+    activeName.value = name;
+    router.push({
+      name: name,
+      params: {
+        projectId: props.project.id
       }
-      return defaultName;
-    },
-    onMenuChanged(name) {
-      if (name !== this.activeName) {
-        this.activeName = name;
-        this.$router.push({
-          name: name,
-          params: {
-            projectId: this.project.id
-          }
-        });
-      }
-    }
+    });
   }
 }
 </script>

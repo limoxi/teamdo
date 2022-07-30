@@ -16,69 +16,59 @@
     ></password-model>
     <user-model
         v-model:show="showUserModel"
-        :user="{nickname, avatar}"
+        :user="{'nickname': nickname, 'avatar': avatar}"
         mode="update"
     ></user-model>
   </Dropdown>
 </template>
 
-<script>
+<script setup>
 import helper from '@/utils/helper';
 import PasswordModel from '../../model/password_model';
 import UserModel from '@/components/model/user_model';
-import {events, EventBus} from '@/service/event_bus'
 import Cookies from 'js-cookie';
+import {ref, inject, onMounted} from "vue";
+import { storeToRefs } from 'pinia';
+import {useUserStore} from '@/store/user'
+import {useRouter} from 'vue-router'
+const router = useRouter()
 
-export default {
-  beforeCreate() {
-    let token = Cookies.get('token');
-    if (!token) {
-      this.$router.replace({'name': 'login'})
-    }
+const dropDownStyle = 'margin-left: 20px;cursor: pointer;line-height:1.5'
 
-    EventBus.on(events.USER_UPDATED, (user) => {
-      this.nickname = user.nickname
-      this.avatar = user.avatar
-      helper.storage.set('nickname', user.nickname);
-      helper.storage.set('avatar', user.avatar);
-    })
-  },
-  data() {
-    return {
-      showPwdModel: false,
-      showUserModel: false,
-      dropDownStyle: 'margin-left: 20px;cursor: pointer;line-height:1.5',
-      nickname: helper.storage.get('nickname'),
-      avatar: helper.storage.get('avatar'),
-    }
-  },
-  components: {
-    PasswordModel,
-    UserModel
-  },
-  methods: {
-    onClickItem(name) {
-      if (name === 'modePwd') {
-        this.ShowPwdModel();
-      } else if (name === 'modeProfile') {
-        this.showEditProfileModel();
-      } else if (name === 'logout') {
-        this.logout();
-      }
-    },
-    ShowPwdModel() {
-      this.showPwdModel = true;
-    },
-    showEditProfileModel() {
-      this.showUserModel = true;
-    },
-    logout() {
-      Cookies.remove('token');
-      helper.storage.clear();
-      this.$router.replace({'name': 'index'})
-    }
+const userStore = useUserStore()
+const {nickname, avatar} = storeToRefs(userStore)
+
+let showPwdModel = ref(false)
+let showUserModel = ref(false)
+
+onMounted(() => {
+  let token = Cookies.get('token');
+  if (!token) {
+    router.replace({'name': 'index'})
+  }
+})
+
+const onClickItem = (name) => {
+  if (name === 'modePwd') {
+    ShowPwdModel();
+  } else if (name === 'modeProfile') {
+    showEditProfileModel();
+  } else if (name === 'logout') {
+    logout();
   }
 }
+const ShowPwdModel = () => {
+  showPwdModel.value = true
+}
+const showEditProfileModel = () => {
+  showUserModel.value = true;
+}
+const logout = () => {
+  Cookies.remove('token');
+  helper.storage.clear();
+  router.replace({'name': 'index'})
+}
+
 </script>
 
 <style scoped lang="less">

@@ -22,12 +22,7 @@
       :projectId="parseInt(projectId)"
       :task="modelTask"
   ></task-model>
-  <user-select-model
-      v-model:show="showUserSelectModel"
-      :mode="selectUserMode"
-      :projectId="selectUserInProject"
-      :taskId="selectUserInTask"
-  ></user-select-model>
+  <user-select-model />
   <task-log-model
       v-model:show="showTaskLogModel"
       :task="modelTask"
@@ -58,37 +53,40 @@ let laneModelMode = ref('create')
 let modelTask = ref(null)
 let modelLane = ref({})
 
+const eventBus = new EventBus()
+provide('eventBus', eventBus)
+
 onMounted(() => {
-  EventBus.on(events.LANE_ADDING, lane => {
+  eventBus.on(events.LANE_ADDING, lane => {
     laneModelMode.value = 'create';
     modelLane.value = lane
     showLaneModel.value = true;
   });
 
-  EventBus.on(events.LANE_EDITING, lane => {
+  eventBus.on(events.LANE_EDITING, lane => {
     laneModelMode.value = 'mod';
     modelLane.value = lane;
     showLaneModel.value = true;
   });
 
-  EventBus.on(events.TASK_ADDING, () => {
+  eventBus.on(events.TASK_ADDING, () => {
     taskModelMode.value = 'create';
     modelTask.value = {}
     showTaskModel.value = true;
   });
 
-  EventBus.on(events.TASK_EXPANDED, task => {
+  eventBus.on(events.TASK_EXPANDED, task => {
     taskModelMode.value = 'mod';
     modelTask.value = task;
     showTaskModel.value = true;
   });
 
-  EventBus.on(events.TASK_INSPECTING, task => {
+  eventBus.on(events.TASK_INSPECTING, task => {
     modelTask.value = task;
     showTaskLogModel.value = true;
   });
 
-  EventBus.on(events.SELECTING_USER, (mode='', projectId=0, taskId=0) => {
+  eventBus.on(events.SELECTING_USER, (mode='', projectId=0, taskId=0) => {
     selectUserMode.value = mode
     selectUserInProject.value = projectId
     selectUserInTask.value = taskId

@@ -40,120 +40,104 @@
 
 </template>
 
-<script>
+<script setup>
 import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneService from '@/service/lane_service';
+import {events} from '@/service/event_bus'
+import {ref, inject, onMounted, nextTick} from "vue";
+import {Message} from "view-ui-plus";
 
-import {events, EventBus} from '@/service/event_bus'
+const EventBus = inject('eventBus')
+const props = defineProps(['projectId'])
 
-export default {
-  props: ['projectId'],
+onMounted(() => {
+  EventBus.on(events.LANE_UPDATED, getLanes, 'kanban_bord');
+  getLanes();
+  handleScroll()
+})
 
-  created() {
-    EventBus.on(events.LANE_UPDATED, this.getLanes);
+let lanes = ref([])
+let drag = ref(false)
+let filters = ref(null)
 
-    this.getLanes();
+const onPressLeft = () =>{
+  document.getElementsByClassName('aui-board')[0].scrollLeft -= 500
+}
 
-    this.handleScroll()
-  },
+const onPressRight = () => {
+  document.getElementsByClassName('aui-board')[0].scrollLeft += 500
+}
 
-  data() {
-    return {
-      'lanes': [],
-      'dragOptions': {
-        animation: 200,
-        group: "description",
-        disabled: false,
-        ghostClass: "ghost",
-        chosenClass: "chosen",
-        handle: '.aui-board > .aui-lane > .aui-a-draggable'
-      },
-      'drag': false,
-      'chosenLane': null,
-      'filters': null
-    }
-  },
-  components: {
-    LaneCard,
-    ActionBar,
-    Draggable,
-  },
-  methods: {
-    onPressLeft(){
-      document.getElementsByClassName('aui-board')[0].scrollLeft -= 500
-    },
-    onPressRight(){
-      document.getElementsByClassName('aui-board')[0].scrollLeft += 500
-    },
-    onListChange(event) {
-      LaneService.resort(this.projectId, this.lanes).then(() => {
-        this.$Message.success('排序完成');
-      }).catch(err => {
-        console.error(err);
-        this.$Message.error('排序失败');
-      })
-    },
-    onDeleteLane(deletedLane) {
-      let laneIndex = this.lanes.findIndex(lane => {
-        return lane.id === deletedLane.id;
-      });
-      this.lanes.splice(laneIndex, 1);
-    },
-    getLanes() {
-      LaneService.getLanes(this.projectId).then(lanes => {
-        this.lanes = lanes;
-      });
-    },
-    handleSearch(filters) {
-      this.filters = filters
-    },
+const onListChange = () => {
+  LaneService.resort(props.projectId, lanes.value).then(() => {
+    Message.success('排序完成');
+  }).catch(err => {
+    console.error(err);
+    Message.error('排序失败');
+  })
+}
 
-    handleScroll () {
-      this.$nextTick(() => {
-        const scrollBtn = document.getElementById('scrollBtn')
-        const scrollControl = document.getElementById('scrollControl')
-        const webview = document.getElementById('board')
+const onDeleteLane = (deletedLane) => {
+  let laneIndex = lanes.value.findIndex(lane => {
+    return lane.id === deletedLane.id;
+  });
+  lanes.value.splice(laneIndex, 1);
+}
 
-        //获取最大位置
-        const nMax = scrollControl.offsetWidth - scrollBtn.offsetWidth;
+const getLanes = () => {
+  LaneService.getLanes(props.projectId).then(data => {
+    lanes.value = data
+  })
+}
 
-        scrollBtn.addEventListener('mousedown', function (event) {
-          this.style.opacity = 1
-          const initX = event.clientX
-          const initLeft = this.offsetLeft
+const handleSearch = (f) => {
+  filters.value = f
+}
 
-          document.onmousemove = (el) => {
-            el.preventDefault()
-            let x = el.clientX - initX + initLeft
+const handleScroll = () => {
+  nextTick(() => {
+    const scrollBtn = document.getElementById('scrollBtn')
+    const scrollControl = document.getElementById('scrollControl')
+    const webview = document.getElementById('board')
 
-            if (x >= nMax) {
-              x = nMax
-            }
+    //获取最大位置
+    const nMax = scrollControl.offsetWidth - scrollBtn.offsetWidth;
 
-            if(x <= 0){
-              x = 0
-            }
-            this.style.left = x + 'px'
-            let scrollLeft = 0
-            scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
-            if (x === nMax) {
-              scrollLeft = ((webview.scrollWidth - webview.clientWidth) * (x + scrollBtn.clientWidth)) / scrollControl.clientWidth
-            }
-            webview.scrollLeft = scrollLeft
+    scrollBtn.addEventListener('mousedown', function (event) {
+      this.style.opacity = 1
+      const initX = event.clientX
+      const initLeft = this.offsetLeft
 
-          }
+      document.onmousemove = (el) => {
+        el.preventDefault()
+        let x = el.clientX - initX + initLeft
 
-          document.onmouseup = (event) => {
-            document.onmousemove = null;
-            document.onmouseup = null;
-            this.style.opacity = 0.3
-          }
-        })
-      })
-    }
-  }
+        if (x >= nMax) {
+          x = nMax
+        }
+
+        if(x <= 0){
+          x = 0
+        }
+        this.style.left = x + 'px'
+        let scrollLeft = 0
+        scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
+        if (x === nMax) {
+          scrollLeft = ((webview.scrollWidth - webview.clientWidth) * (x + scrollBtn.clientWidth)) / scrollControl.clientWidth
+        }
+        webview.scrollLeft = scrollLeft
+
+      }
+
+      document.onmouseup = (event) => {
+        document.onmousemove = null;
+        document.onmouseup = null;
+        this.style.opacity = 0.3
+      }
+    })
+  })
 }
 </script>
 

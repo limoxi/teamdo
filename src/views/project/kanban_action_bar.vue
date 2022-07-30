@@ -72,7 +72,7 @@ import ProjectService from '@/service/project_service';
 import TaskService from "@/service/task_service"
 import {ref, computed, onMounted, inject, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {EventBus, events} from "@/service/event_bus"
+import {events} from "@/service/event_bus"
 import ShareTasksModal from '@/components/model/share_tasks_modal'
 import {Message} from "view-ui-plus"
 import helper from '@/utils/helper'
@@ -91,6 +91,8 @@ const project = inject('project').value
 let selectModeOn = ref(false)
 let showShareModal = ref(false)
 
+const EventBus = inject('eventBus')
+
 onMounted(() => {
   EventBus.on(events.TASK_CHECKED, (selectedTask, checked) => {
     if (checked) {
@@ -98,7 +100,7 @@ onMounted(() => {
     } else {
       helper.removeFromArray(selectedTask, selectedTasks.value, 'id')
     }
-  })
+  }, 'kanban_action_bar')
 
   getMembers()
 })

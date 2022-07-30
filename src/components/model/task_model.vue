@@ -102,13 +102,15 @@
 </template>
 <script setup>
 import TaskService from '@/service/task_service'
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/images/default-avatar.webp'
 import {ref, computed, watch, inject} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
+
+const EventBus = inject('eventBus')
 
 const ruleValidate = {
   name: [

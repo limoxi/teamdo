@@ -1,7 +1,7 @@
 <template>
   <top-frame>
     <template #header>
-      <a-header />
+      <Header />
     </template>
     <template #content>
       <template v-if="loadingProjects">
@@ -46,7 +46,7 @@
   ></bot-modal>
 </template>
 
-<script>
+<script setup>
 import TopFrame from '@/components/frame/top_frame';
 import Header from '@/components/frame/header/header';
 import ProjectModel from '@/components/model/project_model';
@@ -55,97 +55,88 @@ import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
+import {ref, onMounted, provide} from "vue";
+import {Message} from "view-ui-plus";
+const eventBus = new EventBus()
+provide('eventBus', eventBus)
 
-export default {
-  created() {
-    EventBus.on(events.CREATING_PROJECT, ()=>{
-      this.addProject()
-    })
-    EventBus.on(events.EDIT_PROJECT, (project)=>{
-      this.editProject(project)
-    })
-    EventBus.on(events.DELETE_PROJECT, (project)=>{
-      this.deleteProject(project)
-    })
+onMounted(() => {
+  eventBus.on(events.CREATING_PROJECT, ()=>{
+    addProject()
+  })
+  eventBus.on(events.EDIT_PROJECT, (project)=>{
+    editProject(project)
+  })
+  eventBus.on(events.DELETE_PROJECT, (project)=>{
+    deleteProject(project)
+  })
 
-    EventBus.on(events.ADD_BOT, (project)=>{
-      this.addBot(project)
-    })
-    EventBus.on(events.UPDATE_BOT, (project, bot)=>{
-      this.editBot(project, bot)
-    })
-    EventBus.on(events.DELETE_BOT, ()=>{
-      this.getProjects()
-    })
-    this.getProjects();
-  },
+  eventBus.on(events.ADD_BOT, (project)=>{
+    addBot(project)
+  })
+  eventBus.on(events.UPDATE_BOT, (project, bot)=>{
+    editBot(project, bot)
+  })
+  eventBus.on(events.DELETE_BOT, ()=>{
+    getProjects()
+  })
+  getProjects()
+})
 
-  data() {
-    return {
-      loadingProjects:true,
-      projects: [],
-      projectMode: 'create',
-      botMode: 'create',
-      editingProject: null,
-      editingBot: 0,
-      showModel: false,
-      showBotModel: false
-    }
-  },
-  components: {
-    TopFrame,
-    ProjectModel,
-    BotModal,
-    ProjectCard,
-    'a-header': Header
-  },
-  methods: {
-    addProject() {
-      this.projectMode = 'create'
-      this.showModel = true
-    },
+let loadingProjects = ref(true)
+let projects = ref([])
+let projectMode = ref('create')
+let botMode = ref('create')
+let editingProject = ref(null)
+let editingBot = ref(0)
+let showModel = ref(false)
+let showBotModel = ref(false)
 
-    editProject(project) {
-      this.projectMode = 'edit'
-      this.editingProject = project
-      this.showModel = true
-    },
-
-    deleteProject(project){
-      ProjectService.deleteProject(project.id).then(() => {
-        helper.removeFromArray(project, this.projects, 'id');
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      });
-    },
-
-    addBot(project) {
-      this.botMode = 'create'
-      this.editingProject = project
-      this.showBotModel = true
-    },
-
-    editBot(project, bot) {
-      this.botMode = 'edit'
-      this.editingProject = project
-      this.editingBot = bot
-      this.showBotModel = true
-    },
-
-    getProjects() {
-      ProjectService.getProjects().then(data => {
-        this.projects = data;
-        this.loadingProjects = false
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      });
-    },
-
-    onProjectUpdated() {
-      this.getProjects();
-    }
-  }
+const addProject = () => {
+  projectMode.value = 'create'
+  showModel.value = true
 }
+
+const editProject = (project) => {
+  projectMode.value = 'edit'
+  editingProject.value = project
+  showModel.value = true
+}
+
+const deleteProject = (project) => {
+  ProjectService.deleteProject(project.id).then(() => {
+    helper.removeFromArray(project, projects.value, 'id')
+  }).catch(err => {
+    Message.error(err.errMsg)
+  });
+}
+
+const addBot = (project) => {
+  botMode.value = 'create'
+  editingProject.value = project
+  showBotModel.value = true
+}
+
+const editBot = (project, bot) =>  {
+  botMode.value = 'edit'
+  editingProject.value = project
+  editingBot.value = bot
+  showBotModel.value = true
+}
+
+const getProjects = () => {
+  ProjectService.getProjects().then(data => {
+    projects.value = data;
+    loadingProjects.value = false
+  }).catch(err => {
+    Message.error(err.errMsg)
+  });
+}
+
+const onProjectUpdated = () => {
+  getProjects()
+}
+
 </script>
 
 <style lang="less" scoped>

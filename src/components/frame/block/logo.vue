@@ -6,22 +6,11 @@
 </template>
 
 <script>
-import {events, EventBus} from '@/service/event_bus'
 export default {
   data() {
     return {
       showHelp: false
     }
-  },
-  created() {
-    EventBus.on(events.HELP_REQUEST, helpText => {
-      console.log('bingo~', helpText);
-      this.showHelp = true;
-    });
-    EventBus.on('helpDone', () => {
-      console.log('see you~');
-      this.showHelp = false;
-    });
   },
   methods: {
     onClickLogo() {

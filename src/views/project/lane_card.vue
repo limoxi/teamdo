@@ -50,163 +50,146 @@
               :inLastLane="isLastLane"
           ></task-card>
         </template>
-        <div class="aui-i-blank">asdasdasd</div>
       </draggable>
     </template>
-
     </div>
 </template>
 
-<script>
+<script setup>
 import TaskCard from './task_card';
 import LaneService from '@/service/lane_service';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import Draggable from 'vuedraggable';
+import {ref, computed, inject, onMounted, watch} from "vue";
+import {Message, Modal} from "view-ui-plus";
 
-export default {
-  props: ['lane', 'projectId', 'lanes', 'index', 'filters'],
-  created() {
-    this.getTasks();
+const EventBus = inject('eventBus')
+const props = defineProps(['lane', 'projectId', 'lanes', 'index', 'filters'])
+const emit = defineEmits(['laneDeleted'])
 
-    EventBus.on(events.TASK_SWITCHED, (task, srcLaneId, destLaneId) => {
-      if (srcLaneId === this.lane.id) {
-        helper.removeFromArray(task, this.tasks, 'id');
-      }
-
-      if (destLaneId === this.lane.id) {
-        this.tasks.unshift(task);
-      }
-    });
-
-    EventBus.on(events.TASK_REMOVED, (task, laneId) => {
-      if (laneId === this.lane.id) {
-        helper.removeFromArray(task, this.tasks, 'id');
-      }
-    });
-
-    EventBus.on(events.TASK_ADDED, (taskId, laneId) => {
-      if (laneId === this.lane.id) {
-        this.getTasks()
-      }
-    });
-
-    EventBus.on(events.TASK_UPDATED, (taskId, laneId) => {
-      if (laneId === this.lane.id) {
-        this.getTasks()
-      }
-    });
-
-    EventBus.on(events.REFRESH_LANE_TASKS, () => {
-      this.getTasks()
-    });
-  },
-
-  data() {
-    return {
-      showLaneModel: false,
-      loadingTasks:true,
-      tasks: [],
-      drag: false,
-      hasNext: true
+onMounted(() => {
+  getTasks()
+  EventBus.on(events.TASK_SWITCHED, (task, srcLaneId, destLaneId) => {
+    if (srcLaneId === props.lane.id) {
+      helper.removeFromArray(task, tasks.value, 'id');
     }
-  },
-  components: {
-    TaskCard,
-    Draggable
-  },
-  watch: {
-    filters: {
-      handler(filters) {
-        this.getTasks(filters)
-      },
-      deep: true
+
+    if (destLaneId === props.lane.id) {
+      tasks.value.unshift(task);
     }
-  },
-  computed: {
-    nodeId() {
-      return `d_l_${this.lane.id}`
-    },
-    className() {
-      if (this.index === 0 || this.index === this.lanes.length - 1) {
-        return 'aui-i-header';
-      } else {
-        return 'aui-i-header aui-a-draggable';
-      }
-    },
-    isFirstLane () {
-      if (this.lanes.length === 0) {
-        return true
-      }
-      return this.lanes[0].id === this.lane.id;
-    },
-    isLastLane () {
-      if (this.lanes.length === 0) {
-        return true
-      }
-      return this.lanes[this.lanes.length-1].id === this.lane.id;
+  }, nodeId.value);
+
+  EventBus.on(events.TASK_REMOVED, (task, laneId) => {
+    if (laneId === props.lane.id) {
+      helper.removeFromArray(task, tasks.value, 'id');
     }
-  },
+  }, nodeId.value);
 
-  methods: {
-    getTasks(filters) {
-      LaneService.getTasks(this.projectId, this.lane.id, filters).then(resp => {
-        this.tasks = resp['tasks']
-        this.loadingTasks = false
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      })
-    },
+  EventBus.on(events.TASK_ADDED, (taskId, laneId) => {
+    if (laneId === props.lane.id) {
+      getTasks()
+    }
+  }, nodeId.value);
 
-    onListChange(event) {
-      if (event.from.id === this.nodeId) {
-        if (event.from.id !== event.to.id){
-          return
-        }
-      }
-      const taskId = event.item.getAttribute('taskId')
-      const targetTasks = [...event.to.children]
-      let beforeTaskId
-      targetTasks.forEach((el, index) => {
-        if (el.getAttribute('taskId') === taskId) {
-          if (index < targetTasks.length - 1) {
-            beforeTaskId = targetTasks[index + 1].getAttribute('taskId')
-          }
-        }
-      })
-      LaneService.shuttledTask(this.projectId, parseInt(taskId), this.lane.id, parseInt(beforeTaskId)).then(() => {
-          // pass
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      })
-    },
+  EventBus.on(events.TASK_UPDATED, (taskId, laneId) => {
+    if (laneId === props.lane.id) {
+      getTasks()
+    }
+  }, nodeId.value);
 
-    onClickAction(name) {
-      if (name === 'add') {
-        EventBus.emit(events.LANE_ADDING, this.lane)
-      } else if (name === 'edit') {
-        EventBus.emit(events.LANE_EDITING, this.lane)
-      } else if (name === 'del') {
-        this.$Modal.confirm({
-          title: '删除泳道',
-          content: '<strong>确定要删除该泳道么？</strong><p>请在删除前清理掉泳道中的任务！！！</p>',
-          okText: '确认',
-          cancelText: '等一下',
-          onOk: () => {
-            LaneService.deleteLane(this.projectId, this.lane).then(() => {
-              this.$emit('laneDeleted', this.lane);
-            }).catch(err => {
-              this.$Message.error(err.errMsg);
-            });
-          }
-        });
-      }
-    },
+  EventBus.on(events.REFRESH_LANE_TASKS, () => {
+    getTasks()
+  }, nodeId.value);
+})
 
-    showTaskModel() {
-      EventBus.emit(events.TASK_ADDING);
+let loadingTasks = ref(true)
+let tasks = ref([])
+let drag = ref(false)
+
+watch(() => props.filters, (newV, oldV) => {
+  getTasks(newV)
+}, {deep: true})
+
+const nodeId = computed(() => `d_l_${props.lane.id}`)
+const className = computed(() => {
+  if (props.index === 0 || props.index === props.lanes.length - 1) {
+    return 'aui-i-header';
+  } else {
+    return 'aui-i-header aui-a-draggable';
+  }
+})
+
+const isFirstLane = computed(() => {
+  if (props.lanes.length === 0) {
+    return true
+  }
+  return props.lanes[0].id === props.lane.id;
+})
+
+const isLastLane = computed(() => {
+  if (props.lanes.length === 0) {
+    return true
+  }
+  return props.lanes[props.lanes.length-1].id === props.lane.id;
+})
+
+const getTasks = (filters) => {
+  LaneService.getTasks(props.projectId, props.lane.id, filters).then(resp => {
+    tasks.value = resp['tasks']
+    loadingTasks.value = false
+  }).catch(err => {
+    Message.error(err.errMsg);
+  })
+}
+
+const onListChange = (event) => {
+  if (event.from.id === nodeId.value) {
+    if (event.from.id !== event.to.id){
+      return
     }
   }
+  const taskId = event.item.getAttribute('taskId')
+  const targetTasks = [...event.to.children]
+  let beforeTaskId
+  targetTasks.forEach((el, index) => {
+    if (el.getAttribute('taskId') === taskId) {
+      if (index < targetTasks.length - 1) {
+        beforeTaskId = targetTasks[index + 1].getAttribute('taskId')
+      }
+    }
+  })
+  LaneService.shuttledTask(props.projectId, parseInt(taskId), props.lane.id, parseInt(beforeTaskId)).then(() => {
+    // pass
+  }).catch(err => {
+    Message.error(err.errMsg);
+  })
+}
+
+const onClickAction = (name) =>  {
+  if (name === 'add') {
+    EventBus.emit(events.LANE_ADDING, props.lane)
+  } else if (name === 'edit') {
+    EventBus.emit(events.LANE_EDITING, props.lane)
+  } else if (name === 'del') {
+    Modal.confirm({
+      title: '删除泳道',
+      content: '<strong>确定要删除该泳道么？</strong><p>请在删除前清理掉泳道中的任务！！！</p>',
+      okText: '确认',
+      cancelText: '等一下',
+      onOk: () => {
+        LaneService.deleteLane(props.projectId, props.lane).then(() => {
+          emit('laneDeleted', props.lane);
+        }).catch(err => {
+          Message.error(err.errMsg);
+        });
+      }
+    });
+  }
+}
+
+const showTaskModel = () => {
+  EventBus.emit(events.TASK_ADDING);
 }
 </script>
 

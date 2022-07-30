@@ -13,12 +13,12 @@ class EventBus {
   }
 
   on(eventName, fn, key='') {
-    console.log('================', this.keys)
     if (key !== ''){
-      if (this.keys.includes(key)) {
+      const k = `${eventName}${key}`
+      if (this.keys.includes(k)) {
         return
       }
-      this.keys.push(key)
+      this.keys.push(k)
     }
     this.events[eventName] = this.events[eventName] || [];
     this.events[eventName].push(fn);
@@ -56,5 +56,4 @@ const events = {
   'DELETE_BOT': 'deleteBot',  // 删除机器人
 }
 
-const eventBus = new EventBus()
-export {events, eventBus as EventBus};
+export {events, EventBus};

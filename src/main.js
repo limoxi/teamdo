@@ -1,4 +1,5 @@
 import {createApp} from 'vue'
+import {createPinia} from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './app.vue'
 import Routers from './router.js'
@@ -36,5 +37,6 @@ router.afterEach((to, from, next) => {
 const app = createApp(App)
 app
   .use(router)
+  .use(createPinia())
   .use(ViewUIPlus)
   .mount('#app')

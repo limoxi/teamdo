@@ -4,8 +4,8 @@
       <Icon class="aui-i-github" type="logo-github"/>&nbsp;&nbsp;Developed By Aix</a>
   </footer>
 </template>
-<script>
-export default {}
+<script setup>
+
 </script>
 
 <style lang="less">

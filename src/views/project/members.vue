@@ -1,7 +1,7 @@
 <template>
   <div class="aui-project-members">
     <member-card
-        v-for="member in members"
+        v-for="member in project.users"
         :key="member.id"
         :member="member"
         :project="project"
@@ -14,55 +14,48 @@
 <script setup>
 import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
-import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
-import {ref, inject, onMounted} from "vue";
+import {inject, onMounted, computed} from "vue";
 import {Message, Modal} from 'view-ui-plus'
+import {useUserStore, useModalStore} from '@/store'
+import {storeToRefs} from "pinia";
 
-const project = inject('project').value
-const members = ref([])
-const isManager = ref(false)
-const currentUserId = helper.storage.get('uid')
-const eventMode = 'addProjectMember'
+const userStore = useUserStore()
+const modalStore = useModalStore()
+const {userSelectModal} = storeToRefs(modalStore)
 
-onMounted(() => {
-  EventBus.on(events.USER_SELECTED, (mode, _, __, selectedUserId) => {
-    if (mode !== eventMode) return
-    if (selectedUserId === currentUserId) {
-      Message.warning('用户已是项目成员');
-      return
-    }
-    if (selectedUserId === 0) {
-      return
-    }
-    ProjectService.addMember(project.id, selectedUserId).then(() => {
-      Message.success('添加成员成功，正在刷新...');
-      getMembers();
-    }).catch(err => {
-      Message.error(err.errMsg);
-    })
-  }, eventMode);
+const project = inject('project')
 
-  getMembers()
+const isManager = computed(() => {
+  return project.value.users.filter(member => member.id === userStore.uid && member.is_manager).length > 0
 })
 
-const getMembers = () => {
-  ProjectService.getProjectMembers(project.id).then(data => {
-    members.value = data;
-    data.forEach(user => {
-      if (user.id === currentUserId) {
-        if (user.is_manager) {
-          isManager.value = true
-        }
+onMounted(() => {
+  modalStore.$subscribe((_, state) => {
+    const userSelectModal = state.userSelectModal
+    if (userSelectModal.userSelected) {
+      if (userSelectModal.selectedUserId > 0) {
+        ProjectService.addMember(project.value.id, userSelectModal.selectedUserId).then(() => {
+          Message.success('添加成员成功，正在刷新...');
+          refreshMembers();
+        }).catch(err => {
+          Message.error(err.errMsg);
+        })
       }
-    })
+    }
+  })
+})
+
+const refreshMembers = () => {
+  ProjectService.getProjectMembers(project.value.id).then(data => {
+    project.value.users = data
   }).catch(err => {
     Message.error(err.errMsg);
   });
 }
 
 const onAddMember = () => {
-  EventBus.emit(events.SELECTING_USER, eventMode);
+  modalStore.show('userSelectModal', {})
 }
 
 const onDeleteMember = (member) => {
@@ -72,8 +65,8 @@ const onDeleteMember = (member) => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      ProjectService.deleteMember(project.id, member.id).then(() => {
-        helper.removeFromArray(member, members.value, 'id');
+      ProjectService.deleteMember(project.value.id, member.id).then(() => {
+        helper.removeFromArray(member, project.value.users, 'id');
         Message.success('操作成功');
       }).catch(err => {
         Message.error(err.errMsg);

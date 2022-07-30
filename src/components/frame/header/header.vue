@@ -9,28 +9,19 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
+import {inject} from "vue";
 
-export default {
-  data: function () {
-    return {
-    }
-  },
-  components: {
-    'logo': Logo,
-    'profile': Profile,
-    'theme-control': ThemeControl
-  },
-  methods: {
-    addProject(){
-      EventBus.emit(events.CREATING_PROJECT)
-    }
-  }
+const EventBus = inject('eventBus')
+
+const addProject = () => {
+  EventBus.emit(events.CREATING_PROJECT)
 }
+
 </script>
 
 <style lang="less" scoped>

@@ -15,51 +15,45 @@
     </template>
   </Modal>
 </template>
-<script>
+<script setup>
 import UserService from '@/service/user_service';
-import helper from '@/utils/helper';
-import Cookies from "js-cookie";
+import {computed} from "vue";
+import {useUserStore} from '@/store/user'
+import {Message} from "view-ui-plus";
+import {useRouter} from 'vue-router'
 
-export default {
-  props: ['show'],
-  data() {
-    return {
-    }
-  },
-  computed: {
-    showModel: {
-      get() {
-        return this.show;
-      },
-      set(newValue) {
-        this.$emit('update:show', newValue);
-      }
-    }
-  },
-  methods: {
-    handleSubmit(valid, { phone, password }) {
-      if(!valid) {
-        return
-      }
-      UserService.doLogin(phone, password).then(data => {
-        helper.storage.set('uid', data.id);
-        helper.storage.set('nickname', data.nickname);
-        helper.storage.set('avatar', data.avatar);
-        Cookies.set('token', data.token);
+const router = useRouter()
+const userStore = useUserStore()
 
-        this.showModel = false;
-        this.$Message.success({
-          content: '登陆成功, 正在跳转页面...',
-          onClose: () => {
-            this.$router.replace({name: 'projects'});
-          }
-        })
-      }).catch(err => {
-        this.$Message.error(err.errMsg);
-      });
-    }
+const emit = defineEmits(['update:show'])
+const props = defineProps(['show'])
+let showModel = computed({
+  get() {
+    return props.show;
+  },
+  set(newValue) {
+    emit('update:show', newValue);
   }
+})
+
+const handleSubmit = (valid, { phone, password }) => {
+  if(!valid) {
+    return
+  }
+  UserService.doLogin(phone, password).then(data => {
+    userStore.updateLoginInfo(data)
+    showModel.value = false;
+    Message.success({
+      content: '登陆成功, 正在跳转页面...',
+      onClose: () => {
+        router.replace({name: 'projects'});
+      }
+    })
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
 }
+
 </script>
 
 <style scoped lang="less">

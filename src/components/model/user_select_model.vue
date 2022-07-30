@@ -1,16 +1,17 @@
 <template>
   <Modal
-      v-model="showModel"
+      v-model="userSelectModal.show"
       title="用户列表"
       width="300"
       @on-visible-change="onVisibleChange"
       @on-ok="onConfirmed"
   >
     <Select
-        v-model="selectedUserId"
+        ref="selector"
+        v-model="userSelectModal.selectedUserId"
         clearable
         filterable
-        :remote-method="searchUser"
+        @on-query-change="searchUser"
     >
       <Option :value="0">无</Option>
       <Option v-for="user in users" :value="user.id" :key="user.id">
@@ -24,35 +25,31 @@
 import ProjectService from "@/service/project_service";
 import UserService from '@/service/user_service';
 import defaultAvatar from '@/images/default-avatar.webp'
-import {events, EventBus} from '@/service/event_bus'
-import {ref, computed} from "vue";
+import {ref} from "vue";
 import {Message, Option} from "view-ui-plus";
+import {useModalStore} from '@/store'
+import {storeToRefs} from "pinia";
 
-const props = defineProps(['show', 'projectId', 'taskId', 'mode'])
+const name = 'userSelectModal'
+const modalStore = useModalStore()
+const {projectId, userSelectModal} = storeToRefs(modalStore)
+
+const selector = ref(null)
 const emit = defineEmits(['update:show'])
-let selectedUserId = ref(0)
 let users = ref([])
 
-let showModel = computed({
-  get() {
-    return props.show;
-  },
-  set(newValue) {
-    emit('update:show', newValue);
-  }
-})
 
 const onVisibleChange = (isShow) => {
   if (!isShow) return
-  if(props.projectId > 0) {
-    getProjectUsers(props.projectId)
+  if(projectId.value > 0) {
+    getProjectUsers(projectId.value)
   } else {
     getAllUsers()
   }
 }
 
-const getProjectUsers = (projectId) => {
-  ProjectService.getProjectMembers(projectId).then(members => {
+const getProjectUsers = (pid) => {
+  ProjectService.getProjectMembers(pid).then(members => {
     users.value = members
   }).catch(e => {
     Message.error(e.errMsg || '获取项目成员失败')
@@ -69,14 +66,13 @@ const getAllUsers = () => {
 
 const searchUser = (nickname) => {
   if (nickname === '') {
-    return;
+    return users.value;
   }
   return users.value.filter(user => user.nickname === nickname)
 }
 
 const onConfirmed = () => {
-  EventBus.emit(events.USER_SELECTED, props.mode, props.projectId, props.taskId, selectedUserId.value)
-  selectedUserId.value = 0
+  userSelectModal.value.userSelected = true
 }
 
 </script>

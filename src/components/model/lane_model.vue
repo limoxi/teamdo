@@ -24,9 +24,11 @@
 
 <script setup>
 import LaneService from '@/service/lane_service';
-import {events, EventBus} from '@/service/event_bus'
+import {events} from '@/service/event_bus'
 import {ref, computed, inject, watch} from "vue";
 import {Message} from "view-ui-plus";
+
+const EventBus = inject('eventBus')
 
 const ruleValidate = {
   name: [
