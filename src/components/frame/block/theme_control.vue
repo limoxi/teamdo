@@ -1,33 +1,20 @@
 <template>
-  <div @click="onToggleTheme" :class="curTheme">
+  <div @click="configStore.switchTheme" :class="theme">
     {{ desc }}
     <Icon :type="btnType"/>
   </div>
 </template>
 
 <script setup>
-import {events} from '@/service/event_bus'
-import {ref, computed, inject, onMounted} from "vue";
+import {computed} from "vue";
+import {useConfigStore} from "@/store";
+import {storeToRefs} from "pinia";
 
-const EventBus = inject('eventBus')
-let curTheme = ref('light')
+const configStore = useConfigStore()
+const {theme} = storeToRefs(configStore)
 
-onMounted(() => {
-  curTheme.value = window.localStorage.getItem('theme') || 'light'
-})
-
-const btnType = computed(() => curTheme.value === 'light' ? 'md-moon' : 'md-sunny')
-const desc = computed(() => curTheme.value === 'light' ? '关灯' : '开灯')
-
-const onToggleTheme = () => {
-  if (curTheme.value === 'light') {
-    curTheme.value = 'dark'
-  } else {
-    curTheme.value = 'light'
-  }
-  window.localStorage.setItem('theme', curTheme.value);
-  EventBus.emit(events.THEME_CHANGED, curTheme.value);
-}
+const btnType = computed(() => theme.value === 'light' ? 'md-moon' : 'md-sunny')
+const desc = computed(() => theme.value === 'light' ? '关灯' : '开灯')
 
 </script>
 

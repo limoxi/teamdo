@@ -30,7 +30,7 @@
       </FormItem>
 
       <FormItem label="任务" prop="tasks">
-        <editor v-if="showModel" v-model:content="shareData.content"></editor>
+        <editor ref="editorInst" :content="shareData.content"></editor>
       </FormItem>
 
       <FormItem label="机器人" prop="botId">
@@ -70,6 +70,7 @@ import {FormItem, Message, Option} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
 import Editor from "../editor/editor";
 
+const editorInst = ref()
 const project = inject('project').value
 const props = defineProps(['show', 'tasks'])
 const emit = defineEmits(['update:show'])
@@ -131,7 +132,7 @@ const onChangeAtMode = (selectedMode) => {
 const onSubmit = () => {
   form.value.validate((valid) => {
     if (valid) {
-      let content = shareData.value.content
+      let content = editorInst.value.getContent()
       if (shareData.value.atMode === 'multi') {
         props.tasks.forEach(task => {
           task.users.forEach(user => {

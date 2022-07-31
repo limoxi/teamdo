@@ -15,7 +15,7 @@
       <template v-else>
         <ul class="aui-projects" v-if="projects.length > 0">
           <li v-for="project in projects" :key="project.id">
-            <project-card :project="project"></project-card>
+            <project-card :project="project" @on-delete="getProjects"></project-card>
           </li>
         </ul>
         <Result v-else type="warning" title="还没有任何项目">
@@ -30,16 +30,12 @@
     </template>
   </top-frame>
   <project-model
-      v-model:show="showModel"
-      @projectCreated="onProjectUpdated"
-      @projectUpdated="onProjectUpdated"
-      :project="editingProject"
-      :mode="projectMode"
+      @on-submitted="getProjects"
   ></project-model>
   <bot-modal
       v-model:show="showBotModel"
-      @onSuccess="onProjectUpdated"
-      @onDelete="onProjectUpdated"
+      @onSuccess="getProjects"
+      @onDelete="getProjects"
       :projectId="editingProject ? editingProject.id : 0"
       :mode="botMode"
       :bot="editingBot"
@@ -57,20 +53,14 @@ import {events, EventBus} from '@/service/event_bus'
 import helper from '@/utils/helper';
 import {ref, onMounted, provide} from "vue";
 import {Message} from "view-ui-plus";
+import {useModalStore} from "@/store"
+
+const modalStore = useModalStore()
+
 const eventBus = new EventBus()
 provide('eventBus', eventBus)
 
 onMounted(() => {
-  eventBus.on(events.CREATING_PROJECT, ()=>{
-    addProject()
-  })
-  eventBus.on(events.EDIT_PROJECT, (project)=>{
-    editProject(project)
-  })
-  eventBus.on(events.DELETE_PROJECT, (project)=>{
-    deleteProject(project)
-  })
-
   eventBus.on(events.ADD_BOT, (project)=>{
     addBot(project)
   })
@@ -85,7 +75,6 @@ onMounted(() => {
 
 let loadingProjects = ref(true)
 let projects = ref([])
-let projectMode = ref('create')
 let botMode = ref('create')
 let editingProject = ref(null)
 let editingBot = ref(0)
@@ -93,22 +82,7 @@ let showModel = ref(false)
 let showBotModel = ref(false)
 
 const addProject = () => {
-  projectMode.value = 'create'
-  showModel.value = true
-}
-
-const editProject = (project) => {
-  projectMode.value = 'edit'
-  editingProject.value = project
-  showModel.value = true
-}
-
-const deleteProject = (project) => {
-  ProjectService.deleteProject(project.id).then(() => {
-    helper.removeFromArray(project, projects.value, 'id')
-  }).catch(err => {
-    Message.error(err.errMsg)
-  });
+  modalStore.show('projectModal')
 }
 
 const addBot = (project) => {
@@ -131,10 +105,6 @@ const getProjects = () => {
   }).catch(err => {
     Message.error(err.errMsg)
   });
-}
-
-const onProjectUpdated = () => {
-  getProjects()
 }
 
 </script>

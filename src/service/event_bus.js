@@ -26,12 +26,6 @@ class EventBus {
 }
 
 const events = {
-  'THEME_CHANGED': 'themeChanged', // 主题切换
-  'HELP_REQUEST': 'helpRequest',  // 打开帮助信息
-  'HELP_DONE': 'helpDone',  // 关闭帮助信息
-  'CREATING_PROJECT': 'creating_project',  // 创建项目
-  'EDIT_PROJECT':'edit_project',  // 修改项目
-  'DELETE_PROJECT': 'delete_project',  // 删除项目
   'LANE_ADDING': 'laneAdding', // 增加泳道
   'LANE_UPDATED': 'laneUpdated', // 泳道已更新
   'LANE_EDITING': 'LaneEditing', // 泳道信息编辑

@@ -38,17 +38,23 @@
 </template>
 
 <script setup>
-import {Modal} from 'view-ui-plus'
+import {Message, Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import defaultBotAvatar from '@/images/default-bot-avatar.png';
 import {events} from '@/service/event_bus'
 import {useRouter} from 'vue-router'
+import {useModalStore} from "@/store";
 import {inject} from "vue";
+import ProjectService from "@/service/project_service";
+import helper from '@/utils/helper';
+
+const modalStore = useModalStore()
 const router = useRouter()
 
 const EventBus = inject('eventBus')
 
 const props = defineProps(['project'])
+const emit = defineEmits(['onDelete'])
 
 const avatars = props.project.users.map(user => {
   return {
@@ -79,7 +85,9 @@ const onClickCard = () => {
 
 const onEdit = (e) => {
   e.stopPropagation();
-  EventBus.emit(events.EDIT_PROJECT, props.project)
+  modalStore.show('projectModal', {
+    project: props.project
+  })
 }
 
 const onDelete = (e) => {
@@ -90,7 +98,11 @@ const onDelete = (e) => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      EventBus.emit(events.DELETE_PROJECT, props.project)
+      ProjectService.deleteProject(props.project.id).then(() => {
+        emit('onDelete')
+      }).catch(err => {
+        Message.error(err.errMsg)
+      });
     }
   });
 }

@@ -13,13 +13,12 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {events} from '@/service/event_bus'
-import {inject} from "vue";
+import {useModalStore} from "@/store"
 
-const EventBus = inject('eventBus')
+const modalStore = useModalStore()
 
 const addProject = () => {
-  EventBus.emit(events.CREATING_PROJECT)
+  modalStore.show('projectModal')
 }
 
 </script>

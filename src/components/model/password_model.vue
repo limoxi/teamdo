@@ -2,9 +2,9 @@
   <Modal
       v-model="showModel"
       title="修改密码"
-      :width="365"
+      :width="400"
   >
-    <Form ref="form" :model="form" :rules="ruleValidate" :label-width="70">
+    <Form ref="form" :model="form" :rules="ruleValidate" :label-width="100">
       <FormItem label="旧密码" prop="oldPwd">
         <Input type="password" v-model="form.oldPwd" />
       </FormItem>
