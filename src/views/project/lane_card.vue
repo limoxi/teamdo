@@ -63,6 +63,9 @@ import helper from '@/utils/helper';
 import Draggable from 'vuedraggable';
 import {ref, computed, inject, onMounted, watch} from "vue";
 import {Message, Modal} from "view-ui-plus";
+import {useModalStore} from "@/store";
+
+const modalStore = useModalStore()
 
 const EventBus = inject('eventBus')
 const props = defineProps(['lane', 'projectId', 'lanes', 'index', 'filters'])
@@ -168,9 +171,17 @@ const onListChange = (event) => {
 
 const onClickAction = (name) =>  {
   if (name === 'add') {
-    EventBus.emit(events.LANE_ADDING, props.lane)
+    modalStore.show('laneModal', {
+      'projectId': props.projectId,
+      'lane': props.lane,
+      'mode': 'create'
+    })
   } else if (name === 'edit') {
-    EventBus.emit(events.LANE_EDITING, props.lane)
+    modalStore.show('laneModal', {
+      'projectId': props.projectId,
+      'lane': props.lane,
+      'mode': 'update'
+    })
   } else if (name === 'del') {
     Modal.confirm({
       title: '删除泳道',
@@ -179,7 +190,7 @@ const onClickAction = (name) =>  {
       cancelText: '等一下',
       onOk: () => {
         LaneService.deleteLane(props.projectId, props.lane).then(() => {
-          emit('laneDeleted', props.lane);
+          emit('onDeleted', props.lane);
         }).catch(err => {
           Message.error(err.errMsg);
         });

@@ -65,12 +65,17 @@ const avatars = props.project.users.map(user => {
 
 const onClickBot = (e, bot) => {
   e.stopPropagation()
-  EventBus.emit(events.UPDATE_BOT, props.project, bot)
+  modalStore.show('botModal', {
+    projectId: props.project.id,
+    bot: bot
+  })
 }
 
 const onAddBot = (e) => {
   e.stopPropagation()
-  EventBus.emit(events.ADD_BOT, props.project)
+  modalStore.show('botModal', {
+    projectId: props.project.id
+  })
 }
 
 const onClickCard = () => {

@@ -1,6 +1,6 @@
 <template>
   <Modal
-      v-model="showModel"
+      v-model="botModal.show"
       :title="title"
       width="500"
       @on-cancel="onCancel"
@@ -38,12 +38,15 @@
 <script setup>
 import ProjectService from '@/service/project_service'
 import defaultBotAvatar from '@/images/default-bot-avatar.png';
-import {ref, computed, watch} from "vue"
+import {ref, computed} from "vue"
 import {Message, Modal} from 'view-ui-plus'
 import Uploader from '@/components/uploader'
+import {useModalStore} from "@/store"
+import {storeToRefs} from "pinia";
 
-const props = defineProps(['show', 'mode', 'projectId', 'bot'])
-const emit = defineEmits(['update:show', 'onSuccess', 'onDelete'])
+const modalStore = useModalStore()
+const {projectId, botModal} = storeToRefs(modalStore)
+const emit = defineEmits(['onSubmitted'])
 const form = ref({
   avatar: defaultBotAvatar,
   name: '',
@@ -51,12 +54,14 @@ const form = ref({
   remark: ''
 })
 
-watch(props, (newVal, oldVal) => {
-  form.value.avatar = newVal.bot.avatar
-  form.value.name = newVal.bot.name
-  form.value.token = newVal.bot.token
-  form.value.remark = newVal.bot.remark
+modalStore.$subscribe((_, state) => {
+  const store = state.botModal
+  form.value.avatar = store.bot?.avatar || ''
+  form.value.name = store.bot?.name || ''
+  form.value.token = store.bot?.token || ''
+  form.value.remark = store.bot?.remark || ''
 })
+
 const botForm = ref(null)
 const ruleValidate = {
   name: [
@@ -68,35 +73,27 @@ const ruleValidate = {
 }
 
 let isCreateMode = computed(() => {
-  return props.mode === 'create'
+  return !botModal.value.bot
 })
 let title = computed(() => {
   return isCreateMode.value ? '添加机器人' : '编辑机器人';
-})
-let showModel = computed({
-  get() {
-    return props.show;
-  },
-  set(newValue) {
-    emit('update:show', newValue);
-  }
 })
 
 const onDelete = () => {
   Modal.confirm({
     title: '删除此机器人',
-    content: `确认删除机器人：${props.bot.name}么`,
+    content: `确认删除机器人：${botModal.value.bot?.name}么`,
     loading: true,
     onOk: () => {
       ProjectService.deleteBot(
-          props.projectId,
-          props.bot.id
+          projectId.value,
+          botModal.value.bot?.id
       ).then(() => {
         Message.success('删除成功');
         resetForm();
-        emit('onDelete');
+        emit('onSubmitted');
         Modal.remove()
-        showModel.value = false
+        botModal.value.show = false
       }).catch(err => {
         Message.error(err.errMsg);
       });
@@ -109,7 +106,7 @@ const onSubmit = () => {
     if (valid) {
       if (isCreateMode.value) {
         ProjectService.addBot(
-            props.projectId,
+            projectId.value,
             form.value.avatar,
             form.value.name,
             form.value.token,
@@ -117,23 +114,23 @@ const onSubmit = () => {
         ).then(() => {
           Message.success('添加成功');
           resetForm();
-          emit('onSuccess');
-          showModel.value = false
+          emit('onSubmitted');
+          botModal.value.show = false
         }).catch(err => {
           Message.error(err.errMsg);
         });
       } else {
         ProjectService.updateBot(
-            props.projectId,
-            props.bot.id,
+            projectId.value,
+            botModal.value.bot?.id,
             form.value.avatar,
             form.value.name,
             form.value.remark
         ).then(() => {
           Message.success('更新成功');
           resetForm();
-          emit('onSuccess');
-          showModel.value = false
+          emit('onSubmitted');
+          botModal.value.show = false
         }).catch(err => {
           Message.error(err.errMsg);
         });

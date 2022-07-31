@@ -21,7 +21,6 @@ const Routers = [{
   children: [{
     path: 'kanban',
     name: 'kanban',
-    props: true,
     component: () => import('@/views/project/kanban_board.vue')
   }, {
     path: 'members',

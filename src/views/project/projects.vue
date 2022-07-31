@@ -33,12 +33,7 @@
       @on-submitted="getProjects"
   ></project-model>
   <bot-modal
-      v-model:show="showBotModel"
-      @onSuccess="getProjects"
-      @onDelete="getProjects"
-      :projectId="editingProject ? editingProject.id : 0"
-      :mode="botMode"
-      :bot="editingBot"
+      @on-submitted="getProjects"
   ></bot-modal>
 </template>
 
@@ -49,8 +44,7 @@ import ProjectModel from '@/components/model/project_model';
 import BotModal from '@/components/model/bot_model';
 import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
-import {events, EventBus} from '@/service/event_bus'
-import helper from '@/utils/helper';
+import {EventBus} from '@/service/event_bus'
 import {ref, onMounted, provide} from "vue";
 import {Message} from "view-ui-plus";
 import {useModalStore} from "@/store"
@@ -61,41 +55,14 @@ const eventBus = new EventBus()
 provide('eventBus', eventBus)
 
 onMounted(() => {
-  eventBus.on(events.ADD_BOT, (project)=>{
-    addBot(project)
-  })
-  eventBus.on(events.UPDATE_BOT, (project, bot)=>{
-    editBot(project, bot)
-  })
-  eventBus.on(events.DELETE_BOT, ()=>{
-    getProjects()
-  })
   getProjects()
 })
 
 let loadingProjects = ref(true)
 let projects = ref([])
-let botMode = ref('create')
-let editingProject = ref(null)
-let editingBot = ref(0)
-let showModel = ref(false)
-let showBotModel = ref(false)
 
 const addProject = () => {
   modalStore.show('projectModal')
-}
-
-const addBot = (project) => {
-  botMode.value = 'create'
-  editingProject.value = project
-  showBotModel.value = true
-}
-
-const editBot = (project, bot) =>  {
-  botMode.value = 'edit'
-  editingProject.value = project
-  editingBot.value = bot
-  showBotModel.value = true
 }
 
 const getProjects = () => {

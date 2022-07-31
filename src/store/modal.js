@@ -17,6 +17,17 @@ export const useModalStore = defineStore('modal', () => {
     project: null
   })
 
+  let botModal = ref({
+    show: false,
+    bot: null
+  })
+
+  let laneModal = ref({
+    show: false,
+    lane: null,
+    mode: 'create'
+  })
+
   const show = (modalName, data=undefined) => {
     switch(modalName) {
       case 'userSelectModal':
@@ -30,6 +41,35 @@ export const useModalStore = defineStore('modal', () => {
         projectId.value = data?.project?.id || 0
         projectModal.value.project = data?.project || null
         projectModal.value.show = true
+        break
+      case 'botModal':
+        projectId.value = data.projectId || 0
+        botModal.value.bot = data.bot || null
+        botModal.value.show = true
+        break
+      case 'laneModal':
+        projectId.value = data.projectId || 0
+        laneModal.value.lane = data.lane || null
+        laneModal.value.mode = data.mode || 'create'
+        laneModal.value.show = true
+        break
+    }
+  }
+
+  const close = (modalName) => {
+    switch(modalName) {
+      case 'userSelectModal':
+        userSelectModal.value.show = false
+        break
+      case 'projectModal':
+        projectModal.value.show = false
+        break
+      case 'botModal':
+        botModal.value.show = false
+        break
+      case 'laneModal':
+        laneModal.value.show = false
+        break
     }
   }
 
@@ -37,6 +77,9 @@ export const useModalStore = defineStore('modal', () => {
     projectId,
     userSelectModal,
     projectModal,
-    show
+    botModal,
+    laneModal,
+    show,
+    close
   }
 })

@@ -26,8 +26,8 @@
           :index="index"
           :lane="element"
           :lanes="lanes"
-          :projectId="parseInt(projectId)"
-          @laneDeleted="onDeleteLane"
+          :projectId="project.id"
+          @on-deleted="onDeleteLane"
         />
       </template>
       <div class="aui-i-blank"></div>
@@ -38,22 +38,23 @@
     </div>
   </div>
 
+  <lane-model @on-submitted="getLanes"></lane-model>
+
 </template>
 
 <script setup>
 import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
+import LaneModel from '@/components/model/lane_model';
 import LaneService from '@/service/lane_service';
-import {events} from '@/service/event_bus'
 import {ref, inject, onMounted, nextTick} from "vue";
 import {Message} from "view-ui-plus";
+import helper from '@/utils/helper'
 
-const EventBus = inject('eventBus')
-const props = defineProps(['projectId'])
+const project = inject('project').value
 
 onMounted(() => {
-  EventBus.on(events.LANE_UPDATED, getLanes, 'kanban_bord');
   getLanes();
   handleScroll()
 })
@@ -71,7 +72,7 @@ const onPressRight = () => {
 }
 
 const onListChange = () => {
-  LaneService.resort(props.projectId, lanes.value).then(() => {
+  LaneService.resort(project.id, lanes.value).then(() => {
     Message.success('排序完成');
   }).catch(err => {
     console.error(err);
@@ -80,14 +81,11 @@ const onListChange = () => {
 }
 
 const onDeleteLane = (deletedLane) => {
-  let laneIndex = lanes.value.findIndex(lane => {
-    return lane.id === deletedLane.id;
-  });
-  lanes.value.splice(laneIndex, 1);
+  helper.removeFromArray(deletedLane, lanes.value, 'id');
 }
 
 const getLanes = () => {
-  LaneService.getLanes(props.projectId).then(data => {
+  LaneService.getLanes(project.id).then(data => {
     lanes.value = data
   })
 }

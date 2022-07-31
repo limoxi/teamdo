@@ -1,6 +1,6 @@
 <template>
   <Modal
-      v-model="showModel"
+      v-model="laneModal.show"
       :title="title"
       :width="350"
       @on-cancel="cancel"
@@ -12,7 +12,7 @@
       <FormItem label="WIP" prop="wip" v-if="!isCreateMode">
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
       </FormItem>
-      <FormItem label="终结泳道" prop="isEnd">
+      <FormItem label="终结泳道" prop="isEnd" v-if="!isCreateMode">
         <Switch v-model="form.isEnd" />
       </FormItem>
     </Form>
@@ -24,11 +24,14 @@
 
 <script setup>
 import LaneService from '@/service/lane_service';
-import {events} from '@/service/event_bus'
-import {ref, computed, inject, watch} from "vue";
+import {ref, computed, inject} from "vue";
 import {Message} from "view-ui-plus";
+import {useModalStore} from "@/store";
+import {storeToRefs} from "pinia";
 
-const EventBus = inject('eventBus')
+const modalStore = useModalStore()
+const {projectId, laneModal} = storeToRefs(modalStore)
+const emit = defineEmits(['onSubmitted'])
 
 const ruleValidate = {
   name: [
@@ -36,63 +39,47 @@ const ruleValidate = {
   ]
 }
 const laneForm = ref(null)
-let defaultForm = {
+const form = ref({
   id: 0,
   name: '',
   wip: 8,  // 默认
   isEnd: false
-}
-const form = ref(defaultForm)
-const project = inject('project').value
-const props = defineProps(['show', 'mode', 'lane'])
-
-watch(props, (newV, oldV) => {
-  if (newV.mode === 'create'){
-    resetForm()
-    form.value = defaultForm
-  } else {
-    form.value.id = newV.lane.id
-    form.value.name = newV.lane.name
-    form.value.wip = newV.lane.wip
-    form.value.isEnd = newV.lane.is_end
-  }
 })
-const emit = defineEmits(['update:show'])
+const project = inject('project').value
+
+modalStore.$subscribe((_, state) => {
+  const store = state.laneModal
+  form.value.id = store.lane?.id || 0
+  form.value.name = store.mode === 'create' ? '' : store.lane?.name || ''
+  form.value.wip = store.lane?.wip || 8
+  form.value.isEnd = store.lane?.is_end || false
+})
 
 const isCreateMode = computed(() => {
-  return props.mode === 'create'
+  return laneModal.value.mode === 'create'
 })
 
 const title = computed(() => {
   return isCreateMode.value ? '添加泳道' : '修改泳道'
 })
 
-let showModel = computed({
-  get() {
-    return props.show;
-  },
-  set(newValue) {
-    emit('update:show', newValue);
-  }
-})
-
 const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        LaneService.addLane(project.id, form.value.name, props.lane ? props.lane.id : 0).then(() => {
-          EventBus.emit(events.LANE_UPDATED);
+        LaneService.addLane(project.id, form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
+          emit('onSubmitted')
+          modalStore.close('laneModal')
           Message.success('泳道已添加');
-          showModel.value = false;
           resetForm();
         }).catch(err => {
           Message.error(err.errMsg);
         })
       } else {
         LaneService.updateLane(project.id, form.value).then(() => {
-          EventBus.emit(events.LANE_UPDATED);
+          emit('onSubmitted')
+          modalStore.close('laneModal')
           Message.success('更新成功');
-          showModel.value = false;
           resetForm();
         }).catch(err => {
           Message.error(err.errMsg);
