@@ -45,29 +45,25 @@ const ruleValidate = {
     {required: true, message: '名称不能为空', trigger: 'blur'}
   ]
 }
-const project = inject('project').value
-const tags = ref([])
+const project = inject('project')
+const tags = ref(project.value.tags || [])
 const showModel = ref(false)
 const mode = ref('create')
-const defaultForm = {
+const form = ref({
   id: 0,
   name: '',
   color: '#2b85e4'
-}
-const form = ref(defaultForm)
+})
 const tagForm = ref(null)
 
 const isCreateMode = computed(() => {
   return mode.value === 'create'
 })
 
-onMounted(() => {
-  getTags()
-})
-
 const getTags = () => {
-  TagService.getTagsForProject(project.id).then(data => {
-    tags.value = data;
+  TagService.getTagsForProject(project.value.id).then(data => {
+    tags.value = data
+    project.value.tags = data
   }).catch(err => {
     Message.error(err.errMsg);
   });
@@ -75,7 +71,9 @@ const getTags = () => {
 
 const onAddTag = () => {
   mode.value = 'create'
-  form.value = defaultForm
+  form.value.id = 0
+  form.value.name = ''
+  form.value.color = '#2b85e4'
   showModel.value = true
 }
 
@@ -94,10 +92,10 @@ const onDelete = (tag) => {
     loading: true,
     onOk: () => {
       TagService.deleteTag(
-          project.id,
+          project.value.id,
           tag.id
       ).then(() => {
-        helper.removeFromArray(tag, tags.value, 'id')
+        getTags()
         Message.success('删除成功');
         Modal.remove()
       }).catch(err => {
@@ -112,7 +110,7 @@ const onSubmit = () => {
     if (valid) {
       if (isCreateMode.value) {
         TagService.addTag(
-            project.id,
+            project.value.id,
             form.value.name,
             form.value.color
         ).then(() => {
@@ -123,7 +121,7 @@ const onSubmit = () => {
         });
       } else {
         TagService.updateTag(
-            project.id,
+            project.value.id,
             form.value.id,
             form.value.name,
             form.value.color
@@ -140,7 +138,9 @@ const onSubmit = () => {
 
 const resetForm = () => {
   showModel.value = false
-  form.value = defaultForm
+  form.value.id = 0
+  form.value.name = ''
+  form.value.color = '#2b85e4'
   tagForm.value.resetFields()
   getTags()
 }

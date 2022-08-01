@@ -49,10 +49,12 @@ const project = inject('project').value
 
 modalStore.$subscribe((_, state) => {
   const store = state.laneModal
-  form.value.id = store.lane?.id || 0
-  form.value.name = store.mode === 'create' ? '' : store.lane?.name || ''
-  form.value.wip = store.lane?.wip || 8
-  form.value.isEnd = store.lane?.is_end || false
+  if (store.show) {
+    form.value.id = store.lane?.id || 0
+    form.value.name = store.mode === 'create' ? '' : store.lane?.name || ''
+    form.value.wip = store.lane?.wip || 8
+    form.value.isEnd = store.lane?.is_end || false
+  }
 })
 
 const isCreateMode = computed(() => {

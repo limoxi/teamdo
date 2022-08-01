@@ -56,10 +56,12 @@ const form = ref({
 
 modalStore.$subscribe((_, state) => {
   const store = state.botModal
-  form.value.avatar = store.bot?.avatar || ''
-  form.value.name = store.bot?.name || ''
-  form.value.token = store.bot?.token || ''
-  form.value.remark = store.bot?.remark || ''
+  if (store.show) {
+    form.value.avatar = store.bot?.avatar || ''
+    form.value.name = store.bot?.name || ''
+    form.value.token = store.bot?.token || ''
+    form.value.remark = store.bot?.remark || ''
+  }
 })
 
 const botForm = ref(null)

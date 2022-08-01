@@ -93,8 +93,8 @@
               </Option>
             </Select>
           </FormItem>
-          <FormItem label="描述" prop="desc">
-            <editor ref="editorInst" :content="form.desc"></editor>
+          <FormItem label="详细描述" prop="desc">
+            <Editor ref="editorInst" :content="form.desc" />
           </FormItem>
     </Form>
   </Modal>
@@ -103,7 +103,7 @@
 import TaskService from '@/service/task_service'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/images/default-avatar.webp'
-import {ref, computed, watch, inject} from "vue";
+import {ref, computed, inject} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
@@ -138,7 +138,7 @@ const title = computed(() => {
 })
 
 const project = inject('project').value
-const form = ref({
+let form = ref({
   type: 'REQ',
   name: '',
   importance: '0',
@@ -157,13 +157,18 @@ let selectedTagId = ref('')
 
 modalStore.$subscribe((_, state) => {
   const store = state.taskModal
-  form.value.type = store.task?.type || 'REQ'
-  form.value.name = store.task?.name || ''
-  form.value.importance = (store.task?.importance || 0) + ''
-  form.value.sp = store.task?.sp || 0
-  form.value.assignorId = (store.task?.assignor_id || 0) + ''
-  form.value.tags = store.task?.tags || []
-  form.value.desc = store.task?.desc || ''
+  if (store.show) {
+    form.value.type = store.task?.type || 'REQ'
+    form.value.name = store.task?.name || ''
+    form.value.importance = (store.task?.importance || 0) + ''
+    form.value.sp = store.task?.sp || 0
+    form.value.assignorId = (store.task?.assignor_id || 0) + ''
+    form.value.tags = store.task?.tags || []
+    form.value.desc = store.task?.desc || ''
+
+    editorInst.value.resetContent(store.task?.desc || '')
+    selectedTagId.value = ''
+  }
 })
 
 const handleSelectTag = (selectedTag) => {

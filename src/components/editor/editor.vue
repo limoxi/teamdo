@@ -21,11 +21,10 @@ watch(props, (newVal, oldVal) => {
   const ed = getInstance()
   if(newVal.content) {
     ed.action(replaceAll(newVal.content))
-    previewImages.value = []
   } else {
     ed.action(replaceAll(''))
-    previewImages.value = []
   }
+  previewImages.value = []
 })
 
 const {editor, getInstance} = useEditor((root) =>
@@ -58,7 +57,12 @@ const getContent = () => {
   })
 }
 
-defineExpose({getContent})
+const resetContent = (content) => {
+  getInstance().action(replaceAll(content))
+  previewImages.value = []
+}
+
+defineExpose({getContent, resetContent})
 
 </script>
 

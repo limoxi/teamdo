@@ -47,11 +47,11 @@ const emit = defineEmits(['onSubmitted'])
 onMounted(() => {
   modalStore.$subscribe((_, state) => {
     const store = state.projectModal
-    if(store.project) {
-      form.value.id = store.project.id
-      form.value.name = store.project.name
-      form.value.prefix = store.project.prefix
-      form.value.desc = store.project.desc
+    if (store.show) {
+      form.value.id = store.project?.id || 0
+      form.value.name = store.project?.name || ''
+      form.value.prefix = store.project?.prefix || ''
+      form.value.desc = store.project?.desc || ''
     }
   })
 })
