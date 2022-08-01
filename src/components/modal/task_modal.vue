@@ -1,6 +1,6 @@
 <template>
   <Modal
-      v-model="showModel"
+      v-model="taskModal.show"
       style="top:8%"
       class="aui-task-model"
       width="65%"
@@ -12,7 +12,7 @@
     <template #header>
       <div class="aui-i-title">{{title}}</div>
       <div class="aui-i-action-bar">
-        <Icon v-if="mode==='mod'" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete" />
+        <Icon v-if="!isCreateMode" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete" />
         <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit" />
         <Icon type="md-close" class="aui-i-action-btn close" @click="close" />
       </div>
@@ -21,7 +21,6 @@
             @submit.prevent
             :model="form"
             :rules="ruleValidate"
-            :disabled="mode==='view'"
             :label-width="80"
         >
           <FormItem label="任务类型" prop="type" style="float: left">
@@ -95,22 +94,26 @@
             </Select>
           </FormItem>
           <FormItem label="描述" prop="desc">
-            <editor ref="editorInst" :content="form.desc" :readonly="mode==='view'"></editor>
+            <editor ref="editorInst" :content="form.desc"></editor>
           </FormItem>
     </Form>
   </Modal>
 </template>
 <script setup>
 import TaskService from '@/service/task_service'
-import {events} from '@/service/event_bus'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/images/default-avatar.webp'
 import {ref, computed, watch, inject} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
+import {useModalStore} from "@/store"
+import {storeToRefs} from "pinia";
 
-const EventBus = inject('eventBus')
+const modalStore = useModalStore()
+const {taskModal} = storeToRefs(modalStore)
+const task = computed(() => taskModal.value.task)
+const isCreateMode = computed(() => !task.value)
 
 const ruleValidate = {
   name: [
@@ -124,42 +127,18 @@ const ruleValidate = {
   ]
 }
 
-const props = defineProps({
-  show: Boolean,
-  mode: String,
-  task: Object,
-  laneId: Number,
-  projectId: Number
-})
-const emit = defineEmits(['update:show'])
-
-let showModel = computed({
-  get() {
-    return props.show;
-  },
-  set(newValue) {
-    emit('update:show', newValue);
-  }
-})
+const emit = defineEmits(['taskUpdated'])
 
 const userCount = computed(() => {
-  if(props.task && props.task.users){
-    return props.task.users.length
-  }
-  return 0
+  return (task.value?.users || []).length
 })
 
 const title = computed(() => {
-  let title = '';
-  if (props.mode === 'create') {
-    title = '添加任务';
-  } else {
-    title = '任务详情';
-  }
-  return title;
+  return task.value ? '任务详情' : '添加任务'
 })
 
-let defaultForm = {
+const project = inject('project').value
+const form = ref({
   type: 'REQ',
   name: '',
   importance: '0',
@@ -167,10 +146,7 @@ let defaultForm = {
   assignorId: '0',
   tags: [],
   desc: ''
-}
-
-const project = inject('project').value
-const form = ref(defaultForm)
+})
 const taskForm = ref(null)
 const editorInst = ref()
 
@@ -179,20 +155,15 @@ const projectTags = computed(() => {
 })
 let selectedTagId = ref('')
 
-watch(props, (newVal, oldVal) => {
-  selectedTagId.value = ''
-  if (newVal.mode === 'create'){
-    taskForm.value.resetFields()
-    return
-  }
-  const task = newVal.task
-  form.value.type = task.type
-  form.value.name = task.name
-  form.value.importance = task.importance + ''
-  form.value.sp = task.sp
-  form.value.assignorId = task.assignor_id + ''
-  form.value.tags = task.tags || []
-  form.value.desc = task.desc
+modalStore.$subscribe((_, state) => {
+  const store = state.taskModal
+  form.value.type = store.task?.type || 'REQ'
+  form.value.name = store.task?.name || ''
+  form.value.importance = (store.task?.importance || 0) + ''
+  form.value.sp = store.task?.sp || 0
+  form.value.assignorId = (store.task?.assignor_id || 0) + ''
+  form.value.tags = store.task?.tags || []
+  form.value.desc = store.task?.desc || ''
 })
 
 const handleSelectTag = (selectedTag) => {
@@ -204,15 +175,15 @@ const handleSelectTag = (selectedTag) => {
 }
 
 const close = () => {
-  showModel.value = false
+  modalStore.close('taskModal')
 }
 
 const handleCloseTag = (tag) => {
   helper.removeFromArray(tag, form.value.tags, 'id');
 }
 
-const actionDone = (eventName, ...data) => {
-  EventBus.emit(eventName, ...data);
+const actionDone = (...data) => {
+  emit('taskUpdated', ...data)
   Message.success('操作成功');
   close()
 }
@@ -231,16 +202,16 @@ const handleSubmit = () => {
           return tag.id
         })
       }
-      if (props.mode === 'create') {
-        TaskService.addTask(props.projectId * 1, taskData).then((data) => {
-          actionDone(events.TASK_ADDED, data.id, data.lane_id)
+      if (isCreateMode.value) {
+        TaskService.addTask(project.id, taskData).then((data) => {
+          actionDone(data.id, data.lane_id)
         }).catch(err => {
           Message.error(err.errMsg);
         });
       } else {
-        taskData.id = props.task.id
-        TaskService.updateTask(props.projectId * 1, taskData).then(() => {
-          actionDone(events.TASK_UPDATED, props.task.id, props.task.lane_id);
+        taskData.id = task.value.id
+        TaskService.updateTask(project.id * 1, taskData).then(() => {
+          actionDone(task.value.id, task.value.lane_id);
         }).catch(err => {
           Message.error(err.errMsg);
         });
@@ -252,12 +223,12 @@ const handleSubmit = () => {
 const handleDelete = () => {
   Modal.confirm({
     title: '删除任务',
-    content: `'<strong>确定要删除任务【${props.task.name}】么？</strong>'`,
+    content: `'<strong>确定要删除任务【${task.value.name}】么？</strong>'`,
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      TaskService.deleteTask(props.projectId * 1, props.task).then(() => {
-        actionDone(events.TASK_REMOVED, props.task, props.task.lane_id)
+      TaskService.deleteTask(project.id, task.value).then(() => {
+        actionDone(task.value.id, task.value.lane_id)
       }).catch(err => {
         Message.error(err.errMsg);
       });

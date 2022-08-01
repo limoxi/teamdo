@@ -13,19 +13,19 @@
         <Button type="text" :to='{name: "projects"}' v-if="showEntry">项目列表</Button>
       </div>
     </div>
-    <login-model v-model:show="showLogin"></login-model>
-    <user-model
+    <login-modal v-model:show="showLogin"></login-modal>
+    <user-modal
         v-model:show="showRegister"
         v-model:registered="showLogin"
         mode="register">
-    </user-model>
+    </user-modal>
   </div>
 </template>
 
 <script>
 
-import LoginModel from '../components/model/login_model';
-import UserModel from '../components/model/user_model';
+import LoginModal from '../components/modal/login_modal';
+import UserModal from '../components/modal/user_modal';
 import helper from '@/utils/helper';
 
 export default {
@@ -36,8 +36,8 @@ export default {
     }
   },
   components: {
-    'login-model': LoginModel,
-    'user-model': UserModel
+    LoginModal,
+    UserModal
   },
   computed: {
     showEntry() {

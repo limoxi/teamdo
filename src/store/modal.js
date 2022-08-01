@@ -5,27 +5,37 @@ import modal from "view-ui-plus/src/components/modal";
 export const useModalStore = defineStore('modal', () => {
 
   let projectId = ref(0)
-  let userSelectModal = ref({
+  const userSelectModal = ref({
     show: false,
     taskId: 0,
     userSelected: false,
     selectedUserId: null,
   })
 
-  let projectModal = ref({
+  const projectModal = ref({
     show: false,
     project: null
   })
 
-  let botModal = ref({
+  const botModal = ref({
     show: false,
     bot: null
   })
 
-  let laneModal = ref({
+  const laneModal = ref({
     show: false,
     lane: null,
     mode: 'create'
+  })
+
+  const taskModal = ref({
+    show: false,
+    task: null
+  })
+
+  const taskLogModal = ref({
+    show: false,
+    task: null
   })
 
   const show = (modalName, data=undefined) => {
@@ -53,6 +63,16 @@ export const useModalStore = defineStore('modal', () => {
         laneModal.value.mode = data.mode || 'create'
         laneModal.value.show = true
         break
+      case 'taskModal':
+        projectId.value = data.projectId || 0
+        taskModal.value.task = data.task || null
+        taskModal.value.show = true
+        break
+      case 'taskLogModal':
+        projectId.value = data.projectId || 0
+        taskLogModal.value.task = data.task || null
+        taskLogModal.value.show = true
+        break
     }
   }
 
@@ -70,6 +90,12 @@ export const useModalStore = defineStore('modal', () => {
       case 'laneModal':
         laneModal.value.show = false
         break
+      case 'taskModal':
+        taskModal.value.show = false
+        break
+      case 'taskLogModal':
+        taskLogModal.value.show = false
+        break
     }
   }
 
@@ -79,6 +105,8 @@ export const useModalStore = defineStore('modal', () => {
     projectModal,
     botModal,
     laneModal,
+    taskModal,
+    taskLogModal,
     show,
     close
   }

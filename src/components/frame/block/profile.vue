@@ -11,23 +11,23 @@
       </DropdownMenu>
     </template>
 
-    <password-model
+    <password-modal
         v-model:show="showPwdModel"
-    ></password-model>
-    <user-model
+    ></password-modal>
+    <user-modal
         v-model:show="showUserModel"
         :user="{'nickname': nickname, 'avatar': avatar}"
         mode="update"
-    ></user-model>
+    ></user-modal>
   </Dropdown>
 </template>
 
 <script setup>
 import helper from '@/utils/helper';
-import PasswordModel from '../../model/password_model';
-import UserModel from '@/components/model/user_model';
+import PasswordModal from '../../modal/password_modal';
+import UserModal from '@/components/modal/user_modal';
 import Cookies from 'js-cookie';
-import {ref, inject, onMounted} from "vue";
+import {ref, onMounted} from "vue";
 import { storeToRefs } from 'pinia';
 import {useUserStore} from '@/store/user'
 import {useRouter} from 'vue-router'

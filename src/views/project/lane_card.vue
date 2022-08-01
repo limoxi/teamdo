@@ -83,18 +83,6 @@ onMounted(() => {
     }
   }, nodeId.value);
 
-  EventBus.on(events.TASK_REMOVED, (task, laneId) => {
-    if (laneId === props.lane.id) {
-      helper.removeFromArray(task, tasks.value, 'id');
-    }
-  }, nodeId.value);
-
-  EventBus.on(events.TASK_ADDED, (taskId, laneId) => {
-    if (laneId === props.lane.id) {
-      getTasks()
-    }
-  }, nodeId.value);
-
   EventBus.on(events.TASK_UPDATED, (taskId, laneId) => {
     if (laneId === props.lane.id) {
       getTasks()
@@ -114,7 +102,7 @@ watch(() => props.filters, (newV, oldV) => {
   getTasks(newV)
 }, {deep: true})
 
-const nodeId = computed(() => `d_l_${props.lane.id}`)
+const nodeId = computed(() => `p_${props.projectId}_d_l_${props.lane.id}`)
 const className = computed(() => {
   if (props.index === 0 || props.index === props.lanes.length - 1) {
     return 'aui-i-header';
@@ -139,7 +127,7 @@ const isLastLane = computed(() => {
 
 const getTasks = (filters) => {
   LaneService.getTasks(props.projectId, props.lane.id, filters).then(resp => {
-    tasks.value = resp['tasks']
+    tasks.value = resp.tasks
     loadingTasks.value = false
   }).catch(err => {
     Message.error(err.errMsg);
@@ -200,7 +188,9 @@ const onClickAction = (name) =>  {
 }
 
 const showTaskModel = () => {
-  EventBus.emit(events.TASK_ADDING);
+  modalStore.show('taskModal', {
+    projectId: props.projectId
+  })
 }
 </script>
 

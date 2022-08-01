@@ -78,7 +78,7 @@ import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
-const {userSelectModal} = storeToRefs(modalStore)
+const {userSelectModal, taskModal} = storeToRefs(modalStore)
 
 const EventBus = inject('eventBus')
 
@@ -215,14 +215,19 @@ const switchLane = (targetLaneId) => {
 
 const onClickEdit = () => {
   TaskService.getTask(project.id, props.task.id).then(task => {
-    EventBus.emit(events.TASK_EXPANDED, task);
+    modalStore.show('taskModal', {
+      'projectId': project.id,
+      'task': task
+    })
   }).catch(err => {
     Message.error(err.errMsg);
   });
 }
 
 const onClickLog = () => {
-  EventBus.emit(events.TASK_INSPECTING, props.task);
+  modalStore.show('taskLogModal', {
+    task: props.task
+  })
 }
 
 const onSelectAssignor = () => {

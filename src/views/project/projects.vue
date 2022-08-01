@@ -29,9 +29,9 @@
       </template>
     </template>
   </top-frame>
-  <project-model
+  <project-modal
       @on-submitted="getProjects"
-  ></project-model>
+  ></project-modal>
   <bot-modal
       @on-submitted="getProjects"
   ></bot-modal>
@@ -40,8 +40,8 @@
 <script setup>
 import TopFrame from '@/components/frame/top_frame';
 import Header from '@/components/frame/header/header';
-import ProjectModel from '@/components/model/project_model';
-import BotModal from '@/components/model/bot_model';
+import ProjectModal from '@/components/modal/project_modal';
+import BotModal from '@/components/modal/bot_modal';
 import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
 import {EventBus} from '@/service/event_bus'

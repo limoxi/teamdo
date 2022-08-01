@@ -6,7 +6,7 @@
 <script setup>
 import { Editor, rootCtx, defaultValueCtx, editorViewCtx, serializerCtx, editorViewOptionsCtx } from '@milkdown/core';
 import { replaceAll } from '@milkdown/utils';
-import { listener } from '@milkdown/plugin-listener';
+import { listener, listenerCtx } from '@milkdown/plugin-listener';
 import { VueEditor, useEditor } from '@milkdown/vue';
 import { nord } from '@milkdown/theme-nord';
 import { commonmark } from '@milkdown/preset-commonmark';
@@ -28,7 +28,7 @@ watch(props, (newVal, oldVal) => {
   }
 })
 
-const { editor, getInstance } = useEditor((root) =>
+const {editor, getInstance} = useEditor((root) =>
   Editor.make()
       .config((ctx) => {
         ctx.set(rootCtx, root)

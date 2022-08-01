@@ -73,7 +73,7 @@ import TaskService from "@/service/task_service"
 import {ref, computed, onMounted, inject, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
 import {events} from "@/service/event_bus"
-import ShareTasksModal from '@/components/model/share_tasks_modal'
+import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
 import helper from '@/utils/helper'
 

@@ -1,7 +1,7 @@
 <template>
   <Modal
       style="top:10%"
-      v-model="showModal"
+      v-model="taskLogModal.show"
       :title="title"
       :footer-hide="true"
   >
@@ -16,9 +16,9 @@
     <template v-else>
       <div style="margin-bottom: 20px">
         <Space split>
-          <span>参与人({{task.users.length}})</span>
+          <span>参与人({{users.length}})</span>
           <span>
-            <Tooltip :content="user.nickname" v-for="user in task.users" :key="user.id"  style="margin: 0 2px">
+            <Tooltip :content="user.nickname" v-for="user in users" :key="user.id"  style="margin: 0 2px">
             <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
           </Tooltip>
           </span>
@@ -59,44 +59,40 @@
 </template>
 
 <script setup>
-
-import {ref, computed, inject, watch} from "vue";
+import {ref, computed, inject} from "vue";
 import {Message, Space} from "view-ui-plus";
 import TaskService from "@/service/task_service";
 import defaultAvatar from '@/images/default-avatar.webp';
 import helper from '@/utils/helper';
+import {useModalStore} from "@/store"
+import {storeToRefs} from "pinia";
+
+const modalStore = useModalStore()
+const {taskLogModal} = storeToRefs(modalStore)
 
 const logs = ref([])
 const loading = ref(true)
 const project = inject('project').value
-const props = defineProps(['show', 'task'])
-const emit = defineEmits(['update:show'])
+
 const finished = computed(() => {
-  if(!!props.task){
-    return !['未开始', '进行中'].includes(props.task.status)
+  if(!!taskLogModal.value.task){
+    return !['未开始', '进行中'].includes(taskLogModal.value.task.status)
   }
   return false
 })
 const title = computed(() => {
   let title = '任务变动记录'
-  if (!!props.task){
-    title += `- ${props.task.name}`
+  if (!!taskLogModal.value.task){
+    title += `- ${taskLogModal.value.task.name}`
   }
   return title
 })
-let showModal = computed({
-  get() {
-    return props.show;
-  },
-  set(newValue) {
-    emit('update:show', newValue);
-  }
-})
 
-watch(props, (newV, oldV) => {
-  if (!!newV.task && newV.show){
+modalStore.$subscribe((_, state) => {
+  const store = state.taskLogModal
+  if(store.show) {
     loading.value = true
-    TaskService.getTaskLogs(project.id, props.task.id).then(data => {
+    TaskService.getTaskLogs(project.id, store.task.id).then(data => {
       logs.value = data
       loading.value = false
     }).catch(err => {
@@ -106,10 +102,7 @@ watch(props, (newV, oldV) => {
 })
 
 const users = computed(() => {
-  if (!!props.task){
-    return props.task.users
-  }
-  return []
+  return taskLogModal.value.task?.users || []
 })
 
 </script>

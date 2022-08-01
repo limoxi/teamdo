@@ -8,7 +8,7 @@
         <i v-for="user in row.users" :key="user.id">{{ user.nickname }}</i>
       </template>
       <template #name="{row, index}">
-        <span class="aui-i-taskname-link" @click="onClickTaskName(row, $event)">{{ row.name }}</span>
+        <span class="aui-i-taskname-link">{{ row.name }}</span>
       </template>
     </Table>
     <div class="aui-paginator">
@@ -47,11 +47,6 @@ export default {
     onTaskAdded() {
       this.resetData();
       this.getTasks();
-    },
-    onClickTaskName(row, event) {
-      event.stopPropagation();
-      console.log(row);
-      EventBus.emit(events.TASK_EXPANDED, row);
     },
     onChangePage(targetPageNum) {
       this.pageInfo.targetPage = targetPageNum;

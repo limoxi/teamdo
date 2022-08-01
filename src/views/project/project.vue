@@ -9,59 +9,28 @@
       <router-view></router-view>
     </template>
   </top-frame>
-  <!-- model -->
-  <task-model
-      :mode="taskModelMode"
-      v-model:show="showTaskModel"
-      :projectId="parseInt(projectId)"
-      :task="modelTask"
-  ></task-model>
-
-  <task-log-model
-      v-model:show="showTaskLogModel"
-      :task="modelTask"
-  ></task-log-model>
-
-  <user-select-model />
+  <!-- modal -->
+  <task-modal @taskUpdated="onTaskUpdated"/>
+  <task-log-modal />
+  <user-select-modal />
 </template>
 
 <script setup>
 import TopFrame from '@/components/frame/top_frame';
 import ProjectHeader from '@/components/frame/header/project_header';
-import TaskModel from '@/components/model/task_model';
-import TaskLogModel from '@/components/model/task_log_model';
-import UserSelectModel from '@/components/model/user_select_model';
+import TaskModal from '@/components/modal/task_modal';
+import TaskLogModal from '@/components/modal/task_log_modal';
+import UserSelectModal from '@/components/modal/user_select_modal';
 import ProjectService from '@/service/project_service';
 import {events, EventBus} from '@/service/event_bus'
 import {ref, provide, onMounted} from 'vue'
 
 const props = defineProps(['projectId', 'name'])
-let showTaskModel = ref(false)
-let showTaskLogModel = ref(false)
-let taskModelMode = ref('mod')
-let modelTask = ref(null)
 
 const eventBus = new EventBus()
 provide('eventBus', eventBus)
 
 onMounted(() => {
-  eventBus.on(events.TASK_ADDING, () => {
-    taskModelMode.value = 'create';
-    modelTask.value = {}
-    showTaskModel.value = true;
-  });
-
-  eventBus.on(events.TASK_EXPANDED, task => {
-    taskModelMode.value = 'mod';
-    modelTask.value = task;
-    showTaskModel.value = true;
-  });
-
-  eventBus.on(events.TASK_INSPECTING, task => {
-    modelTask.value = task;
-    showTaskLogModel.value = true;
-  });
-
   getProject()
 })
 
@@ -85,6 +54,10 @@ const getProject = () => {
     project.value.bots = data.bots
     project.value.tags = data.tags
   })
+}
+
+const onTaskUpdated = (taskId, laneId) => {
+  eventBus.emit(events.TASK_UPDATED, taskId, laneId)
 }
 
 </script>

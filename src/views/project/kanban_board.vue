@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <lane-model @on-submitted="getLanes"></lane-model>
+  <lane-modal @on-submitted="getLanes"></lane-modal>
 
 </template>
 
@@ -46,7 +46,7 @@
 import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
-import LaneModel from '@/components/model/lane_model';
+import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
 import {ref, inject, onMounted, nextTick} from "vue";
 import {Message} from "view-ui-plus";
