@@ -162,9 +162,22 @@ const onSelectChange = checked => {
 }
 
 const onCLickTaskNo = () => {
+  let pre = ''
+  switch (props.task.type) {
+    case 'OPT':
+      pre = 'perf'
+      break
+    case 'BUG':
+      pre = 'bug'
+      break
+    default:
+      pre = 'ft'
+  }
+
+  const t = `${pre}_${project.prefix.toLowerCase()}${props.task.id}`
   Copy({
-    text: taskNo,
-    successTip: `${taskNo} 已复制`
+    text: t,
+    successTip: `${t} 已复制`
   })
 }
 
