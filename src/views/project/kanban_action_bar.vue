@@ -22,11 +22,26 @@
       </Dropdown>
     </div>
     <div class="aui-i-right">
-      <Icon type="md-refresh" class="aui-i-refresh" @click="onFreshTasks" />
+      <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
+      <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks" />
+      <Input
+          placeholder="任务编号筛选"
+          :border="false"
+          style="width: 150px"
+          class="aui-i-filter"
+          v-model="taskId"
+          clearable
+          @on-enter="handleSearch"
+          @on-clear="handleSearch"
+      >
+        <template #prefix>
+          <Icon type="ios-search" />
+        </template>
+      </Input>
       <Input
           placeholder="用户故事筛选"
           :border="false"
-          style="width: 200px"
+          style="width: 150px"
           class="aui-i-filter"
           v-model="taskName"
           clearable
@@ -82,9 +97,10 @@ const selectedTasks = ref([])
 const props = defineProps({
   lanes: Array
 })
-const emit = defineEmits(['search'])
+const emit = defineEmits(['search', 'onFullscreen'])
 const members = ref([])
 const taskName = ref('')
+const taskId = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
 const project = inject('project').value
@@ -130,6 +146,14 @@ const onClickSwitch = (targetLaneId) => {
 
 const handleSearch = () => {
   const filters = {}
+  if (taskId.value) {
+    if (parseInt(taskId.value) > 0) {
+      filters['id'] = parseInt(taskId.value)
+    } else {
+      filters['id'] = -1
+    }
+  }
+
   if (taskName.value !== '') {
     filters['name__contains'] = taskName.value
   }
@@ -161,6 +185,10 @@ const onSwitchMode = () => {
   }
 }
 
+const onExpand = () => {
+  emit('onFullscreen')
+}
+
 let refreshing = false
 const onFreshTasks = () => {
   if (refreshing) {
@@ -183,12 +211,15 @@ const onFreshTasks = () => {
 <style lang="less" scoped>
 .aui-kanban-action-bar {
   width: 100%;
+  max-height: 32px;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   margin-top: 1px;
   padding: 0 5px;
 
-  .aui-i-refresh{
+  .aui-i-icon{
+    margin-right: 10px;
     font-size: 16px;
     vertical-align: middle;
     cursor: pointer;

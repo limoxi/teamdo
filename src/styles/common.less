@@ -88,10 +88,18 @@ button:focus, button:active {
   justify-content: flex-start;
   overflow-x: scroll;
   overflow-y: hidden;
-  height: 100vh;
+  height: calc(100vh - 88px);
   margin: 0 0 4px 0;
   width: 100vw;
   scroll-behavior: smooth;
+}
+
+.aui-board-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh !important;
+  z-index: 99999;
 }
 
 // 标签（badge）

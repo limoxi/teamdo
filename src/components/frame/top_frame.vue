@@ -15,6 +15,6 @@
 
 <style lang="less" scoped>
 .aui-content {
-  min-height: calc(100vh + 35px);
+  min-height: calc(100vh - 50px);
 }
 </style>

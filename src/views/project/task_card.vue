@@ -53,7 +53,7 @@
       </div>
       <div class="aui-i-time">
         <Icon type="md-paper" v-if="task.has_desc"/>
-        <Tooltip v-if="task.sp > 0" placement="top" class="aui-i-sp">
+        <Tooltip placement="top" class="aui-i-sp">
           <span>{{task.sp}}/{{task.passed_sp}}</span>
           <template #content>
             <p>期望故事点：{{task.sp}}</p>

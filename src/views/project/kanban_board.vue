@@ -2,10 +2,11 @@
   <div class="kanban-page" tabindex="0" style="outline: 0; overflow: hidden;"
        @keydown.left="onPressLeft"
        @keydown.right="onPressRight"
+       @keydown.esc="onEsc"
   >
-    <action-bar @search="handleSearch" :lanes="lanes"></action-bar>
+    <action-bar @search="handleSearch" @on-fullscreen="onFullscreen" :lanes="lanes"></action-bar>
     <draggable
-        class="aui-board"
+        :class="classNames"
         id="board"
         v-model="lanes"
         item-key="id"
@@ -48,7 +49,7 @@ import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
-import {ref, inject, onMounted, nextTick} from "vue";
+import {ref, inject, onMounted, nextTick, computed} from "vue";
 import {Message} from "view-ui-plus";
 import helper from '@/utils/helper'
 
@@ -62,6 +63,15 @@ onMounted(() => {
 let lanes = ref([])
 let drag = ref(false)
 let filters = ref(null)
+let fullscreen = ref(false)
+
+const classNames = computed(() => {
+  let cn = 'aui-board'
+  if (fullscreen.value) {
+    cn += ' aui-board-fullscreen'
+  }
+  return cn
+})
 
 const onPressLeft = () =>{
   document.getElementsByClassName('aui-board')[0].scrollLeft -= 500
@@ -69,6 +79,14 @@ const onPressLeft = () =>{
 
 const onPressRight = () => {
   document.getElementsByClassName('aui-board')[0].scrollLeft += 500
+}
+
+const onFullscreen = () => {
+  fullscreen.value = true
+}
+
+const onEsc = () => {
+  fullscreen.value = false
 }
 
 const onListChange = () => {
