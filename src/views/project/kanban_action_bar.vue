@@ -1,7 +1,10 @@
 <template>
   <div class="aui-kanban-action-bar">
     <div class="aui-i-left">
-      <Button type="text" @click="onSwitchMode">{{ selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务' }}</Button>
+      <Button type="text" @click="onSwitchMode">{{
+          selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务'
+        }}
+      </Button>
       <Button type="text" v-if="selectModeOn && selectedTasks.length > 0" @click="onClickShare">分享</Button>
       <Dropdown
           trigger="click"
@@ -23,19 +26,19 @@
     </div>
     <div class="aui-i-right">
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
-      <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks" />
+      <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
       <Input
           placeholder="任务编号筛选"
           :border="false"
           style="width: 150px"
           class="aui-i-filter"
-          v-model="taskId"
+          v-model="filteredTaskId"
           clearable
           @on-enter="handleSearch"
           @on-clear="handleSearch"
       >
         <template #prefix>
-          <Icon type="ios-search" />
+          <Icon type="ios-search"/>
         </template>
       </Input>
       <Input
@@ -49,7 +52,7 @@
           @on-clear="handleSearch"
       >
         <template #prefix>
-          <Icon type="ios-search" />
+          <Icon type="ios-search"/>
         </template>
       </Input>
 
@@ -61,8 +64,10 @@
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in members" :value="member.id" :key="member.id">
-          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
+        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
+            member.nickname
+          }}
         </Option>
       </Select>
       <Select
@@ -73,8 +78,10 @@
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in members" :value="member.id" :key="member.id">
-          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{ member.nickname }}
+        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
+            member.nickname
+          }}
         </Option>
       </Select>
     </div>
@@ -83,43 +90,30 @@
 </template>
 
 <script setup>
-import ProjectService from '@/service/project_service';
 import TaskService from "@/service/task_service"
-import {ref, computed, onMounted, inject, watch} from 'vue'
+import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {events} from "@/service/event_bus"
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import helper from '@/utils/helper'
+import {useLaneStore, useTaskModeStore} from '@/store'
+import {storeToRefs} from "pinia";
+
+const taskModeStore = useTaskModeStore()
+const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
+const selectModeOn = computed(() => taskMode.value === 'SELECT')
+
+const project = inject('project')
 
 const filters = ref({})
-const selectedTasks = ref([])
 const props = defineProps({
   lanes: Array
 })
 const emit = defineEmits(['search', 'onFullscreen'])
-const members = ref([])
 const taskName = ref('')
-const taskId = ref('')
+const filteredTaskId = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
-const project = inject('project').value
-let selectModeOn = ref(false)
 let showShareModal = ref(false)
-
-const EventBus = inject('eventBus')
-
-onMounted(() => {
-  EventBus.on(events.TASK_CHECKED, (selectedTask, checked) => {
-    if (checked) {
-      selectedTasks.value.push(selectedTask)
-    } else {
-      helper.removeFromArray(selectedTask, selectedTasks.value, 'id')
-    }
-  }, 'kanban_action_bar')
-
-  getMembers()
-})
 
 watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
@@ -127,16 +121,8 @@ watch(showShareModal, (newVal, oldVal) => {
   }
 })
 
-const getMembers = () => {
-  ProjectService.getProjectMembers(project.id).then(data => {
-    members.value = data;
-  }).catch(err => {
-    Message.error(err.errMsg);
-  });
-}
-
 const onClickSwitch = (targetLaneId) => {
-  TaskService.switchLaneForTasks(project.id, selectedTasks.value, targetLaneId).then(() => {
+  TaskService.switchLaneForTasks(project.value.id, selectedTasks.value, targetLaneId).then(() => {
     onSwitchMode()
     onFreshTasks()
   }).catch(err => {
@@ -146,9 +132,9 @@ const onClickSwitch = (targetLaneId) => {
 
 const handleSearch = () => {
   const filters = {}
-  if (taskId.value) {
-    if (parseInt(taskId.value) > 0) {
-      filters['id'] = parseInt(taskId.value)
+  if (filteredTaskId.value) {
+    if (parseInt(filteredTaskId.value) > 0) {
+      filters['id'] = parseInt(filteredTaskId.value)
     } else {
       filters['id'] = -1
     }
@@ -175,14 +161,7 @@ const onClickShare = () => {
 }
 
 const onSwitchMode = () => {
-  if (selectModeOn.value) {
-    selectModeOn.value = false
-    selectedTasks.value = []
-    EventBus.emit(events.SWITCH_TASK_MODE, 'NORMAL')
-  } else {
-    selectModeOn.value = true
-    EventBus.emit(events.SWITCH_TASK_MODE, 'CHECKING')
-  }
+  taskModeStore.changeMode()
 }
 
 const onExpand = () => {
@@ -196,7 +175,8 @@ const onFreshTasks = () => {
     return
   }
   refreshing = true
-  EventBus.emit(events.REFRESH_LANE_TASKS)
+  const laneStore = useLaneStore()
+  laneStore.refresh()
   Message.success({
     content: '刷新任务...',
     duration: 5,
@@ -218,12 +198,13 @@ const onFreshTasks = () => {
   margin-top: 1px;
   padding: 0 5px;
 
-  .aui-i-icon{
+  .aui-i-icon {
     margin-right: 10px;
     font-size: 16px;
     vertical-align: middle;
     cursor: pointer;
-    &:hover{
+
+    &:hover {
       transform: scale(1.1);
     }
   }

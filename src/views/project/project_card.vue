@@ -41,17 +41,12 @@
 import {Message, Modal} from 'view-ui-plus'
 import defaultAvatar from '@/images/default-avatar.webp';
 import defaultBotAvatar from '@/images/default-bot-avatar.png';
-import {events} from '@/service/event_bus'
 import {useRouter} from 'vue-router'
 import {useModalStore} from "@/store";
-import {inject} from "vue";
 import ProjectService from "@/service/project_service";
-import helper from '@/utils/helper';
 
 const modalStore = useModalStore()
 const router = useRouter()
-
-const EventBus = inject('eventBus')
 
 const props = defineProps(['project'])
 const emit = defineEmits(['onDelete'])
@@ -82,7 +77,6 @@ const onClickCard = () => {
   router.push({
     name: 'kanban',
     params: {
-      name: props.project.name,
       projectId: props.project.id
     }
   })

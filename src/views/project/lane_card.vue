@@ -1,11 +1,11 @@
 <template>
   <div class="aui-lane">
     <div :class="className">
-      <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ tasks.length }}/{{ lane.wip || '∞' }})</p>
+      <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ lane.wip || '∞' }})</p>
       <div>
         <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
-          <Icon type="md-more" size="22" class="aui-i-action" />
+          <Icon type="md-more" size="22" class="aui-i-action"/>
           <template #list>
             <DropdownMenu>
               <DropdownItem name="add">在右边添加</DropdownItem>
@@ -16,19 +16,19 @@
         </Dropdown>
       </div>
     </div>
-    <template v-if="loadingTasks">
+    <template v-if="currLane.loadingTasks">
       <Skeleton class="aui-i-skeleton"
-          loading
-          animated
-          :title="false"
-          :paragraph="{ rows: 4, width: ['20%', '80%', '40%', '20%'] }"
+                loading
+                animated
+                :title="false"
+                :paragraph="{ rows: 4, width: ['20%', '80%', '40%', '20%'] }"
       />
     </template>
     <template v-else>
       <draggable
           :id="nodeId"
           class="aui-i-tasks"
-          v-model="tasks"
+          v-model="currLane.tasks"
           item-key="id"
           :animation="200"
           group="task"
@@ -52,50 +52,26 @@
         </template>
       </draggable>
     </template>
-    </div>
+  </div>
 </template>
 
 <script setup>
 import TaskCard from './task_card';
 import LaneService from '@/service/lane_service';
-import {events} from '@/service/event_bus'
-import helper from '@/utils/helper';
 import Draggable from 'vuedraggable';
-import {ref, computed, inject, onMounted, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {Message, Modal} from "view-ui-plus";
-import {useModalStore} from "@/store";
+import {useLaneStore, useModalStore} from "@/store"
 
 const modalStore = useModalStore()
 
-const EventBus = inject('eventBus')
 const props = defineProps(['lane', 'projectId', 'lanes', 'index', 'filters'])
 const emit = defineEmits(['laneDeleted'])
 
-onMounted(() => {
-  getTasks()
-  EventBus.on(events.TASK_SWITCHED, (task, srcLaneId, destLaneId) => {
-    if (srcLaneId === props.lane.id) {
-      helper.removeFromArray(task, tasks.value, 'id');
-    }
+const laneStore = useLaneStore()
+const currLane = laneStore.initLane(props.projectId, props.lane)
+currLane.value.loadTasks()
 
-    if (destLaneId === props.lane.id) {
-      tasks.value.unshift(task);
-    }
-  }, nodeId.value);
-
-  EventBus.on(events.TASK_UPDATED, (taskId, laneId) => {
-    if (laneId === props.lane.id) {
-      getTasks()
-    }
-  }, nodeId.value);
-
-  EventBus.on(events.REFRESH_LANE_TASKS, () => {
-    getTasks()
-  }, nodeId.value);
-})
-
-let loadingTasks = ref(true)
-let tasks = ref([])
 let drag = ref(false)
 
 watch(() => props.filters, (newV, oldV) => {
@@ -122,21 +98,18 @@ const isLastLane = computed(() => {
   if (props.lanes.length === 0) {
     return true
   }
-  return props.lanes[props.lanes.length-1].id === props.lane.id;
+  return props.lanes[props.lanes.length - 1].id === props.lane.id;
 })
 
 const getTasks = (filters) => {
-  LaneService.getTasks(props.projectId, props.lane.id, filters).then(resp => {
-    tasks.value = resp.tasks
-    loadingTasks.value = false
-  }).catch(err => {
+  currLane.value.loadTasks(filters).catch(err => {
     Message.error(err.errMsg);
   })
 }
 
 const onListChange = (event) => {
   if (event.from.id === nodeId.value) {
-    if (event.from.id !== event.to.id){
+    if (event.from.id !== event.to.id) {
       return
     }
   }
@@ -150,14 +123,14 @@ const onListChange = (event) => {
       }
     }
   })
-  LaneService.shuttledTask(props.projectId, parseInt(taskId), props.lane.id, parseInt(beforeTaskId)).then(() => {
+  LaneService.shuttleTask(props.projectId, parseInt(taskId), props.lane.id, parseInt(beforeTaskId)).then(() => {
     // pass
   }).catch(err => {
     Message.error(err.errMsg);
   })
 }
 
-const onClickAction = (name) =>  {
+const onClickAction = (name) => {
   if (name === 'add') {
     modalStore.show('laneModal', {
       'projectId': props.projectId,
@@ -224,7 +197,7 @@ const showTaskModel = () => {
     }
   }
 
-  .aui-i-skeleton{
+  .aui-i-skeleton {
     margin: 10px 0;
     padding: 10px;
     border-radius: 2px;
@@ -234,6 +207,7 @@ const showTaskModel = () => {
     &:hover {
       cursor: grab;
     }
+
     &:active {
       cursor: grabbing;
     }

@@ -29,7 +29,7 @@ import UserModal from '@/components/modal/user_modal';
 import Cookies from 'js-cookie';
 import {ref, onMounted} from "vue";
 import { storeToRefs } from 'pinia';
-import {useUserStore} from '@/store/user'
+import {useUserStore} from '@/store'
 import {useRouter} from 'vue-router'
 const router = useRouter()
 

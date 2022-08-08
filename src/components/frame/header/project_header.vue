@@ -24,17 +24,18 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {ref, inject, onMounted} from "vue";
+import {ref, onMounted, inject} from "vue";
 import {useRouter} from 'vue-router'
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
 
 const router = useRouter()
+
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
 
-const EventBus = inject('eventBus')
-const props = defineProps(['project'])
+const project = inject('project')
+
 let activeName = ref('kanban')
 
 onMounted(() => {
@@ -57,7 +58,7 @@ const onMenuChanged = (name) => {
     router.push({
       name: name,
       params: {
-        projectId: props.project.id
+        projectId: project.value.id
       }
     });
   }

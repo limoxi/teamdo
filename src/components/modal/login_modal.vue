@@ -18,7 +18,7 @@
 <script setup>
 import UserService from '@/service/user_service';
 import {computed} from "vue";
-import {useUserStore} from '@/store/user'
+import {useUserStore} from '@/store'
 import {Message} from "view-ui-plus";
 import {useRouter} from 'vue-router'
 

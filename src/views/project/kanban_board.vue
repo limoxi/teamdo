@@ -27,7 +27,7 @@
           :index="index"
           :lane="element"
           :lanes="lanes"
-          :projectId="project.id"
+          :projectId="projectId"
           @on-deleted="onDeleteLane"
         />
       </template>
@@ -49,15 +49,22 @@ import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
-import {ref, inject, onMounted, nextTick, computed} from "vue";
+import {ref, inject, onMounted, nextTick, computed, watch} from "vue";
 import {Message} from "view-ui-plus";
 import helper from '@/utils/helper'
 
-const project = inject('project').value
+const project = inject('project')
+const projectId = computed(() => project.value.id)
 
 onMounted(() => {
   getLanes();
   handleScroll()
+})
+
+watch(project, () => {
+  if (project.value.id > 0) {
+    getLanes()
+  }
 })
 
 let lanes = ref([])
@@ -90,7 +97,7 @@ const onEsc = () => {
 }
 
 const onListChange = () => {
-  LaneService.resort(project.id, lanes.value).then(() => {
+  LaneService.resort(projectId.value, lanes.value).then(() => {
     Message.success('排序完成');
   }).catch(err => {
     console.error(err);
@@ -103,7 +110,8 @@ const onDeleteLane = (deletedLane) => {
 }
 
 const getLanes = () => {
-  LaneService.getLanes(project.id).then(data => {
+  if (projectId.value <= 0) return
+  LaneService.getLanes(projectId.value).then(data => {
     lanes.value = data
   })
 }

@@ -1,7 +1,7 @@
 <template>
   <top-frame>
     <template #header>
-      <Header />
+      <Header/>
     </template>
     <template #content>
       <template v-if="loadingProjects">
@@ -44,15 +44,11 @@ import ProjectModal from '@/components/modal/project_modal';
 import BotModal from '@/components/modal/bot_modal';
 import ProjectCard from './project_card';
 import ProjectService from '@/service/project_service';
-import {EventBus} from '@/service/event_bus'
-import {ref, onMounted, provide} from "vue";
+import {onMounted, ref} from "vue";
 import {Message} from "view-ui-plus";
 import {useModalStore} from "@/store"
 
 const modalStore = useModalStore()
-
-const eventBus = new EventBus()
-provide('eventBus', eventBus)
 
 onMounted(() => {
   getProjects()

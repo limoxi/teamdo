@@ -20,9 +20,10 @@
 
 import defaultAvatar from '@/images/default-avatar.webp';
 import helper from '@/utils/helper';
-import {computed} from "vue";
+import {computed, inject} from "vue";
 
-const props = defineProps(['member', 'project'])
+const project = inject('project')
+const props = defineProps(['member'])
 const emit = defineEmits(['onDelete'])
 const avatar = computed(() => {
   return props.member.avatar || defaultAvatar
@@ -31,7 +32,7 @@ const isManager = computed(() => {
   return props.member.is_manager
 })
 const showDeleteBtn = computed(() => {
-  return props.project.creator_id !== helper.storage.get('uid') && !isManager.value;
+  return project.value.creator_id !== helper.storage.get('uid') && !isManager.value;
 })
 
 const onDelete = () => {

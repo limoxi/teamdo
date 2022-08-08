@@ -4,7 +4,7 @@ import helper from '@/utils/helper'
 import defaultAvatar from '@/images/default-avatar.webp'
 import Cookies from "js-cookie";
 
-export const useUserStore = defineStore('user',() => {
+const useUserStore = defineStore('user',() => {
   let uid = ref(0)
   let nickname = ref('')
   let avatar = ref('')
@@ -39,3 +39,5 @@ export const useUserStore = defineStore('user',() => {
     updateLoginInfo
   }
 })
+
+export default useUserStore

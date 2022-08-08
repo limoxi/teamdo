@@ -2,7 +2,7 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import helper from '@/utils/helper'
 
-export const useConfigStore = defineStore('config',() => {
+const useConfigStore = defineStore('config',() => {
   let theme = ref(helper.storage.get("theme") || 'light')
 
   const switchTheme = () => {
@@ -19,3 +19,5 @@ export const useConfigStore = defineStore('config',() => {
     switchTheme
   }
 })
+
+export default useConfigStore

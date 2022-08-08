@@ -68,10 +68,10 @@ import MessageService from '@/service/message_service';
 import defaultAvatar from '@/images/default-avatar.webp'
 import {FormItem, Message, Option} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
-import Editor from "../editor/editor";
+import Editor from "../editor/editor"
 
 const editorInst = ref()
-const project = inject('project').value
+const project = inject('project')
 const props = defineProps(['show', 'tasks'])
 const emit = defineEmits(['update:show'])
 const form = ref(null)
@@ -114,7 +114,7 @@ let shareContent = computed(() => {
           assignorName = user.nickname
         }
       })
-      let taskDesc = `- 【${task.type_name}】${project.prefix}${task.id}. ${task.name} @${assignorName}`
+      let taskDesc = `- 【${task.type_name}】${project.value.prefix}${task.id}. ${task.name} @${assignorName}`
       contentList.push(taskDesc)
     }
     return contentList.join('  \n')
@@ -145,7 +145,7 @@ const onSubmit = () => {
         })
       }
       MessageService.sendMessage(
-          project.id,
+          project.value.id,
           shareData.value.botId,
           shareData.value.title,
           shareData.value.type,

@@ -33,7 +33,7 @@ import Uploader from '@/components/uploader';
 import UserService from '@/service/user_service';
 import {ref, inject, watch, computed} from "vue";
 import {Message} from "view-ui-plus";
-import {useUserStore} from '@/store/user'
+import {useUserStore} from '@/store'
 const userStore = useUserStore()
 
 const props = defineProps(['show', 'mode', 'user'])

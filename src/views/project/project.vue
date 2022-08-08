@@ -1,18 +1,16 @@
 <template>
   <top-frame>
     <template #header>
-      <project-header
-          :project="project"
-      ></project-header>
+      <project-header/>
     </template>
     <template #content>
       <router-view></router-view>
     </template>
   </top-frame>
   <!-- modal -->
-  <task-modal @taskUpdated="onTaskUpdated"/>
-  <task-log-modal />
-  <user-select-modal />
+  <task-modal/>
+  <task-log-modal/>
+  <user-select-modal/>
 </template>
 
 <script setup>
@@ -21,44 +19,19 @@ import ProjectHeader from '@/components/frame/header/project_header';
 import TaskModal from '@/components/modal/task_modal';
 import TaskLogModal from '@/components/modal/task_log_modal';
 import UserSelectModal from '@/components/modal/user_select_modal';
-import ProjectService from '@/service/project_service';
-import {events, EventBus} from '@/service/event_bus'
-import {ref, provide, onMounted} from 'vue'
+import {provide} from 'vue'
+import {useProjectStore} from '@/store'
+import {Message} from "view-ui-plus"
+import {storeToRefs} from "pinia";
 
-const props = defineProps(['projectId', 'name'])
-
-const eventBus = new EventBus()
-provide('eventBus', eventBus)
-
-onMounted(() => {
-  getProject()
+const props = defineProps(['projectId'])
+const projectStore = useProjectStore()
+projectStore.reload(parseInt(props.projectId)).catch(e => {
+  Message.error(e.errMsg || '加载项目失败')
 })
 
-let project = ref({
-  id: parseInt(props.projectId),
-  name: props.name,
-  prefix: 'XXX',
-  bots: [],
-  users: [],
-  tags: []
-})
-
+const {project} = storeToRefs(projectStore)
 provide('project', project)
-
-const getProject = () => {
-  ProjectService.getProject(project.value.id).then(data => {
-    project.value.id = data.id
-    project.value.name = data.name
-    project.value.prefix = data.prefix
-    project.value.users = data.users
-    project.value.bots = data.bots
-    project.value.tags = data.tags
-  })
-}
-
-const onTaskUpdated = (taskId, laneId) => {
-  eventBus.emit(events.TASK_UPDATED, taskId, laneId)
-}
 
 </script>
 

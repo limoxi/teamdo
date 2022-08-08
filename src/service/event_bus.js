@@ -12,8 +12,8 @@ class EventBus {
     }
   }
 
-  on(eventName, fn, key='') {
-    if (key !== ''){
+  on(eventName, fn, key = '') {
+    if (key !== '') {
       const k = `${eventName}${key}`
       if (this.keys.includes(k)) {
         return
@@ -25,12 +25,6 @@ class EventBus {
   }
 }
 
-const events = {
-  'REFRESH_LANE_TASKS': 'refreshLaneTasks', // 刷新泳道任务
-  'TASK_UPDATED': 'taskUpdated', // 任务已更新
-  'TASK_SWITCHED': 'taskSwitched', // 任务流转
-  'SWITCH_TASK_MODE': 'switchTaskMode', // 切换任务卡片模式
-  'TASK_CHECKED':'taskChecked', // 任务已&未选中
-}
+const events = {}
 
 export {events, EventBus};

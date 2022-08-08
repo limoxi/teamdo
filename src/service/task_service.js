@@ -95,17 +95,6 @@ class TaskService {
     })
   }
 
-  static switchLane(projectId, task, targetLaneId) {
-    return Resource.put({
-      'resource': 'project.shuttled_task',
-      'data': {
-        'project_id': parseInt(projectId),
-        'task_id': task.id,
-        'target_lane_id': targetLaneId
-      }
-    });
-  }
-
   static switchLaneForTasks(projectId, tasks, targetLaneId) {
     return Resource.put({
       'resource': 'project.shuttled_tasks',

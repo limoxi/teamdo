@@ -2,7 +2,7 @@
   <div class="aui-project-tags">
     <Button icon="md-add" @click="onAddTag" class="aui-i-add-btn">新增标签</Button>
     <Tag class="aui-i-tag" type="dot" closable :color="tag.color"
-        v-for="tag in tags" :key="tag.id"
+        v-for="tag in project.tags" :key="tag.id"
        @on-close="onDelete(tag)"
          @click="onEdit(tag)"
     >
@@ -36,7 +36,6 @@
 <script setup>
 import TagService from '@/service/tag_service';
 import {colors} from '@/utils/constant'
-import helper from '@/utils/helper';
 import {ref, inject, onMounted, computed} from "vue";
 import {Message, Modal} from 'view-ui-plus'
 
@@ -46,7 +45,6 @@ const ruleValidate = {
   ]
 }
 const project = inject('project')
-const tags = ref(project.value.tags || [])
 const showModel = ref(false)
 const mode = ref('create')
 const form = ref({
@@ -60,13 +58,10 @@ const isCreateMode = computed(() => {
   return mode.value === 'create'
 })
 
-const getTags = () => {
-  TagService.getTagsForProject(project.value.id).then(data => {
-    tags.value = data
-    project.value.tags = data
-  }).catch(err => {
-    Message.error(err.errMsg);
-  });
+const reloadTags = () => {
+  project.value.reloadTags().catch(e => {
+    Message.error(e.errMsg || '加载标签失败');
+  })
 }
 
 const onAddTag = () => {
@@ -95,10 +90,11 @@ const onDelete = (tag) => {
           project.value.id,
           tag.id
       ).then(() => {
-        getTags()
+        reloadTags()
         Message.success('删除成功');
         Modal.remove()
       }).catch(err => {
+        console.error(err)
         Message.error(err.errMsg);
       });
     }
@@ -142,7 +138,7 @@ const resetForm = () => {
   form.value.name = ''
   form.value.color = '#2b85e4'
   tagForm.value.resetFields()
-  getTags()
+  reloadTags()
 }
 
 </script>

@@ -2,7 +2,7 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import modal from "view-ui-plus/src/components/modal";
 
-export const useModalStore = defineStore('modal', () => {
+const useModalStore = defineStore('modal', () => {
 
   let projectId = ref(0)
   const userSelectModal = ref({
@@ -111,3 +111,5 @@ export const useModalStore = defineStore('modal', () => {
     close
   }
 })
+
+export default useModalStore

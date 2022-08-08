@@ -2,7 +2,7 @@
   <div :class="headerClasses" :taskId="task.id">
     <div class="aui-i-header">
       <div>
-        <Checkbox v-model="taskSelected" v-if="mode==='CHECKING'" @on-change="onSelectChange" />
+        <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
         <Tag :color="importanceColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
@@ -12,7 +12,7 @@
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
-          <Button icon="md-jet" />
+          <Button icon="md-jet"/>
           <template #list>
             <DropdownMenu>
               <template v-for="l in lanes" :key="l.id">
@@ -34,18 +34,18 @@
       <div class="aui-i-tags">
         <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
         <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
-        <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index" />
+        <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index"/>
       </div>
       <div class="aui-i-users">
-          <Tooltip v-if="!!assignor"
-                   :content="assignor.nickname" placement="right"
-                   style="cursor: pointer" @click="onSelectAssignor">
-            <Avatar
-                :src="assignor.avatar||defaultAvatar"
-            ></Avatar>
-          </Tooltip>
+        <Tooltip v-if="!!assignor"
+                 :content="assignor.nickname" placement="right"
+                 style="cursor: pointer" @click="onSelectAssignor">
+          <Avatar
+              :src="assignor.avatar||defaultAvatar"
+          ></Avatar>
+        </Tooltip>
         <Tooltip v-else content="添加执行人"
-               placement="right" style="cursor: pointer" @click="onSelectAssignor">
+                 placement="right" style="cursor: pointer" @click="onSelectAssignor">
           <Avatar
               icon="md-person"
           ></Avatar>
@@ -54,10 +54,10 @@
       <div class="aui-i-time">
         <Icon type="md-paper" v-if="task.has_desc"/>
         <Tooltip placement="top" class="aui-i-sp">
-          <span>{{task.sp}}/{{task.passed_sp}}</span>
+          <span>{{ task.sp }}/{{ task.passed_sp }}</span>
           <template #content>
-            <p>期望故事点：{{task.sp}}</p>
-            <p>实际故事点：{{task.passed_sp}}</p>
+            <p>期望故事点：{{ task.sp }}</p>
+            <p>实际故事点：{{ task.passed_sp }}</p>
           </template>
         </Tooltip>
         <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
@@ -70,31 +70,31 @@
 
 import helper from '@/utils/helper';
 import TaskService from '@/service/task_service';
-import {events} from '@/service/event_bus'
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Message, Copy, Checkbox, Badge, Tooltip, Button} from 'view-ui-plus'
-import {ref, computed, inject, onMounted} from "vue";
-import {useModalStore} from '@/store'
+import {Badge, Button, Checkbox, Copy, Message, Tooltip} from 'view-ui-plus'
+import {computed, inject, onMounted} from "vue";
+import {useLaneStore, useModalStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const {userSelectModal, taskModal} = storeToRefs(modalStore)
 
-const EventBus = inject('eventBus')
+const taskModeStore = useTaskModeStore()
+const {mode, selectedTasks} = storeToRefs(taskModeStore)
+let taskSelected = computed({
+  get: () => selectedTasks.value.filter(task => task.id === props.task.id).length > 0,
+  set: (v) => {
+    taskModeStore.toggleTask(props.task, v)
+    return v
+  }
+})
 
 onMounted(() => {
-  EventBus.on(events.SWITCH_TASK_MODE, m => {
-    mode.value = m
-    taskSelected.value = false
-  }, eventMode)
-
   modalStore.$subscribe((_, state) => {
     const userSelectModal = state.userSelectModal
     if (userSelectModal.userSelected) {
       if (userSelectModal.taskId === props.task.id) {
-        TaskService.setAssignorForTask(project.id, props.task.id, userSelectModal.selectedUserId).then(() => {
-          EventBus.emit(events.TASK_UPDATED, props.task.id, props.task.lane_id)
-        }).catch(e => {
+        currLane.value.setTaskAssignor(props.task, userSelectModal.selectedUserId).catch(e => {
           Message.error(e.errMsg || '设置执行人失败')
         })
       }
@@ -102,11 +102,10 @@ onMounted(() => {
   })
 })
 
-let mode = ref('NORMAL')
-let taskSelected = ref(false)
 const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
 
-const eventMode = 'selectTaskAssignor:'+props.task.id
+const laneStore = useLaneStore()
+const currLane = laneStore.getLane(props.lane.id)
 
 const project = inject('project').value
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
@@ -147,7 +146,7 @@ const taskNameColor = computed(() => {
 })
 
 const assignor = computed(() => {
-  for(let user of props.task.users) {
+  for (let user of props.task.users) {
     if (user.is_assignor) {
       return user
     }
@@ -156,10 +155,6 @@ const assignor = computed(() => {
 })
 
 const taskNo = `${project.prefix}${props.task.id}`
-
-const onSelectChange = checked => {
-  EventBus.emit(events.TASK_CHECKED, props.task, checked)
-}
 
 const onCLickTaskNo = () => {
   let pre = ''
@@ -219,9 +214,10 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  TaskService.switchLane(project.id, props.task, targetLaneId).then(() => {
-    EventBus.emit(events.TASK_SWITCHED, props.task, props.lane.id, targetLaneId);
-  }).catch(err => {
+  const targetLane = laneStore.getLane(targetLaneId)
+  if (!targetLane) return
+
+  targetLane.shuttleTask(props.task).catch(err => {
     Message.error(err.errMsg);
   });
 }
@@ -308,23 +304,26 @@ const onSelectAssignor = () => {
       display: flex;
       justify-content: flex-start;
     }
-    .aui-i-tags{
+
+    .aui-i-tags {
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
       margin: 10px 0;
     }
-    .aui-i-time{
+
+    .aui-i-time {
       color: grey;
       position: absolute;
       bottom: 2px;
       right: 10px;
       font-size: 10px;
-      i{
+
+      i {
         margin-right: 5px;
       }
 
-      .aui-i-sp{
+      .aui-i-sp {
         margin: 0 5px;
       }
     }

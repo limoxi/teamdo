@@ -10,92 +10,92 @@
       :closable="false"
   >
     <template #header>
-      <div class="aui-i-title">{{title}}</div>
+      <div class="aui-i-title">{{ title }}</div>
       <div class="aui-i-action-bar">
-        <Icon v-if="!isCreateMode" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete" />
-        <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit" />
-        <Icon type="md-close" class="aui-i-action-btn close" @click="close" />
+        <Icon v-if="!isCreateMode" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete"/>
+        <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit"/>
+        <Icon type="md-close" class="aui-i-action-btn close" @click="close"/>
       </div>
     </template>
-      <Form ref="taskForm"
-            @submit.prevent
-            :model="form"
-            :rules="ruleValidate"
-            :label-width="80"
-        >
-          <FormItem label="任务类型" prop="type" style="float: left">
-            <Select v-model="form.type" style="width:180px" aria-label="typeSelector">
-              <Option v-for="option in taskTypeOptions" :value="option.value" :key="option.value">
-                {{ option.label }}
-              </Option>
-            </Select>
-          </FormItem>
-          <FormItem label="优先级" prop="importance" style="display: inline-block">
-            <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
-              <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-                {{ option.label }}
-              </Option>
-            </Select>
-          </FormItem>
-          <FormItem label="用户故事" prop="name">
-            <Input
-                type="textarea"
-                :autosize="{minRows: 1,maxRows: 3}"
-                show-word-limit
-                :maxlength="48"
-                v-model="form.name"
-                placeholder="某人可以在何时何处做某事" style="width: 90%"></Input>
-          </FormItem>
-          <FormItem label="故事点" prop="sp">
-            <InputNumber
-                v-model="form.sp"
-                :max="28"
-                :min="0"
-                :step="1"
-                :precision="0"
-            ></InputNumber>
-            <span class="aui-i-spRemark">
-              <Icon type="md-alert" />
+    <Form ref="taskForm"
+          @submit.prevent
+          :model="form"
+          :rules="ruleValidate"
+          :label-width="80"
+    >
+      <FormItem label="任务类型" prop="type" style="float: left">
+        <Select v-model="form.type" style="width:180px" aria-label="typeSelector">
+          <Option v-for="option in taskTypeOptions" :value="option.value" :key="option.value">
+            {{ option.label }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="优先级" prop="importance" style="display: inline-block">
+        <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
+          <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
+            {{ option.label }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="用户故事" prop="name">
+        <Input
+            type="textarea"
+            :autosize="{minRows: 1,maxRows: 3}"
+            show-word-limit
+            :maxlength="48"
+            v-model="form.name"
+            placeholder="某人可以在何时何处做某事" style="width: 90%"></Input>
+      </FormItem>
+      <FormItem label="故事点" prop="sp">
+        <InputNumber
+            v-model="form.sp"
+            :max="28"
+            :min="0"
+            :step="1"
+            :precision="0"
+        ></InputNumber>
+        <span class="aui-i-spRemark">
+              <Icon type="md-alert"/>
               故事点是一个相对数值，1个故事点可视为最多半天工作量
             </span>
-          </FormItem>
-          <FormItem label="执行者" prop="assignorId">
-            <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
-              <Option v-for="pu in project.users" :value="pu.id + ''" :key="pu.id">
-                <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
-                {{ pu.nickname }}
-              </Option>
-            </Select>
-            <span v-if="userCount > 0" class="aui-i-users">
-              <span>参与者({{userCount}})&nbsp;&nbsp;</span>
+      </FormItem>
+      <FormItem label="执行者" prop="assignorId">
+        <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
+          <Option v-for="pu in project.users" :value="pu.id + ''" :key="pu.id">
+            <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
+            {{ pu.nickname }}
+          </Option>
+        </Select>
+        <span v-if="userCount > 0" class="aui-i-users">
+              <span>参与者({{ userCount }})&nbsp;&nbsp;</span>
               <Tooltip :content="user.nickname" v-for="user in task.users" :key="user.id">
                 <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
               </Tooltip>
             </span>
-          </FormItem>
-          <FormItem label="标签" prop="tags">
-            <Tag v-for="tag in form.tags" :key="tag.id"
-                 :color="tag.color" type="dot" closable
-                 @on-close="handleCloseTag(tag)"
-            >
-              {{ tag.name }}
-            </Tag>
-            <Select
-                v-model="selectedTagId"
-                filterable
-                clearable
-                placeholder="添加标签"
-                @on-select="handleSelectTag"
-                class="aui-i-tagFilter"
-            >
-              <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
-                <Badge :color="tag.color" :text="tag.name" />
-              </Option>
-            </Select>
-          </FormItem>
-          <FormItem label="详细描述" prop="desc">
-            <Editor ref="editorInst" :content="form.desc" />
-          </FormItem>
+      </FormItem>
+      <FormItem label="标签" prop="tags">
+        <Tag v-for="tag in form.tags" :key="tag.id"
+             :color="tag.color" type="dot" closable
+             @on-close="handleCloseTag(tag)"
+        >
+          {{ tag.name }}
+        </Tag>
+        <Select
+            v-model="selectedTagId"
+            filterable
+            clearable
+            placeholder="添加标签"
+            @on-select="handleSelectTag"
+            class="aui-i-tagFilter"
+        >
+          <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
+            <Badge :color="tag.color" :text="tag.name"/>
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="详细描述" prop="desc">
+        <Editor ref="editorInst" :content="form.desc"/>
+      </FormItem>
     </Form>
   </Modal>
 </template>
@@ -103,13 +103,14 @@
 import TaskService from '@/service/task_service'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/images/default-avatar.webp'
-import {ref, computed, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
-import {useModalStore} from "@/store"
+import {useLaneStore, useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 
+const project = inject('project')
 const modalStore = useModalStore()
 const {taskModal} = storeToRefs(modalStore)
 const task = computed(() => taskModal.value.task)
@@ -127,8 +128,6 @@ const ruleValidate = {
   ]
 }
 
-const emit = defineEmits(['taskUpdated'])
-
 const userCount = computed(() => {
   return (task.value?.users || []).length
 })
@@ -137,7 +136,6 @@ const title = computed(() => {
   return task.value ? '任务详情' : '添加任务'
 })
 
-const project = inject('project').value
 let form = ref({
   type: 'REQ',
   name: '',
@@ -150,9 +148,6 @@ let form = ref({
 const taskForm = ref(null)
 const editorInst = ref()
 
-const projectTags = computed(() => {
-  return project.tags
-})
 let selectedTagId = ref('')
 
 modalStore.$subscribe((_, state) => {
@@ -173,8 +168,8 @@ modalStore.$subscribe((_, state) => {
 
 const handleSelectTag = (selectedTag) => {
   const tagId = selectedTag.value
-  if(form.value.tags.filter(tag => tag.id === tagId).length > 0) return
-  const tag = projectTags.value.filter(tag => tag.id===tagId)[0]
+  if (form.value.tags.filter(tag => tag.id === tagId).length > 0) return
+  const tag = project.value.tags.filter(tag => tag.id === tagId)[0]
   form.value.tags.push(tag)
   selectedTagId.value = ''
 }
@@ -187,8 +182,12 @@ const handleCloseTag = (tag) => {
   helper.removeFromArray(tag, form.value.tags, 'id');
 }
 
-const actionDone = (...data) => {
-  emit('taskUpdated', ...data)
+const actionDone = (taskId, laneId) => {
+  const laneStore = useLaneStore()
+  const currLane = laneStore.getLane(laneId)
+  if (currLane) {
+    currLane.value.loadTasks()
+  }
   Message.success('操作成功');
   close()
 }
@@ -198,7 +197,7 @@ const handleSubmit = () => {
     if (valid) {
       const taskData = {
         type: form.value.type,
-        name: form.value.name.replace(/\s+/g,""),
+        name: form.value.name.replace(/\s+/g, ""),
         desc: editorInst.value.getContent(),
         importance: form.value.importance * 1,
         sp: form.value.sp,
@@ -208,14 +207,14 @@ const handleSubmit = () => {
         })
       }
       if (isCreateMode.value) {
-        TaskService.addTask(project.id, taskData).then((data) => {
+        TaskService.addTask(project.value.id, taskData).then((data) => {
           actionDone(data.id, data.lane_id)
         }).catch(err => {
           Message.error(err.errMsg);
         });
       } else {
         taskData.id = task.value.id
-        TaskService.updateTask(project.id * 1, taskData).then(() => {
+        TaskService.updateTask(project.value.id * 1, taskData).then(() => {
           actionDone(task.value.id, task.value.lane_id);
         }).catch(err => {
           Message.error(err.errMsg);
@@ -232,7 +231,7 @@ const handleDelete = () => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      TaskService.deleteTask(project.id, task.value).then(() => {
+      TaskService.deleteTask(project.value.id, task.value).then(() => {
         actionDone(task.value.id, task.value.lane_id)
       }).catch(err => {
         Message.error(err.errMsg);
@@ -245,15 +244,17 @@ const handleDelete = () => {
 
 <style lang="less">
 .aui-task-model {
-  .aui-i-spRemark{
+  .aui-i-spRemark {
     margin-left: 10px;
     color: darkgrey;
     font-size: smaller;
-    i{
+
+    i {
       vertical-align: baseline;
     }
   }
-  .ivu-modal-header{
+
+  .ivu-modal-header {
     position: sticky;
     top: 0;
     background: white;
@@ -261,34 +262,36 @@ const handleDelete = () => {
     border-radius: 10px 10px 0 0;
   }
 
-  .aui-i-tagFilter{
+  .aui-i-tagFilter {
     width: 150px;
   }
-  .aui-i-users{
+
+  .aui-i-users {
     margin-left: 40px;
   }
-  .aui-i-action-bar{
+
+  .aui-i-action-bar {
     position: absolute;
     top: 10px;
     right: 10px;
     font-size: 20px;
 
-    .aui-i-action-btn{
+    .aui-i-action-btn {
       margin-left: 10px;
       cursor: pointer;
     }
 
-    .delete:hover{
+    .delete:hover {
       transform: scale(1.1);
       color: indianred;
     }
 
-    .save:hover{
+    .save:hover {
       transform: scale(1.1);
       color: #19be6b;
     }
 
-    .close:hover{
+    .close:hover {
       transform: scale(1.1);
       color: black;
     }

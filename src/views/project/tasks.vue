@@ -1,8 +1,8 @@
 <template>
   <div class="aui-tasks">
     <Table border :data="tasks" :columns="columns"
-       @on-sort-change="onSort"
-       @on-row-click="onClickRow"
+           @on-sort-change="onSort"
+           @on-row-click="onClickRow"
     >
       <template #users="{ row, index }">
         <i v-for="user in row.users" :key="user.id">{{ user.nickname }}</i>
@@ -26,7 +26,6 @@
 
 <script>
 import TaskService from '@/service/task_service';
-import {events, EventBus} from '@/service/event_bus'
 
 import TaskExpand from './task_expand';
 
@@ -238,6 +237,7 @@ export default {
 <style scoped lang="less">
 .aui-tasks {
   margin: 0 30px 0 8px;
+
   .aui-i-timewidth {
     display: table-cell;
   }

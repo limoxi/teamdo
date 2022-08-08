@@ -1,10 +1,9 @@
 <template>
   <div class="aui-project-members">
     <member-card
-        v-for="member in project.users"
-        :key="member.id"
-        :member="member"
-        :project="project"
+        v-for="pu in project.users"
+        :key="pu.id"
+        :member="pu"
         @onDelete="onDeleteMember"
     />
     <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
@@ -12,17 +11,13 @@
 </template>
 
 <script setup>
-import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
-import helper from '@/utils/helper';
 import {inject, onMounted, computed} from "vue";
 import {Message, Modal} from 'view-ui-plus'
 import {useUserStore, useModalStore} from '@/store'
-import {storeToRefs} from "pinia";
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
-const {userSelectModal} = storeToRefs(modalStore)
 
 const project = inject('project')
 
@@ -35,9 +30,8 @@ onMounted(() => {
     const userSelectModal = state.userSelectModal
     if (userSelectModal.userSelected) {
       if (userSelectModal.selectedUserId > 0) {
-        ProjectService.addMember(project.value.id, userSelectModal.selectedUserId).then(() => {
+        project.value.addUser(userSelectModal.selectedUserId).then(() => {
           Message.success('添加成员成功，正在刷新...');
-          refreshMembers();
         }).catch(err => {
           Message.error(err.errMsg);
         })
@@ -45,14 +39,6 @@ onMounted(() => {
     }
   })
 })
-
-const refreshMembers = () => {
-  ProjectService.getProjectMembers(project.value.id).then(data => {
-    project.value.users = data
-  }).catch(err => {
-    Message.error(err.errMsg);
-  });
-}
 
 const onAddMember = () => {
   modalStore.show('userSelectModal', {})
@@ -65,8 +51,7 @@ const onDeleteMember = (member) => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      ProjectService.deleteMember(project.value.id, member.id).then(() => {
-        helper.removeFromArray(member, project.value.users, 'id');
+      project.value.removeUser(member.id).then(() => {
         Message.success('操作成功');
       }).catch(err => {
         Message.error(err.errMsg);
