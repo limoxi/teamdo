@@ -22,13 +22,13 @@
     >
       <template #item="{element, index}">
         <lane-card
-          :filters="filters"
-          :key="element.id"
-          :index="index"
-          :lane="element"
-          :lanes="lanes"
-          :projectId="projectId"
-          @on-deleted="onDeleteLane"
+            :filters="filters"
+            :key="element.id"
+            :index="index"
+            :lane="element"
+            :lanes="lanes"
+            :projectId="projectId"
+            @on-deleted="onDeleteLane"
         />
       </template>
       <div class="aui-i-blank"></div>
@@ -49,7 +49,7 @@ import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
-import {ref, inject, onMounted, nextTick, computed, watch} from "vue";
+import {computed, inject, nextTick, onMounted, ref, watch} from "vue";
 import {Message} from "view-ui-plus";
 import helper from '@/utils/helper'
 
@@ -57,8 +57,7 @@ const project = inject('project')
 const projectId = computed(() => project.value.id)
 
 onMounted(() => {
-  getLanes();
-  handleScroll()
+  // handleScroll()
 })
 
 watch(project, () => {
@@ -80,7 +79,7 @@ const classNames = computed(() => {
   return cn
 })
 
-const onPressLeft = () =>{
+const onPressLeft = () => {
   document.getElementsByClassName('aui-board')[0].scrollLeft -= 500
 }
 
@@ -142,7 +141,7 @@ const handleScroll = () => {
           x = nMax
         }
 
-        if(x <= 0){
+        if (x <= 0) {
           x = 0
         }
         this.style.left = x + 'px'
@@ -168,8 +167,9 @@ const handleScroll = () => {
 <style lang="less" scoped>
 .kanban-page {
   position: relative;
-  .scrollControl{
-     display: none;
+
+  .scrollControl {
+    display: none;
     width: 200px;
     height: 10px;
     background: #ccc;
@@ -178,6 +178,7 @@ const handleScroll = () => {
     left: 50%;
     transform: translateX(-50%);
     border-radius: 5px;
+
     .scroll-button {
       display: inline;
       cursor: pointer;
