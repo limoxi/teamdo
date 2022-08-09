@@ -217,7 +217,7 @@ const switchLane = (targetLaneId) => {
   const targetLane = laneStore.getLane(targetLaneId)
   if (!targetLane) return
 
-  targetLane.shuttleTask(props.task.id)
+  targetLane.value.shuttleTask(props.task.id)
 }
 
 const onClickEdit = () => {

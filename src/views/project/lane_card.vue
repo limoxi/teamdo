@@ -121,7 +121,7 @@ const onListChange = (event) => {
       }
     }
   })
-  currLane.value.shuttleTask(parseInt(taskId), parseInt(beforeTaskId))
+  laneStore.shuttleTask(parseInt(taskId), parseInt(beforeTaskId))
 }
 
 const onClickAction = (name) => {

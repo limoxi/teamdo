@@ -26,18 +26,11 @@ class Lane {
     })
   }
 
-  shuttleTask(taskId, beforeTaskId = 0) {
-    LaneService.shuttleTask(this.projectId, taskId, this.id, beforeTaskId).catch(err => {
-      Message.error(err.errMsg)
-    })
-  }
-
   setTaskAssignor(task, assignorId) {
     return TaskService.setAssignorForTask(this.projectId, task.id, assignorId).then(() => {
       this.loadTasks()
     })
   }
-
 
 }
 
@@ -85,6 +78,17 @@ const useLaneStore = defineStore('lane', () => {
     }
   }
 
+  function shuttleTask(toLaneId, task, beforeTaskId = 0) {
+    const refreshingLaneIds = new Set()
+    refreshingLaneIds.add(targetLaneId)
+    refreshingLaneIds.add(task.lane_id)
+    LaneService.shuttleTask(this.projectId, task.id, targetLaneId, beforeTaskId).then(() => {
+      refresh(Array.from(refreshingLaneIds))
+    }).catch(err => {
+      Message.error(err.errMsg)
+    })
+  }
+
   function shuttleTasks(projectId, targetLaneId, tasks) {
     const refreshingLaneIds = new Set()
     const taskIds = new Set()
@@ -100,7 +104,7 @@ const useLaneStore = defineStore('lane', () => {
     });
   }
 
-  return {initLane, getLane, refresh, addTask, updateTask, deleteTask, shuttleTasks}
+  return {initLane, getLane, refresh, addTask, updateTask, deleteTask, shuttleTask, shuttleTasks}
 })
 
 export default useLaneStore
