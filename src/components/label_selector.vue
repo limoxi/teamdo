@@ -2,10 +2,11 @@
   <div class="label-selector">
     <Card v-show="mode === 'edit'" :bordered="false">
       <template #title>
-        <Icon type="ios-arrow-back" /> 编辑标签
+        <Icon type="ios-arrow-back"/>
+        编辑标签
       </template>
 
-      <Input v-model="activeTagName" />
+      <Input v-model="activeTagName"/>
 
       <RadioGroup v-model="activeTagColor">
         <Radio :label="color" v-for="color in colors">
@@ -14,18 +15,20 @@
       </RadioGroup>
     </Card>
     <Select
-      v-show="mode === 'select'"
-      filterable
-      allow-create
-      @on-select="onSelect"
-      @mouseout="handleMouseover(-1)"
+        v-show="mode === 'select'"
+        filterable
+        allow-create
+        @on-select="onSelect"
+        @mouseout="handleMouseover(-1)"
     >
-      <Option v-for="(tag, index) in tags" :value="`${tag.name}:${tag.color}`" :key="tag.name" @mouseover="handleMouseover(index)">
-        <Badge :color="tag.color" :text="tag.name" />
+      <Option v-for="(tag, index) in tags" :value="`${tag.name}:${tag.color}`" :key="tag.name"
+              @mouseover="handleMouseover(index)">
+        <Badge :color="tag.color" :text="tag.name"/>
 
         <div class="aui-icons">
           <!-- <Icon type="md-create" :size="16" v-show="hoverTagIndex === index" class="edit-tag" @click.stop="handleEdit(tag)"></Icon> -->
-          <Icon type="md-checkmark" :size="17" v-show="currentTags.find(ctag => ctag.name === tag.name)" class="edit-tag"></Icon>
+          <Icon type="md-checkmark" :size="17" v-show="currentTags.find(ctag => ctag.name === tag.name)"
+                class="edit-tag"></Icon>
         </div>
       </Option>
     </Select>
@@ -33,10 +36,11 @@
 </template>
 <script setup>
 
-import {onMounted, ref, inject, computed} from "vue";
+import {inject, onMounted, ref} from "vue";
 import {colors} from '@/utils/constant'
 import TagService from "@/service/tag_service";
-const project = inject('project').value
+
+const project = inject('project')
 const props = defineProps({
   currentTags: Array
 })
@@ -55,7 +59,7 @@ onMounted(() => {
 })
 
 const loadTags = () => {
-  TagService.getTagsForProject(project.id).then(data => {
+  TagService.getTagsForProject(project.value.id).then(data => {
     tags.value = data
   })
 }
@@ -121,14 +125,17 @@ const onSelect = (newTag) => {
 .label-selector {
   min-height: 34px;
 }
+
 .ivu-select-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .aui-icons {
   height: 18px;
 }
+
 .color-circle {
   width: 20px;
   height: 20px;

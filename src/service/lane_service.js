@@ -64,7 +64,7 @@ class LaneService {
     })
   }
 
-  static shuttleTask (projectId, taskId, targetLaneId, beforeTaskId) {
+  static shuttleTask(projectId, taskId, targetLaneId, beforeTaskId) {
     return Resource.put({
       resource: 'project.shuttled_task',
       data: {
@@ -76,7 +76,18 @@ class LaneService {
     })
   }
 
-  static getTasks(projectId, laneId, filters = {}, curPage=1, pageSize=50) {
+  static shuttleTasks(projectId, targetLaneId, taskIds) {
+    return Resource.put({
+      'resource': 'project.shuttled_tasks',
+      'data': {
+        'project_id': projectId,
+        'task_ids': taskIds,
+        'target_lane_id': targetLaneId
+      }
+    });
+  }
+
+  static getTasks(projectId, laneId, filters = {}, curPage = 1, pageSize = 50) {
     return Resource.get({
       'resource': 'project.lane.tasks',
       'data': {

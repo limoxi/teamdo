@@ -2,6 +2,8 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import LaneService from "@/service/lane_service"
 import TaskService from "@/service/task_service"
+import {Message} from "view-ui-plus";
+import lane from "./lane";
 
 class Lane {
   constructor(projectId, data) {
@@ -16,14 +18,18 @@ class Lane {
 
   loadTasks(filters = null) {
     this.loadingTasks = true
-    return LaneService.getTasks(this.projectId, this.id, filters).then(resp => {
+    LaneService.getTasks(this.projectId, this.id, filters).then(resp => {
       this.tasks = resp.tasks
       this.loadingTasks = false
+    }).catch(err => {
+      Message.error(err.errMsg);
     })
   }
 
-  shuttleTask(task, beforeTaskId = 0) {
-    return LaneService.shuttleTask(this.projectId, task.id, this.id, beforeTaskId)
+  shuttleTask(taskId, beforeTaskId = 0) {
+    LaneService.shuttleTask(this.projectId, taskId, this.id, beforeTaskId).catch(err => {
+      Message.error(err.errMsg)
+    })
   }
 
   setTaskAssignor(task, assignorId) {
@@ -31,6 +37,7 @@ class Lane {
       this.loadTasks()
     })
   }
+
 
 }
 
@@ -47,13 +54,53 @@ const useLaneStore = defineStore('lane', () => {
     return id2lane[laneId]
   }
 
-  function refresh() {
-    for (const lid of Object.keys(id2lane)) {
+  function addTask(projectId, taskData) {
+    return TaskService.addTask(projectId, taskData).then((data) => {
+      getLane(data.lane_id).value.loadTasks()
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
+
+  function updateTask(projectId, laneId, taskData) {
+    return TaskService.updateTask(projectId, taskData).then(() => {
+      getLane(laneId).value.loadTasks()
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
+
+  function deleteTask(projectId, laneId, taskId) {
+    return TaskService.deleteTask(projectId, taskId).then(() => {
+      getLane(laneId).value.loadTasks()
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
+
+  function refresh(laneIds = undefined) {
+    const lids = laneIds ?? Object.keys(id2lane)
+    for (const lid of lids) {
       id2lane[lid].value.loadTasks()
     }
   }
 
-  return {initLane, getLane, refresh}
+  function shuttleTasks(projectId, targetLaneId, tasks) {
+    const refreshingLaneIds = new Set()
+    const taskIds = new Set()
+    for (const task of tasks) {
+      refreshingLaneIds.add(task.lane_id)
+      taskIds.add(task.id)
+    }
+    refreshingLaneIds.add(targetLaneId)
+    return LaneService.shuttleTasks(projectId, targetLaneId, Array.from(taskIds)).then(() => {
+      refresh(Array.from(refreshingLaneIds))
+    }).catch(err => {
+      Message.error(err.errMsg || '批量操作失败');
+    });
+  }
+
+  return {initLane, getLane, refresh, addTask, updateTask, deleteTask, shuttleTasks}
 })
 
 export default useLaneStore

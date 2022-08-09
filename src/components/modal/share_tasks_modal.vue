@@ -7,10 +7,10 @@
       @on-visible-change="onVisibleChange"
   >
     <Form ref="form"
-        @submit.prevent
-        :model="shareData"
-        :rules="ruleValidate"
-        :label-width="80"
+          @submit.prevent
+          :model="shareData"
+          :rules="ruleValidate"
+          :label-width="80"
     >
       <FormItem label="分享标题" prop="title">
         <Input
@@ -19,7 +19,7 @@
             show-word-limit
             :maxlength="48"
             v-model="shareData.title"
-            style="width: 90%" />
+            style="width: 90%"/>
       </FormItem>
 
       <FormItem label="类型" prop="type">
@@ -47,8 +47,8 @@
           <Radio label="multi">选择</Radio>
         </RadioGroup>
         <Select v-model="shareData.userIds" v-if="shareData.atMode==='multi'"
-            style="width:180px"
-            multiple aria-label="botSelector"
+                style="width:180px"
+                multiple aria-label="botSelector"
         >
           <Option v-for="pu in project.users" :value="pu.id" :key="pu.id">
             <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
@@ -105,27 +105,29 @@ const onVisibleChange = (isShow) => {
 }
 
 let shareContent = computed(() => {
-    const contentList = []
-    props.tasks.sort((a, b) => a.id > b.id)
-    for(let task of props.tasks) {
-      let assignorName = task.users[0].nickname
-      task.users.forEach(user => {
-        if (user.is_assignor) {
-          assignorName = user.nickname
-        }
-      })
-      let taskDesc = `- 【${task.type_name}】${project.value.prefix}${task.id}. ${task.name} @${assignorName}`
-      contentList.push(taskDesc)
-    }
-    return contentList.join('  \n')
-  })
+  const contentList = []
+  props.tasks.sort((a, b) => a.id > b.id)
+  for (let task of props.tasks) {
+    let assignorName = task.users[0].nickname
+    task.users.forEach(user => {
+      if (user.is_assignor) {
+        assignorName = user.nickname
+      }
+    })
+    let taskDesc = `- 【${task.type_name}】${project.value.prefix}${task.id}. ${task.name} @${assignorName}`
+    contentList.push(taskDesc)
+  }
+  return contentList.join('  \n')
+})
 
 const onChangeAtMode = (selectedMode) => {
   switch (selectedMode) {
     case '0':
       shareData.value.userIds = []
+      break
     case '-1':
       shareData.value.userIds = [-1]
+      break
   }
 }
 
@@ -136,9 +138,9 @@ const onSubmit = () => {
       if (shareData.value.atMode === 'multi') {
         props.tasks.forEach(task => {
           task.users.forEach(user => {
-            if (shareData.value.userIds.includes(user.id)){
+            if (shareData.value.userIds.includes(user.id)) {
               const target = `@${user.nickname}`
-              const dest =  `@${user.phone}`
+              const dest = `@${user.phone}`
               content = content.replaceAll(target, dest)
             }
           })

@@ -102,9 +102,7 @@ const isLastLane = computed(() => {
 })
 
 const getTasks = (filters) => {
-  currLane.value.loadTasks(filters).catch(err => {
-    Message.error(err.errMsg);
-  })
+  currLane.value.loadTasks(filters)
 }
 
 const onListChange = (event) => {
@@ -123,11 +121,7 @@ const onListChange = (event) => {
       }
     }
   })
-  LaneService.shuttleTask(props.projectId, parseInt(taskId), props.lane.id, parseInt(beforeTaskId)).then(() => {
-    // pass
-  }).catch(err => {
-    Message.error(err.errMsg);
-  })
+  currLane.value.shuttleTask(parseInt(taskId), parseInt(beforeTaskId))
 }
 
 const onClickAction = (name) => {

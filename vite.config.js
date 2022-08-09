@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite'
+import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
 import path from 'path'
@@ -7,36 +7,36 @@ const srcPath = path.join(__dirname, 'src')
 const envPrefix = 'APP_'
 
 export default defineConfig({
-    base: '/',
-    plugins: [
-        vue()
+  base: '/',
+  plugins: [
+    vue()
+  ],
+  envPrefix,
+  resolve: {
+    alias: [
+      {find: /^@\//, replacement: `${srcPath}/`},
     ],
-    envPrefix,
-    resolve: {
-        alias: [
-            { find: /^@\//, replacement: `${srcPath}/` },
-        ],
-        extensions: ['.js', '.vue', '.json', '.less', '.css']
+    extensions: ['.js', '.vue', '.json', '.less', '.css']
+  },
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true
+      }
     },
-    css: {
-        preprocessorOptions: {
-            less: {
-                javascriptEnabled: true
-            }
-        },
-        postcss: {
-            plugins: [
-                autoprefixer
-            ],
-        }
-    },
-    server: {
-        open: true,
-        proxy: {
-            '/iteamdo': {
-                target: 'http://njapi.vxiaocheng.com',
-                changeOrigin: true
-            }
-        }
+    postcss: {
+      plugins: [
+        autoprefixer
+      ],
     }
+  },
+  server: {
+    open: true,
+    proxy: {
+      '/iteamdo': {
+        target: 'http://njapi.vxiaocheng.com',
+        changeOrigin: true
+      }
+    }
+  }
 })

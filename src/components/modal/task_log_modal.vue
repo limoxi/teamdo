@@ -7,18 +7,18 @@
   >
     <template v-if="loading">
       <Skeleton class="aui-i-skeleton"
-          loading
-          animated
-          :title="false"
-          :paragraph="{ rows: 4, width: ['80%', '80%', '60%', '60%'] }"
+                loading
+                animated
+                :title="false"
+                :paragraph="{ rows: 4, width: ['80%', '80%', '60%', '60%'] }"
       />
     </template>
     <template v-else>
       <div style="margin-bottom: 20px">
         <Space split>
-          <span>参与人({{users.length}})</span>
+          <span>参与人({{ users.length }})</span>
           <span>
-            <Tooltip :content="user.nickname" v-for="user in users" :key="user.id"  style="margin: 0 2px">
+            <Tooltip :content="user.nickname" v-for="user in users" :key="user.id" style="margin: 0 2px">
             <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
           </Tooltip>
           </span>
@@ -43,11 +43,11 @@
             </span>
               <span>{{ log.action }}</span>
               <template v-if="log.from_lane_id===log.to_lane_id && log.to_lane_id>0">
-                <span>在 <strong>{{log.to_lane.name}}</strong></span>
+                <span>在 <strong>{{ log.to_lane.name }}</strong></span>
               </template>
               <template v-else>
-                <span v-if="log.from_lane_id>0">从 <strong>{{log.from_lane.name}}</strong></span>
-                <span v-if="log.to_lane_id>0">到 <strong>{{log.to_lane.name}}</strong></span>
+                <span v-if="log.from_lane_id>0">从 <strong>{{ log.from_lane.name }}</strong></span>
+                <span v-if="log.to_lane_id>0">到 <strong>{{ log.to_lane.name }}</strong></span>
               </template>
             </Space>
           </p>
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import {ref, computed, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message, Space} from "view-ui-plus";
 import TaskService from "@/service/task_service";
 import defaultAvatar from '@/images/default-avatar.webp';
@@ -72,17 +72,17 @@ const {taskLogModal} = storeToRefs(modalStore)
 
 const logs = ref([])
 const loading = ref(true)
-const project = inject('project').value
+const project = inject('project')
 
 const finished = computed(() => {
-  if(!!taskLogModal.value.task){
+  if (!!taskLogModal.value.task) {
     return !['未开始', '进行中'].includes(taskLogModal.value.task.status)
   }
   return false
 })
 const title = computed(() => {
   let title = '任务变动记录'
-  if (!!taskLogModal.value.task){
+  if (!!taskLogModal.value.task) {
     title += `- ${taskLogModal.value.task.name}`
   }
   return title
@@ -90,9 +90,9 @@ const title = computed(() => {
 
 modalStore.$subscribe((_, state) => {
   const store = state.taskLogModal
-  if(store.show) {
+  if (store.show) {
     loading.value = true
-    TaskService.getTaskLogs(project.id, store.task.id).then(data => {
+    TaskService.getTaskLogs(project.value.id, store.task.id).then(data => {
       logs.value = data
       loading.value = false
     }).catch(err => {
@@ -108,7 +108,7 @@ const users = computed(() => {
 </script>
 
 <style scoped lang="less">
-.aui-i-dot{
+.aui-i-dot {
   font-size: 18px;
   vertical-align: -webkit-baseline-middle;
 }

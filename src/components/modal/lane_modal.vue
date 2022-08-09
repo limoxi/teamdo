@@ -7,13 +7,13 @@
   >
     <Form ref="laneForm" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="泳道名称" prop="name">
-        <Input v-model="form.name" />
+        <Input v-model="form.name"/>
       </FormItem>
       <FormItem label="WIP" prop="wip" v-if="!isCreateMode">
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
       </FormItem>
       <FormItem label="终结泳道" prop="isEnd" v-if="!isCreateMode">
-        <Switch v-model="form.isEnd" />
+        <Switch v-model="form.isEnd"/>
       </FormItem>
     </Form>
     <template #footer>
@@ -24,7 +24,7 @@
 
 <script setup>
 import LaneService from '@/service/lane_service';
-import {ref, computed, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message} from "view-ui-plus";
 import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
@@ -45,7 +45,7 @@ const form = ref({
   wip: 8,  // 默认
   isEnd: false
 })
-const project = inject('project').value
+const project = inject('project')
 
 modalStore.$subscribe((_, state) => {
   const store = state.laneModal
@@ -69,7 +69,7 @@ const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        LaneService.addLane(project.id, form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
+        LaneService.addLane(project.value.id, form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
           emit('onSubmitted')
           modalStore.close('laneModal')
           Message.success('泳道已添加');
@@ -78,7 +78,7 @@ const confirm = () => {
           Message.error(err.errMsg);
         })
       } else {
-        LaneService.updateLane(project.id, form.value).then(() => {
+        LaneService.updateLane(project.value.id, form.value).then(() => {
           emit('onSubmitted')
           modalStore.close('laneModal')
           Message.success('更新成功');

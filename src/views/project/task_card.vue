@@ -107,7 +107,7 @@ const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane']
 const laneStore = useLaneStore()
 const currLane = laneStore.getLane(props.lane.id)
 
-const project = inject('project').value
+const project = inject('project')
 const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
   let imp = props.task.importance;
@@ -154,7 +154,7 @@ const assignor = computed(() => {
   return null
 })
 
-const taskNo = `${project.prefix}${props.task.id}`
+const taskNo = `${project.value.prefix}${props.task.id}`
 
 const onCLickTaskNo = () => {
   let pre = ''
@@ -169,7 +169,7 @@ const onCLickTaskNo = () => {
       pre = 'ft'
   }
 
-  const t = `${pre}_${project.prefix.toLowerCase()}${props.task.id}`
+  const t = `${pre}_${project.value.prefix.toLowerCase()}${props.task.id}`
   Copy({
     text: t,
     successTip: `${t} 已复制`
@@ -217,15 +217,13 @@ const switchLane = (targetLaneId) => {
   const targetLane = laneStore.getLane(targetLaneId)
   if (!targetLane) return
 
-  targetLane.shuttleTask(props.task).catch(err => {
-    Message.error(err.errMsg);
-  });
+  targetLane.shuttleTask(props.task.id)
 }
 
 const onClickEdit = () => {
-  TaskService.getTask(project.id, props.task.id).then(task => {
+  TaskService.getTask(project.value.id, props.task.id).then(task => {
     modalStore.show('taskModal', {
-      'projectId': project.id,
+      'projectId': project.value.id,
       'task': task
     })
   }).catch(err => {
@@ -241,7 +239,7 @@ const onClickLog = () => {
 
 const onSelectAssignor = () => {
   modalStore.show('userSelectModal', {
-    projectId: project.id,
+    projectId: project.value.id,
     taskId: props.task.id
   })
 }

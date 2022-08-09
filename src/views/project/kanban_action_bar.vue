@@ -90,13 +90,14 @@
 </template>
 
 <script setup>
-import TaskService from "@/service/task_service"
 import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
 import {useLaneStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
+
+const laneStore = useLaneStore()
 
 const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
@@ -122,9 +123,8 @@ watch(showShareModal, (newVal, oldVal) => {
 })
 
 const onClickSwitch = (targetLaneId) => {
-  TaskService.switchLaneForTasks(project.value.id, selectedTasks.value, targetLaneId).then(() => {
+  laneStore.shuttleTasks(project.value.id, targetLaneId, selectedTasks.value).then(() => {
     onSwitchMode()
-    onFreshTasks()
   }).catch(err => {
     Message.error(err.errMsg || '批量操作失败');
   });
@@ -175,7 +175,6 @@ const onFreshTasks = () => {
     return
   }
   refreshing = true
-  const laneStore = useLaneStore()
   laneStore.refresh()
   Message.success({
     content: '刷新任务...',

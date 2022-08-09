@@ -85,25 +85,14 @@ class TaskService {
     })
   }
 
-  static deleteTask(projectId, task) {
+  static deleteTask(projectId, taskId) {
     return Resource.delete({
       'resource': 'project.task',
       'data': {
         'project_id': projectId,
-        'id': task.id
+        'id': taskId
       }
     })
-  }
-
-  static switchLaneForTasks(projectId, tasks, targetLaneId) {
-    return Resource.put({
-      'resource': 'project.shuttled_tasks',
-      'data': {
-        'project_id': parseInt(projectId),
-        'task_ids': tasks.map(task => task.id),
-        'target_lane_id': targetLaneId
-      }
-    });
   }
 
   static setAssignorForTask(projectId, taskId, assignorId) {

@@ -100,7 +100,6 @@
   </Modal>
 </template>
 <script setup>
-import TaskService from '@/service/task_service'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/images/default-avatar.webp'
 import {computed, inject, ref} from "vue";
@@ -111,6 +110,9 @@ import {useLaneStore, useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 
 const project = inject('project')
+const projectId = computed(() => project.value.id)
+const laneStore = useLaneStore()
+
 const modalStore = useModalStore()
 const {taskModal} = storeToRefs(modalStore)
 const task = computed(() => taskModal.value.task)
@@ -182,12 +184,7 @@ const handleCloseTag = (tag) => {
   helper.removeFromArray(tag, form.value.tags, 'id');
 }
 
-const actionDone = (taskId, laneId) => {
-  const laneStore = useLaneStore()
-  const currLane = laneStore.getLane(laneId)
-  if (currLane) {
-    currLane.value.loadTasks()
-  }
+const actionDone = () => {
   Message.success('操作成功');
   close()
 }
@@ -207,18 +204,14 @@ const handleSubmit = () => {
         })
       }
       if (isCreateMode.value) {
-        TaskService.addTask(project.value.id, taskData).then((data) => {
-          actionDone(data.id, data.lane_id)
-        }).catch(err => {
-          Message.error(err.errMsg);
-        });
+        laneStore.addTask(projectId.value, taskData).then(() => {
+          actionDone()
+        })
       } else {
         taskData.id = task.value.id
-        TaskService.updateTask(project.value.id * 1, taskData).then(() => {
-          actionDone(task.value.id, task.value.lane_id);
-        }).catch(err => {
-          Message.error(err.errMsg);
-        });
+        laneStore.updateTask(projectId.value, task.value.lane_id, taskData).then(() => {
+          actionDone()
+        })
       }
     }
   })
@@ -231,11 +224,9 @@ const handleDelete = () => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      TaskService.deleteTask(project.value.id, task.value).then(() => {
-        actionDone(task.value.id, task.value.lane_id)
-      }).catch(err => {
-        Message.error(err.errMsg);
-      });
+      laneStore.deleteTask(projectId.value, task.value.lane_id, task.value.id).then(() => {
+        actionDone()
+      })
     }
   });
 }
