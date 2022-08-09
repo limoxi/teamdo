@@ -3,7 +3,7 @@ import {defineStore} from 'pinia'
 import LaneService from "@/service/lane_service"
 import TaskService from "@/service/task_service"
 import {Message} from "view-ui-plus";
-import lane from "./lane";
+import helper from '@/utils/helper'
 
 class Lane {
   constructor(projectId, data) {
@@ -30,6 +30,19 @@ class Lane {
     return TaskService.setAssignorForTask(this.projectId, task.id, assignorId).then(() => {
       this.loadTasks()
     })
+  }
+
+  removeTaskLocally(task) {
+    helper.removeFromArray(task, this.tasks, 'id')
+  }
+
+  addTaskLocally(task){
+    task.lane_id = this.id
+    this.tasks.splice(0, 0, task)
+  }
+
+  getTask(taskId) {
+    return this.tasks.filter(task => task.id === taskId)[0]
   }
 
 }
@@ -78,15 +91,19 @@ const useLaneStore = defineStore('lane', () => {
     }
   }
 
-  function shuttleTask(toLaneId, task, beforeTaskId = 0) {
-    const refreshingLaneIds = new Set()
-    refreshingLaneIds.add(targetLaneId)
-    refreshingLaneIds.add(task.lane_id)
-    LaneService.shuttleTask(this.projectId, task.id, targetLaneId, beforeTaskId).then(() => {
-      refresh(Array.from(refreshingLaneIds))
-    }).catch(err => {
-      Message.error(err.errMsg)
+  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh=false) {
+    console.log(task.id, task.lane_id, targetLaneId)
+    LaneService.shuttleTask(projectId, task.id, targetLaneId, beforeTaskId).then(() => {
+      if (refresh) {
+        const fromLane = getLane(task.lane_id)
+        const shuttledTask = fromLane.value.getTask(task.id)
+        fromLane.value.removeTaskLocally(task)
+
+        const targetLane = getLane(targetLaneId)
+        targetLane.value.addTaskLocally(shuttledTask)
+      }
     })
+
   }
 
   function shuttleTasks(projectId, targetLaneId, tasks) {
