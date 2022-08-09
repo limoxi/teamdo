@@ -102,8 +102,9 @@ const useLaneStore = defineStore('lane', () => {
         const targetLane = getLane(targetLaneId)
         targetLane.value.addTaskLocally(shuttledTask)
       }
+    }).catch(err => {
+      Message.error(err.errMsg || '操作失败')
     })
-
   }
 
   function shuttleTasks(projectId, targetLaneId, tasks) {
@@ -118,7 +119,7 @@ const useLaneStore = defineStore('lane', () => {
       refresh(Array.from(refreshingLaneIds))
     }).catch(err => {
       Message.error(err.errMsg || '批量操作失败');
-    });
+    })
   }
 
   return {initLane, getLane, refresh, addTask, updateTask, deleteTask, shuttleTask, shuttleTasks}
