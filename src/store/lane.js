@@ -27,8 +27,11 @@ class Lane {
   }
 
   setTaskAssignor(task, assignorId) {
-    return TaskService.setAssignorForTask(this.projectId, task.id, assignorId).then(() => {
-      this.loadTasks()
+    TaskService.setAssignorForTask(this.projectId, task.id, assignorId).then(() => {
+      const laneTask = this.getTask(task.id)
+      laneTask.assignor_id = assignorId
+    }).catch(e => {
+      Message.error(e.errMsg || '设置执行人失败')
     })
   }
 

@@ -94,9 +94,7 @@ onMounted(() => {
     const userSelectModal = state.userSelectModal
     if (userSelectModal.userSelected) {
       if (userSelectModal.taskId === props.task.id) {
-        currLane.value.setTaskAssignor(props.task, userSelectModal.selectedUserId).catch(e => {
-          Message.error(e.errMsg || '设置执行人失败')
-        })
+        currLane.value.setTaskAssignor(props.task, userSelectModal.selectedUserId)
       }
     }
   })
@@ -147,7 +145,7 @@ const taskNameColor = computed(() => {
 
 const assignor = computed(() => {
   for (let user of props.task.users) {
-    if (user.is_assignor) {
+    if (user.id === props.task.assignor_id) {
       return user
     }
   }
