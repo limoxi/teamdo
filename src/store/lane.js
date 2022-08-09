@@ -3,7 +3,6 @@ import {defineStore} from 'pinia'
 import LaneService from "@/service/lane_service"
 import TaskService from "@/service/task_service"
 import {Message} from "view-ui-plus";
-import helper from '@/utils/helper'
 
 class Lane {
   constructor(projectId, data) {
@@ -35,13 +34,26 @@ class Lane {
     })
   }
 
-  removeTaskLocally(task) {
-    helper.removeFromArray(task, this.tasks, 'id')
+  removeTaskLocally(taskId) {
+    const elIndex = this.tasks.findIndex(task => {
+      return task.id === taskId
+    })
+    if (elIndex >= 0) {
+      this.tasks.splice(elIndex, 1)
+    }
   }
 
-  addTaskLocally(task){
-    task.lane_id = this.id
+  addTaskLocally(task) {
     this.tasks.splice(0, 0, task)
+  }
+
+  updateTaskLocally(updatedTask) {
+    const elIndex = this.tasks.findIndex(task => {
+      return task.id === updatedTask.id
+    })
+    if (elIndex >= 0) {
+      this.tasks[elIndex] = updatedTask
+    }
   }
 
   getTask(taskId) {
@@ -64,16 +76,16 @@ const useLaneStore = defineStore('lane', () => {
   }
 
   function addTask(projectId, taskData) {
-    return TaskService.addTask(projectId, taskData).then((data) => {
-      getLane(data.lane_id).value.loadTasks()
+    return TaskService.addTask(projectId, taskData).then((newTask) => {
+      getLane(newTask.lane_id).value.addTaskLocally(newTask)
     }).catch(err => {
       Message.error(err.errMsg);
     });
   }
 
   function updateTask(projectId, laneId, taskData) {
-    return TaskService.updateTask(projectId, taskData).then(() => {
-      getLane(laneId).value.loadTasks()
+    return TaskService.updateTask(projectId, taskData).then((updatedTask) => {
+      getLane(laneId).value.updateTaskLocally(updatedTask)
     }).catch(err => {
       Message.error(err.errMsg);
     });
@@ -81,7 +93,7 @@ const useLaneStore = defineStore('lane', () => {
 
   function deleteTask(projectId, laneId, taskId) {
     return TaskService.deleteTask(projectId, taskId).then(() => {
-      getLane(laneId).value.loadTasks()
+      getLane(laneId).value.removeTaskLocally(taskId)
     }).catch(err => {
       Message.error(err.errMsg);
     });
@@ -94,13 +106,12 @@ const useLaneStore = defineStore('lane', () => {
     }
   }
 
-  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh=false) {
-    console.log(task.id, task.lane_id, targetLaneId)
+  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh = false) {
     LaneService.shuttleTask(projectId, task.id, targetLaneId, beforeTaskId).then(() => {
       if (refresh) {
         const fromLane = getLane(task.lane_id)
         const shuttledTask = fromLane.value.getTask(task.id)
-        fromLane.value.removeTaskLocally(task)
+        fromLane.value.removeTaskLocally(task.id)
 
         const targetLane = getLane(targetLaneId)
         targetLane.value.addTaskLocally(shuttledTask)

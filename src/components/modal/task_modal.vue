@@ -37,14 +37,21 @@
           </Option>
         </Select>
       </FormItem>
-      <FormItem label="用户故事" prop="name">
+      <FormItem v-if="form.type==='BUG' && form.relatedTaskId > 0" label="关联任务" prop="relatedTaskId">
+        <Input style="width: 180px" disabled :value="form.relatedTaskId">
+          <template #prefix>
+            <Icon type="ios-link"/>
+          </template>
+        </Input>
+      </FormItem>
+      <FormItem :label="nameLabel" prop="name">
         <Input
             type="textarea"
             :autosize="{minRows: 1,maxRows: 3}"
             show-word-limit
             :maxlength="48"
             v-model="form.name"
-            placeholder="某人可以在何时何处做某事" style="width: 90%"></Input>
+            :placeholder="form.type==='REQ'?'某人可以在何时何处做某事': ''" style="width: 90%"></Input>
       </FormItem>
       <FormItem label="故事点" prop="sp">
         <InputNumber
@@ -138,12 +145,24 @@ const title = computed(() => {
   return task.value ? '任务详情' : '添加任务'
 })
 
+const nameLabel = computed(() => {
+  switch (form.value.type) {
+    case 'REQ':
+      return '用户故事'
+    case 'BUG':
+      return '问题描述'
+    case 'OPT':
+      return '优化概要'
+  }
+})
+
 let form = ref({
   type: 'REQ',
   name: '',
   importance: '0',
   sp: 0,
   assignorId: '0',
+  relatedTaskId: 0,
   tags: [],
   desc: ''
 })
@@ -199,6 +218,7 @@ const handleSubmit = () => {
         importance: form.value.importance * 1,
         sp: form.value.sp,
         assignorId: form.value.assignorId * 1,
+        relatedTaskId: form.value.relatedTaskId * 1,
         tagIds: form.value.tags.map(tag => {
           return tag.id
         })

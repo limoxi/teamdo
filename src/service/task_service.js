@@ -36,15 +36,17 @@ class TaskService {
     });
   }
 
-  static getTask(projectId, taskId) {
+  static getTask(projectId, taskId, withAll = true) {
     let data = {
       'project_id': projectId,
-      'task_id': taskId,
-      'with_options': {
+      'task_id': taskId
+    };
+    if (withAll) {
+      data['with_options'] = {
         'with_users': true,
         'with_tags': true
       }
-    };
+    }
 
     return Resource.get({
       'resource': 'project.task',
@@ -61,6 +63,7 @@ class TaskService {
         'importance': task.importance,
         'sp': task.sp,
         'assignor_id': task.assignorId,
+        'related_task_id': task.relatedTaskId,
         'desc': task.desc,
         'task_type': task.type,
         'tag_ids': task.tagIds
@@ -79,6 +82,7 @@ class TaskService {
         'importance': task.importance,
         'sp': task.sp,
         'assignor_id': task.assignorId,
+        'related_task_id': task.relatedTaskId,
         'desc': task.desc,
         'tag_ids': task.tagIds
       }
