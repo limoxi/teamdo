@@ -44,6 +44,7 @@ class Lane {
   }
 
   addTaskLocally(task) {
+    task.lane_id = this.id
     this.tasks.splice(0, 0, task)
   }
 
@@ -57,7 +58,9 @@ class Lane {
   }
 
   getTask(taskId) {
-    return this.tasks.filter(task => task.id === taskId)[0]
+    return this.tasks.filter(task => {
+      return task.id === taskId
+    })[0]
   }
 
 }
@@ -106,8 +109,9 @@ const useLaneStore = defineStore('lane', () => {
     }
   }
 
-  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh = false) {
+  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh=true) {
     LaneService.shuttleTask(projectId, task.id, targetLaneId, beforeTaskId).then(() => {
+      const targetLane = getLane(targetLaneId)
       if (refresh) {
         const fromLane = getLane(task.lane_id)
         const shuttledTask = fromLane.value.getTask(task.id)
@@ -115,9 +119,12 @@ const useLaneStore = defineStore('lane', () => {
 
         const targetLane = getLane(targetLaneId)
         targetLane.value.addTaskLocally(shuttledTask)
+      } else {  // ！此处注意
+        targetLane.value.getTask(task.id).lane_id = targetLaneId
       }
     }).catch(err => {
-      Message.error(err.errMsg || '操作失败')
+      console.error(err)
+      Message.error(err.errMsg || '操作失败1')
     })
   }
 

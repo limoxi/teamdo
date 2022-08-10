@@ -23,7 +23,6 @@
 </template>
 
 <script setup>
-import LaneService from '@/service/lane_service';
 import {computed, inject, ref} from "vue";
 import {Message} from "view-ui-plus";
 import {useModalStore} from "@/store";
@@ -31,7 +30,6 @@ import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const {projectId, laneModal} = storeToRefs(modalStore)
-const emit = defineEmits(['onSubmitted'])
 
 const ruleValidate = {
   name: [
@@ -69,23 +67,17 @@ const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        LaneService.addLane(project.value.id, form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
-          emit('onSubmitted')
+        project.value.addLane(form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
           modalStore.close('laneModal')
           Message.success('泳道已添加');
           resetForm();
-        }).catch(err => {
-          Message.error(err.errMsg);
         })
       } else {
-        LaneService.updateLane(project.value.id, form.value).then(() => {
-          emit('onSubmitted')
+        project.value.updateLane(form.value).then(() => {
           modalStore.close('laneModal')
           Message.success('更新成功');
           resetForm();
-        }).catch(err => {
-          Message.error(err.errMsg);
-        });
+        })
       }
     }
   })

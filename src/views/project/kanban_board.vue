@@ -28,7 +28,6 @@
             :lane="element"
             :lanes="lanes"
             :projectId="projectId"
-            @on-deleted="onDeleteLane"
         />
       </template>
       <div class="aui-i-blank"></div>
@@ -39,7 +38,7 @@
     </div>
   </div>
 
-  <lane-modal @on-submitted="getLanes"></lane-modal>
+  <lane-modal />
 
 </template>
 
@@ -51,7 +50,6 @@ import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
 import {computed, inject, nextTick, onMounted, ref, watch} from "vue";
 import {Message} from "view-ui-plus";
-import helper from '@/utils/helper'
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
@@ -60,13 +58,7 @@ onMounted(() => {
   // handleScroll()
 })
 
-watch(project, () => {
-  if (project.value.id > 0) {
-    getLanes()
-  }
-})
-
-let lanes = ref([])
+let lanes = computed(() => project.value.lanes)
 let drag = ref(false)
 let filters = ref(null)
 let fullscreen = ref(false)
@@ -101,17 +93,6 @@ const onListChange = () => {
   }).catch(err => {
     console.error(err);
     Message.error('排序失败');
-  })
-}
-
-const onDeleteLane = (deletedLane) => {
-  helper.removeFromArray(deletedLane, lanes.value, 'id');
-}
-
-const getLanes = () => {
-  if (projectId.value <= 0) return
-  LaneService.getLanes(projectId.value).then(data => {
-    lanes.value = data
   })
 }
 

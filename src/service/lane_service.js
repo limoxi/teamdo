@@ -42,12 +42,12 @@ class LaneService {
     });
   }
 
-  static deleteLane(projectId, lane) {
+  static deleteLane(projectId, laneId) {
     return Resource.delete({
       'resource': 'project.lane',
       'data': {
-        'id': lane.id,
-        'project_id': projectId
+        'project_id': projectId,
+        'id': laneId,
       }
     });
   }

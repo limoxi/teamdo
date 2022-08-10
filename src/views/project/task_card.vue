@@ -212,7 +212,7 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  laneStore.shuttleTask(project.value.id, targetLaneId, props.task, 0, true)
+  laneStore.shuttleTask(project.value.id, targetLaneId, props.task, 0)
 }
 
 const onClickEdit = () => {

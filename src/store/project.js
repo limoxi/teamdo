@@ -1,8 +1,9 @@
-import {reactive, ref} from 'vue'
+import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import ProjectService from "@/service/project_service"
-import {provide} from "vue";
-import TagService from "@/service/tag_service";
+import TagService from "@/service/tag_service"
+import {Message} from "view-ui-plus"
+import LaneService from "@/service/lane_service"
 
 class Project{
   constructor(projectData=undefined) {
@@ -12,6 +13,7 @@ class Project{
     this.users = projectData?.users ?? []
     this.tags = projectData?.tags ?? []
     this.bots = projectData?.bots ?? []
+    this.lanes = projectData?.lanes ?? []
   }
 
   reloadTags(){
@@ -38,6 +40,41 @@ class Project{
     return ProjectService.deleteMember(this.id, userId).then(() => {
       this.reloadUsers()
     })
+  }
+
+  addLane(name, afterLaneId) {
+    return LaneService.addLane(this.id, name, afterLaneId).then((newLane) => {
+      const afterIndex = this.lanes.findIndex(lane => lane.id===afterLaneId)
+      if (afterIndex < 0) {
+        this.lanes.push(newLane)
+      } else {
+        this.lanes.splice(afterIndex+1, 0, newLane)
+      }
+    }).catch(err => {
+      Message.error(err.errMsg);
+    })
+  }
+
+  updateLane(data){
+    return LaneService.updateLane(this.id, data).then((updatedLane) => {
+      const elIndex = this.lanes.findIndex(lane => lane.id===updatedLane.id)
+      if (elIndex >= 0) {
+        this.lanes[elIndex] = updatedLane
+      }
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
+
+  deleteLane(laneId) {
+    return LaneService.deleteLane(this.id, laneId).then(() => {
+      const elIndex = this.lanes.findIndex(lane => lane.id===laneId)
+      if (elIndex >= 0) {
+        this.lanes.splice(elIndex, 1)
+      }
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
   }
 }
 

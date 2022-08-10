@@ -1,7 +1,7 @@
 <template>
   <div class="aui-lane">
     <div :class="className">
-      <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ lane.wip || '∞' }})</p>
+      <p class="aui-i-title">{{lane.id}}{{ lane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ lane.wip || '∞' }})</p>
       <div>
         <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
@@ -59,14 +59,15 @@
 import TaskCard from './task_card';
 import LaneService from '@/service/lane_service';
 import Draggable from 'vuedraggable';
-import {computed, ref, watch} from "vue";
+import {computed, inject, ref, watch} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {useLaneStore, useModalStore} from "@/store"
 
 const modalStore = useModalStore()
 
 const props = defineProps(['lane', 'projectId', 'lanes', 'index', 'filters'])
-const emit = defineEmits(['laneDeleted'])
+
+const project = inject('project')
 
 const laneStore = useLaneStore()
 const currLane = laneStore.initLane(props.projectId, props.lane)
@@ -121,8 +122,11 @@ const onListChange = (event) => {
       }
     }
   })
+
+  const sps = event.from.id.split('_')
   laneStore.shuttleTask(props.projectId, props.lane.id, {
-    id: parseInt(taskId)
+    id: parseInt(taskId),
+    lane_id: parseInt(sps[sps.length-1])
   }, parseInt(beforeTaskId), false)
 }
 
@@ -146,11 +150,7 @@ const onClickAction = (name) => {
       okText: '确认',
       cancelText: '等一下',
       onOk: () => {
-        LaneService.deleteLane(props.projectId, props.lane).then(() => {
-          emit('onDeleted', props.lane);
-        }).catch(err => {
-          Message.error(err.errMsg);
-        });
+        project.value.deleteLane(props.lane.id)
       }
     });
   }
