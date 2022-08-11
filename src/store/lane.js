@@ -124,7 +124,7 @@ const useLaneStore = defineStore('lane', () => {
       }
     }).catch(err => {
       console.error(err)
-      Message.error(err.errMsg || '操作失败1')
+      Message.error(err.errMsg || '操作失败')
     })
   }
 
