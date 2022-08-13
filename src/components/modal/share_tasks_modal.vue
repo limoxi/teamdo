@@ -76,7 +76,7 @@ const props = defineProps(['show', 'tasks'])
 const emit = defineEmits(['update:show'])
 const form = ref(null)
 const shareData = ref({
-  title: '',
+  title: '今日上线',
   type: 'share',
   botId: 0,
   userIds: [],
