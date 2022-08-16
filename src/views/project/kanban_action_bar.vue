@@ -57,6 +57,19 @@
       </Input>
 
       <Select
+          v-model="selectedTagId"
+          filterable
+          clearable
+          placeholder="任务标签"
+          @on-change="handleSearch"
+          class="aui-i-filter"
+      >
+        <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
+          <Badge :color="tag.color" :text="tag.name"/>
+        </Option>
+      </Select>
+
+      <Select
           filterable
           clearable
           v-model="selectedAssignorId"
@@ -114,6 +127,7 @@ const taskName = ref('')
 const filteredTaskId = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
+const selectedTagId = ref(0)
 let showShareModal = ref(false)
 
 watch(showShareModal, (newVal, oldVal) => {
@@ -148,6 +162,9 @@ const handleSearch = () => {
   }
   if (selectedCreatorId.value > 0) {
     filters['creator_id'] = selectedCreatorId.value
+  }
+  if (selectedTagId.value > 0) {
+    filters['tag_id'] = selectedTagId.value
   }
   emit('search', filters)
 }
