@@ -1,6 +1,7 @@
 <template>
   <div class="aui-kanban-action-bar">
     <div class="aui-i-left">
+      <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加项目</Button>
       <Button type="text" @click="onSwitchMode">{{
           selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务'
         }}
@@ -107,16 +108,18 @@ import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import {useLaneStore, useTaskModeStore} from '@/store'
+import {useLaneStore, useModalStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const laneStore = useLaneStore()
+const modalStore = useModalStore()
 
 const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
 const selectModeOn = computed(() => taskMode.value === 'SELECT')
 
 const project = inject('project')
+const projectId = computed(() => project.value.id)
 
 const filters = ref({})
 const props = defineProps({
@@ -137,7 +140,7 @@ watch(showShareModal, (newVal, oldVal) => {
 })
 
 const onClickSwitch = (targetLaneId) => {
-  laneStore.shuttleTasks(project.value.id, targetLaneId, selectedTasks.value).then(() => {
+  laneStore.shuttleTasks(projectId.value, targetLaneId, selectedTasks.value).then(() => {
     onSwitchMode()
   }).catch(err => {
     Message.error(err.errMsg || '批量操作失败');
@@ -179,6 +182,12 @@ const onClickShare = () => {
 
 const onSwitchMode = () => {
   taskModeStore.changeMode()
+}
+
+const onAddTask = () => {
+  modalStore.show('taskModal', {
+    projectId: projectId.value
+  })
 }
 
 const onExpand = () => {

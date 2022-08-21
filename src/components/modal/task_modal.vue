@@ -142,6 +142,7 @@ const userCount = computed(() => {
 })
 
 const title = computed(() => {
+  if (taskModal.value.relatedTask) return '添加关联任务'
   return task.value ? '任务详情' : '添加任务'
 })
 
@@ -162,7 +163,6 @@ let form = ref({
   importance: '0',
   sp: 0,
   assignorId: '0',
-  relatedTaskId: 0,
   tags: [],
   desc: ''
 })
@@ -176,9 +176,9 @@ modalStore.$subscribe((_, state) => {
   if (store.show) {
     form.value.type = store.task?.type || 'REQ'
     form.value.name = store.task?.name || ''
-    form.value.importance = (store.task?.importance || 0) + ''
+    form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
     form.value.sp = store.task?.sp || 0
-    form.value.assignorId = (store.task?.assignor_id || 0) + ''
+    form.value.assignorId = (store.task?.assignor_id || store.relatedTask?.assignor_id || 0) + ''
     form.value.tags = store.task?.tags || []
     form.value.desc = store.task?.desc || ''
 
@@ -218,7 +218,7 @@ const handleSubmit = () => {
         importance: form.value.importance * 1,
         sp: form.value.sp,
         assignorId: form.value.assignorId * 1,
-        relatedTaskId: form.value.relatedTaskId * 1,
+        relatedTaskId: taskModal.value.relatedTask?.id || 0,
         tagIds: form.value.tags.map(tag => {
           return tag.id
         })

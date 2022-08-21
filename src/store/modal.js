@@ -30,7 +30,8 @@ const useModalStore = defineStore('modal', () => {
 
   const taskModal = ref({
     show: false,
-    task: null
+    task: null,
+    relatedTask: null
   })
 
   const taskLogModal = ref({
@@ -38,8 +39,8 @@ const useModalStore = defineStore('modal', () => {
     task: null
   })
 
-  const show = (modalName, data=undefined) => {
-    switch(modalName) {
+  const show = (modalName, data = undefined) => {
+    switch (modalName) {
       case 'userSelectModal':
         projectId.value = data?.projectId || 0
         userSelectModal.value.taskId = data?.taskId || 0
@@ -66,6 +67,7 @@ const useModalStore = defineStore('modal', () => {
       case 'taskModal':
         projectId.value = data.projectId || 0
         taskModal.value.task = data.task || null
+        taskModal.value.relatedTask = data.relatedTask || null
         taskModal.value.show = true
         break
       case 'taskLogModal':
@@ -77,7 +79,7 @@ const useModalStore = defineStore('modal', () => {
   }
 
   const close = (modalName) => {
-    switch(modalName) {
+    switch (modalName) {
       case 'userSelectModal':
         userSelectModal.value.show = false
         break

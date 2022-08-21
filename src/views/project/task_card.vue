@@ -1,16 +1,19 @@
 <template>
   <div :class="headerClasses" :taskId="task.id">
+    <div class="aui-i-finish-tag" v-if="task.status === '已完成'">
+      <strong>已完成</strong>
+    </div>
     <div class="aui-i-header">
       <div>
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
         <Tag :color="importanceColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
-        <Tag v-if="task.status === '已完成'">已完成</Tag>
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
+        <Button icon="ios-link" class="aui-icon-scale" @click="onAddRelation"></Button>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
@@ -51,16 +54,25 @@
           ></Avatar>
         </Tooltip>
       </div>
-      <div class="aui-i-time">
-        <Icon type="md-paper" v-if="task.has_desc"/>
-        <Tooltip placement="top" class="aui-i-sp">
-          <span>{{ task.sp }}/{{ task.passed_sp }}</span>
-          <template #content>
-            <p>期望故事点：{{ task.sp }}</p>
-            <p>实际故事点：{{ task.passed_sp }}</p>
-          </template>
-        </Tooltip>
-        <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
+      <div class="aui-i-extra">
+        <Space :size="4">
+          <Icon type="md-paper" v-if="task.has_desc"/>
+          <Tooltip placement="top"
+                   v-if="task.related_task_id >0"
+                   :content="`${project.prefix}${task.related_task_id}`">
+            <Icon type="md-link" style="cursor: pointer; font-size: 1rem"
+                  @click="onClickEdit($event, task.related_task_id)"/>
+          </Tooltip>
+
+          <Tooltip placement="top">
+            <span>{{ task.sp }}/{{ task.passed_sp }}</span>
+            <template #content>
+              <p>期望故事点：{{ task.sp }}</p>
+              <p>实际故事点：{{ task.passed_sp }}</p>
+            </template>
+          </Tooltip>
+          <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
+        </Space>
       </div>
     </div>
   </div>
@@ -71,7 +83,7 @@
 import helper from '@/utils/helper';
 import TaskService from '@/service/task_service';
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Badge, Button, Checkbox, Copy, Message, Tooltip} from 'view-ui-plus'
+import {Badge, Button, Checkbox, Copy, Message, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
 import {useLaneStore, useModalStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
@@ -86,6 +98,14 @@ let taskSelected = computed({
   set: (v) => {
     taskModeStore.toggleTask(props.task, v)
     return v
+  }
+})
+
+const actionRight = computed(() => {
+  if (props.task.status === '已完成') {
+    return '46px'
+  } else {
+    return '5px'
   }
 })
 
@@ -215,8 +235,17 @@ const switchLane = (targetLaneId) => {
   laneStore.shuttleTask(project.value.id, targetLaneId, props.task, 0)
 }
 
-const onClickEdit = () => {
-  TaskService.getTask(project.value.id, props.task.id).then(task => {
+const onAddRelation = () => {
+  modalStore.show('taskModal', {
+    projectId: project.value.id,
+    relatedTask: props.task
+  })
+}
+
+const onClickEdit = (e, targetTaskId = undefined) => {
+  console.log(e, targetTaskId)
+  let tid = targetTaskId || props.task.id
+  TaskService.getTask(project.value.id, tid).then(task => {
     modalStore.show('taskModal', {
       'projectId': project.value.id,
       'task': task
@@ -242,6 +271,10 @@ const onSelectAssignor = () => {
 </script>
 
 <style scoped lang="less">
+.aui-theme-light .aui-i-finish-tag strong {
+  color: #eee;
+}
+
 .aui-task {
   position: relative;
   display: flex;
@@ -250,12 +283,32 @@ const onSelectAssignor = () => {
   margin: 5px 0;
   padding: 10px;
   border-radius: 2px;
+  overflow: hidden;
 
   &:hover {
     .aui-i-header {
       .aui-i-action {
         display: inline-block;
       }
+    }
+  }
+
+  .aui-i-finish-tag {
+    position: absolute;
+    top: -5px;
+    left: 215px;
+    transform: rotate(45deg);
+    background-color: #19be6b;
+    width: 80px;
+    height: 40px;
+    text-align: center;
+
+    strong {
+      position: absolute;
+      left: 20px;
+      bottom: 0;
+      width: max-content;
+      transform: scale(0.9);
     }
   }
 
@@ -268,7 +321,7 @@ const onSelectAssignor = () => {
     .aui-i-action {
       position: absolute;
       top: 10px;
-      right: 5px;
+      right: v-bind(actionRight);
       display: none;
 
       .ivu-btn-icon-only {
@@ -305,20 +358,12 @@ const onSelectAssignor = () => {
       margin: 10px 0;
     }
 
-    .aui-i-time {
+    .aui-i-extra {
       color: grey;
       position: absolute;
       bottom: 2px;
       right: 10px;
       font-size: 10px;
-
-      i {
-        margin-right: 5px;
-      }
-
-      .aui-i-sp {
-        margin: 0 5px;
-      }
     }
   }
 

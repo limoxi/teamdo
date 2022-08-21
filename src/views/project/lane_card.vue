@@ -3,7 +3,7 @@
     <div :class="className">
       <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ lane.wip || '∞' }})</p>
       <div>
-        <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>
+        <!--        <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>-->
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
           <template #list>
@@ -57,10 +57,9 @@
 
 <script setup>
 import TaskCard from './task_card';
-import LaneService from '@/service/lane_service';
 import Draggable from 'vuedraggable';
 import {computed, inject, ref, watch} from "vue";
-import {Message, Modal} from "view-ui-plus";
+import {Modal} from "view-ui-plus";
 import {useLaneStore, useModalStore} from "@/store"
 
 const modalStore = useModalStore()
@@ -126,7 +125,7 @@ const onListChange = (event) => {
   const sps = event.from.id.split('_')
   laneStore.shuttleTask(props.projectId, props.lane.id, {
     id: parseInt(taskId),
-    lane_id: parseInt(sps[sps.length-1])
+    lane_id: parseInt(sps[sps.length - 1])
   }, parseInt(beforeTaskId), false)
 }
 

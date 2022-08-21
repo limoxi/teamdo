@@ -32,6 +32,12 @@
             <span v-if="log.action==='完成了任务'" class="aui-i-dot">🎉</span>
             <span v-else-if="log.action==='开始了任务'" class="aui-i-dot">🚌</span>
           </template>
+          <template v-else-if="log.action.startsWith('回退')" #dot>
+            <span class="aui-i-dot">😩</span>
+          </template>
+          <template v-else-if="log.action.startsWith('修改了任务')" #dot>
+            <span class="aui-i-dot">📝</span>
+          </template>
           <p>
             <Space>
               <span>{{ helper.formatTime(log.created_at) }}</span>
@@ -41,7 +47,7 @@
               </Tooltip>
               {{ log.actor.nickname }}
             </span>
-              <span>{{ log.action }}</span>
+              <span>{{ parseAction(log, log.action) }}</span>
               <template v-if="log.from_lane_id===log.to_lane_id && log.to_lane_id>0">
                 <span>在 <strong>{{ log.to_lane.name }}</strong></span>
               </template>
@@ -104,6 +110,28 @@ modalStore.$subscribe((_, state) => {
 const users = computed(() => {
   return taskLogModal.value.task?.users || []
 })
+
+const parseAction = (log, actionText) => {
+  let nameRp = '描述'
+  switch (log.type) {
+    case 'REQ':
+      nameRp = '用户故事'
+      break
+    case 'BUG':
+      nameRp = '问题描述'
+      break
+    case 'OPT':
+      nameRp = '优化概要'
+      break
+  }
+  actionText = actionText.replaceAll('name', nameRp)
+  actionText = actionText.replaceAll('type', '类型')
+  actionText = actionText.replaceAll('desc', '详细描述')
+  actionText = actionText.replaceAll('importance', '优先级')
+  actionText = actionText.replaceAll('sp', '故事点')
+  actionText = actionText.replaceAll('assignor_id', '执行者')
+  return actionText
+}
 
 </script>
 
