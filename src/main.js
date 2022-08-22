@@ -1,25 +1,26 @@
 import {createApp} from 'vue'
 import {createPinia} from 'pinia'
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import App from './app.vue'
 import Routers from './router.js'
 import ViewUIPlus from 'view-ui-plus'
 import '@/service/event_bus'
 import 'view-ui-plus/dist/styles/viewuiplus.css'
 import Cookies from "js-cookie";
+import './echarts'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: Routers,
   scrollBehavior() {
-    return { top: 0 }
+    return {top: 0}
   }
 })
 
 router.beforeEach((to, from, next) => {
   if (to.path === '/') {
     let token = Cookies.get('token');
-    if (token){
+    if (token) {
       next('/projects')
       return
     }

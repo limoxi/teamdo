@@ -5,10 +5,11 @@
       <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
         <MenuItem name="projects">项目</MenuItem>
         <MenuItem name="kanban">看板</MenuItem>
-<!--        <MenuItem name="state">统计</MenuItem>-->
+        <!--        <MenuItem name="state">统计</MenuItem>-->
         <MenuItem name="members">成员</MenuItem>
         <MenuItem name="tags">标签</MenuItem>
-<!--        <MenuItem name="settings">管理</MenuItem>-->
+        <MenuItem name="stats">统计</MenuItem>
+        <!--        <MenuItem name="settings">管理</MenuItem>-->
       </Menu>
     </div>
     <theme-control></theme-control>
@@ -24,7 +25,7 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {ref, onMounted, inject} from "vue";
+import {inject, onMounted, ref} from "vue";
 import {useRouter} from 'vue-router'
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";

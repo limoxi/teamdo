@@ -32,6 +32,11 @@ const Routers = [{
     name: 'tags',
     component: () => import('@/views/project/tags.vue')
   }, {
+    path: 'stats',
+    name: 'stats',
+    props: true,
+    component: () => import('@/views/project/stats.vue')
+  }, {
     path: 'settings',
     name: 'settings',
     props: true,
