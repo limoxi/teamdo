@@ -37,7 +37,9 @@
       <div class="aui-i-tags">
         <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
         <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
-        <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index"/>
+        <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index"
+               class="aui-i-tag" @click="onClickTag(tag)"
+        />
       </div>
       <div class="aui-i-users">
         <Tooltip v-if="!!assignor"
@@ -85,11 +87,14 @@ import TaskService from '@/service/task_service';
 import defaultAvatar from '@/images/default-avatar.webp';
 import {Badge, Button, Checkbox, Copy, Message, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
-import {useLaneStore, useModalStore, useTaskModeStore} from '@/store'
+import {useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const {userSelectModal, taskModal} = storeToRefs(modalStore)
+
+const taskFilterStore = useTaskFilterStore()
+const {tagId} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {mode, selectedTasks} = storeToRefs(taskModeStore)
@@ -255,6 +260,11 @@ const onClickEdit = (e, targetTaskId = undefined) => {
   });
 }
 
+const onClickTag = (tag) => {
+  if (tagId.value === tag.id) return
+  taskFilterStore.updateTagId(tag.id)
+}
+
 const onClickLog = () => {
   modalStore.show('taskLogModal', {
     task: props.task
@@ -356,6 +366,13 @@ const onSelectAssignor = () => {
       justify-content: flex-start;
       flex-wrap: wrap;
       margin: 10px 0;
+
+      .aui-i-tag {
+        &:hover {
+          cursor: pointer;
+          transform: scale(1.1);
+        }
+      }
     }
 
     .aui-i-extra {

@@ -62,7 +62,7 @@
           filterable
           clearable
           placeholder="任务标签"
-          @on-change="handleSearch"
+          @onChange="handleSearch"
           class="aui-i-filter"
       >
         <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
@@ -108,11 +108,13 @@ import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import {useLaneStore, useModalStore, useTaskModeStore} from '@/store'
+import {useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const laneStore = useLaneStore()
 const modalStore = useModalStore()
+const taskFilterStore = useTaskFilterStore()
+const {tagId: selectedTagId, updated: updated} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
@@ -130,12 +132,18 @@ const taskName = ref('')
 const filteredTaskId = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
-const selectedTagId = ref(0)
 let showShareModal = ref(false)
 
 watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
     onSwitchMode()
+  }
+})
+
+watch(updated, (newVal, oldVal) => {
+  if (newVal) {
+    handleSearch()
+    updated.value = false
   }
 })
 

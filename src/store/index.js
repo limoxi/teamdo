@@ -1,10 +1,10 @@
-
 import useUserStore from "./user"
 import useModalStore from "./modal"
 import useConfigStore from "./config"
 import useProjectStore from "./project"
 import useTaskModeStore from './task_mode'
 import useLaneStore from "./lane"
+import useTaskFilterStore from "./task_filter"
 
 export {
   useUserStore,
@@ -12,5 +12,6 @@ export {
   useConfigStore,
   useProjectStore,
   useTaskModeStore,
-  useLaneStore
+  useLaneStore,
+  useTaskFilterStore
 }
