@@ -2,11 +2,12 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import helper from '@/utils/helper'
 
-const useConfigStore = defineStore('config',() => {
-  let theme = ref(helper.storage.get("theme") || 'light')
+const useConfigStore = defineStore('config', () => {
+  let theme = ref(helper.storage.get('theme') || 'light')
+  let prioritySight = ref(false)
 
   const switchTheme = () => {
-    if(theme.value === 'light') {
+    if (theme.value === 'light') {
       theme.value = 'dark'
     } else if (theme.value === 'dark') {
       theme.value = 'light'
@@ -14,9 +15,15 @@ const useConfigStore = defineStore('config',() => {
     helper.storage.set('theme', theme.value)
   }
 
+  const switchKanbanSight = () => {
+    prioritySight.value = !prioritySight.value
+  }
+
   return {
     theme,
-    switchTheme
+    prioritySight,
+    switchTheme,
+    switchKanbanSight
   }
 })
 

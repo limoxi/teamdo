@@ -28,6 +28,8 @@
     <div class="aui-i-right">
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
+      <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
+      <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
       <Input
           placeholder="任务编号筛选"
           :border="false"
@@ -108,7 +110,7 @@ import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import {useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const laneStore = useLaneStore()
@@ -119,6 +121,9 @@ const {tagId: selectedTagId, updated: updated} = storeToRefs(taskFilterStore)
 const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
 const selectModeOn = computed(() => taskMode.value === 'SELECT')
+
+const configStore = useConfigStore()
+const {prioritySight} = storeToRefs(configStore)
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)

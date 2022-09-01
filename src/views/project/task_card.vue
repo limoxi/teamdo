@@ -6,7 +6,7 @@
     <div class="aui-i-header">
       <div>
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
-        <Tag :color="importanceColor" @click="onCLickTaskNo" class="aui-i-id">
+        <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
       </div>
@@ -87,8 +87,11 @@ import TaskService from '@/service/task_service';
 import defaultAvatar from '@/images/default-avatar.webp';
 import {Badge, Button, Checkbox, Copy, Message, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
-import {useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
+
+const configStore = useConfigStore()
+const {prioritySight} = storeToRefs(configStore)
 
 const modalStore = useModalStore()
 const {userSelectModal, taskModal} = storeToRefs(modalStore)
@@ -159,12 +162,21 @@ const importanceColor = computed(() => {
 const taskNameColor = computed(() => {
   switch (props.task.type) {
     case 'REQ':
+      return '#2b85e4'
     case 'OPT':
-      return 'primary'
+      return '#ff9900'
     case 'BUG':
-      return 'error'
+      return '#ed4014'
     default:
       return 'default'
+  }
+})
+
+const taskColor = computed(() => {
+  if (prioritySight.value) {
+    return importanceColor.value
+  } else {
+    return taskNameColor.value
   }
 })
 
@@ -370,7 +382,7 @@ const onSelectAssignor = () => {
       .aui-i-tag {
         &:hover {
           cursor: pointer;
-          transform: scale(1.1);
+          transform: scale(1.03);
         }
       }
     }
