@@ -1,7 +1,7 @@
 <template>
   <div class="aui-kanban-action-bar">
     <div class="aui-i-left">
-      <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加项目</Button>
+      <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加任务</Button>
       <Button type="text" @click="onSwitchMode">{{
           selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务'
         }}
@@ -31,25 +31,11 @@
       <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
       <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
       <Input
-          placeholder="任务编号筛选"
+          placeholder="筛选编号或内容"
           :border="false"
           style="width: 150px"
           class="aui-i-filter"
-          v-model="filteredTaskId"
-          clearable
-          @on-enter="handleSearch"
-          @on-clear="handleSearch"
-      >
-        <template #prefix>
-          <Icon type="ios-search"/>
-        </template>
-      </Input>
-      <Input
-          placeholder="用户故事筛选"
-          :border="false"
-          style="width: 150px"
-          class="aui-i-filter"
-          v-model="taskName"
+          v-model="filteredTaskInfo"
           clearable
           @on-enter="handleSearch"
           @on-clear="handleSearch"
@@ -86,20 +72,20 @@
           }}
         </Option>
       </Select>
-      <Select
-          filterable
-          clearable
-          v-model="selectedCreatorId"
-          placeholder="创建人"
-          @on-change="handleSearch"
-          class="aui-i-filter"
-      >
-        <Option v-for="member in project.users" :value="member.id" :key="member.id">
-          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
-            member.nickname
-          }}
-        </Option>
-      </Select>
+      <!--      <Select-->
+      <!--          filterable-->
+      <!--          clearable-->
+      <!--          v-model="selectedCreatorId"-->
+      <!--          placeholder="创建人"-->
+      <!--          @on-change="handleSearch"-->
+      <!--          class="aui-i-filter"-->
+      <!--      >-->
+      <!--        <Option v-for="member in project.users" :value="member.id" :key="member.id">-->
+      <!--          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{-->
+      <!--            member.nickname-->
+      <!--          }}-->
+      <!--        </Option>-->
+      <!--      </Select>-->
     </div>
   </div>
   <share-tasks-modal :tasks="selectedTasks" v-model:show="showShareModal"></share-tasks-modal>
@@ -133,8 +119,7 @@ const props = defineProps({
   lanes: Array
 })
 const emit = defineEmits(['search', 'onFullscreen'])
-const taskName = ref('')
-const filteredTaskId = ref('')
+const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
 let showShareModal = ref(false)
@@ -162,17 +147,14 @@ const onClickSwitch = (targetLaneId) => {
 
 const handleSearch = () => {
   const filters = {}
-  if (filteredTaskId.value) {
-    if (parseInt(filteredTaskId.value) > 0) {
-      filters['id'] = parseInt(filteredTaskId.value)
+  if (filteredTaskInfo.value) {
+    if (isNaN(filteredTaskInfo.value)) {
+      filters['name__contains'] = filteredTaskInfo.value
     } else {
-      filters['id'] = -1
+      filters['id'] = parseInt(filteredTaskInfo.value)
     }
   }
 
-  if (taskName.value !== '') {
-    filters['name__contains'] = taskName.value
-  }
   if (selectedAssignorId.value > 0) {
     filters['assignor_id'] = selectedAssignorId.value
   }
