@@ -1,43 +1,50 @@
 <template>
   <VueEditor :editor="editor" @click="onClickEditor($event)"/>
-  <ImagePreview v-model="showImage" :preview-list="previewImages" />
+  <ImagePreview v-model="showImage" :preview-list="previewImages"/>
 </template>
 
 <script setup>
-import { Editor, rootCtx, defaultValueCtx, editorViewCtx, serializerCtx, editorViewOptionsCtx } from '@milkdown/core';
-import { replaceAll } from '@milkdown/utils';
-import { listener, listenerCtx } from '@milkdown/plugin-listener';
-import { VueEditor, useEditor } from '@milkdown/vue';
-import { nord } from '@milkdown/theme-nord';
-import { commonmark } from '@milkdown/preset-commonmark';
+import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/core';
+import {getMarkdown, replaceAll} from '@milkdown/utils';
+import {listener} from '@milkdown/plugin-listener';
+import {useEditor, VueEditor} from '@milkdown/vue';
+import {nord} from '@milkdown/theme-nord';
+import {gfm} from '@milkdown/preset-gfm';
 import {ref, watch} from "vue";
+import {tooltip} from "@milkdown/plugin-tooltip";
+import slash from './slash'
 
 const props = defineProps(['readonly', 'content'])
 
 const showImage = ref(false)
 const previewImages = ref([])
 
-watch(props, (newVal, oldVal) => {
-  const ed = getInstance()
-  if(newVal.content) {
-    ed.action(replaceAll(newVal.content))
-  } else {
-    ed.action(replaceAll(''))
-  }
-  previewImages.value = []
-})
+let ei
 
-const {editor, getInstance} = useEditor((root) =>
-  Editor.make()
+const {editor} = useEditor((root) => {
+  ei = Editor.make()
       .config((ctx) => {
         ctx.set(rootCtx, root)
         ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
         ctx.set(defaultValueCtx, props.content)
       })
       .use(nord)
-      .use(commonmark)
+      .use(gfm)
+      .use(tooltip)
+      .use(slash)
       .use(listener)
-);
+
+  return ei
+})
+
+watch(props, (newVal, oldVal) => {
+  if (newVal.content) {
+    ei.action(replaceAll(newVal.content))
+  } else {
+    ei.action(replaceAll(''))
+  }
+  previewImages.value = []
+})
 
 const onClickEditor = (e) => {
   if (e.target.nodeName === 'IMG') {
@@ -50,15 +57,11 @@ const onClickEditor = (e) => {
 }
 
 const getContent = () => {
-  return getInstance().action(ctx => {
-    const view = ctx.get(editorViewCtx)
-    const s = ctx.get(serializerCtx)
-    return s(view.state.doc)
-  })
+  return ei.action(getMarkdown())
 }
 
 const resetContent = (content) => {
-  getInstance().action(replaceAll(content))
+  ei.action(replaceAll(content))
   previewImages.value = []
 }
 
@@ -66,7 +69,41 @@ defineExpose({getContent, resetContent})
 
 </script>
 
+<style>
+@font-face {
+  font-family: 'Material Icons Outlined';
+  font-style: normal;
+  font-weight: 400;
+  src: url(./gok-H7zzDkdnRel8-DQ6KAXJ69wP1tGnf4ZGhUce.woff2) format('woff2');
+}
+
+.material-icons-outlined {
+  font-family: 'Material Icons Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+</style>
+
 <style lang="less">
+.editor-add-task {
+  margin-bottom: 5px;
+
+  i {
+    transform: scale(1.7);
+  }
+}
+
 .milkdown {
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -75,7 +112,8 @@ defineExpose({getContent, resetContent})
   width: 90%;
   background: none !important;
   color: inherit !important;
-  .editor{
+
+  .editor {
     padding: 0.5em 1.25em !important;
   }
 }
