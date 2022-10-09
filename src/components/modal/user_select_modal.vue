@@ -16,7 +16,7 @@
       <Option :value="0">无</Option>
       <Option v-for="user in users" :value="user.id" :key="user.id">
         <img class="aui-user-selector-avatar" :src="user.avatar || defaultAvatar" alt="avatar"/>
-        {{user.nickname}}
+        {{ user.nickname }}
       </Option>
     </Select>
   </Modal>
@@ -41,7 +41,7 @@ let users = ref([])
 
 const onVisibleChange = (isShow) => {
   if (!isShow) return
-  if(projectId.value > 0) {
+  if (projectId.value > 0) {
     getProjectUsers(projectId.value)
   } else {
     getAllUsers()

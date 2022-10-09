@@ -196,7 +196,7 @@ const onFreshTasks = () => {
     return
   }
   refreshing = true
-  laneStore.refresh()
+  handleSearch()
   Message.success({
     content: '刷新任务...',
     duration: 5,

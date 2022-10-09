@@ -109,7 +109,7 @@ const useLaneStore = defineStore('lane', () => {
     }
   }
 
-  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh=true) {
+  function shuttleTask(projectId, targetLaneId, task, beforeTaskId = 0, refresh = true) {
     LaneService.shuttleTask(projectId, task.id, targetLaneId, beforeTaskId).then(() => {
       const targetLane = getLane(targetLaneId)
       if (refresh) {
@@ -143,7 +143,7 @@ const useLaneStore = defineStore('lane', () => {
     })
   }
 
-  return {initLane, getLane, refresh, addTask, updateTask, deleteTask, shuttleTask, shuttleTasks}
+  return {initLane, getLane, addTask, updateTask, deleteTask, shuttleTask, shuttleTasks}
 })
 
 export default useLaneStore

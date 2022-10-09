@@ -58,6 +58,10 @@
       </div>
       <div class="aui-i-extra">
         <Space :size="4">
+          <Icon type="md-quote" v-if="task.has_attention"
+                style="cursor: pointer; font-size: 0.9rem"
+                @click="onClickAttention"
+          />
           <Icon type="md-paper" v-if="task.has_desc"/>
           <Tooltip placement="top"
                    v-if="task.related_task_id >0"
@@ -85,7 +89,7 @@
 import helper from '@/utils/helper';
 import TaskService from '@/service/task_service';
 import defaultAvatar from '@/images/default-avatar.webp';
-import {Badge, Button, Checkbox, Copy, Message, Space, Tooltip} from 'view-ui-plus'
+import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
 import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
@@ -123,6 +127,7 @@ onMounted(() => {
     if (userSelectModal.userSelected) {
       if (userSelectModal.taskId === props.task.id) {
         currLane.value.setTaskAssignor(props.task, userSelectModal.selectedUserId)
+        userSelectModal.userSelected = false
       }
     }
   })
@@ -249,7 +254,7 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  laneStore.shuttleTask(project.value.id, targetLaneId, props.task, 0)
+  laneStore.shuttleTask(project.value.id, targetLaneId, props.task, -1)
 }
 
 const onAddRelation = () => {
@@ -260,13 +265,29 @@ const onAddRelation = () => {
 }
 
 const onClickEdit = (e, targetTaskId = undefined) => {
-  console.log(e, targetTaskId)
   let tid = targetTaskId || props.task.id
   TaskService.getTask(project.value.id, tid).then(task => {
     modalStore.show('taskModal', {
       'projectId': project.value.id,
       'task': task
     })
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
+}
+
+const onClickAttention = () => {
+  TaskService.getTask(project.value.id, props.task.id).then(task => {
+    let content = []
+    task.attentions.forEach(att => {
+      const f = att.checked ? '✅' : '⬜'
+      content.push(`</br>${f} ${att.content}</br>`)
+    })
+    Modal.warning({
+      title: '注意事项',
+      width: '600px',
+      content: content.join('')
+    });
   }).catch(err => {
     Message.error(err.errMsg);
   });
@@ -382,7 +403,9 @@ const onSelectAssignor = () => {
       .aui-i-tag {
         &:hover {
           cursor: pointer;
-          transform: scale(1.03);
+          margin-left: 1px;
+          transition-duration: 0.3s;
+          transition-timing-function: ease-in;
         }
       }
     }

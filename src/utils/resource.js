@@ -21,6 +21,7 @@ axios.interceptors.request.use(function (config) {
 
 const DEFAULT_ERROR_CODE = 555;
 const NET_ERROR = 554;
+const TIMEOUT_SECONDS = 8000
 
 class ResourceException {
 
@@ -60,7 +61,7 @@ class Resource {
         'Content-Type': 'multipart/form-data'
       },
       async: true,
-      timeout: 3000,
+      timeout: TIMEOUT_SECONDS,
       resource: resource
     });
   }
@@ -153,7 +154,7 @@ class Resource {
       data: {},
       headers: headers,
       async: true,
-      timeout: 3000,
+      timeout: TIMEOUT_SECONDS,
       onTimeout: helper.noop,
       success: helper.noop,
       error: helper.noop,
