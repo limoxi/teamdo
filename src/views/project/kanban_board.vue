@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <lane-modal />
+  <lane-modal/>
 
 </template>
 
@@ -48,7 +48,7 @@ import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/service/lane_service';
-import {computed, inject, nextTick, onMounted, ref, watch} from "vue";
+import {computed, inject, nextTick, onMounted, ref} from "vue";
 import {Message} from "view-ui-plus";
 
 const project = inject('project')
@@ -58,7 +58,14 @@ onMounted(() => {
   // handleScroll()
 })
 
-let lanes = computed(() => project.value.lanes)
+let lanes = computed({
+  get() {
+    return project.value.lanes
+  },
+  set(newLanes) {
+    project.value.lanes = newLanes
+  }
+})
 let drag = ref(false)
 let filters = ref(null)
 let fullscreen = ref(false)
@@ -87,7 +94,7 @@ const onEsc = () => {
   fullscreen.value = false
 }
 
-const onListChange = () => {
+const onListChange = (e) => {
   LaneService.resort(projectId.value, lanes.value).then(() => {
     Message.success('排序完成');
   }).catch(err => {
