@@ -19,7 +19,7 @@
           <span>参与人({{ users.length }})</span>
           <span>
             <Tooltip :content="user.nickname" v-for="user in users" :key="user.id" style="margin: 0 2px">
-            <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
+            <Avatar :src="getUserAvatar(user.id)||defaultAvatar" size="small"></Avatar>
           </Tooltip>
           </span>
         </Space>
@@ -110,6 +110,15 @@ modalStore.$subscribe((_, state) => {
 const users = computed(() => {
   return taskLogModal.value.task?.users || []
 })
+
+const getUserAvatar = (userId) => {
+  for (let pu of project.value.users) {
+    if (pu.id === userId) {
+      return pu.avatar
+    }
+  }
+  return ''
+}
 
 const parseAction = (log, actionText) => {
   let nameRp = '描述'

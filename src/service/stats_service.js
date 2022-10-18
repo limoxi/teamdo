@@ -11,6 +11,16 @@ class StatsService {
     })
   }
 
+  static statsForProjectUser(projectId, userId) {
+    return Resource.get({
+      'resource': 'stats.project.user',
+      'data': {
+        'project_id': projectId,
+        'user_id': userId
+      }
+    })
+  }
+
 }
 
 export default StatsService

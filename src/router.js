@@ -25,7 +25,6 @@ const Routers = [{
   }, {
     path: 'members',
     name: 'members',
-    props: true,
     component: () => import('@/views/project/members.vue')
   }, {
     path: 'tags',
