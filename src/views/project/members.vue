@@ -18,6 +18,7 @@
 </template>
 
 <script setup>
+import _ from 'lodash'
 import MemberCard from './member_card';
 import {computed, inject, onMounted, ref} from "vue";
 import {Message, Modal} from 'view-ui-plus'
@@ -77,7 +78,7 @@ const onSelectMember = (member) => {
   if (member.id === selectedMemberId.value) return
   resetStats()
   StatsService.statsForProjectUser(project.value.id, member.id).then(data => {
-    console.log(data)
+    if (_.isNil(data)) return
     data.forEach(row => {
       memberTotalTaskCount.value += row.count
       if (row.status === 3) {

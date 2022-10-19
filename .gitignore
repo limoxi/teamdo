@@ -4,6 +4,7 @@
 # General
 .git
 .idea
+.fleet
 yarn.lock
 .yarnclean
 dist
