@@ -1,8 +1,16 @@
 import Resource from '@/utils/resource';
 
 class StatsService {
+  static getDailyStatsForProject(projectId, dateRange = undefined) {
+    return Resource.get({
+      'resource': 'stats.project.daily',
+      'data': {
+        'project_id': projectId,
+      }
+    })
+  }
 
-  static statsForProjectTask(projectId) {
+  static getStatsForProjectTask(projectId) {
     return Resource.get({
       'resource': 'stats.project.task',
       'data': {
@@ -11,7 +19,7 @@ class StatsService {
     })
   }
 
-  static statsForProjectUser(projectId, userId) {
+  static getStatsForProjectUser(projectId, userId) {
     return Resource.get({
       'resource': 'stats.project.user',
       'data': {

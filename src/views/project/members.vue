@@ -77,7 +77,7 @@ let memberAbortTaskCount = ref(0)
 const onSelectMember = (member) => {
   if (member.id === selectedMemberId.value) return
   resetStats()
-  StatsService.statsForProjectUser(project.value.id, member.id).then(data => {
+  StatsService.getStatsForProjectUser(project.value.id, member.id).then(data => {
     if (_.isNil(data)) return
     data.forEach(row => {
       memberTotalTaskCount.value += row.count

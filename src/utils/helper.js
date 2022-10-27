@@ -1,7 +1,9 @@
-import moment from "moment";
-import 'moment/dist/locale/zh-cn';
+import moment from 'moment'
+import {extendMoment} from 'moment-range'
+import 'moment/dist/locale/zh-cn'
 
 moment.locale('zh-cn');
+extendMoment(moment)
 
 let storage = window.localStorage;
 
