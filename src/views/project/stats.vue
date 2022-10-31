@@ -1,79 +1,109 @@
 <template>
   <div class="aui-project-stats">
-    <div class="aui-i-section aui-flex-row">
-      <div class="aui-i-sc" id="sc3">
-        <span>
-          <Paragraph>
+    <Row :gutter="24" class="aui-i-row">
+      <Col span="6">
+        <Card>
+          <template #title>
             <Text strong>总任务数</Text>
-          </Paragraph>
+          </template>
           <CountUp :end="totalTaskCount" :duration="1" v-font="24"/>
-        </span>
-        <span style="display: flex; justify-content: space-between">
-          <span>
-          <Paragraph>
+        </Card>
+      </Col>
+      <Col span="6">
+        <Card>
+          <template #title>
             <Text strong>已完成</Text>
-          </Paragraph>
+          </template>
           <CountUp :end="finishedTaskCount" :duration="1" v-font="24"/>
-        </span>
-        <span>
-          <Paragraph>
+        </Card>
+      </Col>
+      <Col span="6">
+        <Card>
+          <template #title>
             <Text strong>进行中</Text>
-          </Paragraph>
+          </template>
           <CountUp :end="workingTaskCount" :duration="1" v-font="24"/>
-        </span>
-        <span>
-          <Paragraph>
+        </Card>
+      </Col>
+      <Col span="6">
+        <Card>
+          <template #title>
             <Text strong>已放弃</Text>
-          </Paragraph>
+          </template>
           <CountUp :end="abortTaskCount" :duration="1" v-font="24"/>
-        </span>
-        </span>
-      </div>
-      <v-chart class="aui-i-sc"
-               :theme="theme"
-               autoresize
-               :option="pieOptions"
-               :loading="loadingPie"></v-chart>
-      <v-chart class="aui-i-sc"
-               :theme="theme"
-               autoresize
-               :option="barOptions"
-               :loading="loadingBar"></v-chart>
-    </div>
-    <div class="aui-i-section aui-i-trend">
-      <DatePicker
-          v-model="dateRange"
-          separator=" ~ "
-          type="daterange"
-          :options="datePickerOps"
-          placement="bottom-end"
-          style="width: 200px"
-          @on-change="onDatePickerChange"
-      />
-      <div class="aui-flex-row">
-        <v-chart class="aui-i-sc"
-                 :theme="theme"
-                 autoresize
-                 :option="lineOptions"
-                 :loading="loadingLine"></v-chart>
-
-        <v-chart class="aui-i-sc"
-                 :theme="theme"
-                 autoresize
-                 :option="bugLineOptions"
-                 :loading="loadingLine"></v-chart>
-      </div>
-    </div>
+        </Card>
+      </Col>
+    </Row>
+    <Row :gutter="24" class="aui-i-row">
+      <Col span="12">
+        <v-chart
+            class="aui-i-chart"
+            :theme="theme"
+            autoresize
+            :option="pieOptions"
+            :loading="loadingPie"></v-chart>
+      </Col>
+      <Col span="12">
+        <v-chart
+            class="aui-i-chart"
+            :theme="theme"
+            autoresize
+            :option="barOptions"
+            :loading="loadingBar"></v-chart>
+      </Col>
+    </Row>
+    <Row>
+      <Col span="24">
+        <Card class="aui-i-daily">
+          <template #title>趋势分析</template>
+          <template #extra>
+            <Space>
+              <a href="javascript:void(0)" @click="onSwitchDateRange('today')">今日</a>
+              <a href="javascript:void(0)" @click="onSwitchDateRange('week')">周</a>
+              <a href="javascript:void(0)" @click="onSwitchDateRange('month')">月</a>
+              <a href="javascript:void(0)" @click="onSwitchDateRange('3month')">三月</a>
+              <DatePicker
+                  v-model="dateRange"
+                  separator=" ~ "
+                  type="daterange"
+                  placement="bottom-end"
+                  style="width: 200px"
+                  @on-change="onDatePickerChange"
+              />
+            </Space>
+          </template>
+          <Row :gutter="24" class="aui-i-row">
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="lineOptions"
+                  :loading="loadingLine"></v-chart>
+            </Col>
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="bugLineOptions"
+                  :loading="loadingLine"></v-chart>
+            </Col>
+          </Row>
+        </Card>
+      </Col>
+    </Row>
   </div>
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import VChart from 'vue-echarts';
 import StatsService from "@/service/stats_service";
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
 import moment from "moment";
+import {Card, Col, Space, Text} from "view-ui-plus";
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -166,48 +196,31 @@ const nowStr = moment().format('YYYY-MM-DD')
 let dateRange = ref([
   moment().add(-1, 'w').format('YYYY-MM-DD'), nowStr])
 
-const datePickerOps = computed(() => {
-  return {
-    shortcuts: [
-      {
-        text: '今日',
-        value() {
-          const end = new Date();
-          const start = new Date();
-          start.setTime(start.getTime());
-          return [start, end];
-        }
-      },
-      {
-        text: '一周',
-        value() {
-          const end = new Date();
-          const start = new Date();
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-          return [start, end];
-        }
-      },
-      {
-        text: '一月',
-        value() {
-          const end = new Date();
-          const start = new Date();
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-          return [start, end];
-        }
-      },
-      {
-        text: '三月',
-        value() {
-          const end = new Date();
-          const start = new Date();
-          start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-          return [start, end];
-        }
-      }
-    ]
+const onSwitchDateRange = desc => {
+  const now = moment()
+  const nowStr = now.format('YYYY-MM-DD')
+  switch (desc) {
+    case 'today':
+      dateRange.value = [nowStr, nowStr]
+      break
+    case 'week':
+      dateRange.value = [
+        now.add(-7, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
+    case 'month':
+      dateRange.value = [
+        now.add(-30, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
+    case '3month':
+      dateRange.value = [
+        now.add(-30 * 3, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
   }
-})
+  loadDailyData()
+}
 
 onMounted(() => {
   loadData()
@@ -232,7 +245,7 @@ const loadData = () => {
 }
 
 const onDatePickerChange = (v) => {
-  updateSc4()
+  loadDailyData()
 }
 
 const loadDailyData = () => {
@@ -366,10 +379,12 @@ const updateSc4 = (data) => {
   lineOptions.value.series = [{
     name: '每日新增',
     type: 'line',
+    smooth: true,
     data: newCounts
   }, {
     name: '每日完成',
     type: 'line',
+    smooth: true,
     data: finishedCounts
   }]
 
@@ -377,10 +392,12 @@ const updateSc4 = (data) => {
   bugLineOptions.value.series = [{
     name: '每日新增',
     type: 'line',
+    smooth: true,
     data: bugNewCounts
   }, {
     name: '每日完成',
     type: 'line',
+    smooth: true,
     data: bugFinishedCounts
   }]
 
@@ -393,27 +410,18 @@ const updateSc4 = (data) => {
 .aui-project-stats {
   padding: 15px;
 
-  .aui-i-section {
-    margin-bottom: 10px;
-    border: 2px solid whitesmoke;
-    border-radius: 2px;
-    padding: 15px;
+  .aui-i-row {
+    margin-bottom: 15px;
   }
 
-  .aui-flex-row {
-    display: flex;
-    justify-content: space-around;
+  .aui-i-daily {
+    width: 100%;
   }
 
-  .aui-i-sc {
-    width: 500px;
-    height: 300px;
+  .aui-i-chart {
+    height: 350px;
   }
 
-  .aui-i-charts {
-    display: flex;
-    justify-content: space-between;
-  }
 }
 
 </style>

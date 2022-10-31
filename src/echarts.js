@@ -11,6 +11,9 @@ import {
   TransformComponent
 } from 'echarts/components';
 
+import macaronDark from '@/styles/echarts-theme/macarons-dark.json'
+import macaron from '@/styles/echarts-theme/macarons.json'
+
 echarts.use([
   PieChart,
   LineChart,
@@ -25,3 +28,6 @@ echarts.use([
   LabelLayout,
   UniversalTransition
 ])
+
+echarts.registerTheme('dark', macaronDark)
+echarts.registerTheme('light', macaron)
