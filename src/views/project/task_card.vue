@@ -12,6 +12,8 @@
       </div>
       <div class="aui-i-action">
         <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
+        <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
+                @click="onClickFlash"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
         <Button icon="ios-link" class="aui-icon-scale" @click="onAddRelation"></Button>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
@@ -139,7 +141,6 @@ const laneStore = useLaneStore()
 const currLane = laneStore.getLane(props.lane.id)
 
 const project = inject('project')
-const headerClasses = computed(() => `aui-task aui-task-type-${props.task.type}`)
 const importanceDesc = computed(() => {
   let imp = props.task.importance;
   let str = '';
@@ -247,6 +248,25 @@ const onClickPre = () => {
     }
   }
   switchLane(targetLane.id)
+}
+
+let flashClass = computed(() => {
+  if (props.task.flashing) {
+    return 'aui-icon-scale red'
+  } else {
+    return 'aui-icon-scale'
+  }
+})
+let headerClasses = computed(() => {
+  if (props.task.flashing) {
+    return `aui-task aui-task-type-${props.task.type} animation-flash`
+  } else {
+    return `aui-task aui-task-type-${props.task.type}`
+  }
+})
+
+const onClickFlash = () => {
+  currLane.value.switchTaskFlashing(props.task.id)
 }
 
 const onCLickSwitch = (targetLaneId) => {
@@ -435,6 +455,104 @@ const onSelectAssignor = () => {
 .aui-task-type-bug {
   .aui-i-header {
     background-color: #FD6E6A;
+  }
+}
+
+.red {
+  color: #c72606;
+}
+
+</style>
+
+<style scoped>
+.animation-flash {
+  animation: animation-flash 1500ms linear infinite both;
+}
+
+@keyframes animation-flash {
+  0% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  3.2% {
+    -webkit-transform: matrix3d(1.027, 0, 0, 0, 0, 1.045, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.027, 0, 0, 0, 0, 1.045, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  6.31% {
+    -webkit-transform: matrix3d(1.033, 0, 0, 0, 0, 1.057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.033, 0, 0, 0, 0, 1.057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  6.41% {
+    -webkit-transform: matrix3d(1.033, 0, 0, 0, 0, 1.057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.033, 0, 0, 0, 0, 1.057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  10.51% {
+    -webkit-transform: matrix3d(1.027, 0, 0, 0, 0, 1.041, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.027, 0, 0, 0, 0, 1.041, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  12.71% {
+    -webkit-transform: matrix3d(1.021, 0, 0, 0, 0, 1.026, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.021, 0, 0, 0, 0, 1.026, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  14.71% {
+    -webkit-transform: matrix3d(1.016, 0, 0, 0, 0, 1.012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.016, 0, 0, 0, 0, 1.012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  18.92% {
+    -webkit-transform: matrix3d(1.007, 0, 0, 0, 0, 0.99, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.007, 0, 0, 0, 0, 0.99, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  23.02% {
+    -webkit-transform: matrix3d(1.001, 0, 0, 0, 0, 0.984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1.001, 0, 0, 0, 0, 0.984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  25.23% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 0.985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 0.985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  27.23% {
+    -webkit-transform: matrix3d(0.999, 0, 0, 0, 0, 0.988, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(0.999, 0, 0, 0, 0, 0.988, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  31.33% {
+    -webkit-transform: matrix3d(0.998, 0, 0, 0, 0, 0.997, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(0.998, 0, 0, 0, 0, 0.997, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  31.43% {
+    -webkit-transform: matrix3d(0.998, 0, 0, 0, 0, 0.997, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(0.998, 0, 0, 0, 0, 0.997, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  35.54% {
+    -webkit-transform: matrix3d(0.999, 0, 0, 0, 0, 1.003, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(0.999, 0, 0, 0, 0, 1.003, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  39.64% {
+    -webkit-transform: matrix3d(0.999, 0, 0, 0, 0, 1.005, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(0.999, 0, 0, 0, 0, 1.005, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  56.36% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 0.999, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 0.999, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  56.46% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 0.999, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 0.999, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  73.07% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  81.48% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  89.69% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  100% {
+    -webkit-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 </style>

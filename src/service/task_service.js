@@ -123,6 +123,20 @@ class TaskService {
       }
     })
   }
+
+  static switchTaskFlashing(projectId, taskId, switchOn) {
+    let method = 'put'
+    if (!switchOn) {
+      method = 'delete'
+    }
+    return Resource[method]({
+      'resource': 'project.flashing_task',
+      'data': {
+        'project_id': projectId,
+        'task_id': taskId
+      }
+    })
+  }
 }
 
 export default TaskService;

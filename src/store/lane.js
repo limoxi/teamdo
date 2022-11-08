@@ -34,6 +34,16 @@ class Lane {
     })
   }
 
+  switchTaskFlashing(taskId) {
+    const laneTask = this.getTask(taskId)
+    const isFLashing = laneTask.flashing
+    return TaskService.switchTaskFlashing(this.projectId, taskId, !isFLashing).then(() => {
+      laneTask.flashing = !isFLashing
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
+
   removeTaskLocally(taskId) {
     const elIndex = this.tasks.findIndex(task => {
       return task.id === taskId
