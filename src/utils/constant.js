@@ -1,4 +1,3 @@
-
 const colors = ['#2b85e4', '#19be6b', '#ff9900', '#ed4014', '#17233d']
 
 const importanceOptions = [
@@ -32,19 +31,26 @@ const importanceOptions = [
   }
 ]
 
+const taskType2Name = {
+  'REQ': '需求',
+  'OPT': '优化',
+  'BUG': 'BUG'
+}
+
 const taskTypeOptions = [{
-  'label': '需求',
+  'label': taskType2Name['REQ'],
   'value': 'REQ'
 }, {
-  'label': '优化',
+  'label': taskType2Name['OPT'],
   'value': 'OPT'
 }, {
-  'label': 'BUG',
+  'label': taskType2Name['BUG'],
   'value': 'BUG'
 }]
 
-export  {
+export {
   colors,
   importanceOptions,
-  taskTypeOptions
+  taskTypeOptions,
+  taskType2Name
 }

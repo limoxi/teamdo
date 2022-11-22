@@ -58,7 +58,6 @@
           <template #title>趋势分析</template>
           <template #extra>
             <Space>
-              <a href="javascript:void(0)" @click="onSwitchDateRange('today')">今日</a>
               <a href="javascript:void(0)" @click="onSwitchDateRange('week')">周</a>
               <a href="javascript:void(0)" @click="onSwitchDateRange('month')">月</a>
               <a href="javascript:void(0)" @click="onSwitchDateRange('3month')">三月</a>
@@ -90,6 +89,24 @@
                   :loading="loadingLine"></v-chart>
             </Col>
           </Row>
+          <Row :gutter="24" class="aui-i-row">
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="newTaskLineOptions"
+                  :loading="loadingLine"></v-chart>
+            </Col>
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="finishedTaskLineOptions"
+                  :loading="loadingLine"></v-chart>
+            </Col>
+          </Row>
         </Card>
       </Col>
     </Row>
@@ -104,6 +121,7 @@ import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
 import moment from "moment";
 import {Card, Col, Space, Text} from "view-ui-plus";
+import {taskType2Name} from "../../utils/constant";
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -151,8 +169,7 @@ const lineOptions = ref({
     trigger: 'axis'
   },
   legend: {
-    data: ['每日新增', '每日完成'],
-    right: 0
+    data: ['每日新增', '每日完成']
   },
   xAxis: {
     type: 'category',
@@ -160,6 +177,12 @@ const lineOptions = ref({
   },
   yAxis: {
     type: 'value'
+  },
+  toolbox: {
+    show: true,
+    feature: {
+      saveAsImage: {}
+    }
   },
   series: []
 })
@@ -171,8 +194,7 @@ const bugLineOptions = ref({
     trigger: 'axis'
   },
   legend: {
-    data: ['每日新增', '每日完成'],
-    right: 0
+    data: ['每日新增', '每日完成']
   },
   xAxis: {
     type: 'category',
@@ -180,6 +202,71 @@ const bugLineOptions = ref({
   },
   yAxis: {
     type: 'value'
+  },
+  toolbox: {
+    show: true,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  series: []
+})
+
+const newTaskLineOptions = ref({
+  title: {
+    text: '每日任务类型新增趋势'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: []
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value'
+  },
+  toolbox: {
+    show: true,
+    right: 0,
+    feature: {
+      magicType: {
+        type: ["stack"]
+      },
+      saveAsImage: {}
+    }
+  },
+  series: []
+})
+const finishedTaskLineOptions = ref({
+  title: {
+    text: '每日任务类型完成趋势'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: []
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value'
+  },
+  toolbox: {
+    show: true,
+    right: 0,
+    feature: {
+      magicType: {
+        type: ["stack"]
+      },
+      saveAsImage: {}
+    }
   },
   series: []
 })
@@ -288,7 +375,6 @@ const updateSc1 = (data) => {
     'label': {
       show: true
     },
-    'stack': 'total',
     'data': status2typeCounts[0]
   }, {
     'name': '已完成',
@@ -296,7 +382,6 @@ const updateSc1 = (data) => {
     'label': {
       show: true
     },
-    'stack': 'total',
     'data': status2typeCounts[1]
   }, {
     'name': '进行中',
@@ -304,7 +389,6 @@ const updateSc1 = (data) => {
     'label': {
       show: true
     },
-    'stack': 'total',
     'data': status2typeCounts[2]
   }]
 
@@ -341,6 +425,8 @@ const updateSc4 = (data) => {
   const finished2data = {}
   const bugNew2data = {}
   const bugFinished2data = {}
+  const type2new_data = {}
+  const type2finished_data = {}
   for (const row of data || []) {
     if (new2data[row.date]) {
       new2data[row.date] += row.new_task_count
@@ -352,6 +438,24 @@ const updateSc4 = (data) => {
       finished2data[row.date] += row.finished_task_count
     } else {
       finished2data[row.date] = row.finished_task_count
+    }
+
+    if (!type2new_data[row.task_type]) {
+      type2new_data[row.task_type] = {}
+    }
+    if (type2new_data[row.task_type][row.date]) {
+      type2new_data[row.task_type][row.date] += row.new_task_count
+    } else {
+      type2new_data[row.task_type][row.date] = row.new_task_count
+    }
+
+    if (!type2finished_data[row.task_type]) {
+      type2finished_data[row.task_type] = {}
+    }
+    if (type2finished_data[row.task_type][row.date]) {
+      type2finished_data[row.task_type][row.date] += row.finished_task_count
+    } else {
+      type2finished_data[row.task_type][row.date] = row.finished_task_count
     }
 
     if (row.task_type === 'BUG') {
@@ -375,6 +479,40 @@ const updateSc4 = (data) => {
     bugFinishedCounts.push(bugFinished2data[date] || 0)
   }
 
+  const sortedNewTaskTypes = Object.keys(type2new_data).sort()
+  newTaskLineOptions.value.xAxis.data = dates
+  newTaskLineOptions.value.legend.data = sortedNewTaskTypes.map(tt => taskType2Name[tt] || '未知')
+  newTaskLineOptions.value.series = sortedNewTaskTypes.map(taskType => {
+    const date2data = type2new_data[taskType] || {}
+    const counts = []
+    for (const date of dates) {
+      counts.push(date2data[date] || 0)
+    }
+    return {
+      name: taskType2Name[taskType] || '未知',
+      type: 'line',
+      smooth: true,
+      data: counts
+    }
+  })
+
+  const sortedFinishedTaskTypes = Object.keys(type2finished_data).sort()
+  finishedTaskLineOptions.value.xAxis.data = dates
+  finishedTaskLineOptions.value.legend.data = sortedFinishedTaskTypes.map(tt => taskType2Name[tt] || '未知')
+  finishedTaskLineOptions.value.series = sortedFinishedTaskTypes.map(taskType => {
+    const date2data = type2finished_data[taskType] || {}
+    const counts = []
+    for (const date of dates) {
+      counts.push(date2data[date] || 0)
+    }
+    return {
+      name: taskType2Name[taskType] || '未知',
+      type: 'line',
+      smooth: true,
+      data: counts
+    }
+  })
+
   lineOptions.value.xAxis.data = dates
   lineOptions.value.series = [{
     name: '每日新增',
@@ -393,11 +531,17 @@ const updateSc4 = (data) => {
     name: '每日新增',
     type: 'line',
     smooth: true,
+    markLine: {
+      data: [{type: 'average', name: '平均'}]
+    },
     data: bugNewCounts
   }, {
     name: '每日完成',
     type: 'line',
     smooth: true,
+    markLine: {
+      data: [{type: 'average', name: '平均'}]
+    },
     data: bugFinishedCounts
   }]
 
