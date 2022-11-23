@@ -1,29 +1,98 @@
 <template>
-  <div class="aui-project-members">
-    <member-card
-        v-for="pu in project.users"
-        :key="pu.id"
-        :member="pu"
-        @onDelete="onDeleteMember"
-        @click="onSelectMember(pu)"
-    />
-    <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
-  </div>
-  <div class="aui-project-member-stats" v-if="selectedMemberId > 0">
-    <p>总任务数：{{ memberTotalTaskCount }}</p>
-    <p>已完成任务数：{{ memberFinishedTaskCount }}</p>
-    <p>进行中任务数：{{ memberWorkingTaskCount }}</p>
-    <p>已放弃任务数：{{ memberAbortTaskCount }}</p>
+  <div class="aui-members">
+    <div class="aui-i-members">
+      <List border size="large">
+        <ListItem>
+          <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
+        </ListItem>
+        <ListItem
+            v-for="pu in project.users"
+            :key="pu.id"
+            @click="onSelectMember(pu)"
+        >
+          <ListItemMeta :avatar="pu.avatar || defaultAvatar">
+            <template #title>
+              {{ pu.nickname }}
+              <Icon v-if="pu.is_manager" type="ios-ribbon" class="aui-i-manager"/>
+            </template>
+          </ListItemMeta>
+          <template #action>
+            <li v-if="!pu.is_manager" style="margin-top: 3px">
+              <a href="javascript:void(0)" @click="onDeleteMember(pu)">删除</a>
+            </li>
+          </template>
+        </ListItem>
+      </List>
+    </div>
+
+    <div class="aui-i-member-stats">
+      <div class="aui-i-bar">
+        <Space>
+          <a href="javascript:void(0)" @click="onSwitchDateRange('week')">周</a>
+          <a href="javascript:void(0)" @click="onSwitchDateRange('month')">月</a>
+          <a href="javascript:void(0)" @click="onSwitchDateRange('3month')">三月</a>
+          <DatePicker
+              v-model="dateRange"
+              separator=" ~ "
+              type="daterange"
+              placement="bottom-end"
+              style="width: 200px"
+              @on-change="onDatePickerChange"
+          />
+        </Space>
+      </div>
+      <div class="aui-i-charts" v-if="selectedMemberId > 0">
+        <Row :gutter="24" class="aui-i-row">
+          <Col span="6">
+            <Card>
+              <template #title>
+                <Text strong>总任务数</Text>
+              </template>
+              <CountUp :end="memberTotalTaskCount" :duration="1" v-font="24"/>
+            </Card>
+          </Col>
+          <Col span="6">
+            <Card>
+              <template #title>
+                <Text strong>已完成</Text>
+              </template>
+              <CountUp :end="memberFinishedTaskCount" :duration="1" v-font="24"/>
+            </Card>
+          </Col>
+          <Col span="6">
+            <Card>
+              <template #title>
+                <Text strong>进行中</Text>
+              </template>
+              <CountUp :end="memberWorkingTaskCount" :duration="1" v-font="24"/>
+            </Card>
+          </Col>
+          <Col span="6">
+            <Card>
+              <template #title>
+                <Text strong>已放弃</Text>
+              </template>
+              <CountUp :end="memberAbortTaskCount" :duration="1" v-font="24"/>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import _ from 'lodash'
-import MemberCard from './member_card';
+import defaultAvatar from '@/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
-import {Message, Modal} from 'view-ui-plus'
+import {ListItem, Message, Modal} from 'view-ui-plus'
 import {useModalStore, useUserStore} from '@/store'
 import StatsService from '@/service/stats_service'
+import moment from "moment";
+
+const nowStr = moment().format('YYYY-MM-DD')
+let dateRange = ref([
+  moment().add(-1, 'w').format('YYYY-MM-DD'), nowStr])
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -53,9 +122,35 @@ const onAddMember = () => {
   modalStore.show('userSelectModal', {})
 }
 
+const onSwitchDateRange = desc => {
+  const now = moment()
+  const nowStr = now.format('YYYY-MM-DD')
+  switch (desc) {
+    case 'today':
+      dateRange.value = [nowStr, nowStr]
+      break
+    case 'week':
+      dateRange.value = [
+        now.add(-7, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
+    case 'month':
+      dateRange.value = [
+        now.add(-30, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
+    case '3month':
+      dateRange.value = [
+        now.add(-30 * 3, 'days').format('YYYY-MM-DD'),
+        nowStr];
+      break
+  }
+  loadDailyData()
+}
+
 const onDeleteMember = (member) => {
   Modal.confirm({
-    title: '移除项目成员',
+    title: `移除项目成员-${member.nickname}`,
     content: '<strong>确定要移除该项目成员么？</strong>',
     okText: '确认',
     cancelText: '再想想',
@@ -103,10 +198,35 @@ const resetStats = () => {
 </script>
 
 <style lang="less" scoped>
-.aui-project-members {
+.aui-members {
   display: flex;
   flex-wrap: wrap;
-  margin: 15px;
+  margin: 15px 30px;
+
+  .aui-i-members {
+    height: calc(100vh - 80px);
+    min-width: 15vw;
+    overflow: scroll;
+    margin-right: 15px;
+
+    .aui-i-manager {
+      font-size: 18px;
+      color: indianred;
+      vertical-align: sub;
+    }
+
+    .ivu-list-item-meta {
+      align-items: flex-end;
+    }
+  }
+
+  .aui-i-member-stats {
+    min-width: 75vw;
+
+    .aui-i-row {
+      margin-bottom: 15px;
+    }
+  }
 }
 
 .aui-i-add-btn {
