@@ -64,6 +64,7 @@
               <DatePicker
                   v-model="dateRange"
                   separator=" ~ "
+                  format="yyyy-MM-dd"
                   type="daterange"
                   placement="bottom-end"
                   style="width: 200px"
@@ -332,12 +333,12 @@ const loadData = () => {
 }
 
 const onDatePickerChange = (v) => {
+  dateRange.value = v.map(vv => moment(vv).format('YYYY-MM-DD'))
   loadDailyData()
 }
 
 const loadDailyData = () => {
-  StatsService.getDailyStatsForProject(projectId).then(data => {
-    console.log(data)
+  StatsService.getDailyStatsForProject(projectId, dateRange.value).then(data => {
     updateSc4(data)
   })
 }

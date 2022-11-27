@@ -6,7 +6,9 @@ import {
   DatasetComponent,
   GridComponent,
   LegendComponent,
+  MarkLineComponent,
   TitleComponent,
+  ToolboxComponent,
   TooltipComponent,
   TransformComponent
 } from 'echarts/components';
@@ -21,12 +23,14 @@ echarts.use([
   LegendComponent,
   TitleComponent,
   TooltipComponent,
+  ToolboxComponent,
   GridComponent,
   DatasetComponent,
   TransformComponent,
   CanvasRenderer,
   LabelLayout,
-  UniversalTransition
+  UniversalTransition,
+  MarkLineComponent
 ])
 
 echarts.registerTheme('dark', macaronDark)

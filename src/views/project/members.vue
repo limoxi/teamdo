@@ -18,7 +18,7 @@
           </ListItemMeta>
           <template #action>
             <li v-if="!pu.is_manager" style="margin-top: 3px">
-              <a href="javascript:void(0)" @click="onDeleteMember(pu)">删除</a>
+              <Button type="text" size="small" shape="circle" icon="md-close" @click="onDeleteMember(pu)"></Button>
             </li>
           </template>
         </ListItem>
@@ -76,6 +76,24 @@
             </Card>
           </Col>
         </Row>
+        <Row :gutter="24" class="aui-i-row">
+          <Col span="12">
+            <v-chart
+                class="aui-i-chart"
+                :theme="theme"
+                autoresize
+                :option="newTaskLineOptions"
+                :loading="loadingCharts"></v-chart>
+          </Col>
+          <Col span="12">
+            <v-chart
+                class="aui-i-chart"
+                :theme="theme"
+                autoresize
+                :option="finishedTaskLineOptions"
+                :loading="loadingCharts"></v-chart>
+          </Col>
+        </Row>
       </div>
     </div>
   </div>
@@ -83,12 +101,20 @@
 
 <script setup>
 import _ from 'lodash'
+import VChart from 'vue-echarts';
 import defaultAvatar from '@/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
 import {ListItem, Message, Modal} from 'view-ui-plus'
-import {useModalStore, useUserStore} from '@/store'
+import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/service/stats_service'
 import moment from "moment";
+import {storeToRefs} from "pinia";
+import {taskType2Name} from "../../utils/constant";
+
+const configStore = useConfigStore()
+const {theme} = storeToRefs(configStore)
+
+const loadingCharts = ref(true)
 
 const nowStr = moment().format('YYYY-MM-DD')
 let dateRange = ref([
@@ -101,6 +127,65 @@ const project = inject('project')
 
 const isManager = computed(() => {
   return project.value.users.filter(member => member.id === userStore.uid && member.is_manager).length > 0
+})
+
+const newTaskLineOptions = ref({
+  title: {
+    text: '每日新增趋势'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: []
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value'
+  },
+  toolbox: {
+    show: true,
+    right: 0,
+    feature: {
+      magicType: {
+        type: ["stack"]
+      },
+      saveAsImage: {}
+    }
+  },
+  series: []
+})
+const finishedTaskLineOptions = ref({
+  title: {
+    text: '每日完成趋势'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: []
+  },
+  xAxis: {
+    type: 'category',
+    data: []
+  },
+  yAxis: {
+    type: 'value'
+  },
+  toolbox: {
+    show: true,
+    right: 0,
+    feature: {
+      magicType: {
+        type: ["stack"]
+      },
+      saveAsImage: {}
+    }
+  },
+  series: []
 })
 
 onMounted(() => {
@@ -148,6 +233,100 @@ const onSwitchDateRange = desc => {
   loadDailyData()
 }
 
+const onDatePickerChange = (v) => {
+  dateRange.value = v.map(vv => moment(vv).format('YYYY-MM-DD'))
+  loadDailyData()
+}
+
+const loadDailyData = () => {
+  if (selectedMemberId.value <= 0) return
+  loadingCharts.value = true
+  StatsService.getDailyStatsForProjectUser(project.value.id, selectedMemberId.value, dateRange.value).then(data => {
+    const new2data = {}
+    const finished2data = {}
+    const type2new_data = {}
+    const type2finished_data = {}
+    for (const row of data || []) {
+      if (new2data[row.date]) {
+        new2data[row.date] += row.new_task_count
+      } else {
+        new2data[row.date] = row.new_task_count
+      }
+
+      if (finished2data[row.date]) {
+        finished2data[row.date] += row.finished_task_count
+      } else {
+        finished2data[row.date] = row.finished_task_count
+      }
+
+      if (!type2new_data[row.task_type]) {
+        type2new_data[row.task_type] = {}
+      }
+      if (type2new_data[row.task_type][row.date]) {
+        type2new_data[row.task_type][row.date] += row.new_task_count
+      } else {
+        type2new_data[row.task_type][row.date] = row.new_task_count
+      }
+
+      if (!type2finished_data[row.task_type]) {
+        type2finished_data[row.task_type] = {}
+      }
+      if (type2finished_data[row.task_type][row.date]) {
+        type2finished_data[row.task_type][row.date] += row.finished_task_count
+      } else {
+        type2finished_data[row.task_type][row.date] = row.finished_task_count
+      }
+
+    }
+
+    const dr = moment.range(dateRange.value[0], dateRange.value[1])
+    const dates = Array.from(dr.by('day')).map(date => date.format('YYYY-MM-DD'))
+
+    const newCounts = []
+    const finishedCounts = []
+    for (const date of dates) {
+      newCounts.push(new2data[date] || 0)
+      finishedCounts.push(finished2data[date] || 0)
+    }
+
+    const sortedNewTaskTypes = Object.keys(type2new_data).sort()
+    newTaskLineOptions.value.xAxis.data = dates
+    newTaskLineOptions.value.legend.data = sortedNewTaskTypes.map(tt => taskType2Name[tt] || '未知')
+    newTaskLineOptions.value.series = sortedNewTaskTypes.map(taskType => {
+      const date2data = type2new_data[taskType] || {}
+      const counts = []
+      for (const date of dates) {
+        counts.push(date2data[date] || 0)
+      }
+      return {
+        name: taskType2Name[taskType] || '未知',
+        type: 'line',
+        smooth: true,
+        data: counts
+      }
+    })
+
+    const sortedFinishedTaskTypes = Object.keys(type2finished_data).sort()
+    finishedTaskLineOptions.value.xAxis.data = dates
+    finishedTaskLineOptions.value.legend.data = sortedFinishedTaskTypes.map(tt => taskType2Name[tt] || '未知')
+    finishedTaskLineOptions.value.series = sortedFinishedTaskTypes.map(taskType => {
+      const date2data = type2finished_data[taskType] || {}
+      const counts = []
+      for (const date of dates) {
+        counts.push(date2data[date] || 0)
+      }
+      return {
+        name: taskType2Name[taskType] || '未知',
+        type: 'line',
+        smooth: true,
+        data: counts
+      }
+    })
+
+    loadingCharts.value = false
+  })
+}
+
 const onDeleteMember = (member) => {
   Modal.confirm({
     title: `移除项目成员-${member.nickname}`,
@@ -171,7 +350,9 @@ let memberWorkingTaskCount = ref(0)
 let memberAbortTaskCount = ref(0)
 const onSelectMember = (member) => {
   if (member.id === selectedMemberId.value) return
+
   resetStats()
+  selectedMemberId.value = member.id
   StatsService.getStatsForProjectUser(project.value.id, member.id).then(data => {
     if (_.isNil(data)) return
     data.forEach(row => {
@@ -184,8 +365,8 @@ const onSelectMember = (member) => {
         memberWorkingTaskCount.value += row.count
       }
     })
-    selectedMemberId.value = member.id
   })
+  loadDailyData()
 }
 
 const resetStats = () => {
@@ -193,6 +374,14 @@ const resetStats = () => {
   memberFinishedTaskCount.value = 0
   memberWorkingTaskCount.value = 0
   memberAbortTaskCount.value = 0
+
+  newTaskLineOptions.value.xAxis.data = []
+  newTaskLineOptions.value.legend.data = []
+  newTaskLineOptions.value.series = []
+
+  finishedTaskLineOptions.value.xAxis.data = []
+  finishedTaskLineOptions.value.legend.data = []
+  finishedTaskLineOptions.value.series = []
 }
 
 </script>
@@ -223,13 +412,32 @@ const resetStats = () => {
   .aui-i-member-stats {
     min-width: 75vw;
 
+    .aui-i-bar {
+      //border: 1px solid #dcdee2;
+      //border-radius: 5px;
+      //padding: 0 15px;
+      //margin-bottom: 5px;
+    }
+
     .aui-i-row {
       margin-bottom: 15px;
+    }
+
+    .aui-i-chart {
+      height: 350px;
     }
   }
 }
 
 .aui-i-add-btn {
   margin: auto 5px;
+}
+
+.aui-i-del-member-btn {
+  font-size: 18px;
+
+  :hover {
+    transform: scale(1.1);
+  }
 }
 </style>

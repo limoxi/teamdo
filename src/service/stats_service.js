@@ -6,6 +6,7 @@ class StatsService {
       'resource': 'stats.project.daily',
       'data': {
         'project_id': projectId,
+        'date_range': dateRange
       }
     })
   }
@@ -15,6 +16,17 @@ class StatsService {
       'resource': 'stats.project.task',
       'data': {
         'project_id': projectId,
+      }
+    })
+  }
+
+  static getDailyStatsForProjectUser(projectId, userId, dateRange = undefined) {
+    return Resource.get({
+      'resource': 'stats.project.user.daily',
+      'data': {
+        'project_id': projectId,
+        'user_id': userId,
+        'date_range': dateRange
       }
     })
   }
