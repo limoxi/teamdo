@@ -234,12 +234,14 @@ const onSwitchDateRange = desc => {
 }
 
 const onDatePickerChange = (v) => {
-  dateRange.value = v.map(vv => moment(vv).format('YYYY-MM-DD'))
   loadDailyData()
 }
 
 const loadDailyData = () => {
   if (selectedMemberId.value <= 0) return
+  if (!_.isString(dateRange[0])) {
+    dateRange.value = dateRange.value.map(vv => moment(vv).format('YYYY-MM-DD'))
+  }
   loadingCharts.value = true
   StatsService.getDailyStatsForProjectUser(project.value.id, selectedMemberId.value, dateRange.value).then(data => {
     const new2data = {}
