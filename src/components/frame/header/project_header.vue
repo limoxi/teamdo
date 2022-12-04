@@ -4,8 +4,8 @@
     <div class="aui-i-menu">
       <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
         <MenuItem name="projects">项目</MenuItem>
+        <MenuItem name="epics">需求</MenuItem>
         <MenuItem name="kanban">看板</MenuItem>
-        <!--        <MenuItem name="state">统计</MenuItem>-->
         <MenuItem name="members">成员</MenuItem>
         <MenuItem name="tags">标签</MenuItem>
         <MenuItem name="stats">统计</MenuItem>

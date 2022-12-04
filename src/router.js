@@ -19,6 +19,10 @@ const Routers = [{
   props: true,
   component: () => import('@/views/project/project.vue'),
   children: [{
+    path: 'epics',
+    name: 'epics',
+    component: () => import('@/views/project/epics.vue')
+  }, {
     path: 'kanban',
     name: 'kanban',
     component: () => import('@/views/project/kanban_board.vue')

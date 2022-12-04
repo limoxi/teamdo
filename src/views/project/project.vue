@@ -9,6 +9,7 @@
   </top-frame>
   <!-- modal -->
   <task-modal/>
+  <epic-modal/>
   <task-log-modal/>
   <user-select-modal/>
 </template>
@@ -17,21 +18,23 @@
 import TopFrame from '@/components/frame/top_frame';
 import ProjectHeader from '@/components/frame/header/project_header';
 import TaskModal from '@/components/modal/task_modal';
+import EpicModal from '@/components/modal/epic_modal';
 import TaskLogModal from '@/components/modal/task_log_modal';
 import UserSelectModal from '@/components/modal/user_select_modal';
-import {provide} from 'vue'
-import {useProjectStore} from '@/store'
-import {Message} from "view-ui-plus"
-import {storeToRefs} from "pinia";
+import {provide, ref} from 'vue'
+import ProjectService from "@/service/project_service";
+import Project from "@/store/project"
 
 const props = defineProps(['projectId'])
-const projectStore = useProjectStore()
-projectStore.reload(parseInt(props.projectId)).catch(e => {
-  Message.error(e.errMsg || '加载项目失败')
-})
+const projectId = parseInt(props.projectId)
+provide('projectId', projectId)
 
-const {project} = storeToRefs(projectStore)
+const project = ref(new Project())
 provide('project', project)
+
+ProjectService.getProject(projectId).then(data => {
+  project.value = new Project(data)
+})
 
 </script>
 

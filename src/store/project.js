@@ -1,12 +1,10 @@
-import {ref} from 'vue'
-import {defineStore} from 'pinia'
 import ProjectService from "@/service/project_service"
 import TagService from "@/service/tag_service"
 import {Message} from "view-ui-plus"
 import LaneService from "@/service/lane_service"
 
-class Project{
-  constructor(projectData=undefined) {
+class Project {
+  constructor(projectData = undefined) {
     this.id = projectData?.id ?? 0
     this.name = projectData?.name ?? ''
     this.prefix = projectData?.prefix ?? 'XXX'
@@ -16,14 +14,14 @@ class Project{
     this.lanes = projectData?.lanes ?? []
   }
 
-  reloadTags(){
+  reloadTags() {
     if (this.id <= 0) return
     return TagService.getTagsForProject(this.id).then(data => {
       this.tags = data
     })
   }
 
-  reloadUsers(){
+  reloadUsers() {
     if (this.id <= 0) return
     return ProjectService.getProjectMembers(this.id).then(data => {
       this.users = data
@@ -44,20 +42,20 @@ class Project{
 
   addLane(name, afterLaneId) {
     return LaneService.addLane(this.id, name, afterLaneId).then((newLane) => {
-      const afterIndex = this.lanes.findIndex(lane => lane.id===afterLaneId)
+      const afterIndex = this.lanes.findIndex(lane => lane.id === afterLaneId)
       if (afterIndex < 0) {
         this.lanes.push(newLane)
       } else {
-        this.lanes.splice(afterIndex+1, 0, newLane)
+        this.lanes.splice(afterIndex + 1, 0, newLane)
       }
     }).catch(err => {
       Message.error(err.errMsg);
     })
   }
 
-  updateLane(data){
+  updateLane(data) {
     return LaneService.updateLane(this.id, data).then((updatedLane) => {
-      const elIndex = this.lanes.findIndex(lane => lane.id===updatedLane.id)
+      const elIndex = this.lanes.findIndex(lane => lane.id === updatedLane.id)
       if (elIndex >= 0) {
         this.lanes[elIndex] = updatedLane
       }
@@ -68,7 +66,7 @@ class Project{
 
   deleteLane(laneId) {
     return LaneService.deleteLane(this.id, laneId).then(() => {
-      const elIndex = this.lanes.findIndex(lane => lane.id===laneId)
+      const elIndex = this.lanes.findIndex(lane => lane.id === laneId)
       if (elIndex >= 0) {
         this.lanes.splice(elIndex, 1)
       }
@@ -78,15 +76,4 @@ class Project{
   }
 }
 
-const useProjectStore = defineStore('project',() => {
-  const project = ref(new Project())
-  function reload(pid) {
-    return ProjectService.getProject(pid).then(data => {
-      project.value = new Project(data)
-    })
-  }
-
-  return {project, reload}
-})
-
-export default useProjectStore
+export default Project

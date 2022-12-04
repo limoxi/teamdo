@@ -34,6 +34,11 @@ const useModalStore = defineStore('modal', () => {
     relatedTask: null
   })
 
+  const epicModal = ref({
+    show: false,
+    task: null
+  })
+
   const taskLogModal = ref({
     show: false,
     task: null
@@ -70,6 +75,11 @@ const useModalStore = defineStore('modal', () => {
         taskModal.value.relatedTask = data.relatedTask || null
         taskModal.value.show = true
         break
+      case 'epicModal':
+        projectId.value = data.projectId || 0
+        epicModal.value.task = data.task || null
+        epicModal.value.show = true
+        break
       case 'taskLogModal':
         projectId.value = data.projectId || 0
         taskLogModal.value.task = data.task || null
@@ -95,6 +105,9 @@ const useModalStore = defineStore('modal', () => {
       case 'taskModal':
         taskModal.value.show = false
         break
+      case 'epicModal':
+        epicModal.value.show = false
+        break
       case 'taskLogModal':
         taskLogModal.value.show = false
         break
@@ -108,6 +121,7 @@ const useModalStore = defineStore('modal', () => {
     botModal,
     laneModal,
     taskModal,
+    epicModal,
     taskLogModal,
     show,
     close
