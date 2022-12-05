@@ -7,36 +7,36 @@ const srcPath = path.join(__dirname, 'src')
 const envPrefix = 'APP_'
 
 export default defineConfig({
-  base: '/',
-  plugins: [
-    vue()
-  ],
-  envPrefix,
-  resolve: {
-    alias: [
-      {find: /^@\//, replacement: `${srcPath}/`},
-    ],
-    extensions: ['.js', '.vue', '.json', '.less', '.css']
-  },
-  css: {
-    preprocessorOptions: {
-      less: {
-        javascriptEnabled: true
-      }
-    },
-    postcss: {
-      plugins: [
-        autoprefixer
-      ],
-    }
-  },
-  server: {
-    open: true,
-    proxy: {
-      '/iteamdo': {
-        target: 'http://njapi.vxiaocheng.com',
-        changeOrigin: true
-      }
-    }
-  }
+	base: '/',
+	plugins: [
+		vue()
+	],
+	envPrefix,
+	resolve: {
+		alias: [
+			{find: /^@\//, replacement: `${srcPath}/`},
+		],
+		extensions: ['.js', '.vue', '.json', '.less', '.css']
+	},
+	css: {
+		preprocessorOptions: {
+			less: {
+				javascriptEnabled: true
+			}
+		},
+		postcss: {
+			plugins: [
+				autoprefixer
+			],
+		}
+	},
+	server: {
+		open: true,
+		proxy: {
+			'/iteamdo': {
+				target: 'http://njapi.vxiaocheng.com',
+				changeOrigin: true
+			}
+		}
+	}
 })
