@@ -95,6 +95,7 @@ import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'vie
 import {computed, inject, onMounted} from "vue";
 import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
+import {getImportanceDesc} from '@/utils/constant';
 
 const configStore = useConfigStore()
 const {prioritySight} = storeToRefs(configStore)
@@ -142,16 +143,7 @@ const currLane = laneStore.getLane(props.lane.id)
 
 const project = inject('project')
 const importanceDesc = computed(() => {
-  let imp = props.task.importance;
-  let str = '';
-  if (imp <= 3) {
-    str = '一般';
-  } else if (imp <= 6) {
-    str = '紧急';
-  } else if (imp <= 9) {
-    str = '非常紧急';
-  }
-  return str;
+  return getImportanceDesc(props.task.importance)
 })
 
 const importanceColor = computed(() => {

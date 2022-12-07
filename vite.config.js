@@ -34,7 +34,7 @@ export default defineConfig({
 		open: true,
 		proxy: {
 			'/iteamdo': {
-				target: 'http://njapi.vxiaocheng.com',
+				target: 'http://devapi.vxiaocheng.com',
 				changeOrigin: true
 			}
 		}

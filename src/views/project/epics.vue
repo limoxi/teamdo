@@ -3,14 +3,24 @@
     <EasyTable
         :ref="table"
         :loadingFn="loadPagedEpicTasks"
-        :filters="filters"
-        :columns="columns.map(c => c.key)"
+        :columns="columns"
     >
       <template #search>
         <action-bar @search="handleSearch"></action-bar>
       </template>
-      <template #row="{record, index}">
-        {{ record.name }}
+      <template #row-expend="{record}">
+        <div>
+          <Space>
+            <span>概述：{{ record.name }}</span>
+            <Space>
+              <a v-if="record.docLink" :href="record.docLink" target="_blank">文档链接</a>
+              <a v-if="record.designLink" :href="record.designLink" target="_blank">设计链接</a>
+            </Space>
+          </Space>
+        </div>
+      </template>
+      <template #importance="{record}">
+        {{ getImportanceDesc(record.importance) }}
       </template>
     </EasyTable>
     <!--    <Result v-else type="warning" title="还没有任何需求">-->
@@ -28,9 +38,11 @@
 import ActionBar from './epics_action_bar'
 import {inject, ref} from "vue"
 import {useModalStore} from '@/store'
-import EpicTaskService from "@/service/epic_task_service";
-import EpicTask from "@/store/epic";
-import EasyTable from "@/components/EasyTable";
+import EpicTaskService from '@/service/epic_task_service';
+import EpicTask from '@/store/epic';
+import EasyTable from '@/components/EasyTable';
+import {getImportanceDesc} from '@/utils/constant';
+import {Space} from "view-ui-plus";
 
 const modalStore = useModalStore()
 
@@ -42,15 +54,34 @@ const table = ref(null)
 const filters = ref({})
 const orderFields = ref([])
 const columns = [
-  '编号',
-  '概述',
-  '链接',
-  '优先级',
-  '创建时间',
-  '截止时间',
-  '状态',
-  '维护人',
-  '操作'
+  {
+    key: 'id',
+    name: '编号'
+  }, {
+    key: 'importance',
+    name: '优先级',
+    slot: 'importance'
+  }, {
+    key: 'createdAt',
+    name: '创建时间',
+    width: '160px'
+  }, {
+    key: 'expectedFinishedAt',
+    name: '截止时间',
+    width: '160px'
+  }, {
+    key: 'status',
+    name: '状态',
+    slot: 'status'
+  }, {
+    key: 'creator_id',
+    name: '维护人',
+    slot: 'creator'
+  }, {
+    key: 'action',
+    name: '操作',
+    slot: 'action'
+  }
 ]
 
 const handleSearch = (f) => {
