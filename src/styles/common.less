@@ -3,8 +3,8 @@ html {
   user-select: none;
 }
 
-*::-webkit-scrollbar {/*滚动条整体样式*/
-   display: none;
+*::-webkit-scrollbar { /*滚动条整体样式*/
+  display: none;
 }
 
 @font-face {
@@ -76,7 +76,7 @@ button:focus, button:active {
     max-height: 58px;
     flex-grow: 1;
 
-    .ivu-menu{
+    .ivu-menu {
       position: initial;
     }
   }
@@ -103,27 +103,29 @@ button:focus, button:active {
 }
 
 // 标签（badge）
-.ivu-badge{
-   margin-right: 9px;
-  .ivu-badge-status-text{
+.ivu-badge {
+  margin-right: 9px;
+
+  .ivu-badge-status-text {
     font-size: 12px;
   }
 }
 
-.ivu-input:not(.ivu-form-item-content .ivu-input){
+.ivu-input:not(.ivu-form-item-content .ivu-input) {
   outline: none !important;
   outline: 0 !important;
   background-color: transparent !important;
   border: solid 1px transparent !important;
 }
 
-.ivu-select-input:not(.ivu-form-item-content){
+.ivu-select-input:not(.ivu-form-item-content) {
   background-color: transparent !important;
 }
 
-.ivu-select-item{
+.ivu-select-item {
   display: flex;
   align-items: center;
+
   .aui-user-selector-avatar {
     width: 25px;
     height: 25px;
@@ -131,6 +133,10 @@ button:focus, button:active {
     display: block;
     margin-right: 5px;
   }
+}
+
+.ivu-page.mini .ivu-page-item {
+  margin: 0 1px !important;
 }
 
 @import "theme/dark.less";

@@ -2,11 +2,11 @@
   <div class="aui-epics-bar">
     <div class="aui-i-left">
       <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加需求</Button>
-      <Button type="text" @click="onSwitchMode">{{
-          selectModeOn ? `取消选择(${selectedTasks.length})` : '选择需求'
-        }}
-      </Button>
-      <Button type="text" v-if="selectModeOn && selectedTasks.length > 0" @click="onClickShare">分享</Button>
+      <!--      <Button type="text" @click="onSwitchMode">{{-->
+      <!--          selectModeOn ? `取消选择(${selectedTasks.length})` : '选择需求'-->
+      <!--        }}-->
+      <!--      </Button>-->
+      <!--      <Button type="text" v-if="selectModeOn && selectedTasks.length > 0" @click="onClickShare">分享</Button>-->
     </div>
     <div class="aui-i-right">
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>

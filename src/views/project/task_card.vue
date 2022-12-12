@@ -65,12 +65,8 @@
                 @click="onClickAttention"
           />
           <Icon type="md-paper" v-if="task.has_desc"/>
-          <Tooltip placement="top"
-                   v-if="task.related_task_id >0"
-                   :content="`${project.prefix}${task.related_task_id}`">
-            <Icon type="md-link" style="cursor: pointer; font-size: 1rem"
-                  @click="onClickEdit($event, task.related_task_id)"/>
-          </Tooltip>
+          <Icon v-if="task.parent_id >0" type="md-link" style="cursor: pointer; font-size: 1rem"
+                @click="onClickEdit($event, task.parent_id)"/>
 
           <Tooltip placement="top">
             <span>{{ task.sp }}/{{ task.passed_sp }}</span>
@@ -95,7 +91,7 @@ import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'vie
 import {computed, inject, onMounted} from "vue";
 import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
-import {getImportanceDesc} from '@/utils/constant';
+import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
 
 const configStore = useConfigStore()
 const {prioritySight} = storeToRefs(configStore)
@@ -147,14 +143,7 @@ const importanceDesc = computed(() => {
 })
 
 const importanceColor = computed(() => {
-  let imp = importanceDesc.value;
-  let clr = '#2b85e4';
-  if (imp === '紧急') {
-    clr = '#ff9900';
-  } else if (imp === '非常紧急') {
-    clr = '#ed4014';
-  }
-  return clr;
+  return getImportanceColor(props.task.importance)
 })
 
 const taskNameColor = computed(() => {
@@ -279,7 +268,8 @@ const onAddRelation = () => {
 const onClickEdit = (e, targetTaskId = undefined) => {
   let tid = targetTaskId || props.task.id
   TaskService.getTask(project.value.id, tid).then(task => {
-    modalStore.show('taskModal', {
+    let modalName = task.category === 'epic' ? 'epicModal' : 'taskModal'
+    modalStore.show(modalName, {
       'projectId': project.value.id,
       'task': task
     })

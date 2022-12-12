@@ -23,6 +23,11 @@
           :rules="ruleValidate"
           :label-width="80"
     >
+      <FormItem v-if="!isCreateMode" label="变更说明" prop="remark">
+        <Input
+            v-model="form.remark"
+            style="width: 70%"/>
+      </FormItem>
       <div style="display: flex; flex-direction: row; justify-content: flex-start">
         <FormItem label="优先级" prop="importance">
           <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
@@ -33,7 +38,7 @@
         </FormItem>
         <FormItem label="需求来源" prop="fromWhere">
           <Tag type="dot" closable v-if="form.fromWhere"
-               @on-close="handleCloseTag"
+               :color="selectedTag.color" @on-close="handleCloseTag"
           >
             {{ form.fromWhere }}
           </Tag>
@@ -54,9 +59,9 @@
       </div>
       <FormItem label="截止时间" prop="expectedFinishedAt">
         <DatePicker
-            type="date"
+            type="datetime"
             v-model="form.expectedFinishedAt"
-            format="yyyy-MM-dd"
+            format="yyyy-MM-dd HH:mm"
             style="width: 180px"/>
       </FormItem>
       <FormItem label="需求概述" prop="name">
@@ -70,14 +75,12 @@
       </FormItem>
       <FormItem label="文档链接" prop="docLink">
         <Input
-            :maxlength="24"
             v-model="form.docLink"
             style="width: 70%"/>
         <Button v-if="form.docLink !== ''" type="text" @click="onOpenLink(form.docLink)">打开</Button>
       </FormItem>
       <FormItem label="设计链接" prop="designLink">
         <Input
-            :maxlength="24"
             v-model="form.designLink"
             style="width: 70%"/>
         <Button v-if="form.designLink !== ''" type="text" @click="onOpenLink(form.designLink)">打开</Button>
@@ -89,13 +92,15 @@
   </Modal>
 </template>
 <script setup>
-import Editor from '@/components/editor/editor'
+import Editor from '@/components/editor/editor';
 import {computed, inject, ref} from "vue";
 import {FormItem, Message, Modal} from "view-ui-plus";
-import {importanceOptions} from '@/utils/constant'
-import {useModalStore} from "@/store"
+import {importanceOptions} from '@/utils/constant';
+import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
-import EpicTaskService from "../../service/epic_task_service";
+import EpicTaskService from "@/service/epic_task_service";
+import TagService from "@/service/tag_service";
+import moment from "moment/moment";
 
 const projectId = inject('projectId')
 const project = inject('project')
@@ -113,6 +118,9 @@ const ruleValidate = {
   ],
   importance: [
     {required: true, message: '请选择优先级', trigger: 'blur'}
+  ],
+  remark: [
+    {required: true, message: '需求变更记录不能为空', trigger: 'blur'}
   ]
 }
 
@@ -127,24 +135,28 @@ let form = ref({
   expectedFinishedAt: '',
   docLink: '',
   designLink: '',
-  desc: ''
+  desc: '',
+  remark: ''
 })
 const taskForm = ref(null)
 const editorInst = ref()
 
 modalStore.$subscribe((_, state) => {
   const store = state.epicModal
-  if (store.show && store.task) {
-    form.value.fromWhere = store.task?.fromWhere ?? ''
+  if (store.show) {
+    if (!['', '未知'].includes(store.task?.fromWhere || '')) {
+      form.value.fromWhere = store.task.fromWhere
+    }
     form.value.name = store.task?.name ?? ''
     form.value.importance = store.task?.importance + ''
     form.value.expectedFinishedAt = store.task?.expectedFinishedAt ?? ''
     form.value.docLink = store.task?.docLink ?? ''
     form.value.designLink = store.task?.designLink ?? ''
     form.value.desc = store.task?.desc ?? ''
-    if ((store.task?.tags || []).length > 0) {
+    if ((store.task?.tags ?? []).length > 0) {
       selectedTag.value = store.task.tags[0]
     }
+    form.value.remark = ''
 
     editorInst.value.resetContent(store.task?.desc ?? '')
   }
@@ -160,21 +172,24 @@ const actionDone = () => {
 }
 
 const handleCreateTag = (newTagName) => {
-  const newTag = {
-    id: -(selectableTags.value.length),
-    name: newTagName,
-    color: '#17233d'
-  }
-  selectableTags.value.push(newTag)
-  form.value.fromWhere = newTag.name
-  selectedTag.value = newTag
+  const color = '#17233d'
+  TagService.addTag(projectId, newTagName, color).then(data => {
+    const newTag = {
+      id: data.id,
+      name: newTagName,
+      color: color
+    }
+    selectableTags.value.push(newTag)
+    form.value.fromWhere = newTagName
+    selectedTag.value = newTag
+  })
+
 }
 
 const handleSelectTag = (st) => {
   const tagId = st.value
   if (tagId < 0) return
   const tag = selectableTags.value.filter(tag => tag.id === tagId)[0]
-  console.log(tag)
   form.value.fromWhere = tag.name
   selectedTag.value = tag
 }
@@ -185,25 +200,30 @@ const handleCloseTag = () => {
 }
 
 const handleSubmit = () => {
-  taskForm.value.validate((valid) => {
+  taskForm.value.validate(async (valid) => {
     if (valid) {
+      let tagId = selectedTag.value.id
       const taskData = {
         name: form.value.name.replace(/\s+/g, ""),
         desc: editorInst.value.getContent(),
         importance: form.value.importance * 1,
-        expectedFinishedAt: form.value.expectedFinishedAt,
         metaData: {
           'doc_link': form.value.docLink,
           'design_link': form.value.designLink
-        },
-        tagIds: [selectedTag.value.id]
+        }
       }
+      if (form.value.expectedFinishedAt) {
+        taskData.expectedFinishedAt = moment(form.value.expectedFinishedAt).format('YYYY-MM-DD HH:mm:ss')
+      }
+
+      taskData.tagIds = [tagId]
       if (isCreateMode.value) {
         EpicTaskService.addEpicTask(projectId, taskData).then(() => {
           actionDone()
         })
       } else {
         taskData.id = task.value.id
+        taskData.remark = form.value.remark
         EpicTaskService.updateEpicTask(projectId, taskData).then(() => {
           actionDone()
         })

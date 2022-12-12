@@ -3,16 +3,18 @@
     <slot name="search"></slot>
     <div class="aui-i-table">
       <Row class="aui-i-header" v-if="columns.length || 0 > 0">
-        <Col :style="column.width?{minWidth: column.width}: ''" :span="parseInt(24/columns.length)"
+        <Col class="aui-i-header-col" :style="column.width?{minWidth: column.width}: ''"
+             :span="parseInt(24/columns.length)"
              v-for="(column, columnIndex) in columns"
              :key="columnIndex">
           <slot :column="column">{{ column.name }}</slot>
         </Col>
       </Row>
-      <div v-for="(record, recordIndex) in records" :key="recordIndex">
+      <div class="aui-i-row" v-for="(record, recordIndex) in records" :key="recordIndex">
         <slot name="row-expend" :record="record"></slot>
         <Row>
-          <Col :style="column.width?{minWidth: column.width}: ''" :span="parseInt(24/columns.length)"
+          <Col class="aui-i-row-col" :style="column.width?{minWidth: column.width}: ''"
+               :span="parseInt(24/columns.length)"
                v-for="(column, columnIndex) in columns" :key="columnIndex">
             <slot :name="column.slot" v-if="column.slot" :record="record"></slot>
             <p v-else>{{ record[column.key] }}</p>
@@ -87,7 +89,36 @@ defineExpose({
     margin: 5px;
 
     .aui-i-header {
+      min-width: 100%;
+      margin-bottom: 5px;
+      border-radius: 2px;
 
+      .aui-i-header-col {
+        padding: 5px;
+        border: 1px solid whitesmoke;
+      }
+
+      :last-child {
+        flex-grow: 1;
+        max-width: 100%;
+      }
+    }
+
+    .aui-i-row {
+      border: 1px solid whitesmoke;
+      margin-bottom: 5px;
+
+      .aui-i-row-col {
+        border-right: 1px solid whitesmoke;
+        border-top: 1px solid whitesmoke;
+        padding: 5px;
+      }
+
+      :last-child {
+        flex-grow: 1;
+        max-width: 100%;
+        border-right: none;
+      }
     }
   }
 }

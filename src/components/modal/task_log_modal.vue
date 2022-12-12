@@ -14,7 +14,7 @@
       />
     </template>
     <template v-else>
-      <div style="margin-bottom: 20px">
+      <div v-if="taskLogModal.task.category !== 'epic'" style="margin-bottom: 20px">
         <Space split>
           <span>参与人({{ users.length }})</span>
           <span>
@@ -58,7 +58,7 @@
             </Space>
           </p>
         </TimelineItem>
-        <TimelineItem v-if="!finished">进行中...</TimelineItem>
+        <TimelineItem v-if="!finished">未完待续...</TimelineItem>
       </Timeline>
     </template>
   </Modal>

@@ -60,10 +60,22 @@ const getImportanceDesc = (imp) => {
     return str;
 }
 
+const getImportanceColor = (imp) => {
+    if (imp <= 3) {
+        return '#2b85e4'
+    } else if (imp <= 6) {
+        return '#ff9900'
+    } else if (imp <= 9) {
+        return '#ed4014'
+    }
+    return '#2b85e4'
+}
+
 export {
     colors,
     importanceOptions,
     taskTypeOptions,
     taskType2Name,
-    getImportanceDesc
+    getImportanceDesc,
+    getImportanceColor
 }
