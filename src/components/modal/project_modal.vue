@@ -6,23 +6,23 @@
   >
     <Form ref="projectForm" :model="form" :rules="ruleValidate" :label-width="80">
       <FormItem label="项目名" prop="name">
-        <Input v-model="form.name" />
+        <Input v-model="form.name"/>
       </FormItem>
       <FormItem v-if="!isCreateMode" label="项目前缀" prop="prefix">
-        <Input v-model="form.prefix" readonly disabled />
+        <Input v-model="form.prefix" readonly disabled/>
       </FormItem>
       <FormItem label="简介" prop="desc">
-        <Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述" />
+        <Input v-model="form.desc" type="textarea" :autosize="{minRows: 2,maxRows: 5}" placeholder="项目简要描述"/>
       </FormItem>
     </Form>
   </Modal>
 </template>
 
 <script setup>
-import ProjectService from '@/service/project_service';
+import ProjectService from '@/business/project_service';
 import {useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
-import {ref, computed, onMounted} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {Message} from "view-ui-plus";
 
 const ruleValidate = {

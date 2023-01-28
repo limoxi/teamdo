@@ -36,11 +36,8 @@
 </template>
 
 <script>
-import ProjectService from '@/service/project_service';
 import MemberCard from './member_card';
-import defaultAvatar from '@/images/default-avatar.webp';
 import UserSelectModal from '@/components/modal/user_select_modal';
-import helper from '@/utils/helper';
 
 export default {
   props: ['projectId'],

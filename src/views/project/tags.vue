@@ -2,8 +2,8 @@
   <div class="aui-project-tags">
     <Button icon="md-add" @click="onAddTag" class="aui-i-add-btn">新增标签</Button>
     <Tag class="aui-i-tag" type="dot" closable :color="tag.color"
-        v-for="tag in project.tags" :key="tag.id"
-       @on-close="onDelete(tag)"
+         v-for="tag in project.tags" :key="tag.id"
+         @on-close="onDelete(tag)"
          @click="onEdit(tag)"
     >
       {{ tag.name }}
@@ -34,9 +34,9 @@
 </template>
 
 <script setup>
-import TagService from '@/service/tag_service';
+import TagService from '@/business/tag_service';
 import {colors} from '@/utils/constant'
-import {ref, inject, onMounted, computed} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message, Modal} from 'view-ui-plus'
 
 const ruleValidate = {
@@ -151,7 +151,7 @@ const resetForm = () => {
   margin: 30px auto;
   width: 80%;
 
-  .aui-i-add-btn{
+  .aui-i-add-btn {
     display: block;
     margin: 30px 10px 30px 0;
   }

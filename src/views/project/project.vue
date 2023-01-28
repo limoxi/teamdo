@@ -22,8 +22,8 @@ import EpicModal from '@/components/modal/epic_modal';
 import TaskLogModal from '@/components/modal/task_log_modal';
 import UserSelectModal from '@/components/modal/user_select_modal';
 import {provide, ref} from 'vue'
-import ProjectService from "@/service/project_service";
-import Project from "@/store/project"
+import ProjectService from "@/business/project_service";
+import Project from "@/business/model/project"
 
 const props = defineProps(['projectId'])
 const projectId = parseInt(props.projectId)
@@ -34,6 +34,7 @@ provide('project', project)
 
 ProjectService.getProject(projectId).then(data => {
   project.value = new Project(data)
+  console.log(project.value.lanes)
 })
 
 </script>

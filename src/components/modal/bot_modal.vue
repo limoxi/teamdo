@@ -15,17 +15,17 @@
       </FormItem>
       <FormItem label="名称" prop="name">
         <Input v-model="form.name"
-             show-word-limit maxlength="24"
+               show-word-limit maxlength="24"
         />
       </FormItem>
       <FormItem label="Token" prop="token">
         <Input v-model="form.token" show-word-limit maxlength="128"
-             type="textarea"
-             :autosize="{minRows: 1,maxRows: 2}"
+               type="textarea"
+               :autosize="{minRows: 1,maxRows: 2}"
         />
       </FormItem>
       <FormItem label="简介" prop="remark">
-        <Input v-model="form.remark" show-word-limit maxlength="32" />
+        <Input v-model="form.remark" show-word-limit maxlength="32"/>
       </FormItem>
     </Form>
     <template #footer>
@@ -36,9 +36,9 @@
 </template>
 
 <script setup>
-import ProjectService from '@/service/project_service'
-import defaultBotAvatar from '@/images/default-bot-avatar.png';
-import {ref, computed} from "vue"
+import ProjectService from '@/business/project_service'
+import defaultBotAvatar from '@/assets/images/default-bot-avatar.png';
+import {computed, ref} from "vue"
 import {Message, Modal} from 'view-ui-plus'
 import Uploader from '@/components/uploader'
 import {useModalStore} from "@/store"
@@ -152,10 +152,10 @@ const onCancel = () => {
 </script>
 
 <style lang="less">
-  .aui-uploader-wrapper{
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.aui-uploader-wrapper {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>

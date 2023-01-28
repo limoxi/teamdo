@@ -1,5 +1,5 @@
 <style scoped lang="less">
-.aui-uploader-wrapper{
+.aui-uploader-wrapper {
   margin-bottom: 15px;
   display: flex;
   justify-content: center;
@@ -21,19 +21,20 @@
         >
         </uploader>
       </div>
-      <Mobile v-if="!isUpdateMode" name="username" :value="userForm.username" placeholder="请输入手机号" />
-      <UserName name="nickname" :value="userForm.nickname" placeholder="请输入姓名" />
-      <Password v-if="!isUpdateMode" name="password" placeholder="请输入密码" />
+      <Mobile v-if="!isUpdateMode" name="username" :value="userForm.username" placeholder="请输入手机号"/>
+      <UserName name="nickname" :value="userForm.nickname" placeholder="请输入姓名"/>
+      <Password v-if="!isUpdateMode" name="password" placeholder="请输入密码"/>
       <Submit>{{ btnText }}</Submit>
     </Login>
   </Modal>
 </template>
 <script setup>
 import Uploader from '@/components/uploader';
-import UserService from '@/service/user_service';
-import {ref, inject, watch, computed} from "vue";
+import UserService from '@/business/user_service';
+import {computed, ref, watch} from "vue";
 import {Message} from "view-ui-plus";
 import {useUserStore} from '@/store'
+
 const userStore = useUserStore()
 
 const props = defineProps(['show', 'mode', 'user'])
@@ -64,7 +65,7 @@ let showModel = computed({
   }
 })
 
-const handleSubmit = (valid, { username, nickname, password }) => {
+const handleSubmit = (valid, {username, nickname, password}) => {
   if (valid) {
     if (isRegisterMode.value) {
       UserService.doRegister({

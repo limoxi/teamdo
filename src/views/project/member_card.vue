@@ -18,7 +18,7 @@
 
 <script setup>
 
-import defaultAvatar from '@/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import helper from '@/utils/helper';
 import {computed, inject} from "vue";
 

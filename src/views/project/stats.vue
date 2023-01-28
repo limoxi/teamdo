@@ -117,7 +117,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import VChart from 'vue-echarts';
-import StatsService from "@/service/stats_service";
+import StatsService from "@/business/stats_service";
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
 import moment from "moment";

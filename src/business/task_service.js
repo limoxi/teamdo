@@ -1,13 +1,7 @@
 import Resource from '@/utils/resource';
+import Task from "./model/task";
 
 class TaskService {
-
-    static getIntType(type) {
-        return {
-            'kanban': 0,
-            'sprint': 1
-        }[type]
-    }
 
     static getTasks(projectId, filters = null, withOptions = null, orderFields = null, page = null) {
         let data = {
@@ -53,8 +47,8 @@ class TaskService {
         })
     }
 
-    static addTask(projectId, task) {
-        return Resource.put({
+    static async addTask(projectId, task) {
+        const respData = await Resource.put({
             'resource': 'project.task',
             'data': {
                 'project_id': parseInt(projectId),
@@ -68,10 +62,11 @@ class TaskService {
                 'tag_ids': task.tagIds
             }
         })
+        return new Task(respData)
     }
 
-    static updateTask(projectId, task) {
-        return Resource.post({
+    static async updateTask(projectId, task) {
+        const respData = Resource.post({
             'resource': 'project.task',
             'data': {
                 'project_id': projectId,
@@ -86,6 +81,7 @@ class TaskService {
                 'tag_ids': task.tagIds
             }
         })
+        return new Task(respData)
     }
 
     static deleteTask(projectId, taskId) {

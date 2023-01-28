@@ -4,11 +4,11 @@
        @keydown.right="onPressRight"
        @keydown.esc="onEsc"
   >
-    <action-bar @search="handleSearch" @on-fullscreen="onFullscreen" :lanes="lanes"></action-bar>
+    <action-bar @search="handleSearch" @on-fullscreen="onFullscreen"></action-bar>
     <draggable
         :class="classNames"
         id="board"
-        v-model="lanes"
+        v-model="project.lanes"
         item-key="id"
         :animation="200"
         group="lanes"
@@ -25,8 +25,7 @@
             :filters="filters"
             :key="element.id"
             :index="index"
-            :lane="element"
-            :lanes="lanes"
+            :laneId="element.id"
             :projectId="projectId"
         />
       </template>
@@ -47,7 +46,7 @@ import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
-import LaneService from '@/service/lane_service';
+import LaneService from '@/business/lane_service';
 import {computed, inject, nextTick, onMounted, ref} from "vue";
 import {Message} from "view-ui-plus";
 
@@ -58,14 +57,6 @@ onMounted(() => {
   // handleScroll()
 })
 
-let lanes = computed({
-  get() {
-    return project.value.lanes
-  },
-  set(newLanes) {
-    project.value.lanes = newLanes
-  }
-})
 let drag = ref(false)
 let filters = ref(null)
 let fullscreen = ref(false)
@@ -95,7 +86,7 @@ const onEsc = () => {
 }
 
 const onListChange = (e) => {
-  LaneService.resort(projectId.value, lanes.value).then(() => {
+  LaneService.resort(projectId.value, project.value.lanes).then(() => {
     Message.success('排序完成');
   }).catch(err => {
     console.error(err);

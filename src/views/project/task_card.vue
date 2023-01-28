@@ -7,11 +7,11 @@
       <div>
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
         <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
-          {{ task.type_name }}&nbsp;∙&nbsp;{{ taskNo }}
+          {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
       </div>
       <div class="aui-i-action">
-        <Button v-show="!inFirstLane" icon="ios-undo" @click="onClickPre"></Button>
+        <Button v-show="!lane.isFirst" icon="ios-undo" @click="onClickPre"></Button>
         <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
                 @click="onClickFlash"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
@@ -28,7 +28,7 @@
             </DropdownMenu>
           </template>
         </Dropdown>
-        <Button v-if="!inLastLane"
+        <Button v-if="!lane.isLast"
                 icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>
@@ -60,22 +60,22 @@
       </div>
       <div class="aui-i-extra">
         <Space :size="4">
-          <Icon type="md-quote" v-if="task.has_attention"
+          <Icon type="md-quote" v-if="task.hasAttention"
                 style="cursor: pointer; font-size: 0.9rem"
                 @click="onClickAttention"
           />
-          <Icon type="md-paper" v-if="task.has_desc"/>
-          <Icon v-if="task.parent_id >0" type="md-link" style="cursor: pointer; font-size: 1rem"
-                @click="onClickEdit($event, task.parent_id)"/>
+          <Icon type="md-paper" v-if="task.hasDesc"/>
+          <Icon v-if="task.parentId >0" type="md-link" style="cursor: pointer; font-size: 1rem"
+                @click="onClickEdit($event, task.parentId)"/>
 
           <Tooltip placement="top">
-            <span>{{ task.sp }}/{{ task.passed_sp }}</span>
+            <span>{{ task.sp }}/{{ task.passedSp }}</span>
             <template #content>
               <p>期望故事点：{{ task.sp }}</p>
-              <p>实际故事点：{{ task.passed_sp }}</p>
+              <p>实际故事点：{{ task.passedSp }}</p>
             </template>
           </Tooltip>
-          <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updated_at) }}</span>
+          <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
         </Space>
       </div>
     </div>
@@ -85,11 +85,11 @@
 <script setup>
 
 import helper from '@/utils/helper';
-import TaskService from '@/service/task_service';
-import defaultAvatar from '@/images/default-avatar.webp';
+import TaskService from '@/business/task_service';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
-import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
 
@@ -125,19 +125,24 @@ onMounted(() => {
     const userSelectModal = state.userSelectModal
     if (userSelectModal.userSelected) {
       if (userSelectModal.taskId === props.task.id) {
-        currLane.value.setTaskAssignor(props.task, userSelectModal.selectedUserId)
+        props.lane.setTaskAssignor(props.task, userSelectModal.selectedUserId)
         userSelectModal.userSelected = false
       }
     }
   })
 })
 
-const props = defineProps(['task', 'lane', 'lanes', 'inFirstLane', 'inLastLane'])
-
-const laneStore = useLaneStore()
-const currLane = laneStore.getLane(props.lane.id)
+const props = defineProps(['task', 'lane'])
 
 const project = inject('project')
+const lanes = computed({
+  get() {
+    return project.value.lanes
+  },
+  set(newLanes) {
+    project.value.lanes = newLanes
+  }
+})
 const importanceDesc = computed(() => {
   return getImportanceDesc(props.task.importance)
 })
@@ -207,11 +212,11 @@ const onCLickName = () => {
 
 const onClickNext = () => {
   let targetLane;
-  for (let index in props.lanes) {
+  for (let index in lanes.value) {
     index = parseInt(index);
-    let cl = props.lanes[index];
+    let cl = lanes.value[index];
     if (cl.id === props.lane.id) {
-      targetLane = props.lanes[index + 1];
+      targetLane = lanes.value[index + 1];
       break;
     }
   }
@@ -220,11 +225,11 @@ const onClickNext = () => {
 
 const onClickPre = () => {
   let targetLane;
-  for (let index in props.lanes) {
+  for (let index in lanes.value) {
     index = parseInt(index);
-    let cl = props.lanes[index];
+    let cl = lanes.value[index];
     if (cl.id === props.lane.id) {
-      targetLane = props.lanes[index - 1];
+      targetLane = lanes.value[index - 1];
       break;
     }
   }
@@ -247,7 +252,7 @@ let headerClasses = computed(() => {
 })
 
 const onClickFlash = () => {
-  currLane.value.switchTaskFlashing(props.task.id)
+  props.lane.switchTaskFlashing(props.task.id)
 }
 
 const onCLickSwitch = (targetLaneId) => {
@@ -255,7 +260,8 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  laneStore.shuttleTask(project.value.id, targetLaneId, props.task, -1)
+  const sourceLaneId = props.task.laneId
+  project.value.Kanban.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1)
 }
 
 const onAddRelation = () => {

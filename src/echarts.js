@@ -13,24 +13,24 @@ import {
   TransformComponent
 } from 'echarts/components';
 
-import macaronDark from '@/styles/echarts-theme/macarons-dark.json'
-import macaron from '@/styles/echarts-theme/macarons.json'
+import macaronDark from '@/assets/styles/echarts-theme/macarons-dark.json'
+import macaron from '@/assets/styles/echarts-theme/macarons.json'
 
 echarts.use([
-  PieChart,
-  LineChart,
-  BarChart,
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent,
-  ToolboxComponent,
-  GridComponent,
-  DatasetComponent,
-  TransformComponent,
-  CanvasRenderer,
-  LabelLayout,
-  UniversalTransition,
-  MarkLineComponent
+    PieChart,
+    LineChart,
+    BarChart,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent,
+    ToolboxComponent,
+    GridComponent,
+    DatasetComponent,
+    TransformComponent,
+    CanvasRenderer,
+    LabelLayout,
+    UniversalTransition,
+    MarkLineComponent
 ])
 
 echarts.registerTheme('dark', macaronDark)

@@ -64,8 +64,8 @@
 </template>
 
 <script setup>
-import MessageService from '@/service/message_service';
-import defaultAvatar from '@/images/default-avatar.webp'
+import MessageService from '@/business/message_service';
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {FormItem, Message, Option} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
 import Editor from "../editor/editor"

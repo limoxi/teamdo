@@ -98,14 +98,14 @@ import {FormItem, Message, Modal} from "view-ui-plus";
 import {importanceOptions} from '@/utils/constant';
 import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
-import EpicTaskService from "@/service/epic_task_service";
-import TagService from "@/service/tag_service";
+import EpicTaskService from "@/business/epic_task_service";
+import TagService from "@/business/tag_service";
 import moment from "moment/moment";
 
 const projectId = inject('projectId')
 const project = inject('project')
 const selectedTag = ref(null)
-const selectableTags = computed(() => [...project.value.tags])
+const selectableTags = computed(() => [...project.value.getTagsByBiz('epic_task')])
 
 const modalStore = useModalStore()
 const {epicModal} = storeToRefs(modalStore)
@@ -173,9 +173,11 @@ const actionDone = () => {
 
 const handleCreateTag = (newTagName) => {
   const color = '#17233d'
-  TagService.addTag(projectId, newTagName, color).then(data => {
+  const bizCode = 'epic_task'
+  TagService.addTag(projectId, bizCode, newTagName, color).then(data => {
     const newTag = {
       id: data.id,
+      biz_code: bizCode,
       name: newTagName,
       color: color
     }
@@ -202,7 +204,6 @@ const handleCloseTag = () => {
 const handleSubmit = () => {
   taskForm.value.validate(async (valid) => {
     if (valid) {
-      let tagId = selectedTag.value.id
       const taskData = {
         name: form.value.name.replace(/\s+/g, ""),
         desc: editorInst.value.getContent(),
@@ -216,7 +217,11 @@ const handleSubmit = () => {
         taskData.expectedFinishedAt = moment(form.value.expectedFinishedAt).format('YYYY-MM-DD HH:mm:ss')
       }
 
-      taskData.tagIds = [tagId]
+      taskData.tagIds = []
+      if (selectedTag.value) {
+        taskData.tagIds = [selectedTag.value.id]
+      }
+
       if (isCreateMode.value) {
         EpicTaskService.addEpicTask(projectId, taskData).then(() => {
           actionDone()

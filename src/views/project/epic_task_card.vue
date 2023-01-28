@@ -34,7 +34,7 @@
 import {Button, Message, Modal} from "view-ui-plus";
 import {inject} from "vue";
 import {useModalStore} from '@/store'
-import EpicTaskService from '@/service/epic_task_service';
+import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
 
 const modalStore = useModalStore()

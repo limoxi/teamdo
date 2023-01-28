@@ -1,5 +1,5 @@
 import {inject} from "vue";
-import defaultAvatar from '@/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 
 class EpicTask {
     constructor(taskData = undefined) {
@@ -32,6 +32,10 @@ class EpicTask {
         if (this.expectedFinishedAt) {
             this.expectedFinishedAt = this.expectedFinishedAt.slice(0, -3)
         }
+    }
+
+    isEpicTask() {
+        return true
     }
 
     getCreator() {

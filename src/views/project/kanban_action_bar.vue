@@ -16,7 +16,7 @@
         <Button icon="md-jet" style="border: none;"/>
         <template #list>
           <DropdownMenu>
-            <template v-for="l in lanes" :key="l.id">
+            <template v-for="l in project.lanes" :key="l.id">
               <DropdownItem :name="l.id">
                 {{ l.name }}
               </DropdownItem>
@@ -93,13 +93,12 @@
 
 <script setup>
 import {computed, inject, ref, watch} from 'vue'
-import defaultAvatar from '@/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
-const laneStore = useLaneStore()
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
 const {tagId: selectedTagId, updated: updated} = storeToRefs(taskFilterStore)
@@ -115,9 +114,6 @@ const project = inject('project')
 const projectId = computed(() => project.value.id)
 
 const filters = ref({})
-const props = defineProps({
-  lanes: Array
-})
 const emit = defineEmits(['search', 'onFullscreen'])
 const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
@@ -138,7 +134,7 @@ watch(updated, (newVal, oldVal) => {
 })
 
 const onClickSwitch = (targetLaneId) => {
-  laneStore.shuttleTasks(projectId.value, targetLaneId, selectedTasks.value).then(() => {
+  project.value.Kanban.shuttleTasks(targetLaneId, selectedTasks.value).then(() => {
     onSwitchMode()
   }).catch(err => {
     Message.error(err.errMsg || '批量操作失败');

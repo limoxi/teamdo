@@ -38,11 +38,12 @@
 
 import {inject, onMounted, ref} from "vue";
 import {colors} from '@/utils/constant'
-import TagService from "@/service/tag_service";
+import TagService from "@/business/tag_service";
 
 const project = inject('project')
 const props = defineProps({
-  currentTags: Array
+  currentTags: Array,
+  bizCode: String
 })
 const emit = defineEmits(['onSelect', 'mouseover', 'mouseout'])
 
@@ -59,7 +60,7 @@ onMounted(() => {
 })
 
 const loadTags = () => {
-  TagService.getTagsForProject(project.value.id).then(data => {
+  TagService.getTagsForProject(project.value.id, props.bizCode).then(data => {
     tags.value = data
   })
 }

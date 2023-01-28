@@ -22,9 +22,9 @@
   </Modal>
 </template>
 <script setup>
-import ProjectService from "@/service/project_service";
-import UserService from '@/service/user_service';
-import defaultAvatar from '@/images/default-avatar.webp'
+import ProjectService from "@/business/project_service";
+import UserService from '@/business/user_service';
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {ref} from "vue";
 import {Message, Option} from "view-ui-plus";
 import {useModalStore} from '@/store'

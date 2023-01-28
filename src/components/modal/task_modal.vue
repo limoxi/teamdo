@@ -95,7 +95,7 @@
             @on-select="handleSelectTag"
             class="aui-i-tagFilter"
         >
-          <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
+          <Option v-for="tag in project.getTagsByBiz('normal_task')" :value="tag.id" :key="tag.id">
             <Badge :color="tag.color" :text="tag.name"/>
           </Option>
         </Select>
@@ -108,17 +108,16 @@
 </template>
 <script setup>
 import Editor from '@/components/editor/editor'
-import defaultAvatar from '@/images/default-avatar.webp'
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {computed, inject, ref} from "vue";
 import {Message, Modal} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
-import {useLaneStore, useModalStore} from "@/store"
+import {useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
-const laneStore = useLaneStore()
 
 const modalStore = useModalStore()
 const {taskModal} = storeToRefs(modalStore)
@@ -142,8 +141,18 @@ const userCount = computed(() => {
 })
 
 const title = computed(() => {
-  if (taskModal.value.relatedTask) return '添加关联任务'
-  return task.value ? '任务详情' : '添加任务'
+  let t = ''
+  if (taskModal.value.relatedTask) {
+    t = '添加关联任务'
+  } else {
+    t = task.value ? '任务详情' : '添加任务'
+  }
+
+  if (taskModal.value.relatedTask && taskModal.value.relatedTask.isEpicTask()) {
+    t += ` · #${taskModal.value.relatedTask.id}`
+  }
+
+  return t
 })
 
 const nameLabel = computed(() => {
@@ -224,12 +233,12 @@ const handleSubmit = () => {
         })
       }
       if (isCreateMode.value) {
-        laneStore.addTask(projectId.value, taskData).then(() => {
+        project.value.getFirstLane().addTask(taskData).then(() => {
           actionDone()
         })
       } else {
         taskData.id = task.value.id
-        laneStore.updateTask(projectId.value, task.value.lane_id, taskData).then(() => {
+        project.value.getLane(task.value.lane_id).updateTask(taskData).then(() => {
           actionDone()
         })
       }

@@ -6,9 +6,9 @@
       :mask-closable="false"
   >
     <Login @on-submit="handleSubmit">
-      <Mobile name="phone" placeholder="请输入手机号" />
-      <Password name="password" placeholder="请输入密码" />
-      <Submit />
+      <Mobile name="phone" placeholder="请输入手机号"/>
+      <Password name="password" placeholder="请输入密码"/>
+      <Submit/>
     </Login>
     <template #footer>
       <span style="display: none"></span>
@@ -16,7 +16,7 @@
   </Modal>
 </template>
 <script setup>
-import UserService from '@/service/user_service';
+import UserService from '@/business/user_service';
 import {computed} from "vue";
 import {useUserStore} from '@/store'
 import {Message} from "view-ui-plus";
@@ -36,8 +36,8 @@ let showModel = computed({
   }
 })
 
-const handleSubmit = (valid, { phone, password }) => {
-  if(!valid) {
+const handleSubmit = (valid, {phone, password}) => {
+  if (!valid) {
     return
   }
   UserService.doLogin(phone, password).then(data => {

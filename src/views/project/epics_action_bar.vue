@@ -39,6 +39,16 @@
           }}
         </Option>
       </Select>
+      <Select style="width:140px;margin-left: 5px" v-model="orderField" @on-change="handleSearch">
+        <Option value="id">按创建时间</Option>
+        <Option value="updated_at">按最后更新时间</Option>
+        <Option value="expected_finished_at">按截止时间</Option>
+        <Option value="importance">按优先级</Option>
+      </Select>
+      <Select style="width:70px;margin-left: 5px" v-model="orderDirection" @on-change="handleSearch">
+        <Option value="-">倒序</Option>
+        <Option value="+">顺序</Option>
+      </Select>
     </div>
   </div>
   <share-tasks-modal :tasks="selectedTasks" v-model:show="showShareModal"></share-tasks-modal>
@@ -46,22 +56,18 @@
 
 <script setup>
 import {computed, inject, ref, watch} from 'vue'
-import defaultAvatar from '@/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
-import {useConfigStore, useLaneStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 
-const laneStore = useLaneStore()
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
 const {updated: updated} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
-const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
-const selectModeOn = computed(() => taskMode.value === 'SELECT')
-
-const configStore = useConfigStore()
+const {selectedTasks} = storeToRefs(taskModeStore)
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
@@ -71,6 +77,8 @@ const props = defineProps({
   lanes: Array
 })
 const emit = defineEmits(['search'])
+const orderField = ref('id')
+const orderDirection = ref('-')
 const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 let showShareModal = ref(false)

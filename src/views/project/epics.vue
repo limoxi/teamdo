@@ -25,9 +25,7 @@
               <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
               <Badge :color="getStatusColor(task.status)" :text="task.status"/>
               <Tooltip :content="task.updatedAt" placement="right">
-                <span style="font-size: 12px;color: darkgrey">{{
-                    helper.formatTime(task.updatedAt)
-                  }}</span>
+                <span style="font-size: 12px;color: darkgrey">{{ helper.formatTime(task.updatedAt) }}</span>
               </Tooltip>
             </Space>
             <Space split>
@@ -36,7 +34,7 @@
               <Badge :color="getImportanceColor(task.importance)"
                      :text="`${getImportanceDesc(task.importance)}(${task.importance})`"/>
               <Tooltip v-if="task.expectedFinishedAt"
-                       :content="`截止于:${task.expectedFinishedAt}`"
+                       :content="`截止于 ${task.expectedFinishedAt}`"
                        placement="right">
                 <Icon style="font-size: 14px" type="md-alarm"/>
                 <span style="font-size: 12px">{{ helper.formatTime(task.expectedFinishedAt) }}</span>
@@ -86,12 +84,12 @@ import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
 import {inject, onMounted, ref} from "vue"
 import {useModalStore} from '@/store'
-import EpicTaskService from '@/service/epic_task_service';
+import EpicTaskService from '@/business/epic_task_service';
 import EpicTask from '@/store/epic';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
 import {Message, Modal, Space} from "view-ui-plus";
-import axIcon from '@/images/ax-icon.svg'
-import lhIcon from '@/images/lh-icon.svg'
+import axIcon from '@/assets/images/ax-icon.svg'
+import lhIcon from '@/assets/images/lh-icon.svg'
 
 const modalStore = useModalStore()
 
@@ -105,7 +103,7 @@ const orderFields = ref([])
 
 const targetPage = ref({
   curPage: 1,
-  pageSize: 20,
+  pageSize: 10,
   totalCount: 0
 })
 

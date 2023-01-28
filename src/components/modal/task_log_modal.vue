@@ -67,8 +67,8 @@
 <script setup>
 import {computed, inject, ref} from "vue";
 import {Message, Space} from "view-ui-plus";
-import TaskService from "@/service/task_service";
-import defaultAvatar from '@/images/default-avatar.webp';
+import TaskService from "@/business/task_service";
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import helper from '@/utils/helper';
 import {useModalStore} from "@/store"
 import {storeToRefs} from "pinia";

@@ -102,11 +102,11 @@
 <script setup>
 import _ from 'lodash'
 import VChart from 'vue-echarts';
-import defaultAvatar from '@/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
 import {ListItem, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
-import StatsService from '@/service/stats_service'
+import StatsService from '@/business/stats_service'
 import moment from "moment";
 import {storeToRefs} from "pinia";
 import {taskType2Name} from "../../utils/constant";

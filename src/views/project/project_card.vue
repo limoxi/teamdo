@@ -5,7 +5,7 @@
         <span class="aui-i-name">{{ project.name }}</span>
         <span>
           <Tooltip :content="bot.name" placement="top"
-                 v-for="bot in project.bots" :key="bot.id">
+                   v-for="bot in project.bots" :key="bot.id">
             <Avatar
                 :src="bot.avatar || defaultBotAvatar"
                 shape="square"
@@ -15,8 +15,8 @@
 
           <Tooltip content="点击添加群机器人" placement="right">
               <Icon type="logo-android"
-                  size="22" color="#19be6b"
-                  @click="onAddBot($event)"
+                    size="22" color="#19be6b"
+                    @click="onAddBot($event)"
               />
           </Tooltip>
         </span>
@@ -30,7 +30,7 @@
 
       <p>{{ project.desc }}</p>
       <p class="aui-i-users">
-        <AvatarList :list="avatars" />
+        <AvatarList :list="avatars"/>
       </p>
       <p class="aui-i-time">{{ project.created_at }}</p>
     </Card>
@@ -39,11 +39,11 @@
 
 <script setup>
 import {Message, Modal} from 'view-ui-plus'
-import defaultAvatar from '@/images/default-avatar.webp';
-import defaultBotAvatar from '@/images/default-bot-avatar.png';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
+import defaultBotAvatar from '@/assets/images/default-bot-avatar.png'
 import {useRouter} from 'vue-router'
 import {useModalStore} from "@/store";
-import ProjectService from "@/service/project_service";
+import ProjectService from "@/business/project_service";
 
 const modalStore = useModalStore()
 const router = useRouter()
@@ -130,11 +130,13 @@ const onDelete = (e) => {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    .aui-i-name{
+
+    .aui-i-name {
       font-size: 18px;
       margin-right: 8px;
     }
-    .ivu-avatar{
+
+    .ivu-avatar {
       transform: scale(0.7);
       margin-top: -5px;
     }
@@ -154,15 +156,15 @@ const onDelete = (e) => {
     width: 60%;
   }
 
-  .ivu-avatar-list{
-   margin-left: 10px;
+  .ivu-avatar-list {
+    margin-left: 10px;
   }
 
-  .ivu-avatar-list-item{
-   margin-left: -10px !important;
+  .ivu-avatar-list-item {
+    margin-left: -10px !important;
   }
 
-  .ivu-avatar{
+  .ivu-avatar {
     border: none !important;
   }
 }

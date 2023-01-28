@@ -1,7 +1,7 @@
 <template>
   <div class="aui-lane">
     <div :class="className">
-      <p class="aui-i-title">{{ lane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ lane.wip || '∞' }})</p>
+      <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})</p>
       <div>
         <!--        <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>-->
         <Dropdown placement="bottom-end" @on-click="onClickAction">
@@ -10,7 +10,7 @@
             <DropdownMenu>
               <DropdownItem name="add">在右边添加</DropdownItem>
               <DropdownItem name="edit">修改</DropdownItem>
-              <DropdownItem v-if="!isLastLane" name="del">删除</DropdownItem>
+              <DropdownItem v-if="!currLane.isLast" name="del">删除</DropdownItem>
             </DropdownMenu>
           </template>
         </Dropdown>
@@ -43,11 +43,8 @@
         <template #item="{element, index}">
           <task-card
               :task="element"
-              :lane="lane"
-              :lanes="lanes"
+              :lane="currLane"
               :projectId="projectId"
-              :inFirstLane="isFirstLane"
-              :inLastLane="isLastLane"
           ></task-card>
         </template>
       </draggable>
@@ -60,17 +57,15 @@ import TaskCard from './task_card';
 import Draggable from 'vuedraggable';
 import {computed, inject, ref, watch} from "vue";
 import {Modal} from "view-ui-plus";
-import {useLaneStore, useModalStore} from "@/store"
+import {useModalStore} from "@/store"
 
 const modalStore = useModalStore()
 
-const props = defineProps(['lane', 'projectId', 'lanes', 'index', 'filters'])
+const props = defineProps(['laneId', 'projectId', 'index', 'filters'])
 
 const project = inject('project')
-
-const laneStore = useLaneStore()
-const currLane = laneStore.initLane(props.projectId, props.lane)
-currLane.value.loadTasks()
+const currLane = project.value.getLane(props.laneId)
+currLane.loadTasks()
 
 let drag = ref(false)
 
@@ -78,31 +73,17 @@ watch(() => props.filters, (newV, oldV) => {
   getTasks(newV)
 }, {deep: true})
 
-const nodeId = computed(() => `p_${props.projectId}_d_l_${props.lane.id}`)
+const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
-  if (props.index === 0 || props.index === props.lanes.length - 1) {
+  if (currLane.isFirst || currLane.isLast) {
     return 'aui-i-header';
   } else {
     return 'aui-i-header aui-a-draggable';
   }
 })
 
-const isFirstLane = computed(() => {
-  if (props.lanes.length === 0) {
-    return true
-  }
-  return props.lanes[0].id === props.lane.id;
-})
-
-const isLastLane = computed(() => {
-  if (props.lanes.length === 0) {
-    return true
-  }
-  return props.lanes[props.lanes.length - 1].id === props.lane.id;
-})
-
 const getTasks = (filters) => {
-  currLane.value.loadTasks(filters)
+  currLane.loadTasks(filters)
 }
 
 const onListChange = (event) => {
@@ -123,23 +104,24 @@ const onListChange = (event) => {
   })
 
   const sps = event.from.id.split('_')
-  laneStore.shuttleTask(props.projectId, props.lane.id, {
-    id: parseInt(taskId),
-    lane_id: parseInt(sps[sps.length - 1])
-  }, parseInt(beforeTaskId), false)
+  const sourceLaneId = parseInt(sps[sps.length - 1])
+  const targetLaneId = props.laneId
+  project.value.Kanban.shuttleTask(
+      sourceLaneId, targetLaneId,
+      parseInt(taskId), parseInt(beforeTaskId), false)
 }
 
 const onClickAction = (name) => {
   if (name === 'add') {
     modalStore.show('laneModal', {
       'projectId': props.projectId,
-      'lane': props.lane,
+      'lane': currLane,
       'mode': 'create'
     })
   } else if (name === 'edit') {
     modalStore.show('laneModal', {
       'projectId': props.projectId,
-      'lane': props.lane,
+      'lane': currLane,
       'mode': 'update'
     })
   } else if (name === 'del') {
@@ -149,7 +131,7 @@ const onClickAction = (name) => {
       okText: '确认',
       cancelText: '等一下',
       onOk: () => {
-        project.value.deleteLane(props.lane.id)
+        project.value.deleteLane(props.laneId)
       }
     });
   }

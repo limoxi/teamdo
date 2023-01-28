@@ -1,6 +1,7 @@
 <style lang="less" scoped>
 .aui-uploader {
   position: relative;
+
   &:hover {
     .aui-i-btn {
       display: block;
@@ -53,8 +54,8 @@
 
 </template>
 <script>
-import ImageCompressor from '@/service/image_compressor';
-import defaultAvatar from '@/images/default-avatar.webp';
+import ImageCompressor from '@/business/image_compressor';
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 
 export default {
   props: ['src'],

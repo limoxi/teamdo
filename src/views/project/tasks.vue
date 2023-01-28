@@ -25,15 +25,11 @@
 </template>
 
 <script>
-import TaskService from '@/service/task_service';
-
-import TaskExpand from './task_expand';
+import TaskService from '@/business/task_service';
 
 export default {
   props: ['projectId'],
-  components: {
-    TaskExpand
-  },
+  components: {},
   created() {
     this.getTasks();
   },

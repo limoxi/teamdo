@@ -14,5 +14,5 @@ const themeClass = computed(() => `aui-theme-${theme.value}`)
 
 </script>
 <style lang="less">
-@import 'styles/common.less';
+@import 'assets/styles/common.less';
 </style>

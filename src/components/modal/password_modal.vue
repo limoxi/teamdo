@@ -6,13 +6,13 @@
   >
     <Form ref="form" :model="form" :rules="ruleValidate" :label-width="100">
       <FormItem label="旧密码" prop="oldPwd">
-        <Input type="password" v-model="form.oldPwd" />
+        <Input type="password" v-model="form.oldPwd"/>
       </FormItem>
       <FormItem label="新密码" prop="newPwd">
-        <Input type="password" v-model="form.newPwd" />
+        <Input type="password" v-model="form.newPwd"/>
       </FormItem>
       <FormItem label="确认新密码" prop="newPwdConfirmed">
-        <Input type="password" v-model="form.newPwdConfirmed" />
+        <Input type="password" v-model="form.newPwdConfirmed"/>
       </FormItem>
     </Form>
     <template #footer>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import UserService from '@/service/user_service';
+import UserService from '@/business/user_service';
 
 export default {
   props: ['show'],
