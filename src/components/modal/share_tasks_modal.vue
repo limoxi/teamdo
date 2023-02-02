@@ -114,7 +114,7 @@ let shareContent = computed(() => {
         assignorName = user.nickname
       }
     })
-    let taskDesc = `- 【${task.type_name}∙${project.value.prefix}${task.id}】${task.name} @${assignorName}`
+    let taskDesc = `- 【${task.typeName}∙${project.value.prefix}${task.id}】${task.name} @${assignorName}`
     contentList.push(taskDesc)
   }
   return contentList.join('  \n')
