@@ -145,10 +145,6 @@ const showTaskModel = () => {
 </script>
 
 <style scoped lang="less">
-.ghost {
-  visibility: hidden;
-}
-
 .aui-lane {
   outline: 0;
   width: 280px;
@@ -178,16 +174,6 @@ const showTaskModel = () => {
     margin: 10px 0;
     padding: 10px;
     border-radius: 2px;
-  }
-
-  .aui-a-draggable {
-    &:hover {
-      cursor: grab;
-    }
-
-    &:active {
-      cursor: grabbing;
-    }
   }
 
   .aui-i-tasks {

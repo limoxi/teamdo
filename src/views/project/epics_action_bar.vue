@@ -40,6 +40,7 @@
         </Option>
       </Select>
       <Select style="width:140px;margin-left: 5px" v-model="orderField" @on-change="handleSearch">
+        <Option value="display_index">自然排序</Option>
         <Option value="id">按创建时间</Option>
         <Option value="updated_at">按最后更新时间</Option>
         <Option value="expected_finished_at">按截止时间</Option>
@@ -77,7 +78,7 @@ const props = defineProps({
   lanes: Array
 })
 const emit = defineEmits(['search'])
-const orderField = ref('id')
+const orderField = ref('display_index')
 const orderDirection = ref('-')
 const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
@@ -98,6 +99,7 @@ watch(updated, (newVal, oldVal) => {
 
 const handleSearch = () => {
   const filters = {}
+  const orderFields = [`${orderDirection.value}${orderField.value}`]
   if (filteredTaskInfo.value) {
     if (isNaN(filteredTaskInfo.value)) {
       filters['name__contains'] = filteredTaskInfo.value
@@ -109,7 +111,10 @@ const handleSearch = () => {
   if (selectedCreatorId.value > 0) {
     filters['creator_id'] = selectedCreatorId.value
   }
-  emit('search', filters)
+  emit('search', {
+    filters,
+    orderFields
+  })
 }
 
 const onClickShare = () => {

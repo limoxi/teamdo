@@ -38,7 +38,7 @@ class Lane {
     setTaskAssignor(task, assignorId) {
         TaskService.setAssignorForTask(this.projectId, task.id, assignorId).then(() => {
             const laneTask = this.getTask(task.id)
-            laneTask.assignor_id = assignorId
+            laneTask.assignorId = assignorId
         }).catch(e => {
             Message.error(e.errMsg || '设置执行人失败')
         })
@@ -70,8 +70,10 @@ class Lane {
 
     updateTaskLocally(updatedTask) {
         const elIndex = this.tasks.findIndex(task => {
+            console.warn(task.id)
             return task.id === updatedTask.id
         })
+        console.log(updatedTask.id)
         if (elIndex >= 0) {
             this.tasks[elIndex] = updatedTask
         }
@@ -99,7 +101,7 @@ class Lane {
         });
     }
 
-    deleteTask(laneId, taskId) {
+    deleteTask(taskId) {
         return TaskService.deleteTask(this.projectId, taskId).then(() => {
             this.removeTaskLocally(taskId)
         }).catch(err => {

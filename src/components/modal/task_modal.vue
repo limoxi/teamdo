@@ -187,7 +187,7 @@ modalStore.$subscribe((_, state) => {
     form.value.name = store.task?.name || ''
     form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
     form.value.sp = store.task?.sp || 0
-    form.value.assignorId = (store.task?.assignor_id || store.relatedTask?.assignor_id || 0) + ''
+    form.value.assignorId = (store.task?.assignorId || store.relatedTask?.assignorId || 0) + ''
     form.value.tags = store.task?.tags || []
     form.value.desc = store.task?.desc || ''
 
@@ -199,7 +199,7 @@ modalStore.$subscribe((_, state) => {
 const handleSelectTag = (selectedTag) => {
   const tagId = selectedTag.value
   if (form.value.tags.filter(tag => tag.id === tagId).length > 0) return
-  const tag = project.value.tags.filter(tag => tag.id === tagId)[0]
+  const tag = project.value.tags.filter(tag => tag.id === tagId && tag.biz_code === 'normal_task')[0]
   form.value.tags.push(tag)
   selectedTagId.value = ''
 }
@@ -238,7 +238,7 @@ const handleSubmit = () => {
         })
       } else {
         taskData.id = task.value.id
-        project.value.getLane(task.value.lane_id).updateTask(taskData).then(() => {
+        project.value.getLane(task.value.laneId).updateTask(taskData).then(() => {
           actionDone()
         })
       }
@@ -253,7 +253,7 @@ const handleDelete = () => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      laneStore.deleteTask(projectId.value, task.value.lane_id, task.value.id).then(() => {
+      project.value.getLane(task.value.laneId).deleteTask(task.value.id).then(() => {
         actionDone()
       })
     }

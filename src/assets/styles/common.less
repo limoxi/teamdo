@@ -139,5 +139,20 @@ button:focus, button:active {
   margin: 0 1px !important;
 }
 
+// 拖拽排序
+.ghost {
+  visibility: hidden;
+}
+
+.aui-a-draggable {
+  &:hover {
+    cursor: grab;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 @import "theme/dark.less";
 @import "theme/light.less";

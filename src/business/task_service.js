@@ -1,5 +1,6 @@
 import Resource from '@/utils/resource';
 import Task from "./model/task";
+import EpicTask from "./model/epic";
 
 class TaskService {
 
@@ -29,7 +30,7 @@ class TaskService {
         });
     }
 
-    static getTask(projectId, taskId, withAll = true) {
+    static async getTask(projectId, taskId, withAll = true) {
         let data = {
             'project_id': projectId,
             'task_id': taskId
@@ -41,10 +42,14 @@ class TaskService {
             }
         }
 
-        return Resource.get({
+        const respData = await Resource.get({
             'resource': 'project.task',
             'data': data
         })
+        if (respData.category === 'epic') {
+            return new EpicTask(respData)
+        }
+        return new Task(respData)
     }
 
     static async addTask(projectId, task) {
@@ -66,7 +71,7 @@ class TaskService {
     }
 
     static async updateTask(projectId, task) {
-        const respData = Resource.post({
+        const respData = await Resource.post({
             'resource': 'project.task',
             'data': {
                 'project_id': projectId,

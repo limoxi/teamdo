@@ -174,7 +174,7 @@ const taskColor = computed(() => {
 
 const assignor = computed(() => {
   for (let user of project.value.users) {
-    if (user.id === props.task.assignor_id) {
+    if (user.id === props.task.assignorId) {
       return user
     }
   }

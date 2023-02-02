@@ -1,7 +1,8 @@
 import Resource from '@/utils/resource'
+import EpicTask from "./model/epic";
 
 class EpicTaskService {
-    static getEpicTasks(projectId, filters = null, withOptions = null, orderFields = null, page = null) {
+    static async getEpicTasks(projectId, filters = null, withOptions = null, orderFields = null, page = null) {
         const data = {
             'project_id': projectId
         }
@@ -22,10 +23,15 @@ class EpicTaskService {
             data['with_options'] = withOptions;
         }
 
-        return Resource.get({
+        const respData = await Resource.get({
             'resource': 'project.epic_tasks',
             'data': data
-        });
+        })
+
+        return {
+            tasks: respData.tasks.map(taskData => new EpicTask(taskData)),
+            page_info: respData.page_info
+        }
     }
 
     static getEpicTask(projectId, taskId, withAll = true) {
@@ -70,7 +76,9 @@ class EpicTaskService {
                 'importance': task.importance,
                 'desc': task.desc,
                 'remark': task.remark,
-                'expected_finished_at': task.expectedFinishedAt
+                'expected_finished_at': task.expectedFinishedAt,
+                'meta_data': task.metaData,
+                'tag_ids': task.tagIds
             }
         })
     }
@@ -94,6 +102,17 @@ class EpicTaskService {
                 'with_options': {
                     'with_actor': true,
                 }
+            }
+        })
+    }
+
+    static resort(projectId, taskId, beforeTaskId) {
+        return Resource.put({
+            resource: 'project.resorted_task',
+            data: {
+                project_id: projectId,
+                task_id: taskId,
+                before_task_id: beforeTaskId
             }
         })
     }

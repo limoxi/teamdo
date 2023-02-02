@@ -29,7 +29,7 @@ const props = defineProps(['projectId'])
 const projectId = parseInt(props.projectId)
 provide('projectId', projectId)
 
-const project = ref(new Project())
+const project = ref(new Project({id: projectId}))
 provide('project', project)
 
 ProjectService.getProject(projectId).then(data => {
