@@ -1,6 +1,5 @@
 import Resource from '@/utils/resource';
 import Task from "./model/task";
-import EpicTask from "./model/epic";
 
 class TaskService {
 
@@ -46,9 +45,6 @@ class TaskService {
             'resource': 'project.task',
             'data': data
         })
-        if (respData.category === 'epic') {
-            return new EpicTask(respData)
-        }
         return new Task(respData)
     }
 

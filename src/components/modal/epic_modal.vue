@@ -12,8 +12,9 @@
     <template #header>
       <div class="aui-i-title">{{ title }}</div>
       <div class="aui-i-action-bar">
-        <Icon v-if="!isCreateMode" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete"/>
-        <Icon type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit"/>
+        <Icon v-if="!isReadOnly && !isCreateMode" class="aui-i-action-btn delete" type="md-trash"
+              @click="handleDelete"/>
+        <Icon v-if="!isReadOnly" type="md-done-all" class="aui-i-action-btn save" @click="handleSubmit"/>
         <Icon type="md-close" class="aui-i-action-btn close" @click="close"/>
       </div>
     </template>
@@ -23,7 +24,7 @@
           :rules="ruleValidate"
           :label-width="80"
     >
-      <FormItem v-if="!isCreateMode" label="变更说明" prop="remark">
+      <FormItem v-if="!isReadOnly && !isCreateMode" label="变更说明" prop="remark">
         <Input
             v-model="form.remark"
             style="width: 70%"/>
@@ -110,7 +111,9 @@ const selectableTags = computed(() => [...project.value.getTagsByBiz('epic_task'
 const modalStore = useModalStore()
 const {epicModal} = storeToRefs(modalStore)
 const task = computed(() => epicModal.value.task)
-const isCreateMode = computed(() => !task.value)
+const isCreateMode = computed(() => !epicModal.value.readonly && !task.value)
+const isReadOnly = computed(() => epicModal.value.readonly)
+let submitting = false
 
 const ruleValidate = {
   name: [
@@ -159,6 +162,7 @@ modalStore.$subscribe((_, state) => {
     form.value.remark = ''
 
     editorInst.value.resetContent(store.task?.desc ?? '')
+    submitting = false
   }
 })
 
@@ -172,6 +176,8 @@ const actionDone = () => {
 }
 
 const handleCreateTag = (newTagName) => {
+  if (isReadOnly.value) return
+
   const color = '#17233d'
   const bizCode = 'epic_task'
   TagService.addTag(projectId, bizCode, newTagName, color).then(data => {
@@ -185,7 +191,6 @@ const handleCreateTag = (newTagName) => {
     form.value.fromWhere = newTagName
     selectedTag.value = newTag
   })
-
 }
 
 const handleSelectTag = (st) => {
@@ -202,6 +207,9 @@ const handleCloseTag = () => {
 }
 
 const handleSubmit = () => {
+  if (isReadOnly.value) return
+  if (submitting) return
+  submitting = true
   taskForm.value.validate(async (valid) => {
     if (valid) {
       const taskData = {
@@ -225,12 +233,16 @@ const handleSubmit = () => {
       if (isCreateMode.value) {
         EpicTaskService.addEpicTask(projectId, taskData).then(() => {
           actionDone()
+        }).finally(() => {
+          submitting = false
         })
       } else {
         taskData.id = task.value.id
         taskData.remark = form.value.remark
         EpicTaskService.updateEpicTask(projectId, taskData).then(() => {
           actionDone()
+        }).finally(() => {
+          submitting = false
         })
       }
     }
@@ -238,6 +250,7 @@ const handleSubmit = () => {
 }
 
 const handleDelete = () => {
+  if (isReadOnly.value) return
   Modal.confirm({
     title: '删除需求',
     content: `'<strong>确定要删除需求【${task.value.name}】么？</strong>'`,

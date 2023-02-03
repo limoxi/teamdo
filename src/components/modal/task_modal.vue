@@ -123,6 +123,7 @@ const modalStore = useModalStore()
 const {taskModal} = storeToRefs(modalStore)
 const task = computed(() => taskModal.value.task)
 const isCreateMode = computed(() => !task.value)
+let submitting = false
 
 const ruleValidate = {
   name: [
@@ -205,6 +206,7 @@ const handleSelectTag = (selectedTag) => {
 }
 
 const close = () => {
+  submitting = false
   modalStore.close('taskModal')
 }
 
@@ -218,6 +220,8 @@ const actionDone = () => {
 }
 
 const handleSubmit = () => {
+  if (submitting) return
+  submitting = true
   taskForm.value.validate((valid) => {
     if (valid) {
       const taskData = {
@@ -235,11 +239,15 @@ const handleSubmit = () => {
       if (isCreateMode.value) {
         project.value.getFirstLane().addTask(taskData).then(() => {
           actionDone()
+        }).finally(() => {
+          submitting = false
         })
       } else {
         taskData.id = task.value.id
         project.value.getLane(task.value.laneId).updateTask(taskData).then(() => {
           actionDone()
+        }).finally(() => {
+          submitting = false
         })
       }
     }

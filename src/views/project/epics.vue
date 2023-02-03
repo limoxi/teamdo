@@ -25,7 +25,7 @@
           @sort="onListChange"
       >
         <template #item="{element:task, index}">
-          <div class="aui-epic-task" :key="index" :taskId="task.id">
+          <div :class="`aui-epic-task ${getLimitLineClass(index)}`" :key="index" :taskId="task.id">
             <div class="aui-i-sider" :style="{background: getImportanceColor(task.importance)}"></div>
 
             <Space direction="vertical">
@@ -76,8 +76,10 @@
         </template>
         <div class="aui-i-blank"></div>
       </draggable>
-      <Page size="small" v-model="targetPage.curPage" show-total
-            @on-change="onPageChange" style="text-align: right; margin:0 5px"
+      <Page size="small" v-model="targetPage.curPage" show-total show-sizer
+            :page-size-opts="[10, 30, 50, 100]"
+            @on-change="onPageChange" @on-page-size-change="onPageSizeChange"
+            style="text-align: right; margin:0 5px"
             :total="targetPage.totalCount" :page-size="targetPage.pageSize"/>
     </div>
     <Result v-else type="warning" title="还没有任何需求">
@@ -138,6 +140,13 @@ const onListChange = (event) => {
     }
   })
   EpicTaskService.resort(project.value.id, parseInt(taskId), parseInt(beforeTaskId))
+}
+
+const getLimitLineClass = (index) => {
+  if (index === 5) {
+    return 'aui-i-limitLine'
+  }
+  return ''
 }
 
 const getStatusColor = (status) => {
@@ -205,6 +214,11 @@ const onPageChange = page => {
   loadPagedEpicTasks()
 }
 
+const onPageSizeChange = pageSize => {
+  targetPage.value.pageSize = pageSize
+  loadPagedEpicTasks()
+}
+
 const loadPagedEpicTasks = async () => {
   EpicTaskService.getEpicTasks(
       projectId,
@@ -242,6 +256,10 @@ const onAddTask = () => {
     margin: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
+
+    .aui-i-limitLine {
+      border-bottom: 2px dashed darkred !important;
+    }
 
     .aui-epic-task {
       position: relative;

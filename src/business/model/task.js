@@ -4,7 +4,7 @@ class Task {
         this.type = taskData?.type ?? 'REQ'
         this.typeName = taskData?.type_name ?? '需求'
         this.parentId = taskData?.parent_id ?? 0
-        this.parentType = taskData?.parent_type ?? ''
+        this.parentCategory = taskData?.parent_category ?? ''
         this.creatorId = taskData?.creator_id ?? 0
         this.assignorId = taskData?.assignor_id ?? 0
         this.flashing = taskData?.flashing ?? false

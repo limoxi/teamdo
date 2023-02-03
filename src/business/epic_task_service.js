@@ -34,7 +34,7 @@ class EpicTaskService {
         }
     }
 
-    static getEpicTask(projectId, taskId, withAll = true) {
+    static async getEpicTask(projectId, taskId, withAll = true) {
         let data = {
             'project_id': projectId,
             'id': taskId
@@ -42,13 +42,15 @@ class EpicTaskService {
         if (withAll) {
             data['with_options'] = {
                 'with_users': true,
+                'with_tags': true
             }
         }
 
-        return Resource.get({
+        const respData = await Resource.get({
             'resource': 'project.epic_task',
             'data': data
         })
+        return new EpicTask(respData)
     }
 
     static addEpicTask(projectId, task) {

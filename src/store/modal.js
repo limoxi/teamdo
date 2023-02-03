@@ -30,12 +30,14 @@ const useModalStore = defineStore('modal', () => {
 
     const taskModal = ref({
         show: false,
+        readonly: false,
         task: null,
         relatedTask: null
     })
 
     const epicModal = ref({
         show: false,
+        readonly: false,
         task: null
     })
 
@@ -74,11 +76,13 @@ const useModalStore = defineStore('modal', () => {
                 taskModal.value.task = data.task || null
                 taskModal.value.relatedTask = data.relatedTask || null
                 taskModal.value.show = true
+                taskModal.value.readonly = data.readonly || false
                 break
             case 'epicModal':
                 projectId.value = data.projectId || 0
                 epicModal.value.task = data.task || null
                 epicModal.value.show = true
+                epicModal.value.readonly = data.readonly || false
                 break
             case 'taskLogModal':
                 projectId.value = data.projectId || 0

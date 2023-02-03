@@ -66,7 +66,7 @@
           />
           <Icon type="md-paper" v-if="task.hasDesc"/>
           <Icon v-if="task.parentId >0" type="md-link" style="cursor: pointer; font-size: 1rem"
-                @click="onClickEdit($event, task.parentId)"/>
+                @click="onClickEdit($event, true)"/>
 
           <Tooltip placement="top">
             <span>{{ task.sp }}/{{ task.passedSp }}</span>
@@ -86,6 +86,7 @@
 
 import helper from '@/utils/helper';
 import TaskService from '@/business/task_service';
+import EpicTaskService from '@/business/epic_task_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject, onMounted} from "vue";
@@ -271,17 +272,38 @@ const onAddRelation = () => {
   })
 }
 
-const onClickEdit = (e, targetTaskId = undefined) => {
-  let tid = targetTaskId || props.task.id
-  TaskService.getTask(project.value.id, tid).then(task => {
-    let modalName = task.category === 'epic' ? 'epicModal' : 'taskModal'
-    modalStore.show(modalName, {
-      'projectId': project.value.id,
-      'task': task
-    })
-  }).catch(err => {
-    Message.error(err.errMsg);
-  });
+const onClickEdit = (e, getParent = false) => {
+  let targetTaskId = props.task.id
+  let getEpicTask = false
+  let readonly = false
+  let projectId = project.value.id
+  if (getParent && props.task.parentCategory === 'epic') {
+    getEpicTask = true
+    targetTaskId = props.task.parentId
+    readonly = true
+  }
+
+  if (getEpicTask) {
+    EpicTaskService.getEpicTask(projectId, targetTaskId).then(task => {
+      modalStore.show('epicModal', {
+        'projectId': project.value.id,
+        'task': task,
+        'readonly': readonly
+      })
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  } else {
+    TaskService.getTask(projectId, targetTaskId).then(task => {
+      modalStore.show('taskModal', {
+        'projectId': project.value.id,
+        'task': task,
+        'readonly': readonly
+      })
+    }).catch(err => {
+      Message.error(err.errMsg);
+    });
+  }
 }
 
 const onClickAttention = () => {
