@@ -25,18 +25,22 @@
           @sort="onListChange"
       >
         <template #item="{element:task, index}">
-          <div :class="`aui-epic-task ${getLimitLineClass(index)}`" :key="index" :taskId="task.id">
+          <div :class="`aui-epic-task ${getLimitLineClass(index)}`"
+               :key="index"
+               :taskId="task.id">
             <div class="aui-i-sider" :style="{background: getImportanceColor(task.importance)}"></div>
 
             <Space direction="vertical">
-              <Space split>
+              <Space split
+                     :style="`border-radius: 20px; background: linear-gradient(to right, transparent 30%, ${getStatusColor(task.status)} 120%)`"
+              >
                 <i class="aui-i-id aui-a-draggable">#{{ task.id }}</i>
                 <span v-if="task.status !== '已放弃'">{{ task.name }}</span>
                 <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
                 <Badge :color="getStatusColor(task.status)" :text="task.status"/>
-                <Tooltip :content="task.updatedAt" placement="right">
-                  <span style="font-size: 12px;color: darkgrey">{{ helper.formatTime(task.updatedAt) }}</span>
-                </Tooltip>
+                <!--                <Tooltip :content="task.updatedAt" placement="right">-->
+                <!--                  <span style="font-size: 12px;color: darkgrey">{{ helper.formatTime(task.updatedAt) }}</span>-->
+                <!--                </Tooltip>-->
               </Space>
               <Space split>
                 <Avatar size="small" :src="task.getCreator().avatar"/>
@@ -64,6 +68,10 @@
             </Space>
 
             <div class="aui-i-extra">
+              <Tooltip content="置顶" placement="left">
+                <Button size="large" type="text" icon="ios-flame"
+                        @click="onSetTop(task)"></Button>
+              </Tooltip>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-create"
@@ -164,6 +172,14 @@ const getStatusColor = (status) => {
   }
 }
 
+const onSetTop = task => {
+  EpicTaskService.resortToTop(projectId, task.id).then(() => {
+    loadPagedEpicTasks()
+  }).catch(err => {
+    Message.error(err.errMsg)
+  });
+}
+
 const onAddRelatedTask = (task) => {
   modalStore.show('taskModal', {
     projectId: projectId,
@@ -186,7 +202,7 @@ const onDelete = (task) => {
     cancelText: '再想想',
     onOk: () => {
       EpicTaskService.deleteEpicTask(projectId, task.id).then(() => {
-        emit('onDelete')
+        loadPagedEpicTasks()
       }).catch(err => {
         Message.error(err.errMsg)
       });
@@ -225,7 +241,8 @@ const loadPagedEpicTasks = async () => {
       filters.value,
       {
         'with_tags': true,
-        'with_users': true
+        'with_users': true,
+        'with_children': true
       },
       orderFields.value,
       targetPage.value

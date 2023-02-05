@@ -32,6 +32,32 @@ class EpicTask {
         if (this.expectedFinishedAt) {
             this.expectedFinishedAt = this.expectedFinishedAt.slice(0, -3)
         }
+
+        this.childrenCount = 0
+        this.childrenStats = {
+            'notStart': 0,
+            'working': 0,
+            'finished': 0,
+            'remain': 0
+        }
+        for (const child of taskData?.children ?? []) {
+            switch (child.status) {
+                case "未开始":
+                    this.childrenStats.notStart += 1
+                    this.childrenStats.remain += 1
+                    this.childrenCount += 1
+                    break
+                case "进行中":
+                    this.childrenStats.working += 1
+                    this.childrenStats.remain += 1
+                    this.childrenCount += 1
+                    break
+                case "已完成":
+                    this.childrenStats.finished += 1
+                    this.childrenCount += 1
+                    break
+            }
+        }
     }
 
     isEpicTask() {
