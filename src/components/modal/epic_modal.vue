@@ -208,7 +208,7 @@ const handleCloseTag = () => {
 
 const handleSubmit = () => {
   if (isReadOnly.value) return
-  if (submitting) return
+  // if (submitting) return
   submitting = true
   taskForm.value.validate(async (valid) => {
     if (valid) {

@@ -115,6 +115,18 @@ class Project {
             Message.error(err.errMsg)
         });
     }
+
+    // 获取泳道从开始到结算的距离
+    getLifeTimeOfLanes() {
+        let count = 0
+        for (const lane of this.lanes) {
+            count += 1
+            if (lane.isEnd) {
+                break
+            }
+        }
+        return count
+    }
 }
 
 export default Project

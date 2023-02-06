@@ -220,7 +220,7 @@ const actionDone = () => {
 }
 
 const handleSubmit = () => {
-  if (submitting) return
+  // if (submitting) return
   submitting = true
   taskForm.value.validate((valid) => {
     if (valid) {

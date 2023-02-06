@@ -32,18 +32,22 @@
 
             <Space direction="vertical">
               <Space split
-                     :style="`border-radius: 20px; background: linear-gradient(to right, transparent 30%, ${getStatusColor(task.status)} 120%)`"
+                     class="aui-i-taskTitleBar"
+                     :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
               >
-                <i class="aui-i-id aui-a-draggable">#{{ task.id }}</i>
-                <span v-if="task.status !== '已放弃'">{{ task.name }}</span>
+                <i class="aui-i-id">#{{ task.id }}</i>
+                <span v-if="task.status !== '已放弃'" class="aui-a-draggable">{{ task.name }}</span>
                 <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
+                <Tooltip :content="task.updatedAt" placement="right">
+                  <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
+                </Tooltip>
                 <Badge :color="getStatusColor(task.status)" :text="task.status"/>
-                <!--                <Tooltip :content="task.updatedAt" placement="right">-->
-                <!--                  <span style="font-size: 12px;color: darkgrey">{{ helper.formatTime(task.updatedAt) }}</span>-->
-                <!--                </Tooltip>-->
+                <span style="font-weight: bold">{{task.getProgress()}}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
               </Space>
               <Space split>
-                <Avatar size="small" :src="task.getCreator().avatar"/>
+                <Tooltip :content="task.getCreator().nickname" placement="right">
+                  <Avatar size="small" :src="task.getCreator().avatar"/>
+                </Tooltip>
                 <Badge color="#19be6b" :text="task.fromWhere"/>
                 <Badge :color="getImportanceColor(task.importance)"
                        :text="`${getImportanceDesc(task.importance)}(${task.importance})`"/>
@@ -68,10 +72,8 @@
             </Space>
 
             <div class="aui-i-extra">
-              <Tooltip content="置顶" placement="left">
-                <Button size="large" type="text" icon="ios-flame"
-                        @click="onSetTop(task)"></Button>
-              </Tooltip>
+              <Button size="large" type="text" icon="ios-flame"
+                      @click="onSetTop(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-create"
@@ -151,6 +153,9 @@ const onListChange = (event) => {
 }
 
 const getLimitLineClass = (index) => {
+  if (targetPage.value.curPage !== 1) {
+    return ''
+  }
   if (index === 5) {
     return 'aui-i-limitLine'
   }
@@ -273,6 +278,10 @@ const onAddTask = () => {
     margin: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
+
+    .aui-i-taskTitleBar {
+      border-radius: 20px;
+    }
 
     .aui-i-limitLine {
       border-bottom: 2px dashed darkred !important;
