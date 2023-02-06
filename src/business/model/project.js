@@ -94,6 +94,7 @@ class Project {
     updateLane(data) {
         return LaneService.updateLane(this.id, data).then((laneData) => {
             const newLane = new Lane(this, laneData)
+            newLane.tasks = this.id2lane[newLane.id].tasks
             const elIndex = this.lanes.findIndex(lane => lane.id === newLane.id)
             if (elIndex >= 0) {
                 this.lanes[elIndex] = newLane

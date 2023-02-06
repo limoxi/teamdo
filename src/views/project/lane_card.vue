@@ -1,7 +1,7 @@
 <template>
   <div class="aui-lane">
     <div :class="className">
-      <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})</p>
+      <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ tasks.length }}/{{ currLane.wip || '∞' }})</p>
       <div>
         <!--        <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>-->
         <Dropdown placement="bottom-end" @on-click="onClickAction">
@@ -28,7 +28,7 @@
       <draggable
           :id="nodeId"
           class="aui-i-tasks"
-          v-model="currLane.tasks"
+          v-model="tasks"
           item-key="id"
           :animation="200"
           group="task"
@@ -64,8 +64,14 @@ const modalStore = useModalStore()
 const props = defineProps(['laneId', 'projectId', 'index', 'filters'])
 
 const project = inject('project')
-const currLane = project.value.getLane(props.laneId)
-currLane.loadTasks()
+const currLane = computed(() => {
+  return project.value.id2lane[props.laneId]
+})
+currLane.value.loadTasks()
+
+const tasks = computed(() => {
+  return currLane.value.tasks
+})
 
 let drag = ref(false)
 
@@ -75,7 +81,7 @@ watch(() => props.filters, (newV, oldV) => {
 
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
-  if (currLane.isFirst || currLane.isLast) {
+  if (currLane.value.isFirst || currLane.value.isLast) {
     return 'aui-i-header';
   } else {
     return 'aui-i-header aui-a-draggable';
@@ -83,8 +89,10 @@ const className = computed(() => {
 })
 
 const getTasks = (filters) => {
-  currLane.loadTasks(filters)
+  currLane.value.loadTasks(filters)
 }
+
+console.log(project.value, '==========')
 
 const onListChange = (event) => {
   if (event.from.id === nodeId.value) {
@@ -115,13 +123,13 @@ const onClickAction = (name) => {
   if (name === 'add') {
     modalStore.show('laneModal', {
       'projectId': props.projectId,
-      'lane': currLane,
+      'lane': currLane.value,
       'mode': 'create'
     })
   } else if (name === 'edit') {
     modalStore.show('laneModal', {
       'projectId': props.projectId,
-      'lane': currLane,
+      'lane': currLane.value,
       'mode': 'update'
     })
   } else if (name === 'del') {
