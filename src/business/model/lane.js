@@ -73,7 +73,6 @@ class Lane {
             console.warn(task.id)
             return task.id === updatedTask.id
         })
-        console.log(updatedTask.id)
         if (elIndex >= 0) {
             this.tasks[elIndex] = updatedTask
         }

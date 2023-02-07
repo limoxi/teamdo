@@ -14,9 +14,10 @@ class Kanban {
         }
     }
 
-    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0, refresh = true) {
+    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0) {
         LaneService.shuttleTask(this.project.id, taskId, targetLaneId, beforeTaskId).then(() => {
             const targetLane = this.project.getLane(targetLaneId)
+            const refresh = sourceLaneId !== targetLaneId
             if (refresh) {
                 const fromLane = this.project.getLane(sourceLaneId)
                 const shuttledTask = fromLane.getTask(taskId)
@@ -28,6 +29,7 @@ class Kanban {
                 targetLane.getTask(taskId).lane_id = targetLaneId
             }
         }).catch(err => {
+            console.error(err)
             Message.error(err.errMsg || '操作失败')
         })
     }

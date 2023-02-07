@@ -34,7 +34,6 @@ provide('project', project)
 
 ProjectService.getProject(projectId).then(data => {
   project.value = new Project(data)
-  console.log(project.value.lanes)
 })
 
 </script>

@@ -72,7 +72,7 @@
             </Space>
 
             <div class="aui-i-extra">
-              <Button size="large" type="text" icon="ios-flame"
+              <Button size="large" type="text" icon="ios-flame" v-if="taskCanDrag"
                       @click="onSetTop(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>

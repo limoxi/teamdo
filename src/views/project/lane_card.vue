@@ -92,8 +92,6 @@ const getTasks = (filters) => {
   currLane.value.loadTasks(filters)
 }
 
-console.log(project.value, '==========')
-
 const onListChange = (event) => {
   if (event.from.id === nodeId.value) {
     if (event.from.id !== event.to.id) {
@@ -116,7 +114,7 @@ const onListChange = (event) => {
   const targetLaneId = props.laneId
   project.value.Kanban.shuttleTask(
       sourceLaneId, targetLaneId,
-      parseInt(taskId), parseInt(beforeTaskId), false)
+      parseInt(taskId), parseInt(beforeTaskId))
 }
 
 const onClickAction = (name) => {
