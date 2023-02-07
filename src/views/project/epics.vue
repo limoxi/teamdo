@@ -36,7 +36,7 @@
                      :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
               >
                 <i class="aui-i-id">#{{ task.id }}</i>
-                <span v-if="task.status !== '已放弃'" class="aui-a-draggable">{{ task.name }}</span>
+                <span v-if="task.status !== '已放弃'" :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
                 <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
                 <Tooltip :content="task.updatedAt" placement="right">
                   <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
@@ -107,7 +107,7 @@
 import Draggable from 'vuedraggable';
 import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
-import {inject, onMounted, ref} from "vue"
+import {computed, inject, onMounted, ref} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
@@ -130,6 +130,11 @@ const targetPage = ref({
   curPage: 1,
   pageSize: 10,
   totalCount: 0
+})
+
+// taskCanDrag 只有在自然排序模式下才可以自由拖拽排序
+const taskCanDrag = computed(() => {
+  return orderFields.value.join(',').includes('display_index')
 })
 
 const handleSearch = (data) => {
