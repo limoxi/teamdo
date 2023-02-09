@@ -10,7 +10,7 @@ import {listener} from '@milkdown/plugin-listener';
 import {useEditor, VueEditor} from '@milkdown/vue';
 import {nord} from '@milkdown/theme-nord';
 import {gfm} from '@milkdown/preset-gfm';
-import {ref, watch} from "vue";
+import {onBeforeUnmount, ref, watch} from "vue";
 import {tooltip} from "@milkdown/plugin-tooltip";
 import slash from './slash'
 
@@ -37,13 +37,16 @@ const {editor} = useEditor((root) => {
   return ei
 })
 
-watch(props, (newVal, oldVal) => {
+const cancelWatch = watch(props, (newVal, oldVal) => {
   if (newVal.content) {
     ei.action(replaceAll(newVal.content))
   } else {
     ei.action(replaceAll(''))
   }
   previewImages.value = []
+})
+onBeforeUnmount(() => {
+  cancelWatch()
 })
 
 const onClickEditor = (e) => {

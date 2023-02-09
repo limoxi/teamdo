@@ -262,7 +262,7 @@ const onCLickSwitch = (targetLaneId) => {
 
 const switchLane = (targetLaneId) => {
   const sourceLaneId = props.task.laneId
-  project.value.Kanban.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1)
+  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1)
 }
 
 const onAddRelation = () => {

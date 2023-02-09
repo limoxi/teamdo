@@ -12,7 +12,6 @@ class Lane {
         this.tasks = []
         this.loadingTasks = false
 
-        this.project = project
         this.isFirst = false
         this.isLast = false
         switch (posi) {

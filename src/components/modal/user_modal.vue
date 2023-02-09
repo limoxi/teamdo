@@ -31,7 +31,7 @@
 <script setup>
 import Uploader from '@/components/uploader';
 import UserService from '@/business/user_service';
-import {computed, ref, watch} from "vue";
+import {computed, onBeforeUnmount, ref, watch} from "vue";
 import {Message} from "view-ui-plus";
 import {useUserStore} from '@/store'
 
@@ -45,11 +45,14 @@ let userForm = ref({
   avatar: ''
 })
 
-watch(props, (newV, oldV) => {
+const cancelWatch = watch(props, (newV, oldV) => {
   if (newV.user) {
     userForm.value.nickname = newV.user.nickname
     userForm.value.avatar = newV.user.avatar
   }
+})
+onBeforeUnmount(() => {
+  cancelWatch()
 })
 
 const title = computed(() => isRegisterMode.value ? '注册' : '编辑')

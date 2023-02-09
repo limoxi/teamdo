@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import {computed, inject, ref, watch} from 'vue'
+import {computed, inject, onBeforeUnmount, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
@@ -120,21 +120,25 @@ const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
 let showShareModal = ref(false)
 
-watch(showShareModal, (newVal, oldVal) => {
+const cancelWatch1 = watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
     onSwitchMode()
   }
 })
 
-watch(updated, (newVal, oldVal) => {
+const cancelWatch2 = watch(updated, (newVal, oldVal) => {
   if (newVal) {
     handleSearch()
     updated.value = false
   }
 })
+onBeforeUnmount(() => {
+  cancelWatch1()
+  cancelWatch2()
+})
 
 const onClickSwitch = (targetLaneId) => {
-  project.value.Kanban.shuttleTasks(targetLaneId, selectedTasks.value).then(() => {
+  project.value.shuttleTasks(targetLaneId, selectedTasks.value).then(() => {
     onSwitchMode()
   }).catch(err => {
     Message.error(err.errMsg || '批量操作失败');
