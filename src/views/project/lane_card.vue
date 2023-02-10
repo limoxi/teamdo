@@ -55,7 +55,7 @@
 <script setup>
 import TaskCard from './task_card';
 import Draggable from 'vuedraggable';
-import {computed, inject, ref, watch} from "vue";
+import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from "vue";
 import {Modal} from "view-ui-plus";
 import {useModalStore} from "@/store"
 
@@ -65,7 +65,7 @@ const props = defineProps(['laneId', 'projectId', 'index', 'filters'])
 
 const project = inject('project')
 const currLane = computed(() => {
-  return project.value.id2lane[props.laneId]
+  return project.value.getLane(props.laneId)
 })
 currLane.value.loadTasks()
 
@@ -78,6 +78,7 @@ let drag = ref(false)
 watch(() => props.filters, (newV, oldV) => {
   getTasks(newV)
 }, {deep: true})
+
 
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
@@ -112,7 +113,7 @@ const onListChange = (event) => {
   const sps = event.from.id.split('_')
   const sourceLaneId = parseInt(sps[sps.length - 1])
   const targetLaneId = props.laneId
-  project.value.Kanban.shuttleTask(
+  project.value.shuttleTask(
       sourceLaneId, targetLaneId,
       parseInt(taskId), parseInt(beforeTaskId))
 }

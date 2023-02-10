@@ -3,7 +3,6 @@ import TagService from "@/business/tag_service"
 import {Message} from "view-ui-plus"
 import LaneService from "@/business/lane_service"
 import Lane from './lane'
-import Kanban from "./kanban";
 
 class Project {
     constructor(projectData = undefined) {
@@ -14,7 +13,6 @@ class Project {
         this.tags = projectData?.tags ?? []
         this.bots = projectData?.bots ?? []
         this.lanes = []
-        this.id2lane = {}
         if (projectData?.lanes) {
             projectData.lanes.forEach((laneData, index) => {
                 let posi = 1
@@ -23,13 +21,9 @@ class Project {
                 } else if (index === projectData.lanes.length - 1) {
                     posi = -1
                 }
-                const l = new Lane(this, laneData, posi)
-                this.id2lane[l.id] = l
-                this.lanes.push(l)
+                this.lanes.push(new Lane(this, laneData, posi))
             })
         }
-
-        this.Kanban = new Kanban(this, this.lanes)
     }
 
     getTagsByBiz(bizCode) {
@@ -69,7 +63,9 @@ class Project {
     }
 
     getLane(laneId) {
-        return this.id2lane[laneId]
+        const lanes = this.lanes.filter(lane => lane.id === laneId)
+        if (lanes.length === 0) return null
+        return lanes[0]
     }
 
     getFirstLane() {
@@ -85,7 +81,6 @@ class Project {
             } else {
                 this.lanes.splice(afterIndex + 1, 0, newLane)
             }
-            this.id2lane[newLane.id] = newLane
         }).catch(err => {
             Message.error(err.errMsg)
         })
@@ -94,11 +89,10 @@ class Project {
     updateLane(data) {
         return LaneService.updateLane(this.id, data).then((laneData) => {
             const newLane = new Lane(this, laneData)
-            newLane.tasks = this.id2lane[newLane.id].tasks
+            newLane.tasks = this.getLane(newLane.id).tasks
             const elIndex = this.lanes.findIndex(lane => lane.id === newLane.id)
             if (elIndex >= 0) {
                 this.lanes[elIndex] = newLane
-                this.id2lane[newLane.id] = newLane
             }
         }).catch(err => {
             Message.error(err.errMsg)
@@ -110,7 +104,6 @@ class Project {
             const elIndex = this.lanes.findIndex(lane => lane.id === laneId)
             if (elIndex >= 0) {
                 this.lanes.splice(elIndex, 1)
-                delete (this.id2lane, laneId)
             }
         }).catch(err => {
             Message.error(err.errMsg)
@@ -127,6 +120,46 @@ class Project {
             }
         }
         return count
+    }
+
+    refreshLanes(laneIds = undefined) {
+        const lids = laneIds ?? Object.keys(this.lanes.map(l => l.id))
+        for (const lid of lids) {
+            this.getLane(lid).refresh()
+        }
+    }
+
+    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0, refresh = true) {
+        LaneService.shuttleTask(this.id, taskId, targetLaneId, beforeTaskId).then(() => {
+            const targetLane = this.getLane(targetLaneId)
+            if (refresh) {
+                const fromLane = this.getLane(sourceLaneId)
+                const shuttledTask = fromLane.getTask(taskId)
+                fromLane.removeTaskLocally(taskId)
+
+                const targetLane = this.getLane(targetLaneId)
+                targetLane.addTaskLocally(shuttledTask)
+            } else {  // ！此处注意
+                targetLane.getTask(taskId).lane_id = targetLaneId
+            }
+        }).catch(err => {
+            Message.error(err.errMsg || '操作失败')
+        })
+    }
+
+    shuttleTasks(targetLaneId, tasks) {
+        const refreshingLaneIds = new Set()
+        const taskIds = new Set()
+        for (const task of tasks) {
+            refreshingLaneIds.add(task.lane_id)
+            taskIds.add(task.id)
+        }
+        refreshingLaneIds.add(targetLaneId)
+        return LaneService.shuttleTasks(this.id, targetLaneId, Array.from(taskIds)).then(() => {
+            this.refreshLanes(Array.from(refreshingLaneIds))
+        }).catch(err => {
+            Message.error(err.errMsg || '批量操作失败');
+        })
     }
 }
 

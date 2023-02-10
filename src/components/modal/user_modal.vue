@@ -31,7 +31,7 @@
 <script setup>
 import Uploader from '@/components/uploader';
 import UserService from '@/business/user_service';
-import {computed, ref, watch} from "vue";
+import {computed, onBeforeUnmount, ref, watch} from "vue";
 import {Message} from "view-ui-plus";
 import {useUserStore} from '@/store'
 

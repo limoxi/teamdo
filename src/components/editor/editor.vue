@@ -10,7 +10,7 @@ import {listener} from '@milkdown/plugin-listener';
 import {useEditor, VueEditor} from '@milkdown/vue';
 import {nord} from '@milkdown/theme-nord';
 import {gfm} from '@milkdown/preset-gfm';
-import {ref, watch} from "vue";
+import {onBeforeUnmount, onDeactivated, ref, watch} from "vue";
 import {tooltip} from "@milkdown/plugin-tooltip";
 import slash from './slash'
 

@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import {computed, inject, ref, watch} from 'vue'
+import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"

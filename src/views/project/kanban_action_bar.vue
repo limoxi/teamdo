@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import {computed, inject, ref, watch} from 'vue'
+import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
@@ -134,7 +134,7 @@ watch(updated, (newVal, oldVal) => {
 })
 
 const onClickSwitch = (targetLaneId) => {
-  project.value.Kanban.shuttleTasks(targetLaneId, selectedTasks.value).then(() => {
+  project.value.shuttleTasks(targetLaneId, selectedTasks.value).then(() => {
     onSwitchMode()
   }).catch(err => {
     Message.error(err.errMsg || '批量操作失败');
