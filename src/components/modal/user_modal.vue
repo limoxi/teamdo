@@ -45,14 +45,11 @@ let userForm = ref({
   avatar: ''
 })
 
-const cancelWatch = watch(props, (newV, oldV) => {
+watch(props, (newV, oldV) => {
   if (newV.user) {
     userForm.value.nickname = newV.user.nickname
     userForm.value.avatar = newV.user.avatar
   }
-})
-onBeforeUnmount(() => {
-  cancelWatch()
 })
 
 const title = computed(() => isRegisterMode.value ? '注册' : '编辑')

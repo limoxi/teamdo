@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
@@ -84,21 +84,17 @@ const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 let showShareModal = ref(false)
 
-const cancelWatch1 = watch(showShareModal, (newVal, oldVal) => {
+watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
     onSwitchMode()
   }
 })
 
-const cancelWatch2 = watch(updated, (newVal, oldVal) => {
+watch(updated, (newVal, oldVal) => {
   if (newVal) {
     handleSearch()
     updated.value = false
   }
-})
-onBeforeUnmount(() => {
-  cancelWatch1()
-  cancelWatch2()
 })
 
 const handleSearch = () => {

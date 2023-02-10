@@ -55,7 +55,7 @@
 <script setup>
 import TaskCard from './task_card';
 import Draggable from 'vuedraggable';
-import {computed, inject, onBeforeUnmount, ref, watch} from "vue";
+import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from "vue";
 import {Modal} from "view-ui-plus";
 import {useModalStore} from "@/store"
 
@@ -75,13 +75,10 @@ const tasks = computed(() => {
 
 let drag = ref(false)
 
-const cancelWatch = watch(() => props.filters, (newV, oldV) => {
+watch(() => props.filters, (newV, oldV) => {
   getTasks(newV)
 }, {deep: true})
 
-onBeforeUnmount(() => {
-  cancelWatch()
-})
 
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
