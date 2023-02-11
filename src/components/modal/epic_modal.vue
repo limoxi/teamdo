@@ -233,6 +233,8 @@ const handleSubmit = () => {
       if (isCreateMode.value) {
         EpicTaskService.addEpicTask(projectId, taskData).then(() => {
           actionDone()
+        }).catch(err => {
+          Message.error(err.errMsg || '操作失败')
         }).finally(() => {
           submitting = false
         })
@@ -241,6 +243,8 @@ const handleSubmit = () => {
         taskData.remark = form.value.remark
         EpicTaskService.updateEpicTask(projectId, taskData).then(() => {
           actionDone()
+        }).catch(err => {
+          Message.error(err.errMsg || '操作失败')
         }).finally(() => {
           submitting = false
         })
