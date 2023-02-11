@@ -198,10 +198,13 @@ const onAddRelatedTask = (task) => {
 }
 
 const onEdit = (task) => {
-  modalStore.show('epicModal', {
-    projectId: projectId,
-    task: task
+  EpicTaskService.getEpicTask(projectId, task.id).then(fullTask => {
+    modalStore.show('epicModal', {
+      projectId: projectId,
+      task: fullTask
+    })
   })
+
 }
 
 const onDelete = (task) => {
@@ -214,7 +217,7 @@ const onDelete = (task) => {
       EpicTaskService.deleteEpicTask(projectId, task.id).then(() => {
         loadPagedEpicTasks()
       }).catch(err => {
-        Message.error(err.errMsg)
+        Message.error(err.errMsg || '操作失败')
       });
     }
   });
