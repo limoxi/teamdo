@@ -2,6 +2,7 @@ import ProjectService from "@/business/project_service"
 import TagService from "@/business/tag_service"
 import {Message} from "view-ui-plus"
 import LaneService from "@/business/lane_service"
+import TaskService from "@/business/task_service"
 import Lane from './lane'
 
 class Project {
@@ -129,22 +130,8 @@ class Project {
         }
     }
 
-    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0, refresh = true) {
-        LaneService.shuttleTask(this.id, taskId, targetLaneId, beforeTaskId).then(() => {
-            const targetLane = this.getLane(targetLaneId)
-            if (refresh) {
-                const fromLane = this.getLane(sourceLaneId)
-                const shuttledTask = fromLane.getTask(taskId)
-                fromLane.removeTaskLocally(taskId)
-
-                const targetLane = this.getLane(targetLaneId)
-                targetLane.addTaskLocally(shuttledTask)
-            } else {  // ！此处注意
-                targetLane.getTask(taskId).lane_id = targetLaneId
-            }
-        }).catch(err => {
-            Message.error(err.errMsg || '操作失败')
-        })
+    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0) {
+        return LaneService.shuttleTask(this.id, taskId, targetLaneId, beforeTaskId)
     }
 
     shuttleTasks(targetLaneId, tasks) {
@@ -160,6 +147,26 @@ class Project {
         }).catch(err => {
             Message.error(err.errMsg || '批量操作失败');
         })
+    }
+
+    addTask(taskData) {
+        return TaskService.addTask(this.id, taskData)
+    }
+
+    updateTask(taskData) {
+        return TaskService.updateTask(this.id, taskData)
+    }
+
+    deleteTask(taskId) {
+        return TaskService.deleteTask(this.id, taskId)
+    }
+
+    setTaskAssignor(taskId, assignorId) {
+        return TaskService.setAssignorForTask(this.id, taskId, assignorId)
+    }
+
+    switchTaskFlashing(task) {
+        return TaskService.switchTaskFlashing(this.id, task.id, !task.flashing)
     }
 }
 

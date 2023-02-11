@@ -237,15 +237,18 @@ const handleSubmit = () => {
         })
       }
       if (isCreateMode.value) {
-        project.value.getFirstLane().addTask(taskData).then(() => {
+        project.value.addTask(taskData).then(() => {
           actionDone()
         }).finally(() => {
           submitting = false
         })
       } else {
         taskData.id = task.value.id
-        project.value.getLane(task.value.laneId).updateTask(taskData).then(() => {
+        project.value.updateTask(taskData).then((updatedTask) => {
+          taskModal.value.updatedTask = updatedTask
           actionDone()
+        }).catch(err => {
+          Message.error(err.errMsg);
         }).finally(() => {
           submitting = false
         })
@@ -261,7 +264,7 @@ const handleDelete = () => {
     okText: '确认',
     cancelText: '再想想',
     onOk: () => {
-      project.value.getLane(task.value.laneId).deleteTask(task.value.id).then(() => {
+      project.value.deleteTask(task.value.id).then(() => {
         actionDone()
       })
     }

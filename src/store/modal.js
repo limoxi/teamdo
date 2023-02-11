@@ -32,7 +32,8 @@ const useModalStore = defineStore('modal', () => {
         show: false,
         readonly: false,
         task: null,
-        relatedTask: null
+        relatedTask: null,
+        updatedTask: null
     })
 
     const epicModal = ref({

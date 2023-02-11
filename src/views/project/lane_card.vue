@@ -16,7 +16,7 @@
         </Dropdown>
       </div>
     </div>
-    <template v-if="currLane.loadingTasks">
+    <template v-if="loadingTasks">
       <Skeleton class="aui-i-skeleton"
                 loading
                 animated
@@ -55,9 +55,10 @@
 <script setup>
 import TaskCard from './task_card';
 import Draggable from 'vuedraggable';
-import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from "vue";
-import {Modal} from "view-ui-plus";
+import {computed, inject, onMounted, ref, watch} from "vue";
+import {Message, Modal} from "view-ui-plus";
 import {useModalStore} from "@/store"
+import LaneService from "@/business/lane_service";
 
 const modalStore = useModalStore()
 
@@ -67,17 +68,26 @@ const project = inject('project')
 const currLane = computed(() => {
   return project.value.getLane(props.laneId)
 })
-currLane.value.loadTasks()
 
-const tasks = computed(() => {
-  return currLane.value.tasks
-})
+const loadingTasks = ref(true)
+const tasks = ref([])
 
 let drag = ref(false)
+
+onMounted(() => {
+  getTasks(props.filters)
+})
 
 watch(() => props.filters, (newV, oldV) => {
   getTasks(newV)
 }, {deep: true})
+
+watch(() => currLane.value.needRefresh, (newV, oldV) => {
+  if (newV) {
+    getTasks(newV)
+    currLane.value.needRefresh = false
+  }
+})
 
 
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
@@ -90,7 +100,12 @@ const className = computed(() => {
 })
 
 const getTasks = (filters) => {
-  currLane.value.loadTasks(filters)
+  loadingTasks.value = true
+  LaneService.getTasks(props.projectId, props.laneId, filters).then(respData => {
+    tasks.value = respData.tasks
+  }).finally(() => {
+    loadingTasks.value = false
+  })
 }
 
 const onListChange = (event) => {
@@ -99,23 +114,30 @@ const onListChange = (event) => {
       return
     }
   }
-  const taskId = event.item.getAttribute('taskId')
+  let taskId = event.item.getAttribute('taskId')
   const targetTasks = [...event.to.children]
   let beforeTaskId
   targetTasks.forEach((el, index) => {
     if (el.getAttribute('taskId') === taskId) {
       if (index < targetTasks.length - 1) {
-        beforeTaskId = targetTasks[index + 1].getAttribute('taskId')
+        beforeTaskId = parseInt(targetTasks[index + 1].getAttribute('taskId'))
       }
     }
   })
 
   const sps = event.from.id.split('_')
   const sourceLaneId = parseInt(sps[sps.length - 1])
-  const targetLaneId = props.laneId
-  project.value.shuttleTask(
-      sourceLaneId, targetLaneId,
-      parseInt(taskId), parseInt(beforeTaskId))
+  taskId = parseInt(taskId)
+
+  project.value.shuttleTask(sourceLaneId, props.laneId, taskId, beforeTaskId).then(() => {
+    tasks.value.forEach(task => {
+      if (task.id === taskId) {
+        task.laneId = props.laneId
+      }
+    })
+  }).catch(err => {
+    Message.error(err.errMsg || '操作失败')
+  })
 }
 
 const onClickAction = (name) => {
