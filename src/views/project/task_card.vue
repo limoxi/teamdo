@@ -89,7 +89,7 @@ import TaskService from '@/business/task_service';
 import EpicTaskService from '@/business/epic_task_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
-import {computed, inject, onMounted, ref} from "vue";
+import {computed, inject} from "vue";
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
@@ -105,68 +105,34 @@ const {tagId} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {mode, selectedTasks} = storeToRefs(taskModeStore)
-let taskSelected = computed({
-  get: () => selectedTasks.value.filter(task => task.id === task.value.id).length > 0,
-  set: (v) => {
-    taskModeStore.toggleTask(task.value, v)
-    return v
-  }
+let taskSelected = computed(() => {
+  return selectedTasks.value.filter(task => task.id === props.task.id).length > 0
 })
 
 const actionRight = computed(() => {
-  if (task.value.status === '已完成') {
+  if (props.task.status === '已完成') {
     return '46px'
   } else {
     return '5px'
   }
 })
 
-onMounted(() => {
-  modalStore.$subscribe((_, state) => {
-    const userSelectModal = state.userSelectModal
-    if (userSelectModal.userSelected) {
-      if (userSelectModal.taskId === task.value.id) {
-        const assignorId = userSelectModal.selectedUserId
-        project.value.setTaskAssignor(task.value.id, assignorId).then(() => {
-          task.value.assignorId = assignorId
-          userSelectModal.userSelected = false
-        }).catch(e => {
-          Message.error(e.errMsg || '设置执行人失败')
-        })
-      }
-    }
-
-    const taskModal = state.taskModal
-    if (taskModal.updatedTask) {
-      if (taskModal.updatedTask.id === task.value.id) {
-        task.value = taskModal.updatedTask
-      }
-    }
-  })
-})
-
 const props = defineProps(['task', 'lane'])
-const task = ref(props.task)
 
 const project = inject('project')
-const lanes = computed({
-  get() {
-    return project.value.lanes
-  },
-  set(newLanes) {
-    project.value.lanes = newLanes
-  }
+const lanes = computed(() => {
+  return project.value.lanes
 })
 const importanceDesc = computed(() => {
-  return getImportanceDesc(task.value.importance)
+  return getImportanceDesc(props.task.importance)
 })
 
 const importanceColor = computed(() => {
-  return getImportanceColor(task.value.importance)
+  return getImportanceColor(props.task.importance)
 })
 
 const taskNameColor = computed(() => {
-  switch (task.value.type) {
+  switch (props.task.type) {
     case 'REQ':
       return '#2b85e4'
     case 'OPT':
@@ -188,18 +154,18 @@ const taskColor = computed(() => {
 
 const assignor = computed(() => {
   for (let user of project.value.users) {
-    if (user.id === task.value.assignorId) {
+    if (user.id === props.task.assignorId) {
       return user
     }
   }
   return null
 })
 
-const taskNo = `${project.value.prefix}${task.value.id}`
+const taskNo = `${project.value.prefix}${props.task.id}`
 
 const onCLickTaskNo = () => {
   let pre = ''
-  switch (task.value.type) {
+  switch (props.task.type) {
     case 'OPT':
       pre = 'perf'
       break
@@ -210,7 +176,7 @@ const onCLickTaskNo = () => {
       pre = 'ft'
   }
 
-  const t = `${pre}_${project.value.prefix.toLowerCase()}${task.value.id}`
+  const t = `${pre}_${project.value.prefix.toLowerCase()}${props.task.id}`
   Copy({
     text: t,
     successTip: `${t} 已复制`
@@ -219,7 +185,7 @@ const onCLickTaskNo = () => {
 
 const onCLickName = () => {
   Copy({
-    text: task.value.name,
+    text: props.task.name,
     successTip: '用户故事已复制'
   })
 }
@@ -251,23 +217,23 @@ const onClickPre = () => {
 }
 
 let flashClass = computed(() => {
-  if (task.value.flashing) {
+  if (props.task.flashing) {
     return 'aui-icon-scale red'
   } else {
     return 'aui-icon-scale'
   }
 })
 let headerClasses = computed(() => {
-  if (task.value.flashing) {
-    return `aui-task aui-task-type-${task.value.type} animation-flash`
+  if (props.task.flashing) {
+    return `aui-task aui-task-type-${props.task.type} animation-flash`
   } else {
-    return `aui-task aui-task-type-${task.value.type}`
+    return `aui-task aui-task-type-${props.task.type}`
   }
 })
 
 const onClickFlash = () => {
-  project.value.switchTaskFlashing(task.value).then(() => {
-    task.value.flashing = !task.value.flashing
+  project.value.switchTaskFlashing(props.task).then(() => {
+    props.task.flashing = !props.task.flashing
   }).catch(err => {
     Message.error(err.errMsg || '操作失败');
   })
@@ -278,9 +244,9 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  const sourceLaneId = task.value.laneId
-  project.value.shuttleTask(sourceLaneId, targetLaneId, task.value.id, -1).then(() => {
-    task.value.laneId = targetLaneId
+  const sourceLaneId = props.task.laneId
+  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1).then(() => {
+    props.task.laneId = targetLaneId
   }).catch(err => {
     Message.error(err.errMsg || '操作失败')
   })
@@ -289,36 +255,36 @@ const switchLane = (targetLaneId) => {
 const onAddRelation = () => {
   modalStore.show('taskModal', {
     projectId: project.value.id,
-    relatedTask: task.value
+    relatedTask: props.task
   })
 }
 
 const onClickEdit = (e, getParent = false) => {
-  let targetTaskId = task.value.id
+  let targetTaskId = props.task.id
   let getEpicTask = false
   let readonly = false
   let projectId = project.value.id
-  if (getParent && task.value.parentCategory === 'epic') {
+  if (getParent && props.task.parentCategory === 'epic') {
     getEpicTask = true
-    targetTaskId = task.value.parentId
+    targetTaskId = props.task.parentId
     readonly = true
   }
 
   if (getEpicTask) {
-    EpicTaskService.getEpicTask(projectId, targetTaskId).then(task => {
+    EpicTaskService.getEpicTask(projectId, targetTaskId).then(epicTask => {
       modalStore.show('epicModal', {
         'projectId': project.value.id,
-        'task': task,
+        'task': epicTask,
         'readonly': readonly
       })
     }).catch(err => {
       Message.error(err.errMsg);
     });
   } else {
-    TaskService.getTask(projectId, targetTaskId).then(task => {
+    TaskService.getTask(projectId, targetTaskId).then(nTask => {
       modalStore.show('taskModal', {
         'projectId': project.value.id,
-        'task': task,
+        'task': nTask,
         'readonly': readonly
       })
     }).catch(err => {
@@ -328,9 +294,9 @@ const onClickEdit = (e, getParent = false) => {
 }
 
 const onClickAttention = () => {
-  TaskService.getTask(project.value.id, task.value.id).then(task => {
+  TaskService.getTask(project.value.id, props.task.id).then(nTask => {
     let content = []
-    task.attentions.forEach(att => {
+    nTask.attentions.forEach(att => {
       const f = att.checked ? '✅' : '⬜'
       content.push(`</br>${f} ${att.content}</br>`)
     })
@@ -351,14 +317,14 @@ const onClickTag = (tag) => {
 
 const onClickLog = () => {
   modalStore.show('taskLogModal', {
-    task: task.value
+    task: props.task
   })
 }
 
 const onSelectAssignor = () => {
   modalStore.show('userSelectModal', {
     projectId: project.value.id,
-    taskId: task.value.id
+    taskId: props.task.id
   })
 }
 

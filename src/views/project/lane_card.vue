@@ -40,11 +40,12 @@
           @end="drag = false"
           @sort="onListChange"
       >
-        <template #item="{element, index}">
+        <template #item="{_, index}" :key="index">
           <task-card
-              :task="element"
+              v-model:task="tasks[index]"
               :lane="currLane"
               :projectId="projectId"
+              :key="index"
           ></task-card>
         </template>
       </draggable>
@@ -75,6 +76,32 @@ const tasks = ref([])
 let drag = ref(false)
 
 onMounted(() => {
+  modalStore.$subscribe((mutations, state) => {
+    if (mutations.events.key === 'show' && mutations.events.oldValue && !mutations.events.newValue) {
+      const userSelectModal = state.userSelectModal
+      if (userSelectModal.userSelected) {
+        const taskIndex = getTaskIndexById(userSelectModal.taskId)
+        if (taskIndex >= 0) {
+          const assignorId = userSelectModal.selectedUserId
+          project.value.setTaskAssignor(userSelectModal.taskId, assignorId).then(() => {
+            tasks.value[taskIndex].assignorId = assignorId
+            userSelectModal.userSelected = false
+          }).catch(e => {
+            Message.error(e.errMsg || '设置执行人失败')
+          })
+        }
+      }
+
+      const taskModal = state.taskModal
+      if (taskModal.updatedTask) {
+        const taskIndex = getTaskIndexById(taskModal.updatedTask.id)
+        if (taskIndex >= 0) {
+          tasks.value[taskIndex] = taskModal.updatedTask
+        }
+      }
+    }
+  })
+
   getTasks(props.filters)
 })
 
@@ -89,7 +116,6 @@ watch(() => currLane.value.needRefresh, (newV, oldV) => {
   }
 })
 
-
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
   if (currLane.value.isFirst || currLane.value.isLast) {
@@ -98,6 +124,10 @@ const className = computed(() => {
     return 'aui-i-header aui-a-draggable';
   }
 })
+
+const getTaskIndexById = taskId => {
+  return tasks.value.findIndex(task => task.id === taskId)
+}
 
 const getTasks = (filters) => {
   loadingTasks.value = true

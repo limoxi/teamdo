@@ -31,10 +31,6 @@
       </template>
       <div class="aui-i-blank"></div>
     </draggable>
-
-    <div class="scrollControl" id="scrollControl">
-      <span class="scroll-button" id="scrollBtn"></span>
-    </div>
   </div>
 
   <lane-modal/>
@@ -47,15 +43,11 @@ import LaneCard from './lane_card';
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal';
 import LaneService from '@/business/lane_service';
-import {computed, inject, nextTick, onMounted, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message} from "view-ui-plus";
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
-
-onMounted(() => {
-  // handleScroll()
-})
 
 let drag = ref(false)
 let filters = ref(null)
@@ -98,49 +90,6 @@ const handleSearch = (f) => {
   filters.value = f
 }
 
-const handleScroll = () => {
-  nextTick(() => {
-    const scrollBtn = document.getElementById('scrollBtn')
-    const scrollControl = document.getElementById('scrollControl')
-    const webview = document.getElementById('board')
-
-    //获取最大位置
-    const nMax = scrollControl.offsetWidth - scrollBtn.offsetWidth;
-
-    scrollBtn.addEventListener('mousedown', function (event) {
-      this.style.opacity = 1
-      const initX = event.clientX
-      const initLeft = this.offsetLeft
-
-      document.onmousemove = (el) => {
-        el.preventDefault()
-        let x = el.clientX - initX + initLeft
-
-        if (x >= nMax) {
-          x = nMax
-        }
-
-        if (x <= 0) {
-          x = 0
-        }
-        this.style.left = x + 'px'
-        let scrollLeft = 0
-        scrollLeft = ((webview.scrollWidth - webview.clientWidth) * x) / scrollControl.clientWidth
-        if (x === nMax) {
-          scrollLeft = ((webview.scrollWidth - webview.clientWidth) * (x + scrollBtn.clientWidth)) / scrollControl.clientWidth
-        }
-        webview.scrollLeft = scrollLeft
-
-      }
-
-      document.onmouseup = (event) => {
-        document.onmousemove = null;
-        document.onmouseup = null;
-        this.style.opacity = 0.3
-      }
-    })
-  })
-}
 </script>
 
 <style lang="less" scoped>
