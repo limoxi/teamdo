@@ -36,13 +36,31 @@
                      :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
               >
                 <i class="aui-i-id">#{{ task.id }}</i>
-                <span v-if="task.status !== '已放弃'" :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
+                <span v-if="task.status !== '已放弃'" :class="taskCanDrag? 'aui-a-draggable' : ''">
+                  {{ task.name }}
+                </span>
                 <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
                 <Tooltip :content="task.updatedAt" placement="right">
                   <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
                 </Tooltip>
                 <Badge :color="getStatusColor(task.status)" :text="task.status"/>
-                <span style="font-weight: bold">{{task.getProgress()}}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span v-if="task.children.length === 0" style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <Poptip trigger="hover" v-else placement="right" transfer>
+                  <span style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                  <template #title>
+                    <p style="font-size: 12px">关联任务数: <b>{{ task.children.length }}</b></p>
+                  </template>
+                  <template #content>
+                    <div class="aui-children-progress">
+                      <Progress v-for="child in task.children" :key="child.id"
+                                :percent="child.progress"
+                                :stroke-width="10"
+                                :stroke-color="getStatusColor(child.status)"
+                                style="position: relative"
+                      />
+                    </div>
+                  </template>
+                </Poptip>
               </Space>
               <Space split>
                 <Tooltip :content="task.getCreator().nickname" placement="right">
@@ -230,10 +248,12 @@ const onClickLog = (task) => {
 }
 
 onMounted(() => {
-  modalStore.$subscribe((_, state) => {
-    const epicModal = state.epicModal
-    if (!epicModal.show) {
-      loadPagedEpicTasks()
+  modalStore.$subscribe((mutations, state) => {
+    if (mutations.events.key === 'show' && mutations.events.oldValue && !mutations.events.newValue) {
+      const epicModal = state.epicModal
+      if (!epicModal.show) {
+        loadPagedEpicTasks()
+      }
     }
   })
   loadPagedEpicTasks()
@@ -255,7 +275,8 @@ const loadPagedEpicTasks = async () => {
       {
         'with_tags': true,
         'with_users': true,
-        'with_children': true
+        'with_children': true,
+        'with_progress': true
       },
       orderFields.value,
       targetPage.value
@@ -273,6 +294,13 @@ const onAddTask = () => {
 }
 
 </script>
+
+<style lang="less">
+.aui-children-progress {
+  width: 150px;
+  display: grid;
+}
+</style>
 
 <style scoped lang="less">
 .epics-page {
