@@ -3,7 +3,22 @@
     <logo></logo>
     <div class="aui-i-menu">
       <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
-        <MenuItem name="projects">项目</MenuItem>
+        <MenuItem name="projects">
+          <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
+            <span>
+              项目<Icon type="ios-arrow-down"></Icon>
+            </span>
+            <template #list>
+              <DropdownMenu>
+                <DropdownItem v-for="p in projects" :key="p.id"
+                              :disabled="p.id === project.id"
+                              :name="p.id"
+                >{{ p.name }}
+                </DropdownItem>
+              </DropdownMenu>
+            </template>
+          </Dropdown>
+        </MenuItem>
         <MenuItem name="epics">需求</MenuItem>
         <MenuItem name="kanban">看板</MenuItem>
         <MenuItem name="members">成员</MenuItem>
@@ -29,6 +44,8 @@ import {inject, onMounted, ref} from "vue";
 import {useRouter} from 'vue-router'
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
+import {Message} from "view-ui-plus";
+import ProjectService from "../../../business/project_service";
 
 const router = useRouter()
 
@@ -36,11 +53,13 @@ const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
 
 const project = inject('project')
+const projects = ref([])
 
 let activeName = ref('kanban')
 
 onMounted(() => {
   activeName.value = getDefaultActiveName()
+  getProjects()
 })
 
 const getDefaultActiveName = () => {
@@ -63,6 +82,16 @@ const onMenuChanged = (name) => {
       }
     });
   }
+}
+const onSwitchProject = (pid) => {
+  window.location.href = `/project/${pid}/kanban`
+}
+const getProjects = () => {
+  ProjectService.getLintProjects().then(data => {
+    projects.value = data;
+  }).catch(err => {
+    Message.error(err.errMsg)
+  });
 }
 </script>
 
