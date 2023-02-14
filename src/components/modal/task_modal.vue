@@ -237,7 +237,8 @@ const handleSubmit = () => {
         })
       }
       if (isCreateMode.value) {
-        project.value.addTask(taskData).then(() => {
+        project.value.addTask(taskData).then((newTask) => {
+          taskModal.value.updatedTask = newTask
           actionDone()
         }).finally(() => {
           submitting = false

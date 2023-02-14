@@ -105,8 +105,22 @@ const {tagId} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {mode, selectedTasks} = storeToRefs(taskModeStore)
-let taskSelected = computed(() => {
-  return selectedTasks.value.filter(task => task.id === props.task.id).length > 0
+let taskSelected = computed({
+  get() {
+    return selectedTasks.value.filter(task => task.id === props.task.id).length > 0
+  },
+  set(selected) {
+    if (selected) {
+      if (selectedTasks.value.filter(task => task.id === props.task.id).length === 0) {
+        selectedTasks.value.push(props.task)
+      }
+    } else {
+      const index = selectedTasks.value.findIndex(t => t.id === props.task.id)
+      if (index >= 0) {
+        selectedTasks.value.splice(index, 1)
+      }
+    }
+  }
 })
 
 const actionRight = computed(() => {
@@ -118,6 +132,7 @@ const actionRight = computed(() => {
 })
 
 const props = defineProps(['task', 'lane'])
+const emit = defineEmits(['onAdd', 'onRemove'])
 
 const project = inject('project')
 const lanes = computed(() => {
@@ -247,7 +262,11 @@ const switchLane = (targetLaneId) => {
   const sourceLaneId = props.task.laneId
   project.value.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1).then(() => {
     props.task.laneId = targetLaneId
+    if (sourceLaneId !== targetLaneId) {
+      // TODO
+    }
   }).catch(err => {
+    console.error(err)
     Message.error(err.errMsg || '操作失败')
   })
 }

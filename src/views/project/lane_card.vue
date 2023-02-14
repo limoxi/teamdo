@@ -77,7 +77,7 @@ let drag = ref(false)
 
 onMounted(() => {
   modalStore.$subscribe((mutations, state) => {
-    if (mutations.events.key === 'show' && mutations.events.oldValue && !mutations.events.newValue) {
+    if (mutations.events.key === 'userSelected' && !mutations.events.oldValue && mutations.events.newValue) {
       const userSelectModal = state.userSelectModal
       if (userSelectModal.userSelected) {
         const taskIndex = getTaskIndexById(userSelectModal.taskId)
@@ -91,12 +91,16 @@ onMounted(() => {
           })
         }
       }
+    }
 
+    if (mutations.events.key === 'show' && !mutations.events.oldValue && mutations.events.newValue) {
       const taskModal = state.taskModal
       if (taskModal.updatedTask) {
         const taskIndex = getTaskIndexById(taskModal.updatedTask.id)
         if (taskIndex >= 0) {
           tasks.value[taskIndex] = taskModal.updatedTask
+        } else if (taskModal.updatedTask.laneId === props.laneId) {
+          tasks.value.splice(0, 0, taskModal.updatedTask)
         }
       }
     }

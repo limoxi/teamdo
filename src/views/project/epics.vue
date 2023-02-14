@@ -36,10 +36,7 @@
                      :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
               >
                 <i class="aui-i-id">#{{ task.id }}</i>
-                <span v-if="task.status !== '已放弃'" :class="taskCanDrag? 'aui-a-draggable' : ''">
-                  {{ task.name }}
-                </span>
-                <span v-else style="text-decoration: line-through;">{{ task.name }}</span>
+                <span :style="`text-decoration: ${task.status === '已放弃'?'line-through': 'none'};`" :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
                 <Tooltip :content="task.updatedAt" placement="right">
                   <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
                 </Tooltip>
