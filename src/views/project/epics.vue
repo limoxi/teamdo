@@ -54,8 +54,13 @@
                                 :percent="child.progress"
                                 :stroke-width="10"
                                 :stroke-color="getStatusColor(child.status)"
-                                style="position: relative"
-                      />
+                      >
+                        <space>
+                          <b>{{ child.progress }}%</b>
+                          <Avatar size="small" :src="project.getUser(child.assignorId)?.avatar || defaultAvatar"/>
+                          <b style="scale: 0.5">{{ project.getLane(child.laneId).name }}(#{{ child.id }})</b>
+                        </space>
+                      </Progress>
                     </div>
                   </template>
                 </Poptip>
@@ -122,6 +127,7 @@
 </template>
 
 <script setup>
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 import Draggable from 'vuedraggable';
 import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
@@ -203,7 +209,7 @@ const getStatusColor = (status) => {
 
 const onAddEpicBefore = (beforeIndex) => {
   let beforeTaskId = 0
-  if (beforeIndex >=0 ) {
+  if (beforeIndex >= 0) {
     const beforeTask = tasks.value[beforeIndex]
     if (beforeTask) {
       beforeTaskId = beforeTask.id
@@ -304,8 +310,13 @@ const onAddTask = () => {
 
 <style lang="less">
 .aui-children-progress {
-  width: 150px;
+  width: 280px;
+  max-height: 100px;
   display: grid;
+
+  .ivu-progress {
+    width: 150px;
+  }
 }
 </style>
 

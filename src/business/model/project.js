@@ -44,6 +44,14 @@ class Project {
         })
     }
 
+    getUser(userId) {
+        for (const pu of this.users) {
+            if (pu.id === userId) {
+                return pu
+            }
+        }
+    }
+
     reloadUsers() {
         if (this.id <= 0) return
         return ProjectService.getProjectMembers(this.id).then(data => {
