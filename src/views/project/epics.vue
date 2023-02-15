@@ -90,7 +90,7 @@
             <div class="aui-i-extra">
               <Button size="large" type="text" icon="ios-flame" v-if="taskCanDrag"
                       @click="onSetTop(task)"></Button>
-              <Button size="large" type="text" icon="md-add-circle" @click="onAddEpicBefore(index-1)"></Button>
+              <Button size="large" type="text" icon="md-add-circle" @click="onAddEpicBefore(index)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-create"
