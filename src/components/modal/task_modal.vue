@@ -181,6 +181,8 @@ const editorInst = ref()
 
 let selectedTagId = ref('')
 
+const emit = defineEmits(['onAdd', 'onUpdate'])
+
 modalStore.$subscribe((_, state) => {
   const store = state.taskModal
   if (store.show) {
@@ -238,7 +240,7 @@ const handleSubmit = () => {
       }
       if (isCreateMode.value) {
         project.value.addTask(taskData).then((newTask) => {
-          taskModal.value.updatedTask = newTask
+          emit('onAdd', newTask)
           actionDone()
         }).finally(() => {
           submitting = false
@@ -246,7 +248,7 @@ const handleSubmit = () => {
       } else {
         taskData.id = task.value.id
         project.value.updateTask(taskData).then((updatedTask) => {
-          taskModal.value.updatedTask = updatedTask
+          emit('onUpdate', updatedTask)
           actionDone()
         }).catch(err => {
           Message.error(err.errMsg);

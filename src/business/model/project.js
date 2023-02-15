@@ -130,21 +130,30 @@ class Project {
         }
     }
 
-    shuttleTask(sourceLaneId, targetLaneId, taskId, beforeTaskId = 0) {
-        return LaneService.shuttleTask(this.id, taskId, targetLaneId, beforeTaskId)
+    shuttleTask(sourceLaneId, targetLaneId, task, beforeTaskId = 0, refresh = false) {
+        LaneService.shuttleTask(this.id, task.id, targetLaneId, beforeTaskId).then(() => {
+            if (refresh && sourceLaneId !== targetLaneId) {
+                this.getLane(sourceLaneId).removeTask(task)
+                this.getLane(targetLaneId).addTask(task)
+            }
+        }).catch(err => {
+            console.error(err)
+            Message.error(err.errMsg || '操作失败')
+        })
     }
 
     shuttleTasks(targetLaneId, tasks) {
         const refreshingLaneIds = new Set()
         const taskIds = new Set()
         for (const task of tasks) {
-            refreshingLaneIds.add(task.lane_id)
+            refreshingLaneIds.add(task.laneId)
             taskIds.add(task.id)
         }
         refreshingLaneIds.add(targetLaneId)
         return LaneService.shuttleTasks(this.id, targetLaneId, Array.from(taskIds)).then(() => {
             this.refreshLanes(Array.from(refreshingLaneIds))
         }).catch(err => {
+            console.error(err)
             Message.error(err.errMsg || '批量操作失败');
         })
     }
@@ -161,8 +170,17 @@ class Project {
         return TaskService.deleteTask(this.id, taskId)
     }
 
-    setTaskAssignor(taskId, assignorId) {
-        return TaskService.setAssignorForTask(this.id, taskId, assignorId)
+    setTaskAssignor(laneId, taskId, assignorId) {
+        return TaskService.setAssignorForTask(this.id, taskId, assignorId).then(() => {
+            this.getLane(laneId).tasks.forEach(task => {
+                if (task.id === taskId) {
+                    task.assignorId = assignorId
+                }
+            })
+        }).catch(err => {
+            console.error(err)
+            Message.error(err.errMsg || '设置执行人失败')
+        })
     }
 
     switchTaskFlashing(task) {

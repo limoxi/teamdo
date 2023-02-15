@@ -1,3 +1,5 @@
+import LaneService from "@/business/lane_service";
+
 class Lane {
     constructor(project, data, posi = 1) {
         this.projectId = project.id
@@ -16,11 +18,42 @@ class Lane {
                 this.isLast = true
         }
 
-        this.needRefresh = false
+        this.tasks = []
+        this.loadingTasks = false
     }
 
     refresh() {
-        this.needRefresh = true
+        this.loadTasks()
+    }
+
+    loadTasks(filters = {}) {
+        this.loadingTasks = true
+        LaneService.getTasks(this.projectId, this.id, filters).then(respData => {
+            this.tasks = respData.tasks
+        }).finally(() => {
+            this.loadingTasks = false
+        })
+    }
+
+    getTaskIndex(taskId) {
+        return this.tasks.findIndex(t => t.id === taskId)
+    }
+
+    addTask(newTask) {
+        newTask.laneId = this.id
+        this.tasks.splice(0, 0, newTask)
+    }
+
+    updateTask(updatedTask) {
+        const index = this.getTaskIndex(updatedTask.id)
+        if (index === -1) return
+        this.tasks.splice(index, 1, updatedTask)
+    }
+
+    removeTask(task) {
+        const index = this.getTaskIndex(task.id)
+        if (index === -1) return
+        this.tasks.splice(index, 1)
     }
 }
 

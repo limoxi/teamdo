@@ -35,7 +35,7 @@ const modalStore = useModalStore()
 const {projectId, userSelectModal} = storeToRefs(modalStore)
 
 const selector = ref(null)
-const emit = defineEmits(['update:show'])
+const emit = defineEmits(['update:show', 'onSelect'])
 let users = ref([])
 
 
@@ -72,7 +72,10 @@ const searchUser = (nickname) => {
 }
 
 const onConfirmed = () => {
-  userSelectModal.value.userSelected = true
+  emit('onSelect', userSelectModal.value.selectedUserId, userSelectModal.value.action, {
+    laneId: userSelectModal.value.laneId,
+    taskId: userSelectModal.value.taskId
+  })
 }
 
 </script>

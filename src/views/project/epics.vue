@@ -36,7 +36,8 @@
                      :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
               >
                 <i class="aui-i-id">#{{ task.id }}</i>
-                <span :style="`text-decoration: ${task.status === '已放弃'?'line-through': 'none'};`" :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
+                <span :style="`text-decoration: ${task.status === '已放弃'?'line-through': 'none'};`"
+                      :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
                 <Tooltip :content="task.updatedAt" placement="right">
                   <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
                 </Tooltip>
@@ -89,6 +90,7 @@
             <div class="aui-i-extra">
               <Button size="large" type="text" icon="ios-flame" v-if="taskCanDrag"
                       @click="onSetTop(task)"></Button>
+              <Button icon="md-add" @click="onAddEpicBefore(index-1)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-create"
@@ -116,6 +118,7 @@
       </template>
     </Result>
   </template>
+  <epic-modal @onFinish="loadPagedEpicTasks"/>
 </template>
 
 <script setup>
@@ -123,6 +126,7 @@ import Draggable from 'vuedraggable';
 import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
 import {computed, inject, onMounted, ref} from "vue"
+import EpicModal from '@/components/modal/epic_modal';
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
@@ -195,6 +199,12 @@ const getStatusColor = (status) => {
     default:
       return '#ff9900'
   }
+}
+
+const onAddEpicBefore = (beforeIndex) => {
+  modalStore.show('epicModal', {
+    projectId: projectId.value
+  })
 }
 
 const onSetTop = task => {

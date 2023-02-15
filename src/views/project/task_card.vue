@@ -260,15 +260,7 @@ const onCLickSwitch = (targetLaneId) => {
 
 const switchLane = (targetLaneId) => {
   const sourceLaneId = props.task.laneId
-  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task.id, -1).then(() => {
-    props.task.laneId = targetLaneId
-    if (sourceLaneId !== targetLaneId) {
-      // TODO
-    }
-  }).catch(err => {
-    console.error(err)
-    Message.error(err.errMsg || '操作失败')
-  })
+  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task, -1, true)
 }
 
 const onAddRelation = () => {
@@ -343,7 +335,9 @@ const onClickLog = () => {
 const onSelectAssignor = () => {
   modalStore.show('userSelectModal', {
     projectId: project.value.id,
-    taskId: props.task.id
+    laneId: props.task.laneId,
+    taskId: props.task.id,
+    action: 'selectAssignorForTask'
   })
 }
 

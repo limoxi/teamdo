@@ -108,6 +108,8 @@ const project = inject('project')
 const selectedTag = ref(null)
 const selectableTags = computed(() => [...project.value.getTagsByBiz('epic_task')])
 
+const emit = defineEmits(['onFinish'])
+
 const modalStore = useModalStore()
 const {epicModal} = storeToRefs(modalStore)
 const task = computed(() => epicModal.value.task)
@@ -172,6 +174,7 @@ const close = () => {
 
 const actionDone = () => {
   Message.success('操作成功');
+  emit('onFinish')
   close()
 }
 

@@ -16,7 +16,7 @@
         </Dropdown>
       </div>
     </div>
-    <template v-if="loadingTasks">
+    <template v-if="currLane.loadingTasks">
       <Skeleton class="aui-i-skeleton"
                 loading
                 animated
@@ -57,9 +57,8 @@
 import TaskCard from './task_card';
 import Draggable from 'vuedraggable';
 import {computed, inject, onMounted, ref, watch} from "vue";
-import {Message, Modal} from "view-ui-plus";
+import {Modal} from "view-ui-plus";
 import {useModalStore} from "@/store"
-import LaneService from "@/business/lane_service";
 
 const modalStore = useModalStore()
 
@@ -70,55 +69,24 @@ const currLane = computed(() => {
   return project.value.getLane(props.laneId)
 })
 
-const loadingTasks = ref(true)
-const tasks = ref([])
+const tasks = computed({
+  get() {
+    return currLane.value.tasks
+  },
+  set(val) {
+    currLane.value.tasks = val
+  }
+})
 
 let drag = ref(false)
 
 onMounted(() => {
-  modalStore.$subscribe((mutations, state) => {
-    if (mutations.events.key === 'userSelected' && !mutations.events.oldValue && mutations.events.newValue) {
-      const userSelectModal = state.userSelectModal
-      if (userSelectModal.userSelected) {
-        const taskIndex = getTaskIndexById(userSelectModal.taskId)
-        if (taskIndex >= 0) {
-          const assignorId = userSelectModal.selectedUserId
-          project.value.setTaskAssignor(userSelectModal.taskId, assignorId).then(() => {
-            tasks.value[taskIndex].assignorId = assignorId
-            userSelectModal.userSelected = false
-          }).catch(e => {
-            Message.error(e.errMsg || '设置执行人失败')
-          })
-        }
-      }
-    }
-
-    if (mutations.events.key === 'show' && !mutations.events.oldValue && mutations.events.newValue) {
-      const taskModal = state.taskModal
-      if (taskModal.updatedTask) {
-        const taskIndex = getTaskIndexById(taskModal.updatedTask.id)
-        if (taskIndex >= 0) {
-          tasks.value[taskIndex] = taskModal.updatedTask
-        } else if (taskModal.updatedTask.laneId === props.laneId) {
-          tasks.value.splice(0, 0, taskModal.updatedTask)
-        }
-      }
-    }
-  })
-
-  getTasks(props.filters)
+  currLane.value.loadTasks(props.filters)
 })
 
 watch(() => props.filters, (newV, oldV) => {
-  getTasks(newV)
+  currLane.value.loadTasks(newV)
 }, {deep: true})
-
-watch(() => currLane.value.needRefresh, (newV, oldV) => {
-  if (newV) {
-    getTasks(newV)
-    currLane.value.needRefresh = false
-  }
-})
 
 const nodeId = computed(() => `p_${props.projectId}_d_l_${props.laneId}`)
 const className = computed(() => {
@@ -131,15 +99,6 @@ const className = computed(() => {
 
 const getTaskIndexById = taskId => {
   return tasks.value.findIndex(task => task.id === taskId)
-}
-
-const getTasks = (filters) => {
-  loadingTasks.value = true
-  LaneService.getTasks(props.projectId, props.laneId, filters).then(respData => {
-    tasks.value = respData.tasks
-  }).finally(() => {
-    loadingTasks.value = false
-  })
 }
 
 const onListChange = (event) => {
@@ -161,17 +120,11 @@ const onListChange = (event) => {
 
   const sps = event.from.id.split('_')
   const sourceLaneId = parseInt(sps[sps.length - 1])
-  taskId = parseInt(taskId)
+  const curTask = {
+    id: parseInt(taskId)
+  }
 
-  project.value.shuttleTask(sourceLaneId, props.laneId, taskId, beforeTaskId).then(() => {
-    tasks.value.forEach(task => {
-      if (task.id === taskId) {
-        task.laneId = props.laneId
-      }
-    })
-  }).catch(err => {
-    Message.error(err.errMsg || '操作失败')
-  })
+  project.value.shuttleTask(sourceLaneId, props.laneId, curTask, beforeTaskId)
 }
 
 const onClickAction = (name) => {

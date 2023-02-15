@@ -103,7 +103,7 @@
 import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
-import {computed, inject, onMounted, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {ListItem, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
@@ -188,23 +188,10 @@ const finishedTaskLineOptions = ref({
   series: []
 })
 
-onMounted(() => {
-  modalStore.$subscribe((_, state) => {
-    const userSelectModal = state.userSelectModal
-    if (userSelectModal.userSelected) {
-      if (userSelectModal.selectedUserId > 0) {
-        project.value.addUser(userSelectModal.selectedUserId).then(() => {
-          Message.success('添加成员成功，正在刷新...');
-        }).catch(err => {
-          Message.error(err.errMsg);
-        })
-      }
-    }
-  })
-})
-
 const onAddMember = () => {
-  modalStore.show('userSelectModal', {})
+  modalStore.show('userSelectModal', {
+    action: 'addProjectMember'
+  })
 }
 
 const onSwitchDateRange = desc => {
