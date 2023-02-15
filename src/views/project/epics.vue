@@ -90,7 +90,7 @@
             <div class="aui-i-extra">
               <Button size="large" type="text" icon="ios-flame" v-if="taskCanDrag"
                       @click="onSetTop(task)"></Button>
-              <Button icon="md-add" @click="onAddEpicBefore(index-1)"></Button>
+              <Button size="large" type="text" icon="md-add-circle" @click="onAddEpicBefore(index-1)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
                       @click="onAddRelatedTask(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-create"
@@ -202,8 +202,16 @@ const getStatusColor = (status) => {
 }
 
 const onAddEpicBefore = (beforeIndex) => {
+  let beforeTaskId = 0
+  if (beforeIndex >=0 ) {
+    const beforeTask = tasks.value[beforeIndex]
+    if (beforeTask) {
+      beforeTaskId = beforeTask.id
+    }
+  }
   modalStore.show('epicModal', {
-    projectId: projectId.value
+    projectId: projectId.value,
+    beforeTaskId: beforeTaskId
   })
 }
 
@@ -255,14 +263,6 @@ const onClickLog = (task) => {
 }
 
 onMounted(() => {
-  modalStore.$subscribe((mutations, state) => {
-    if (mutations.events.key === 'show' && mutations.events.oldValue && !mutations.events.newValue) {
-      const epicModal = state.epicModal
-      if (!epicModal.show) {
-        loadPagedEpicTasks()
-      }
-    }
-  })
   loadPagedEpicTasks()
 })
 

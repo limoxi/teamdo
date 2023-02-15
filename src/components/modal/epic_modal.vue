@@ -173,8 +173,8 @@ const close = () => {
 }
 
 const actionDone = () => {
-  Message.success('操作成功');
   emit('onFinish')
+  Message.success('操作成功');
   close()
 }
 
@@ -234,6 +234,7 @@ const handleSubmit = () => {
       }
 
       if (isCreateMode.value) {
+        taskData.beforeTaskId = epicModal.value.beforeTaskId
         EpicTaskService.addEpicTask(projectId, taskData).then(() => {
           actionDone()
         }).catch(err => {

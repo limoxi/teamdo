@@ -41,7 +41,8 @@ const useModalStore = defineStore('modal', () => {
     const epicModal = ref({
         show: false,
         readonly: false,
-        task: null
+        task: null,
+        beforeTaskId: 0
     })
 
     const taskLogModal = ref({
@@ -85,6 +86,7 @@ const useModalStore = defineStore('modal', () => {
                 break
             case 'epicModal':
                 projectId.value = data.projectId || 0
+                epicModal.value.beforeTaskId = data.beforeTaskId || 0
                 epicModal.value.task = data.task || null
                 epicModal.value.show = true
                 epicModal.value.readonly = data.readonly || false

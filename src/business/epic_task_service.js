@@ -58,6 +58,7 @@ class EpicTaskService {
             'resource': 'project.epic_task',
             'data': {
                 'project_id': parseInt(projectId),
+                'before_task_id': task.beforeTaskId,
                 'name': task.name,
                 'importance': task.importance,
                 'desc': task.desc,
