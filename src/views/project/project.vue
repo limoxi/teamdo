@@ -11,6 +11,7 @@
   <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask"/>
   <task-log-modal/>
   <user-select-modal @onSelect="handleSelectUser"/>
+  <epic-modal @onFinish="onEpicChange"/>
 </template>
 
 <script setup>
@@ -19,6 +20,7 @@ import ProjectHeader from '@/components/frame/header/project_header';
 import TaskModal from '@/components/modal/task_modal';
 import TaskLogModal from '@/components/modal/task_log_modal';
 import UserSelectModal from '@/components/modal/user_select_modal';
+import EpicModal from '@/components/modal/epic_modal';
 import {provide, ref} from 'vue'
 import ProjectService from "@/business/project_service";
 import Project from "@/business/model/project"
@@ -55,6 +57,10 @@ const handleSelectUser = (selectedUserId, action, actionData) => {
       })
       break
   }
+}
+
+const onEpicChange = () => {
+  project.value.needReloadEpics = true
 }
 
 </script>

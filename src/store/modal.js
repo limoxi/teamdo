@@ -90,6 +90,7 @@ const useModalStore = defineStore('modal', () => {
                 epicModal.value.task = data.task || null
                 epicModal.value.show = true
                 epicModal.value.readonly = data.readonly || false
+                console.log(epicModal.value)
                 break
             case 'taskLogModal':
                 projectId.value = data.projectId || 0

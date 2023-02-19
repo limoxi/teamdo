@@ -25,6 +25,8 @@ class Project {
                 this.lanes.push(new Lane(this, laneData, posi))
             })
         }
+
+        this.needReloadEpics = false
     }
 
     getTagsByBiz(bizCode) {

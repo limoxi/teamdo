@@ -284,11 +284,12 @@ const onClickEdit = (e, getParent = false) => {
   if (getEpicTask) {
     EpicTaskService.getEpicTask(projectId, targetTaskId).then(epicTask => {
       modalStore.show('epicModal', {
-        'projectId': project.value.id,
-        'task': epicTask,
-        'readonly': readonly
+        projectId: project.value.id,
+        task: epicTask,
+        readonly: readonly
       })
     }).catch(err => {
+      console.error(err)
       Message.error(err.errMsg);
     });
   } else {

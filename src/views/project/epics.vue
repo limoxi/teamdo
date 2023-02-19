@@ -93,7 +93,9 @@
             </Space>
 
             <div class="aui-i-extra">
-              <Button size="large" type="text" icon="ios-flame" v-if="taskCanDrag"
+              <Button size="large" type="text" icon="md-trending-up"
+                      v-if="taskCanDrag && (targetPage.curPage!==1 || index!==0)"
+                      class="bolder-icon"
                       @click="onSetTop(task)"></Button>
               <Button size="large" type="text" icon="md-add-circle" @click="onAddEpicBefore(index)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
@@ -102,6 +104,10 @@
                       @click="onEdit(task)"></Button>
               <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-trash"
                       @click="onDelete(task)"></Button>
+              <Button size="large" type="text" icon="md-trending-down"
+                      v-if="taskCanDrag && (targetPage.curPage!==targetPage.maxPage || index<tasks.length-1)"
+                      class="bolder-icon"
+                      @click="onSetBottom(task)"></Button>
               <Button size="large" type="text" icon="ios-notifications" @click="onClickLog(task)"></Button>
             </div>
           </div>
@@ -123,7 +129,6 @@
       </template>
     </Result>
   </template>
-  <epic-modal @onFinish="loadPagedEpicTasks"/>
 </template>
 
 <script setup>
@@ -131,8 +136,7 @@ import defaultAvatar from '@/assets/images/default-avatar.webp';
 import Draggable from 'vuedraggable';
 import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
-import {computed, inject, onMounted, ref} from "vue"
-import EpicModal from '@/components/modal/epic_modal';
+import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
@@ -145,6 +149,12 @@ const modalStore = useModalStore()
 const projectId = inject('projectId')
 const project = inject('project')
 
+watch(() => project.value.needReloadEpics, (newV, oldV) => {
+  if (newV) {
+    loadPagedEpicTasks()
+  }
+}, {deep: true})
+
 const drag = ref(false)
 const tasks = ref([])
 const loadingTasks = ref(true)
@@ -153,6 +163,7 @@ const orderFields = ref(['-display_index'])
 
 const targetPage = ref({
   curPage: 1,
+  maxPage: 1,
   pageSize: 10,
   totalCount: 0
 })
@@ -229,6 +240,14 @@ const onSetTop = task => {
   });
 }
 
+const onSetBottom = task => {
+  EpicTaskService.resortToBottom(projectId, task.id).then(() => {
+    loadPagedEpicTasks()
+  }).catch(err => {
+    Message.error(err.errMsg)
+  });
+}
+
 const onAddRelatedTask = (task) => {
   modalStore.show('taskModal', {
     projectId: projectId,
@@ -296,6 +315,7 @@ const loadPagedEpicTasks = async () => {
   ).then(resp => {
     tasks.value = resp.tasks
     targetPage.value.totalCount = resp.page_info.total_count
+    targetPage.value.maxPage = resp.page_info.max_page
     loadingTasks.value = false
   })
 }

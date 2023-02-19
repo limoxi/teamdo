@@ -130,6 +130,17 @@ class EpicTaskService {
             }
         })
     }
+
+    static resortToBottom(projectId, taskId) {
+        return Resource.put({
+            resource: 'project.resorted_task',
+            data: {
+                project_id: projectId,
+                task_id: taskId,
+                before_task_id: 0
+            }
+        })
+    }
 }
 
 export default EpicTaskService

@@ -130,7 +130,7 @@ const ruleValidate = {
 }
 
 const title = computed(() => {
-  return task.value ? '需求详情' : '添加需求'
+  return task.value ? `需求详情 #${task.value.id}` : '添加需求'
 })
 
 let form = ref({
