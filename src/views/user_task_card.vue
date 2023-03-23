@@ -1,35 +1,25 @@
 <template>
   <div :class="headerClasses" :taskId="task.id">
-    <div class="aui-i-finish-tag" v-if="task.status === '已完成'">
-      <strong>已完成</strong>
-    </div>
     <div class="aui-i-header">
       <div>
-        <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
         <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
       </div>
       <div class="aui-i-action">
-        <Button v-show="!lane.isFirst" icon="ios-undo" @click="onClickPre"></Button>
-        <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
-                @click="onClickFlash"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
-        <Button icon="ios-link" class="aui-icon-scale" @click="onAddRelation"></Button>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
             <DropdownMenu>
               <template v-for="l in lanes" :key="l.id">
-                <DropdownItem :name="l.id" v-if="lane.id !== l.id">
+                <DropdownItem :name="l.id">
                   {{ l.name }}
                 </DropdownItem>
               </template>
             </DropdownMenu>
           </template>
         </Dropdown>
-        <Button v-if="!lane.isLast"
-                icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
       </div>
     </div>
     <div class="aui-i-body">
@@ -37,26 +27,12 @@
         {{ task.name }}
       </div>
       <div class="aui-i-tags">
+        <Badge color="#19be6b" :text="task.project.name"></Badge>
         <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
         <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
         <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index"
-               class="aui-i-tag" @click="onClickTag(tag)"
+               class="aui-i-tag"
         />
-      </div>
-      <div class="aui-i-users">
-        <Tooltip v-if="!!assignor"
-                 :content="assignor.nickname" placement="right"
-                 style="cursor: pointer" @click="onSelectAssignor">
-          <Avatar
-              :src="assignor.avatar||defaultAvatar"
-          ></Avatar>
-        </Tooltip>
-        <Tooltip v-else content="添加执行人"
-                 placement="right" style="cursor: pointer" @click="onSelectAssignor">
-          <Avatar
-              icon="md-person"
-          ></Avatar>
-        </Tooltip>
       </div>
       <div class="aui-i-extra">
         <Space :size="4">
@@ -87,57 +63,21 @@
 import helper from '@/utils/helper';
 import TaskService from '@/business/task_service';
 import EpicTaskService from '@/business/epic_task_service';
-import defaultAvatar from '@/assets/images/default-avatar.webp';
-import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
-import {computed, inject} from "vue";
-import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {Badge, Button, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
+import {computed} from "vue";
+import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
-
-const configStore = useConfigStore()
-const {prioritySight} = storeToRefs(configStore)
+import LaneService from "../business/lane_service";
 
 const modalStore = useModalStore()
-const {userSelectModal, taskModal} = storeToRefs(modalStore)
+const {taskModal} = storeToRefs(modalStore)
 
-const taskFilterStore = useTaskFilterStore()
-const {tagId} = storeToRefs(taskFilterStore)
+const props = defineProps(['task'])
 
-const taskModeStore = useTaskModeStore()
-const {mode, selectedTasks} = storeToRefs(taskModeStore)
-let taskSelected = computed({
-  get() {
-    return selectedTasks.value.filter(task => task.id === props.task.id).length > 0
-  },
-  set(selected) {
-    if (selected) {
-      if (selectedTasks.value.filter(task => task.id === props.task.id).length === 0) {
-        selectedTasks.value.push(props.task)
-      }
-    } else {
-      const index = selectedTasks.value.findIndex(t => t.id === props.task.id)
-      if (index >= 0) {
-        selectedTasks.value.splice(index, 1)
-      }
-    }
-  }
-})
+const project = props.task.project
+const lanes = project.lanes
 
-const actionRight = computed(() => {
-  if (props.task.status === '已完成') {
-    return '46px'
-  } else {
-    return '5px'
-  }
-})
-
-const props = defineProps(['task', 'lane'])
-const emit = defineEmits(['onAdd', 'onRemove'])
-
-const project = inject('project')
-const lanes = computed(() => {
-  return project.value.lanes
-})
 const importanceDesc = computed(() => {
   return getImportanceDesc(props.task.importance)
 })
@@ -160,23 +100,10 @@ const taskNameColor = computed(() => {
 })
 
 const taskColor = computed(() => {
-  if (prioritySight.value) {
-    return importanceColor.value
-  } else {
-    return taskNameColor.value
-  }
+  return taskNameColor.value
 })
 
-const assignor = computed(() => {
-  for (let user of project.value.users) {
-    if (user.id === props.task.assignorId) {
-      return user
-    }
-  }
-  return null
-})
-
-const taskNo = `${project.value.prefix}${props.task.id}`
+const taskNo = `${project.prefix}${props.task.id}`
 
 const onCLickTaskNo = () => {
   let pre = ''
@@ -191,7 +118,7 @@ const onCLickTaskNo = () => {
       pre = 'ft'
   }
 
-  const t = `${pre}_${project.value.prefix.toLowerCase()}${props.task.id}`
+  const t = `${pre}_${project.prefix.toLowerCase()}${props.task.id}`
   Copy({
     text: t,
     successTip: `${t} 已复制`
@@ -205,39 +132,6 @@ const onCLickName = () => {
   })
 }
 
-const onClickNext = () => {
-  let targetLane;
-  for (let index in lanes.value) {
-    index = parseInt(index);
-    let cl = lanes.value[index];
-    if (cl.id === props.lane.id) {
-      targetLane = lanes.value[index + 1];
-      break;
-    }
-  }
-  switchLane(targetLane.id)
-}
-
-const onClickPre = () => {
-  let targetLane;
-  for (let index in lanes.value) {
-    index = parseInt(index);
-    let cl = lanes.value[index];
-    if (cl.id === props.lane.id) {
-      targetLane = lanes.value[index - 1];
-      break;
-    }
-  }
-  switchLane(targetLane.id)
-}
-
-let flashClass = computed(() => {
-  if (props.task.flashing) {
-    return 'aui-icon-scale red'
-  } else {
-    return 'aui-icon-scale'
-  }
-})
 let headerClasses = computed(() => {
   if (props.task.flashing) {
     return `aui-task aui-task-type-${props.task.type} animation-flash`
@@ -246,45 +140,31 @@ let headerClasses = computed(() => {
   }
 })
 
-const onClickFlash = () => {
-  project.value.switchTaskFlashing(props.task).then(() => {
-    props.task.flashing = !props.task.flashing
-  }).catch(err => {
-    Message.error(err.errMsg || '操作失败');
-  })
-}
-
 const onCLickSwitch = (targetLaneId) => {
   switchLane(targetLaneId)
 }
 
 const switchLane = (targetLaneId) => {
-  const sourceLaneId = props.task.laneId
-  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task, -1, true)
-}
-
-const onAddRelation = () => {
-  modalStore.show('taskModal', {
-    projectId: project.value.id,
-    relatedTask: props.task
+  LaneService.shuttleTask(project.id, props.task.id, targetLaneId, 0).catch(err => {
+    console.error(err)
+    Message.error(err.errMsg || '操作失败')
   })
 }
 
 const onClickEdit = (e, getParent = false) => {
   let targetTaskId = props.task.id
   let getEpicTask = false
-  let readonly = false
-  let projectId = project.value.id
+  let readonly = true
+  let projectId = project.id
   if (getParent && props.task.parentCategory === 'epic') {
     getEpicTask = true
     targetTaskId = props.task.parentId
-    readonly = true
   }
 
   if (getEpicTask) {
     EpicTaskService.getEpicTask(projectId, targetTaskId).then(epicTask => {
       modalStore.show('epicModal', {
-        projectId: project.value.id,
+        projectId: project.id,
         task: epicTask,
         readonly: readonly
       })
@@ -295,7 +175,7 @@ const onClickEdit = (e, getParent = false) => {
   } else {
     TaskService.getTask(projectId, targetTaskId).then(nTask => {
       modalStore.show('taskModal', {
-        'projectId': project.value.id,
+        'projectId': project.id,
         'task': nTask,
         'readonly': readonly
       })
@@ -306,7 +186,7 @@ const onClickEdit = (e, getParent = false) => {
 }
 
 const onClickAttention = () => {
-  TaskService.getTask(project.value.id, props.task.id).then(nTask => {
+  TaskService.getTask(project.id, props.task.id).then(nTask => {
     let content = []
     nTask.attentions.forEach(att => {
       const f = att.checked ? '✅' : '⬜'
@@ -322,67 +202,33 @@ const onClickAttention = () => {
   });
 }
 
-const onClickTag = (tag) => {
-  if (tagId.value === tag.id) return
-  taskFilterStore.updateTagId(tag.id)
-}
-
 const onClickLog = () => {
   modalStore.show('taskLogModal', {
     task: props.task
   })
 }
 
-const onSelectAssignor = () => {
-  modalStore.show('userSelectModal', {
-    projectId: project.value.id,
-    laneId: props.task.laneId,
-    taskId: props.task.id,
-    action: 'selectAssignorForTask'
-  })
-}
-
 </script>
 
 <style scoped lang="less">
-.aui-theme-light .aui-i-finish-tag strong {
-  color: #eee;
-}
-
 .aui-task {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin: 5px 0;
+  margin: 5px 10px;
   padding: 10px;
-  border-radius: 2px;
+  border-radius: 5px;
   overflow: hidden;
+  width: 280px;
+  border: 1px solid darkgray;
+  box-shadow: 1px 2px 8px 0px #808695;
 
   &:hover {
     .aui-i-header {
       .aui-i-action {
         display: inline-block;
       }
-    }
-  }
-
-  .aui-i-finish-tag {
-    position: absolute;
-    top: -5px;
-    left: 215px;
-    transform: rotate(45deg);
-    background-color: #19be6b;
-    width: 80px;
-    height: 40px;
-    text-align: center;
-
-    strong {
-      position: absolute;
-      left: 20px;
-      bottom: 0;
-      width: max-content;
-      transform: scale(0.9);
     }
   }
 
@@ -395,7 +241,7 @@ const onSelectAssignor = () => {
     .aui-i-action {
       position: absolute;
       top: 10px;
-      right: v-bind(actionRight);
+      right: 5px;
       display: none;
 
       .ivu-btn-icon-only {
@@ -418,11 +264,6 @@ const onSelectAssignor = () => {
       min-height: 35px;
       display: flex;
       align-items: center;
-    }
-
-    .aui-i-users {
-      display: flex;
-      justify-content: flex-start;
     }
 
     .aui-i-tags {

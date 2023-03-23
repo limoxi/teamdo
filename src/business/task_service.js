@@ -29,6 +29,44 @@ class TaskService {
         });
     }
 
+    static async getUserTasks(filters = null, withOptions = null, orderFields = null, page = null, userId = 0) {
+        let data = {
+            'user_id': userId,
+            'filters': filters ?? {}
+        }
+        if (orderFields.length > 0) {
+            data['order_fields'] = orderFields
+        }
+
+        if (page) {
+            data['cur_page'] = page.curPage;
+            data['page_size'] = page.pageSize;
+        }
+
+        if (withOptions) {
+            data['with_options'] = withOptions;
+        }
+
+        const respData = await Resource.get({
+            'resource': 'user.tasks',
+            'data': data
+        });
+        return {
+            tasks: respData.tasks.map(task => new Task(task)),
+            pageInfo: respData.page_info
+        }
+    }
+
+    static resortUserTask(taskId, beforeTaskId) {
+        return Resource.put({
+            resource: 'user.resorted_task',
+            data: {
+                task_id: taskId,
+                before_task_id: beforeTaskId
+            }
+        })
+    }
+
     static async getTask(projectId, taskId, withAll = true) {
         let data = {
             'project_id': projectId,

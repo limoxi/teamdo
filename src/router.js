@@ -45,6 +45,13 @@ const Routers = [{
         props: true,
         component: () => import('@/views/project/settings.vue')
     }]
+}, {
+    name: 'myTasks',
+    path: '/my_tasks',
+    meta: {
+        title: '我的任务清单'
+    },
+    component: () => import('@/views/user_tasks.vue'),
 }];
 
 export default Routers;

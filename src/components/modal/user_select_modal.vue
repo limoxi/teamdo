@@ -29,6 +29,7 @@ import {ref} from "vue";
 import {Message, Option} from "view-ui-plus";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
+import PinyinMatch from "pinyin-match";
 
 const name = 'userSelectModal'
 const modalStore = useModalStore()
@@ -37,7 +38,6 @@ const {projectId, userSelectModal} = storeToRefs(modalStore)
 const selector = ref(null)
 const emit = defineEmits(['update:show', 'onSelect'])
 let users = ref([])
-
 
 const onVisibleChange = (isShow) => {
   if (!isShow) return
@@ -68,7 +68,12 @@ const searchUser = (nickname) => {
   if (nickname === '') {
     return users.value;
   }
-  return users.value.filter(user => user.nickname === nickname)
+  const respUsers = users.value.filter(user => {
+    console.warn(!!(PinyinMatch.match(user.nickname, nickname)), nickname)
+    return !!(PinyinMatch.match(user.nickname, nickname)) || user.nickname === nickname
+  })
+  console.log(respUsers)
+  return respUsers
 }
 
 const onConfirmed = () => {

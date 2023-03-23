@@ -28,6 +28,10 @@ class Task {
 
         this.tags = taskData?.tags ?? []
         this.users = taskData?.users ?? []
+
+        if (taskData?.project) {
+            this.project = taskData.project
+        }
     }
 
     isEpicTask() {
