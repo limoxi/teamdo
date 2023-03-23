@@ -223,7 +223,6 @@ const onClickLog = () => {
   border-radius: 5px;
   overflow: hidden;
   width: 280px;
-  border: 1px solid darkgray;
   box-shadow: 1px 2px 8px 0px #808695;
 
   &:hover {

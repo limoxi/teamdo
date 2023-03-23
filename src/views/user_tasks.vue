@@ -22,7 +22,7 @@
             :disabled="false"
             ghostClass="ghost"
             chosenClass="chosen"
-            handle=".aui-user-tasks > .aui-task > .aui-i-body"
+            handle=".aui-user-tasks > .aui-task"
             @start="drag = true"
             @end="drag = false"
             @sort="onListChange"
@@ -58,7 +58,7 @@ const filters = ref({})
 const targetPage = ref({
   curPage: 1,
   maxPage: 1,
-  pageSize: 10,
+  pageSize: 1000,
   totalCount: 0
 })
 
