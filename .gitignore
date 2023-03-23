@@ -11,4 +11,5 @@ dist
 node_modules
 
 deploy.py
+deploy_wz
 pytool

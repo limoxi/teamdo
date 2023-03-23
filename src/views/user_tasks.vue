@@ -54,7 +54,6 @@ const modalStore = useModalStore()
 const tasks = ref([])
 const loadingTasks = ref(true)
 const filters = ref({})
-const orderFields = ref(['-assignor_display_index'])
 
 const targetPage = ref({
   curPage: 1,
@@ -78,12 +77,15 @@ const onPageSizeChange = pageSize => {
 
 const loadUserTasks = async () => {
   TaskService.getUserTasks(
-      filters.value,
+      {
+        'status__in': ['0', '1'],
+        ...filters.value
+      },
       {
         'with_tags': true,
         'with_project': true,
       },
-      orderFields.value,
+      ['-assignor_display_index', '-importance', '-updated_at'],
       targetPage.value
   ).then(resp => {
     tasks.value = resp.tasks
@@ -105,7 +107,9 @@ const onListChange = (event) => {
     }
   })
 
-  TaskService.resortUserTask(parseInt(taskId), beforeTaskId).catch(err => {
+  TaskService.resortUserTask(parseInt(taskId), beforeTaskId).then(() => {
+    Message.success('操作成功')
+  }).catch(err => {
     console.error(err)
     Message.error(err.errMsg || '操作失败')
   })

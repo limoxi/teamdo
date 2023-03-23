@@ -7,7 +7,7 @@
         </Tag>
       </div>
       <div class="aui-i-action">
-        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
+<!--        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>-->
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
@@ -51,7 +51,7 @@
               <p>实际故事点：{{ task.passedSp }}</p>
             </template>
           </Tooltip>
-          <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
+          <span style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
         </Space>
       </div>
     </div>
@@ -145,7 +145,9 @@ const onCLickSwitch = (targetLaneId) => {
 }
 
 const switchLane = (targetLaneId) => {
-  LaneService.shuttleTask(project.id, props.task.id, targetLaneId, 0).catch(err => {
+  LaneService.shuttleTask(project.id, props.task.id, targetLaneId, 0).then(() => {
+    Message.success('操作成功')
+  }).catch(err => {
     console.error(err)
     Message.error(err.errMsg || '操作失败')
   })
