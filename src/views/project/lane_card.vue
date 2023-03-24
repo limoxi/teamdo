@@ -120,9 +120,9 @@ const onListChange = (event) => {
 
   const sps = event.from.id.split('_')
   const sourceLaneId = parseInt(sps[sps.length - 1])
-  const curTask = {
-    id: parseInt(taskId)
-  }
+  const targetLane = project.value.getLane(props.laneId)
+  const curTask = targetLane.getTask(parseInt(taskId))
+  curTask.laneId = props.laneId
 
   project.value.shuttleTask(sourceLaneId, props.laneId, curTask, beforeTaskId)
 }

@@ -39,6 +39,14 @@ class Lane {
         return this.tasks.findIndex(t => t.id === taskId)
     }
 
+    getTask(taskId) {
+        const taskIndex = this.getTaskIndex(taskId)
+        if (taskIndex < 0){
+            return
+        }
+        return this.tasks[taskIndex]
+    }
+
     addTask(newTask) {
         newTask.laneId = this.id
         this.tasks.splice(0, 0, newTask)

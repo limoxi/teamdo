@@ -11,10 +11,11 @@
         v-model="userSelectModal.selectedUserId"
         clearable
         filterable
-        @on-query-change="searchUser"
+        :remote-method="searchUser"
+        @on-query-change="onQueryChange"
     >
-      <Option :value="0">无</Option>
-      <Option v-for="user in users" :value="user.id" :key="user.id">
+      <Option :value="0" :key="0">无</Option>
+      <Option v-for="user in selectableUsers" :value="user.id" :key="user.id">
         <img class="aui-user-selector-avatar" :src="user.avatar || defaultAvatar" alt="avatar"/>
         {{ user.nickname }}
       </Option>
@@ -38,6 +39,7 @@ const {projectId, userSelectModal} = storeToRefs(modalStore)
 const selector = ref(null)
 const emit = defineEmits(['update:show', 'onSelect'])
 let users = ref([])
+let selectableUsers = ref([])
 
 const onVisibleChange = (isShow) => {
   if (!isShow) return
@@ -51,6 +53,7 @@ const onVisibleChange = (isShow) => {
 const getProjectUsers = (pid) => {
   ProjectService.getProjectMembers(pid).then(members => {
     users.value = members
+    selectableUsers.value = members
   }).catch(e => {
     Message.error(e.errMsg || '获取项目成员失败')
   })
@@ -59,21 +62,22 @@ const getProjectUsers = (pid) => {
 const getAllUsers = () => {
   UserService.getAllUsers().then(userList => {
     users.value = userList
+    selectableUsers.value = userList
   }).catch(e => {
     Message.error(e.errMsg || '获取用户失败')
   })
 }
 
-const searchUser = (nickname) => {
-  if (nickname === '') {
-    return users.value;
-  }
-  const respUsers = users.value.filter(user => {
-    console.warn(!!(PinyinMatch.match(user.nickname, nickname)), nickname)
-    return !!(PinyinMatch.match(user.nickname, nickname)) || user.nickname === nickname
+const searchUser = (query) => {
+  selectableUsers.value = users.value.filter(user => {
+    return !!(PinyinMatch.match(user.nickname, query)) || user.nickname === query
   })
-  console.log(respUsers)
-  return respUsers
+}
+
+const onQueryChange = query => {
+  if (query === '') {
+    selectableUsers.value = users.value
+  }
 }
 
 const onConfirmed = () => {
