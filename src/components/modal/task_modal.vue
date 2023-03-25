@@ -181,7 +181,7 @@ const editorInst = ref()
 
 let selectedTagId = ref('')
 
-const emit = defineEmits(['onAdd', 'onUpdate'])
+const emit = defineEmits(['onAdd', 'onUpdate', 'onDelete'])
 
 modalStore.$subscribe((_, state) => {
   const store = state.taskModal
@@ -268,6 +268,7 @@ const handleDelete = () => {
     cancelText: '再想想',
     onOk: () => {
       project.value.deleteTask(task.value.id).then(() => {
+        emit('onDelete', task.value)
         actionDone()
       })
     }

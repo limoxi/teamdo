@@ -21,6 +21,7 @@ class Task {
         this.createdAt = taskData?.created_at ?? ''
         this.status = taskData?.status ?? '未知'
         this.laneId = taskData?.lane_id ?? 0
+        this.laneName = ''
 
         if (this.expectedFinishedAt) {
             this.expectedFinishedAt = this.expectedFinishedAt.slice(0, -3)
@@ -31,6 +32,11 @@ class Task {
 
         if (taskData?.project) {
             this.project = taskData.project
+            this.project.lanes.forEach(lane => {
+                if (lane.id === this.laneId) {
+                    this.laneName = lane.name
+                }
+            })
         }
     }
 

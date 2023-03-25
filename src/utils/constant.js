@@ -71,11 +71,23 @@ const getImportanceColor = (imp) => {
     return '#2b85e4'
 }
 
+const getStatusColor = (statusText) => {
+    switch (statusText) {
+        case "未开始":
+            return '#ff9900'
+        case "进行中":
+            return '#19be6b'
+        default:
+            return '#2b85e4'
+    }
+}
+
 export {
     colors,
     importanceOptions,
     taskTypeOptions,
     taskType2Name,
     getImportanceDesc,
-    getImportanceColor
+    getImportanceColor,
+    getStatusColor
 }

@@ -1,9 +1,15 @@
-<template>
+<template xmlns="http://www.w3.org/1999/html">
   <div :class="headerClasses" :taskId="task.id">
     <div class="aui-i-header">
       <div>
         <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
+        </Tag>
+        <Tag class="aui-i-id">
+          {{ task.laneName }}
+        </Tag>
+        <Tag class="aui-i-id">
+          {{ task.status }}
         </Tag>
       </div>
       <div class="aui-i-action">
@@ -67,7 +73,7 @@ import {Badge, Button, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed} from "vue";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
-import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
+import {getStatusColor, getImportanceColor, getImportanceDesc} from '@/utils/constant';
 import LaneService from "../business/lane_service";
 
 const modalStore = useModalStore()
@@ -77,6 +83,10 @@ const props = defineProps(['task'])
 
 const project = props.task.project
 const lanes = project.lanes
+
+const statusColor = computed(() => {
+  return getStatusColor(props.task.status)
+})
 
 const importanceDesc = computed(() => {
   return getImportanceDesc(props.task.importance)

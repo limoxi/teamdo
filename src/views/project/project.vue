@@ -8,7 +8,7 @@
     </template>
   </top-frame>
   <!-- modal -->
-  <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask"/>
+  <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
   <task-log-modal/>
   <user-select-modal @onSelect="handleSelectUser"/>
   <epic-modal @onFinish="onEpicChange"/>
@@ -42,6 +42,10 @@ const handleAddTask = (newTask) => {
 }
 const handleUpdateTask = (updatedTask) => {
   project.value.getLane(updatedTask.laneId).updateTask(updatedTask)
+}
+
+const handleDeleteTask = deletedTask => {
+  project.value.getLane(deletedTask.laneId).removeTask(deletedTask)
 }
 const handleSelectUser = (selectedUserId, action, actionData) => {
   switch (action) {
