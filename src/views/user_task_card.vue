@@ -13,7 +13,7 @@
         </Tag>
       </div>
       <div class="aui-i-action">
-<!--        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>-->
+        <!--        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>-->
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
@@ -39,6 +39,9 @@
         <Badge v-for="(tag, index) in task.tags" :color="tag.color" :text="tag.name" :key="index"
                class="aui-i-tag"
         />
+      </div>
+      <div class="aui-i-users">
+        <AvatarList :list="userAvatars"/>
       </div>
       <div class="aui-i-extra">
         <Space :size="4">
@@ -73,8 +76,9 @@ import {Badge, Button, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed} from "vue";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
-import {getStatusColor, getImportanceColor, getImportanceDesc} from '@/utils/constant';
+import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant';
 import LaneService from "../business/lane_service";
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 
 const modalStore = useModalStore()
 const {taskModal} = storeToRefs(modalStore)
@@ -134,6 +138,13 @@ const onCLickTaskNo = () => {
     successTip: `${t} 已复制`
   })
 }
+
+const userAvatars = props.task.users.map(user => {
+  return {
+    src: user.avatar || defaultAvatar,
+    tip: user.nickname
+  }
+})
 
 const onCLickName = () => {
   Copy({

@@ -17,8 +17,10 @@
             </template>
           </ListItemMeta>
           <template #action>
-            <li v-if="!pu.is_manager" style="margin-top: 3px">
-              <Button type="text" size="small" shape="circle" icon="md-close" @click="onDeleteMember(pu)"></Button>
+            <li style="margin-top: 3px">
+              <Button type="text" size="small" @click="onOpenTasks($event, pu)">查看任务</Button>
+              <Button v-if="!pu.is_manager" type="text" size="small" shape="circle" icon="md-close"
+                      @click="onDeleteMember(pu)"></Button>
             </li>
           </template>
         </ListItem>
@@ -104,12 +106,15 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, ref} from "vue";
-import {ListItem, Message, Modal} from 'view-ui-plus'
+import {Button, ListItem, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import moment from "moment";
 import {storeToRefs} from "pinia";
 import {taskType2Name} from "../../utils/constant";
+import {useRouter} from 'vue-router'
+
+const router = useRouter()
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -330,6 +335,16 @@ const onDeleteMember = (member) => {
       });
     }
   });
+}
+
+const onOpenTasks = (e, member) => {
+  e.stopPropagation()
+  router.push({
+    name: 'myTasks',
+    query: {
+      userId: member.id
+    }
+  })
 }
 
 let selectedMemberId = ref(0)

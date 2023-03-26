@@ -56,9 +56,7 @@ const onClickItem = (name) => {
   } else if (name === 'modeProfile') {
     showEditProfileModel();
   } else if (name === 'myTasks') {
-    router.push({
-      name: 'myTasks'
-    });
+    location.href = '/my_tasks'
   } else if (name === 'logout') {
     logout();
   }

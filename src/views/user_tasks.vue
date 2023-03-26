@@ -13,6 +13,15 @@
         />
       </template>
       <template v-else>
+        <div class="aui-page-title">
+          <div v-if="userId === uid || !userId">我的任务</div>
+          <div v-else>
+            <span>
+              <Avatar :src="targetUser.avatar" class="aui-i-avatar"/>
+              <b>{{ targetUser.nickname }}&nbsp;的任务</b>
+            </span>
+          </div>
+        </div>
         <draggable
             class="aui-user-tasks"
             v-model="tasks"
@@ -44,13 +53,24 @@ import TopFrame from '@/components/frame/top_frame';
 import Header from '@/components/frame/header/header';
 import {onMounted, ref} from "vue"
 import Draggable from 'vuedraggable';
-import {useModalStore} from '@/store'
+import {useModalStore, useUserStore} from '@/store'
 import TaskService from '@/business/task_service';
 import UserTaskCard from './user_task_card.vue'
 import {Message} from "view-ui-plus";
+import {storeToRefs} from "pinia";
+import defaultAvatar from '@/assets/images/default-avatar.webp';
 
 const modalStore = useModalStore()
+const userStore = useUserStore()
+const {uid} = storeToRefs(userStore)
 
+const props = defineProps(['userId'])
+
+const targetUser = ref({
+  id: props.userId || 0,
+  nickname: '',
+  avatar: defaultAvatar,
+})
 const tasks = ref([])
 const loadingTasks = ref(true)
 const filters = ref({})
@@ -82,13 +102,23 @@ const loadUserTasks = async () => {
         ...filters.value
       },
       {
+        'with_users': true,
         'with_tags': true,
         'with_project': true,
       },
       ['-assignor_display_index', '-importance', '-updated_at'],
-      targetPage.value
+      targetPage.value,
+      props.userId || 0
   ).then(resp => {
     tasks.value = resp.tasks
+    if (resp.tasks.length > 0) {
+      resp.tasks[0].users.forEach(user => {
+        if (user.is_assignor) {
+          targetUser.value.nickname = user.nickname
+          user.avatar && (targetUser.value.avatar = user.avatar)
+        }
+      })
+    }
     targetPage.value.totalCount = resp.pageInfo.total_count
     targetPage.value.maxPage = resp.pageInfo.max_page
     loadingTasks.value = false
@@ -118,6 +148,15 @@ const onListChange = (event) => {
 </script>
 
 <style scoped lang="less">
+.aui-page-title {
+  font-size: 16px;
+  margin: 5px 10px;
+
+  .aui-i-avatar {
+    margin-right: 5px;
+  }
+}
+
 .aui-user-tasks {
   display: flex;
   justify-content: flex-start;

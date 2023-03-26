@@ -48,6 +48,7 @@ const Routers = [{
 }, {
     name: 'myTasks',
     path: '/my_tasks',
+    props: route => ({userId: route.query.userId}),
     meta: {
         title: '我的任务清单'
     },
