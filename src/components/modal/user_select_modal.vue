@@ -60,7 +60,7 @@ const getProjectUsers = (pid) => {
 }
 
 const getAllUsers = () => {
-  UserService.getAllUsers().then(userList => {
+  UserService.getUsers().then(userList => {
     users.value = userList
     selectableUsers.value = userList
   }).catch(e => {

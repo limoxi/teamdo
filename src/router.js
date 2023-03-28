@@ -46,13 +46,20 @@ const Routers = [{
         component: () => import('@/views/project/settings.vue')
     }]
 }, {
-    name: 'myTasks',
-    path: '/my_tasks',
+    name: 'users',
+    path: '/users',
+    meta: {
+        title: '用户管理'
+    },
+    component: () => import('@/views/user/users.vue'),
+}, {
+    name: 'userTasks',
+    path: '/user_tasks',
     props: route => ({userId: route.query.userId}),
     meta: {
         title: '我的任务清单'
     },
-    component: () => import('@/views/user_tasks.vue'),
+    component: () => import('@/views/user/user_tasks.vue'),
 }];
 
 export default Routers;

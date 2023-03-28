@@ -340,7 +340,7 @@ const onDeleteMember = (member) => {
 const onOpenTasks = (e, member) => {
   e.stopPropagation()
   router.push({
-    name: 'myTasks',
+    name: 'userTasks',
     query: {
       userId: member.id
     }

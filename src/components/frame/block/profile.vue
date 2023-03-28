@@ -7,7 +7,7 @@
       <DropdownMenu>
         <DropdownItem name="modeProfile">编辑</DropdownItem>
         <DropdownItem name="modePwd">修改密码</DropdownItem>
-        <DropdownItem name="myTasks">我的任务</DropdownItem>
+        <DropdownItem name="userTasks">我的任务</DropdownItem>
         <DropdownItem name="logout">退出</DropdownItem>
       </DropdownMenu>
     </template>
@@ -55,8 +55,8 @@ const onClickItem = (name) => {
     ShowPwdModel();
   } else if (name === 'modeProfile') {
     showEditProfileModel();
-  } else if (name === 'myTasks') {
-    location.href = '/my_tasks'
+  } else if (name === 'userTasks') {
+    location.href = '/user_tasks'
   } else if (name === 'logout') {
     logout();
   }

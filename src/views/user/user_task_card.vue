@@ -77,7 +77,7 @@ import {computed} from "vue";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant';
-import LaneService from "../business/lane_service";
+import LaneService from "../../business/lane_service";
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 
 const modalStore = useModalStore()
