@@ -1,16 +1,16 @@
 <template>
-    <div class="aui-users-bar">
+    <div class="aui-projects-bar">
         <div class="aui-i-left">
-            <Button type="text" icon="md-add" @click="onInviteUser" class="aui-icon-scale">邀请用户</Button>
+            <Button type="text" icon="md-add" @click="onAddProject" class="aui-icon-scale">添加项目</Button>
         </div>
         <div class="aui-i-right">
-            <Icon type="md-refresh" class="aui-i-icon" @click="onFreshUsers"/>
+            <Icon type="md-refresh" class="aui-i-icon" @click="onFreshProjects"/>
             <Input
-                    placeholder="搜索用户"
+                    placeholder="搜索项目"
                     :border="false"
                     style="width: 150px"
                     class="aui-i-filter"
-                    v-model="filteredUser"
+                    v-model="filteredProject"
                     clearable
                     @on-change="handleSearch"
             >
@@ -25,25 +25,27 @@
 <script setup>
 import {ref} from 'vue'
 import {Message} from "view-ui-plus"
+import {useModalStore} from "@/store"
+
+const modalStore = useModalStore()
 
 const filters = ref({})
 const emit = defineEmits(['search'])
-const filteredUser = ref('')
+const filteredProject = ref('')
 
 const handleSearch = (force = false) => {
-
     emit('search', {
-        'nickname': filteredUser.value,
+        'name': filteredProject.value,
         'force': force
     })
 }
 
-const onInviteUser = () => {
-    Message.info('尽请期待！')
+const onAddProject = () => {
+    modalStore.show('projectModal')
 }
 
 let refreshing = false
-const onFreshUsers = () => {
+const onFreshProjects = () => {
     if (refreshing) {
         Message.warning('请勿频繁刷新...')
         return
@@ -62,7 +64,7 @@ const onFreshUsers = () => {
 </script>
 
 <style lang="less" scoped>
-.aui-users-bar {
+.aui-projects-bar {
   width: 100%;
   max-height: 32px;
   overflow: hidden;
