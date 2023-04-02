@@ -171,6 +171,17 @@ class TaskService {
             }
         })
     }
+
+    static shareTaskToProject(projectId, taskId, targetProjectId) {
+        return Resource.put({
+            'resource': 'project.shared_task',
+            'data': {
+                'project_id': projectId,
+                'target_project_id': targetProjectId,
+                'task_id': taskId
+            }
+        })
+    }
 }
 
 export default TaskService;

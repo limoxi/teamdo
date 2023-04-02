@@ -16,6 +16,7 @@ class EpicTask {
         this.designLink = taskData?.meta_data?.design_link ?? ''
         this.status = taskData?.status ?? '未知'
         this.progress = taskData?.progress ?? 0
+        this.isReplica = taskData?.is_replica ?? false
 
         // need fill
         this.creatorFilled = false

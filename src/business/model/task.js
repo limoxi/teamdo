@@ -22,6 +22,7 @@ class Task {
         this.status = taskData?.status ?? '未知'
         this.laneId = taskData?.lane_id ?? 0
         this.laneName = ''
+        this.isReplica = taskData?.is_replica ?? false
 
         if (this.expectedFinishedAt) {
             this.expectedFinishedAt = this.expectedFinishedAt.slice(0, -3)

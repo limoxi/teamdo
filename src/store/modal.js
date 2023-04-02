@@ -1,10 +1,17 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
-import modal from "view-ui-plus/src/components/modal";
 
 const useModalStore = defineStore('modal', () => {
 
     let projectId = ref(0)
+
+    const projectSelectModal = ref({
+        show: false,
+        projectSelected: false,
+        selectedProjectId: null,
+        action: ''
+    })
+
     const userSelectModal = ref({
         show: false,
         laneId: 0,
@@ -52,6 +59,12 @@ const useModalStore = defineStore('modal', () => {
 
     const show = (modalName, data = undefined) => {
         switch (modalName) {
+            case 'projectSelectModal':
+                projectSelectModal.value.projectSelected = false
+                projectSelectModal.value.selectedProjectId = null
+                projectSelectModal.value.action = data?.action || ''
+                projectSelectModal.value.show = true
+                break
             case 'userSelectModal':
                 projectId.value = data?.projectId || 0
                 userSelectModal.value.taskId = data?.taskId || 0
@@ -102,6 +115,9 @@ const useModalStore = defineStore('modal', () => {
 
     const close = (modalName) => {
         switch (modalName) {
+            case 'projectSelectModal':
+                projectSelectModal.value.show = false
+                break
             case 'userSelectModal':
                 userSelectModal.value.show = false
                 break
@@ -128,6 +144,7 @@ const useModalStore = defineStore('modal', () => {
 
     return {
         projectId,
+        projectSelectModal,
         userSelectModal,
         projectModal,
         botModal,
