@@ -29,7 +29,34 @@ class TaskService {
         });
     }
 
-    static async getUserTasks(filters = null, withOptions = null, orderFields = null, page = null, userId = 0) {
+    static async getUserTasks(filters, page, orderFields = null) {
+        let data = {
+            'filters': filters || {},
+            'with_options': {
+                'with_tags': true,
+                'with_users': true,
+                'with_progress': true,
+                'with_project': true
+            },
+            'cur_page': page.curPage,
+            'page_size': page.pageSize,
+        }
+        if (orderFields.length > 0) {
+            data['order_fields'] = orderFields
+        }
+
+        const respData = await Resource.get({
+            'resource': 'user.projects_tasks',
+            'data': data
+        });
+        return {
+            tasks: respData.tasks.map(task => new Task(task)),
+            pageInfo: respData.page_info
+        }
+    }
+
+
+    static async getUserJoinedTasks(filters = null, withOptions = null, orderFields = null, page = null, userId = 0) {
         let data = {
             'user_id': userId,
             'filters': filters ?? {}
@@ -48,7 +75,7 @@ class TaskService {
         }
 
         const respData = await Resource.get({
-            'resource': 'user.tasks',
+            'resource': 'user.joined_tasks',
             'data': data
         });
         return {

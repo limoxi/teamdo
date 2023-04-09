@@ -53,6 +53,13 @@ const Routers = [{
     },
     component: () => import('@/views/user/users.vue'),
 }, {
+    name: 'tasks',
+    path: '/tasks',
+    meta: {
+        title: '任务列表'
+    },
+    component: () => import('@/views/tasks.vue'),
+}, {
     name: 'userTasks',
     path: '/user_tasks',
     props: route => ({userId: route.query.userId}),

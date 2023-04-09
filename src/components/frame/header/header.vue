@@ -4,6 +4,7 @@
         <div class="aui-i-menu">
             <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
                 <MenuItem name="projects">项目</MenuItem>
+                <MenuItem name="tasks">任务</MenuItem>
                 <!--                <MenuItem name="works">工单</MenuItem>-->
                 <MenuItem name="users">用户</MenuItem>
                 <!--                <MenuItem name="settings">设置</MenuItem>-->

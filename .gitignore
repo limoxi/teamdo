@@ -13,3 +13,7 @@ node_modules
 deploy.py
 deploy_wz
 pytool
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+.pnp.*

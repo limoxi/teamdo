@@ -99,7 +99,7 @@ const onPageSizeChange = pageSize => {
 }
 
 const loadUserTasks = async () => {
-    TaskService.getUserTasks(
+    TaskService.getUserJoinedTasks(
         {
             'status__in': ['0', '1'],
             ...filters.value
