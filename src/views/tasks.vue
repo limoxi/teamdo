@@ -28,27 +28,28 @@
                                 >
                                     <i class="aui-i-id">#{{ task.id }}</i>
                                     <span>{{ task.name }}</span>
-                                    <Tooltip :content="task.updatedAt" placement="right">
-                                        <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
-                                    </Tooltip>
-                                    <Badge :color="getStatusColor(task.status)" :text="task.status"/>
+                                    <Badge :color="getStatusColor(task.status)" :text="`${task.status}(${task.laneName})`"/>
                                     <span style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                 </Space>
                                 <Space split>
-                                    <Tag>{{ task.project.name }}</Tag>
+                                    <Badge :text="task.project.name" type="primary"></Badge>
+                                    <Badge :text="task.typeName" :type="taskType2Color[task.type]"></Badge>
                                     <Badge :color="getImportanceColor(task.importance)"
                                            :text="`${getImportanceDesc(task.importance)}(${task.importance})`"/>
+                                    <Tooltip :content="task.updatedAt" placement="right">
+                                        <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
+                                    </Tooltip>
                                 </Space>
                             </Space>
 
                             <div class="aui-i-extra">
-                                <Button v-if="!task.isReplica || task.status !== '已放弃'" size="large" type="text"
-                                        icon="md-create"
-                                        @click="onEdit(task)"></Button>
-                                <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-trash"
-                                        @click="onDelete(task)"></Button>
-                                <Button size="large" type="text" icon="ios-notifications"
-                                        @click="onClickLog(task)"></Button>
+<!--                                <Button v-if="!task.isReplica || task.status !== '已放弃'" size="large" type="text"-->
+<!--                                        icon="md-create"-->
+<!--                                        @click="onEdit(task)"></Button>-->
+<!--                                <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-trash"-->
+<!--                                        @click="onDelete(task)"></Button>-->
+<!--                                <Button size="large" type="text" icon="ios-notifications"-->
+<!--                                        @click="onClickLog(task)"></Button>-->
                             </div>
                         </div>
                         <div class="aui-i-blank"></div>
@@ -63,6 +64,7 @@
             </template>
         </template>
     </top-frame>
+<!--    <task-modal @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>-->
 </template>
 
 <script setup>
@@ -71,12 +73,13 @@ import Header from '@/components/frame/header/header';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import helper from '@/utils/helper';
 import ActionBar from './tasks_action_bar'
-import {computed, inject, onMounted, ref, watch} from "vue"
+import {computed, inject, onMounted, provide, ref, watch} from "vue"
 import {useModalStore} from '@/store'
-import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
-import {Message, Modal, Space, Tag} from "view-ui-plus";
+import {Badge, Message, Modal, Space, Tag} from "view-ui-plus";
 import TaskService from "@/business/task_service";
+import TaskModal from '@/components/modal/task_modal';
+import {taskType2Color} from "@/utils/constant";
 
 const modalStore = useModalStore()
 
@@ -113,7 +116,16 @@ const getStatusColor = (status) => {
     }
 }
 
+const handleUpdateTask = (updatedTask) => {
+    loadPagedTasks()
+}
+
+const handleDeleteTask = deletedTask => {
+    loadPagedTasks()
+}
+
 const onEdit = (task) => {
+    provide('project', task.project)
     TaskService.getTask(task.projectId, task.id).then(fullTask => {
         modalStore.show('taskModal', {
             projectId: task.projectId,
@@ -140,6 +152,7 @@ const onDelete = (task) => {
 }
 
 const onClickLog = (task) => {
+    provide('project', task.project)
     modalStore.show('taskLogModal', {
         task: task
     })

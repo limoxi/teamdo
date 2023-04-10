@@ -37,6 +37,12 @@ const taskType2Name = {
     'BUG': 'BUG'
 }
 
+const taskType2Color = {
+    'REQ': 'primary',
+    'OPT': 'warning',
+    'BUG': 'error'
+}
+
 const taskTypeOptions = [{
     'label': taskType2Name['REQ'],
     'value': 'REQ'
@@ -87,6 +93,7 @@ export {
     importanceOptions,
     taskTypeOptions,
     taskType2Name,
+    taskType2Color,
     getImportanceDesc,
     getImportanceColor,
     getStatusColor
