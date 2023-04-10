@@ -35,6 +35,7 @@
                                     <span style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                 </Space>
                                 <Space split>
+                                    <Tag>{{ task.project.name }}</Tag>
                                     <Badge :color="getImportanceColor(task.importance)"
                                            :text="`${getImportanceDesc(task.importance)}(${task.importance})`"/>
                                 </Space>
@@ -74,7 +75,7 @@ import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service';
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
-import {Message, Modal, Space} from "view-ui-plus";
+import {Message, Modal, Space, Tag} from "view-ui-plus";
 import TaskService from "@/business/task_service";
 
 const modalStore = useModalStore()

@@ -32,6 +32,7 @@ class Task {
         this.tags = taskData?.tags ?? []
         this.users = taskData?.users ?? []
 
+        this.projectId = taskData?.project_id ?? 0
         if (taskData?.project) {
             this.project = taskData.project
             this.project.lanes.forEach(lane => {
