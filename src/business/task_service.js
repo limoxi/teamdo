@@ -94,7 +94,7 @@ class TaskService {
                 'name': task.name,
                 'importance': task.importance,
                 'sp': task.sp,
-                'assignor_id': task.assignorId,
+                'assignor_ids': task.assignorIds,
                 'parent_id': task.relatedTaskId,
                 'desc': task.desc,
                 'task_type': task.type,
@@ -114,7 +114,7 @@ class TaskService {
                 'name': task.name,
                 'importance': task.importance,
                 'sp': task.sp,
-                'assignor_id': task.assignorId,
+                'assignor_ids': task.assignorIds,
                 'parent_id': task.relatedTaskId,
                 'desc': task.desc,
                 'tag_ids': task.tagIds
@@ -140,6 +140,17 @@ class TaskService {
                 'project_id': projectId,
                 'task_id': taskId,
                 'assignor_id': assignorId
+            }
+        })
+    }
+
+    static setAssignorsForTask(projectId, taskId, assignorIds) {
+        return Resource.put({
+            'resource': 'project.task.assignors',
+            'data': {
+                'project_id': projectId,
+                'task_id': taskId,
+                'assignor_ids': assignorIds
             }
         })
     }

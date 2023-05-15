@@ -11,6 +11,7 @@
     <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
     <task-log-modal/>
     <user-select-modal @onSelect="handleSelectUser"/>
+    <users-select-modal @onSelect="handleSelectUsers"/>
     <epic-modal @onFinish="onEpicChange"/>
 </template>
 
@@ -20,6 +21,7 @@ import ProjectHeader from '@/components/frame/header/project_header';
 import TaskModal from '@/components/modal/task_modal';
 import TaskLogModal from '@/components/modal/task_log_modal';
 import UserSelectModal from '@/components/modal/user_select_modal';
+import UsersSelectModal from '@/components/modal/users_select_modal';
 import EpicModal from '@/components/modal/epic_modal';
 import {provide, ref} from 'vue'
 import ProjectService from "@/business/project_service";
@@ -63,6 +65,14 @@ const handleSelectUser = (selectedUserId, action, actionData) => {
                 console.error(err)
                 Message.error(err.errMsg || '添加成员失败');
             })
+            break
+    }
+}
+
+const handleSelectUsers = (selectedUserIds, action, actionData) => {
+    switch (action) {
+        case 'selectAssignorsForTask':
+            project.value.setTaskAssignors(actionData.laneId, actionData.taskId, selectedUserIds)
             break
     }
 }

@@ -43,19 +43,15 @@
                        class="aui-i-tag" @click="onClickTag(tag)"
                 />
             </div>
-            <div class="aui-i-users">
+            <div class="aui-i-users" @click="onSelectAssignors">
                 <Tooltip v-for="assignor in assignors" :key="assignor.id"
                          :content="assignor.nickname" placement="top"
-                         style="cursor: pointer; margin-right: -10px" @click="onSelectAssignor">
+                         style="cursor: pointer; margin-right: -10px">
                     <Avatar
                             style="color:#ff9900;background-color: #e8eaec"
                             :src="id2user[assignor.id]?.avatar"
                     >{{ id2user[assignor.id].nickname[0] }}
                     </Avatar>
-                </Tooltip>
-                <Tooltip v-if="assignors.length <= 2" content="添加执行人"
-                         placement="right" style="cursor: pointer" @click="onSelectAssignor">
-                    <Avatar style="font-size: 20px">+</Avatar>
                 </Tooltip>
             </div>
             <div class="aui-i-extra">
@@ -337,12 +333,12 @@ const onClickLog = () => {
     })
 }
 
-const onSelectAssignor = () => {
-    modalStore.show('userSelectModal', {
+const onSelectAssignors = () => {
+    modalStore.show('usersSelectModal', {
         projectId: project.value.id,
         laneId: props.task.laneId,
         taskId: props.task.id,
-        action: 'selectAssignorForTask'
+        action: 'selectAssignorsForTask'
     })
 }
 
