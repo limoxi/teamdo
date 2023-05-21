@@ -88,7 +88,7 @@ const useModalStore = defineStore('modal', () => {
                 usersSelectModal.value.taskId = data?.taskId || 0
                 usersSelectModal.value.laneId = data?.laneId || 0
                 usersSelectModal.value.userSelected = false
-                usersSelectModal.value.selectedUserIds = []
+                usersSelectModal.value.selectedUserIds = data?.selectedUserIds || []
                 usersSelectModal.value.action = data?.action || ''
                 usersSelectModal.value.show = true
                 break

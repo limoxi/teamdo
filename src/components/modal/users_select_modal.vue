@@ -2,24 +2,33 @@
   <Modal
       v-model="usersSelectModal.show"
       title="用户列表"
-      width="300"
+      width="400"
       @on-visible-change="onVisibleChange"
       @on-ok="onConfirmed"
   >
-    <Select
-        ref="selector"
-        v-model="usersSelectModal.selectedUserId"
-        clearable
-        filterable
-        :remote-method="searchUser"
-        @on-query-change="onQueryChange"
-    >
-      <Option :value="0" :key="0">无</Option>
-      <Option v-for="user in selectableUsers" :value="user.id" :key="user.id">
-        <img class="aui-user-selector-avatar" :src="user.avatar || defaultAvatar" alt="avatar"/>
-        {{ user.nickname }}
-      </Option>
-    </Select>
+    <Space split>
+      <Select
+          ref="selector"
+          clearable
+          filterable
+          :remote-method="searchUser"
+          @on-query-change="onQueryChange"
+          @on-select="onSelectUser"
+      >
+        <Option v-for="user in selectableUsers" :value="user.id" :key="user.id">
+          <img class="aui-user-selector-avatar" :src="user.avatar || defaultAvatar" alt="avatar"/>
+          {{ user.nickname }}
+        </Option>
+      </Select>
+      <Space>
+        <div v-if="selectedUsers.length > 0" v-for="user in selectedUsers" :key="user.id" class="aui-i-selected-user">
+          <Icon class="aui-i-del-btn" type="ios-close-circle" @click="onDeleteUser(user.id)"/>
+          <Avatar shape="square" :src="user.avatar || defaultAvatar"></Avatar>
+        </div>
+        <p v-else>未选择</p>
+      </Space>
+    </Space>
+
   </Modal>
 </template>
 <script setup>
@@ -27,7 +36,7 @@ import ProjectService from "@/business/project_service";
 import UserService from '@/business/user_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {ref} from "vue";
-import {Message, Option} from "view-ui-plus";
+import {Message, Option, Space} from "view-ui-plus";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 import PinyinMatch from "pinyin-match";
@@ -40,18 +49,20 @@ const selector = ref(null)
 const emit = defineEmits(['update:show', 'onSelect'])
 let users = ref([])
 let selectableUsers = ref([])
+let selectedUsers = ref([])
 
-const onVisibleChange = (isShow) => {
+const onVisibleChange = async (isShow) => {
   if (!isShow) return
   if (projectId.value > 0) {
-    getProjectUsers(projectId.value)
+    await getProjectUsers(projectId.value)
   } else {
-    getAllUsers()
+    await getAllUsers()
   }
+  selectedUsers.value = usersSelectModal.value.selectedUserIds.map(uid => selectableUsers.value.find(u => u.id === uid))
 }
 
-const getProjectUsers = (pid) => {
-  ProjectService.getProjectMembers(pid).then(members => {
+const getProjectUsers = async (pid) => {
+  return ProjectService.getProjectMembers(pid).then(members => {
     users.value = members
     selectableUsers.value = members
   }).catch(e => {
@@ -59,8 +70,8 @@ const getProjectUsers = (pid) => {
   })
 }
 
-const getAllUsers = () => {
-  UserService.getUsers().then(userList => {
+const getAllUsers = async () => {
+  return UserService.getUsers().then(userList => {
     users.value = userList
     selectableUsers.value = userList
   }).catch(e => {
@@ -80,15 +91,47 @@ const onQueryChange = query => {
   }
 }
 
+const onDeleteUser = deletedUserId => {
+  const index = selectedUsers.value.findIndex(u =>u.id === deletedUserId)
+  selectedUsers.value.splice(index, 1)
+}
+
+const onSelectUser = selectedUser => {
+  if (selectedUsers.value.length >= 2) {
+    Message.error('已达人数上限')
+    return
+  }
+
+  if(selectedUsers.value.filter(user => user.id === selectedUser.value).length > 0) {
+    Message.warning('请勿重复选择')
+    return
+  }
+
+  selectedUsers.value.push(selectableUsers.value.find(u => u.id === selectedUser.value))
+}
+
 const onConfirmed = () => {
-  emit('onSelect', userSelectModal.value.selectedUserId, userSelectModal.value.action, {
-    laneId: userSelectModal.value.laneId,
-    taskId: userSelectModal.value.taskId
+  const selectedUserIds = selectedUsers.value.map(user => user.id)
+  emit('onSelect', selectedUserIds, usersSelectModal.value.action, {
+    laneId: usersSelectModal.value.laneId,
+    taskId: usersSelectModal.value.taskId
   })
 }
 
 </script>
 
 <style scoped lang="less">
+  .aui-i-selected-user{
+    position: relative;
+    .aui-i-del-btn{
+      position: absolute;
+      font-size: 16px;
+      top: -8px;
+      right: -8px;
 
+      &:hover{
+        cursor: pointer;
+      }
+    }
+  }
 </style>

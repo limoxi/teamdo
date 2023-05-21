@@ -97,7 +97,7 @@ const configStore = useConfigStore()
 const {prioritySight} = storeToRefs(configStore)
 
 const modalStore = useModalStore()
-const {userSelectModal, taskModal} = storeToRefs(modalStore)
+const {usersSelectModal, taskModal} = storeToRefs(modalStore)
 
 const taskFilterStore = useTaskFilterStore()
 const {tagId} = storeToRefs(taskFilterStore)
@@ -167,13 +167,7 @@ const taskColor = computed(() => {
 })
 
 const assignors = computed(() => {
-    const users = []
-    for (let user of props.task.users) {
-        if (user.is_assignor) {
-            users.push(user)
-        }
-    }
-    return users
+    return props.task.assignorIds.map(uid => props.task.users.find(u => u.id === uid))
 })
 
 const taskNo = `${project.value.prefix}${props.task.id}`
@@ -338,6 +332,7 @@ const onSelectAssignors = () => {
         projectId: project.value.id,
         laneId: props.task.laneId,
         taskId: props.task.id,
+        selectedUserIds: props.task.assignorIds,
         action: 'selectAssignorsForTask'
     })
 }
@@ -423,9 +418,6 @@ const onSelectAssignors = () => {
     .aui-i-users {
       display: flex;
       justify-content: flex-start;
-
-      &:first-child {
-      }
     }
 
     .aui-i-tags {

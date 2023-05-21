@@ -197,7 +197,7 @@ class Project {
         return TaskService.setAssignorsForTask(this.id, taskId, assignorIds).then(() => {
             this.getLane(laneId).tasks.forEach(task => {
                 if (task.id === taskId) {
-                    task.assignorIds = assignorIds
+                    task.setAssignors(assignorIds)
                 }
             })
         }).catch(err => {

@@ -145,7 +145,7 @@ class TaskService {
     }
 
     static setAssignorsForTask(projectId, taskId, assignorIds) {
-        return Resource.put({
+        return Resource.post({
             'resource': 'project.task.assignors',
             'data': {
                 'project_id': projectId,

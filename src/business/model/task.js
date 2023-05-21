@@ -52,6 +52,10 @@ class Task {
         this.assignorIds.push(assignorId)
     }
 
+    setAssignors(assignorIds) {
+        this.assignorIds = assignorIds
+    }
+
 }
 
 export default Task
