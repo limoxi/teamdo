@@ -45,6 +45,10 @@ class Task {
         return false
     }
 
+    isFinished() {
+        return this.status === '已完成'
+    }
+
     addAssignor(assignorId) {
         if (this.assignorIds.includes(assignorId)) {
             return

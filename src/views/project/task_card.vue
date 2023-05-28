@@ -44,15 +44,22 @@
                 />
             </div>
             <div class="aui-i-users" @click="onSelectAssignors">
-                <Tooltip v-for="assignor in assignors" :key="assignor.id"
-                         :content="assignor.nickname" placement="top"
-                         style="cursor: pointer; margin-right: -10px">
+                <template v-if="assignors.length > 0">
+                  <Tooltip v-for="assignor in assignors" :key="assignor.id"
+                           :content="assignor.nickname" placement="top"
+                           style="margin-right: -5px">
                     <Avatar
-                            style="color:#ff9900;background-color: #e8eaec"
-                            :src="id2user[assignor.id]?.avatar"
+                        style="color:#ff9900;background-color: #e8eaec"
+                        :src="id2user[assignor.id]?.avatar"
                     >{{ id2user[assignor.id].nickname[0] }}
                     </Avatar>
-                </Tooltip>
+                  </Tooltip>
+                </template>
+                <template v-else>
+                  <Tooltip content="添加执行人" placement="right">
+                    <Avatar icon="md-add" style="font-size: 21px"></Avatar>
+                  </Tooltip>
+                </template>
             </div>
             <div class="aui-i-extra">
                 <Space :size="4">
@@ -83,7 +90,7 @@
 import helper from '@/utils/helper';
 import TaskService from '@/business/task_service';
 import EpicTaskService from '@/business/epic_task_service';
-import {Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
+import {Avatar, Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
 import {computed, inject} from "vue";
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
@@ -417,7 +424,9 @@ const onSelectAssignors = () => {
 
     .aui-i-users {
       display: flex;
+      align-self: flex-start;
       justify-content: flex-start;
+      cursor: pointer;
     }
 
     .aui-i-tags {

@@ -66,13 +66,16 @@
               故事点是一个相对数值，1个故事点可视为最多半天工作量
             </span>
       </FormItem>
-      <FormItem label="执行者" prop="assignorId">
-        <Select v-model="form.assignorId" style="width:180px" aria-label="assignorSelector" filterable>
-          <Option v-for="pu in project.users" :value="pu.id + ''" :key="pu.id">
-            <img class="aui-user-selector-avatar" :src="pu.avatar || defaultAvatar" alt="avatar"/>
-            {{ pu.nickname }}
-          </Option>
-        </Select>
+      <FormItem label="执行者" prop="assignors">
+        <UserSelector :projectId="project.id" @on-selected="onSelectUser"></UserSelector>
+        <span v-if="form.assignors.length > 0" class="aui-i-assignors">
+          <span v-for="au in form.assignors" :key="au.id" class="aui-i-assignor">
+            <Icon class="aui-i-del-btn" v-if="!task?.isFinished()" type="ios-close-circle" @click="onDeleteUser(au.id)"/>
+            <Tooltip :content="au.nickname">
+              <Avatar shape="square" :src="au.avatar || defaultAvatar"></Avatar>
+            </Tooltip>
+          </span>
+        </span>
         <span v-if="userCount > 0" class="aui-i-users">
               <span>参与者({{ userCount }})&nbsp;&nbsp;</span>
               <Tooltip :content="user.nickname" v-for="user in task.users" :key="user.id">
@@ -109,8 +112,9 @@
 <script setup>
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/assets/images/default-avatar.webp'
+import UserSelector from '@/components/user_selector'
 import {computed, inject, ref} from "vue";
-import {Message, Modal} from "view-ui-plus";
+import {Avatar, Message, Modal, Tooltip} from "view-ui-plus";
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
 import {useModalStore} from "@/store"
@@ -172,7 +176,7 @@ let form = ref({
   name: '',
   importance: '0',
   sp: 0,
-  assignorId: '0',
+  assignors: [],
   tags: [],
   desc: ''
 })
@@ -190,7 +194,7 @@ modalStore.$subscribe((_, state) => {
     form.value.name = store.task?.name || ''
     form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
     form.value.sp = store.task?.sp || 0
-    form.value.assignorId = (store.task?.assignorId || store.relatedTask?.assignorId || 0) + ''
+    form.value.assignors = store.task?.users.filter(u => u.is_assignor) || []
     form.value.tags = store.task?.tags || []
     form.value.desc = store.task?.desc || ''
 
@@ -221,6 +225,25 @@ const actionDone = () => {
   close()
 }
 
+const onSelectUser = selectedUser => {
+  if (form.value.assignors.length >= 2) {
+    Message.error('已达人数上限')
+    return
+  }
+
+  if(form.value.assignors.filter(user => user.id === selectedUser.id).length > 0) {
+    Message.warning('请勿重复选择')
+    return
+  }
+
+  form.value.assignors.push(selectedUser)
+}
+
+const onDeleteUser = uid => {
+  const index = form.value.assignors.findIndex(u => u.id === uid)
+  form.value.assignors.splice(index, 1)
+}
+
 const handleSubmit = () => {
   // if (submitting) return
   submitting = true
@@ -232,7 +255,7 @@ const handleSubmit = () => {
         desc: editorInst.value.getContent(),
         importance: form.value.importance * 1,
         sp: form.value.sp,
-        assignorId: form.value.assignorId * 1,
+        assignorIds: form.value.assignors.map(u => u.id),
         relatedTaskId: taskModal.value.relatedTask?.id || 0,
         tagIds: form.value.tags.map(tag => {
           return tag.id
@@ -303,6 +326,25 @@ const handleDelete = () => {
 
   .aui-i-users {
     margin-left: 40px;
+  }
+
+  .aui-i-assignors{
+    margin-left: 10px;
+    .aui-i-assignor{
+      position: relative;
+      margin-right: 5px;
+    }
+    .aui-i-del-btn{
+      position: absolute;
+      font-size: 18px;
+      top: -15px;
+      right: -8px;
+      z-index: 1;
+
+      &:hover{
+        cursor: pointer;
+      }
+    }
   }
 
   .aui-i-action-bar {
