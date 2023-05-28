@@ -184,7 +184,20 @@ class Project {
         return TaskService.setAssignorForTask(this.id, taskId, assignorId).then(() => {
             this.getLane(laneId).tasks.forEach(task => {
                 if (task.id === taskId) {
-                    task.assignorId = assignorId
+                    task.addAssignor(assignorId)
+                }
+            })
+        }).catch(err => {
+            console.error(err)
+            Message.error(err.errMsg || '设置执行人失败')
+        })
+    }
+
+    setTaskAssignors(laneId, taskId, assignorIds) {
+        return TaskService.setAssignorsForTask(this.id, taskId, assignorIds).then(() => {
+            this.getLane(laneId).tasks.forEach(task => {
+                if (task.id === taskId) {
+                    task.setAssignors(assignorIds)
                 }
             })
         }).catch(err => {

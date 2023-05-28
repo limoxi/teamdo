@@ -21,6 +21,15 @@ const useModalStore = defineStore('modal', () => {
         action: ''
     })
 
+    const usersSelectModal = ref({
+        show: false,
+        laneId: 0,
+        taskId: 0,
+        userSelected: false,
+        selectedUserIds: [],
+        action: ''
+    })
+
     const projectModal = ref({
         show: false,
         project: null
@@ -74,6 +83,15 @@ const useModalStore = defineStore('modal', () => {
                 userSelectModal.value.action = data?.action || ''
                 userSelectModal.value.show = true
                 break
+            case 'usersSelectModal':
+                projectId.value = data?.projectId || 0
+                usersSelectModal.value.taskId = data?.taskId || 0
+                usersSelectModal.value.laneId = data?.laneId || 0
+                usersSelectModal.value.userSelected = false
+                usersSelectModal.value.selectedUserIds = data?.selectedUserIds || []
+                usersSelectModal.value.action = data?.action || ''
+                usersSelectModal.value.show = true
+                break
             case 'projectModal':
                 projectId.value = data?.project?.id || 0
                 projectModal.value.project = data?.project || null
@@ -121,6 +139,9 @@ const useModalStore = defineStore('modal', () => {
             case 'userSelectModal':
                 userSelectModal.value.show = false
                 break
+            case 'usersSelectModal':
+                usersSelectModal.value.show = false
+                break
             case 'projectModal':
                 projectModal.value.show = false
                 break
@@ -146,6 +167,7 @@ const useModalStore = defineStore('modal', () => {
         projectId,
         projectSelectModal,
         userSelectModal,
+        usersSelectModal,
         projectModal,
         botModal,
         laneModal,

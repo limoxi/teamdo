@@ -1,40 +1,40 @@
 <template>
-  <div class="aui-header">
-    <logo></logo>
-    <div class="aui-i-menu">
-      <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
-        <MenuItem name="projects">
-          <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
+    <div class="aui-header">
+        <logo></logo>
+        <div class="aui-i-menu">
+            <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
+                <MenuItem name="projects">
+                    <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
             <span>
               项目<Icon type="ios-arrow-down"></Icon>
             </span>
-            <template #list>
-              <DropdownMenu>
-                <DropdownItem v-for="p in projects" :key="p.id"
-                              :disabled="p.id === project.id"
-                              :name="p.id"
-                >{{ p.name }}
-                </DropdownItem>
-              </DropdownMenu>
-            </template>
-          </Dropdown>
-        </MenuItem>
-        <MenuItem name="epics">需求</MenuItem>
-        <MenuItem name="kanban">看板</MenuItem>
-        <MenuItem name="members">成员</MenuItem>
-        <MenuItem name="tags">标签</MenuItem>
-        <MenuItem name="stats">统计</MenuItem>
-        <!--        <MenuItem name="settings">管理</MenuItem>-->
-      </Menu>
+                        <template #list>
+                            <DropdownMenu>
+                                <DropdownItem v-for="p in projects" :key="p.id"
+                                              :disabled="p.id === project.id"
+                                              :name="p.id"
+                                >{{ p.name }}
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </template>
+                    </Dropdown>
+                </MenuItem>
+                <MenuItem name="epics">需求</MenuItem>
+                <MenuItem name="kanban">看板</MenuItem>
+                <MenuItem name="members">成员</MenuItem>
+                <MenuItem name="tags">标签</MenuItem>
+                <MenuItem name="stats">统计</MenuItem>
+                <!--        <MenuItem name="settings">管理</MenuItem>-->
+            </Menu>
+        </div>
+        <theme-control></theme-control>
+        <div class="aui-i-subtitle">
+            <strong>{{ project.name }}</strong>
+        </div>
+        <div class="aui-i-profile">
+            <profile></profile>
+        </div>
     </div>
-    <theme-control></theme-control>
-    <div class="aui-i-subtitle">
-      <strong>{{ project.name }}</strong>
-    </div>
-    <div class="aui-i-profile">
-      <profile></profile>
-    </div>
-  </div>
 </template>
 <script setup>
 import Logo from '@/components/frame/block/logo';
@@ -58,40 +58,40 @@ const projects = ref([])
 let activeName = ref('kanban')
 
 onMounted(() => {
-  activeName.value = getDefaultActiveName()
-  getProjects()
+    activeName.value = getDefaultActiveName()
+    getProjects()
 })
 
 const getDefaultActiveName = () => {
-  let defaultName = 'kanban';
-  let path = router.currentRoute.value.path;
-  let splits = path.split('/');
-  let l = splits.length;
-  if (splits[l - 3] === 'project') {
-    defaultName = splits[l - 1];
-  }
-  return defaultName;
+    let defaultName = 'kanban';
+    let path = router.currentRoute.value.path;
+    let splits = path.split('/');
+    let l = splits.length;
+    if (splits[l - 3] === 'project') {
+        defaultName = splits[l - 1];
+    }
+    return defaultName;
 }
 const onMenuChanged = (name) => {
-  if (name !== activeName.value) {
-    activeName.value = name;
-    router.push({
-      name: name,
-      params: {
-        projectId: project.value.id
-      }
-    });
-  }
+    if (name !== activeName.value) {
+        activeName.value = name;
+        router.push({
+            name: name,
+            params: {
+                projectId: project.value.id
+            }
+        });
+    }
 }
 const onSwitchProject = (pid) => {
-  window.location.href = `/project/${pid}/kanban`
+    window.location.href = `/project/${pid}/kanban`
 }
 const getProjects = () => {
-  ProjectService.getLintProjects().then(data => {
-    projects.value = data;
-  }).catch(err => {
-    Message.error(err.errMsg)
-  });
+    ProjectService.getLintProjects().then(data => {
+        projects.value = data;
+    }).catch(err => {
+        Message.error(err.errMsg)
+    });
 }
 </script>
 

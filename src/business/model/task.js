@@ -6,7 +6,7 @@ class Task {
         this.parentId = taskData?.parent_id ?? 0
         this.parentCategory = taskData?.parent_category ?? ''
         this.creatorId = taskData?.creator_id ?? 0
-        this.assignorId = taskData?.assignor_id ?? 0
+        this.assignorIds = taskData?.assignor_ids ?? []
         this.flashing = taskData?.flashing ?? false
         this.name = taskData?.name ?? ''
         this.importance = taskData?.importance ?? 0
@@ -45,6 +45,21 @@ class Task {
 
     isEpicTask() {
         return false
+    }
+
+    isFinished() {
+        return this.status === '已完成'
+    }
+
+    addAssignor(assignorId) {
+        if (this.assignorIds.includes(assignorId)) {
+            return
+        }
+        this.assignorIds.push(assignorId)
+    }
+
+    setAssignors(assignorIds) {
+        this.assignorIds = assignorIds
     }
 
 }
