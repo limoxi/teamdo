@@ -86,6 +86,7 @@ const onConfirmed = () => {
       font-size: 16px;
       top: -8px;
       right: -8px;
+      z-index: 1;
 
       &:hover{
         cursor: pointer;
