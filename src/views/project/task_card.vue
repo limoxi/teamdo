@@ -50,8 +50,8 @@
                            style="margin-right: -5px">
                     <Avatar
                         style="color:#ff9900;background-color: #e8eaec"
-                        :src="id2user[assignor.id]?.avatar"
-                    >{{ id2user[assignor.id].nickname[0] }}
+                        :src="assignor.avatar"
+                    >{{ assignor.nickname[0] }}
                     </Avatar>
                   </Tooltip>
                 </template>
@@ -174,7 +174,7 @@ const taskColor = computed(() => {
 })
 
 const assignors = computed(() => {
-    return props.task.assignorIds.map(uid => props.task.users.find(u => u.id === uid))
+    return props.task.assignorIds.map(uid => id2user.value[uid])
 })
 
 const taskNo = `${project.value.prefix}${props.task.id}`

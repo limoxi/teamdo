@@ -63,7 +63,7 @@ const searchUser = (query) => {
 
 const onSelectUser = selectedUserId => {
   emit('onSelected', users.value.find(u => u.id === selectedUserId.value))
-  selector.value.setQuery()
+  selector.value.setQuery(null)
 }
 
 const onQueryChange = query => {

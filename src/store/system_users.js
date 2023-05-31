@@ -18,8 +18,6 @@ const useSystemUsersStore = defineStore('systemUsers', () => {
             users.value.forEach(user => {
                 id2user.value[user.id] = user
             })
-
-            console.log(id2user.value)
         })
     }
 
