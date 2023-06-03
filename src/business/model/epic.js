@@ -39,7 +39,7 @@ class EpicTask {
         for (const childData of taskData?.children ?? []) {
             this.children.push({
                 id: childData.id,
-                assignorId: childData.assignor_id,
+                assignorIds: childData.assignor_ids,
                 laneId: childData.lane_id,
                 status: childData.status,
                 progress: childData.progress || 0

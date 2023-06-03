@@ -57,9 +57,10 @@
                                             >
                                                 <space>
                                                     <b>{{ child.progress }}%</b>
-                                                    <Avatar size="small"
-                                                            :src="project.getUser(child.assignorId)?.avatar || defaultAvatar"/>
-                                                    <b style="scale: 0.5">{{
+                                                    <Avatar size="small" style="margin-right: -15px"
+                                                            v-for="childAssignorId in child.assignorIds"
+                                                            :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
+                                                    <b style="scale: 0.5; margin-left: 10px">{{
                                                         project.getLane(child.laneId).name
                                                         }}(#{{ child.id }})</b>
                                                 </space>
