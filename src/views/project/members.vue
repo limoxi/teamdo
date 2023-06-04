@@ -28,23 +28,8 @@
     </div>
 
     <div class="aui-i-member-stats">
-      <div class="aui-i-bar">
-        <Space>
-          <a href="javascript:void(0)" @click="onSwitchDateRange('week')">周</a>
-          <a href="javascript:void(0)" @click="onSwitchDateRange('month')">月</a>
-          <a href="javascript:void(0)" @click="onSwitchDateRange('3month')">三月</a>
-          <DatePicker
-              v-model="dateRange"
-              separator=" ~ "
-              type="daterange"
-              placement="bottom-end"
-              style="width: 200px"
-              @on-change="onDatePickerChange"
-          />
-        </Space>
-      </div>
-      <div class="aui-i-charts" v-if="selectedMemberId > 0">
-        <Row :gutter="24" class="aui-i-row">
+      <div>
+        <Row :gutter="12" class="aui-i-row">
           <Col span="6">
             <Card>
               <template #title>
@@ -78,24 +63,46 @@
             </Card>
           </Col>
         </Row>
-        <Row :gutter="24" class="aui-i-row">
-          <Col span="12">
-            <v-chart
-                class="aui-i-chart"
-                :theme="theme"
-                autoresize
-                :option="newTaskLineOptions"
-                :loading="loadingCharts"></v-chart>
-          </Col>
-          <Col span="12">
-            <v-chart
-                class="aui-i-chart"
-                :theme="theme"
-                autoresize
-                :option="finishedTaskLineOptions"
-                :loading="loadingCharts"></v-chart>
-          </Col>
+        <Row class="aui-i-row">
+          <UserActiveTrends></UserActiveTrends>
         </Row>
+      </div>
+      <div>
+        <div class="aui-i-bar">
+          <Space>
+            <a href="javascript:void(0)" @click="onSwitchDateRange('week')">周</a>
+            <a href="javascript:void(0)" @click="onSwitchDateRange('month')">月</a>
+            <a href="javascript:void(0)" @click="onSwitchDateRange('3month')">三月</a>
+            <DatePicker
+                v-model="dateRange"
+                separator=" ~ "
+                type="daterange"
+                placement="bottom-end"
+                style="width: 200px"
+                @on-change="onDatePickerChange"
+            />
+          </Space>
+        </div>
+        <div class="aui-i-charts" v-if="selectedMemberId > 0">
+          <Row :gutter="24" class="aui-i-row">
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="newTaskLineOptions"
+                  :loading="loadingCharts"></v-chart>
+            </Col>
+            <Col span="12">
+              <v-chart
+                  class="aui-i-chart"
+                  :theme="theme"
+                  autoresize
+                  :option="finishedTaskLineOptions"
+                  :loading="loadingCharts"></v-chart>
+            </Col>
+          </Row>
+        </div>
       </div>
     </div>
   </div>
@@ -109,6 +116,7 @@ import {computed, inject, ref} from "vue";
 import {Button, ListItem, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
+import UserActiveTrends from '@/components/user_active_trends'
 import moment from "moment";
 import {storeToRefs} from "pinia";
 import {taskType2Name} from "../../utils/constant";
@@ -393,12 +401,11 @@ const resetStats = () => {
 <style lang="less" scoped>
 .aui-members {
   display: flex;
-  flex-wrap: wrap;
   margin: 15px 30px;
 
   .aui-i-members {
     height: calc(100vh - 80px);
-    min-width: 15vw;
+    min-width: 20vw;
     overflow: scroll;
     margin-right: 15px;
 
@@ -414,7 +421,9 @@ const resetStats = () => {
   }
 
   .aui-i-member-stats {
-    min-width: 75vw;
+    height: calc(100vh - 80px);
+    overflow-y: scroll;
+    overflow-x: hidden;
 
     .aui-i-bar {
       //border: 1px solid #dcdee2;
