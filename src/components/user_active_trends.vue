@@ -28,9 +28,7 @@ extendMoment(moment)
 const blocks = computed(() =>{
   const today = moment()
   const today1 = moment()
-  const startDate = today.subtract(1, 'year').weekday(0)
-  console.log(startDate.format(), '===========')
-  let curDay = startDate
+  let curDay = today.subtract(1, 'year').weekday(0)
   const days = []
   const hasMonth = new Set()
   while (true) {
@@ -43,16 +41,13 @@ const blocks = computed(() =>{
       'counts': 1,
     }
     if (!hasMonth.has(curMonth) && curDay.weekday() === 0) {
-      console.log(parseInt(curMonth.split('-')[1]) + 1, '============')
       data['axis'] = parseInt(curMonth.split('-')[1]) + 1
       hasMonth.add(curMonth)
     }
-    console.log(data)
     days.push(data)
 
     curDay = curDay.add(1, 'days')
   }
-  console.log(hasMonth, '-----------')
   return days
 })
 
