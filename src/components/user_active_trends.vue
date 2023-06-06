@@ -18,17 +18,22 @@
 
 <script setup>
 import {Tooltip} from "view-ui-plus";
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import moment from "moment";
 import {extendMoment} from "moment-range";
 
 moment.locale('zh-cn');
 extendMoment(moment)
 
+const props = defineProps(['date2count'])
+
+const today = moment()
+const startDate = today.subtract(1, 'year').weekday(0)
+
 const blocks = computed(() =>{
-  const today = moment()
+
   const today1 = moment()
-  let curDay = today.subtract(1, 'year').weekday(0)
+  let curDay = startDate
   const days = []
   const hasMonth = new Set()
   while (true) {
@@ -38,7 +43,7 @@ const blocks = computed(() =>{
     let curMonth = `${curDay.year()}-${curDay.month()}`
     const data = {
       'date': `${curDay.format('YYYY-MM-DD')} 周${getWeekday(curDay.weekday())}`,
-      'counts': 1,
+      'counts': props.date2count[curDay.format('YYYY-MM-DD')] || 0,
     }
     if (!hasMonth.has(curMonth) && curDay.weekday() === 0) {
       data['axis'] = parseInt(curMonth.split('-')[1]) + 1
@@ -69,6 +74,14 @@ const getWeekday = wd => {
       return  '日'
   }
 }
+
+const getDateRange = () => {
+  return [startDate.format('YYYY-MM-DD'), today.format('YYYY-MM-DD')]
+}
+
+defineExpose({
+  getDateRange
+})
 
 </script>
 

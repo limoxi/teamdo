@@ -41,6 +41,17 @@ class StatsService {
     })
   }
 
+  static getDailyActiveStatsForProjectUser(projectId, userId, dateRange = undefined) {
+    return Resource.get({
+      'resource': 'stats.project.user.active.daily',
+      'data': {
+        'project_id': projectId,
+        'user_id': userId,
+        'date_range': dateRange
+      }
+    })
+  }
+
 }
 
 export default StatsService

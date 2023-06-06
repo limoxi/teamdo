@@ -64,7 +64,7 @@
           </Col>
         </Row>
         <Row class="aui-i-row">
-          <UserActiveTrends></UserActiveTrends>
+          <UserActiveTrends ref="userActiveTrends" :date2count="date2userActiveCount"></UserActiveTrends>
         </Row>
       </div>
       <div>
@@ -123,6 +123,9 @@ import {taskType2Name} from "../../utils/constant";
 import {useRouter} from 'vue-router'
 
 const router = useRouter()
+
+const userActiveTrends = ref(null)
+const date2userActiveCount = ref({})
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -235,6 +238,15 @@ const onSwitchDateRange = desc => {
 
 const onDatePickerChange = (v) => {
   loadDailyData()
+}
+
+const loadActiveData = () => {
+  if (selectedMemberId.value <= 0) return
+  const dr = userActiveTrends.value.getDateRange()
+  StatsService.getDailyActiveStatsForProjectUser(project.value.id, selectedMemberId.value, dr).then(data => {
+    console.log(data)
+    date2userActiveCount.value = data
+  })
 }
 
 const loadDailyData = () => {
@@ -365,6 +377,7 @@ const onSelectMember = (member) => {
 
   resetStats()
   selectedMemberId.value = member.id
+  loadActiveData()
   StatsService.getStatsForProjectUser(project.value.id, member.id).then(data => {
     if (_.isNil(data)) return
     data.forEach(row => {
