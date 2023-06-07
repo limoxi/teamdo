@@ -2,7 +2,7 @@
   <div class="aui-user-active-trends">
     <b style="display: inline-block; margin: 10px 0 0 18px">活跃度</b>
     <div class="aui-i-blocks">
-      <Tooltip style="width: 14px; height: 14px"
+      <Tooltip style="width: 15px; height: 15px"
                v-for="(block, index) in blocks" :key="index" :content="block.date" placement="top" transfer>
         <span class="aui-i-title" v-if="block.axis>0 && index > 1">{{block.axis}}月</span>
         <span class="aui-i-side" v-if="[0, 2, 5].includes(index)">{{ getWeekText(index) }}</span>
@@ -156,7 +156,7 @@ defineExpose({
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    height: 100px;
+    height: 110px;
     align-content: flex-start;
     margin: 40px 0 20px 80px;
 
