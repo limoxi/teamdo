@@ -9,6 +9,7 @@
             v-for="pu in project.users"
             :key="pu.id"
             @click="onSelectMember(pu)"
+            :class="selectedMemberId === pu.id? 'active-list-item' : ''"
         >
           <ListItemMeta :avatar="pu.avatar || defaultAvatar">
             <template #title>
@@ -243,9 +244,11 @@ const onDatePickerChange = (v) => {
 const loadActiveData = () => {
   if (selectedMemberId.value <= 0) return
   const dr = userActiveTrends.value.getDateRange()
-  StatsService.getDailyActiveStatsForProjectUser(project.value.id, selectedMemberId.value, dr).then(data => {
-    console.log(data)
-    date2userActiveCount.value = data
+  StatsService.getDailyActiveStatsForProjectUser(project.value.id, selectedMemberId.value, dr).then(datas => {
+    date2userActiveCount.value = {}
+    for (let data of datas) {
+      date2userActiveCount.value[data.date] = data['active_count']
+    }
   })
 }
 
@@ -422,6 +425,10 @@ const resetStats = () => {
     overflow: scroll;
     margin-right: 15px;
 
+    .active-list-item {
+      border-left: 6px solid cornflowerblue;
+    }
+
     .aui-i-manager {
       font-size: 18px;
       color: indianred;
@@ -434,6 +441,7 @@ const resetStats = () => {
   }
 
   .aui-i-member-stats {
+    min-width: 75vw;
     height: calc(100vh - 80px);
     overflow-y: scroll;
     overflow-x: hidden;

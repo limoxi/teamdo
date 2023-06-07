@@ -1,9 +1,12 @@
 <template>
   <div class="aui-user-active-trends">
+    <b style="display: inline-block; margin: 10px 0 0 18px">活跃度</b>
     <div class="aui-i-blocks">
-      <Tooltip v-for="(block, index) in blocks" :key="index" :content="block.date" placement="top" transfer>
+      <Tooltip style="width: 14px; height: 14px"
+               v-for="(block, index) in blocks" :key="index" :content="block.date" placement="top" transfer>
         <span class="aui-i-title" v-if="block.axis>0 && index > 1">{{block.axis}}月</span>
-        <span class="aui-i-block cl0"></span>
+        <span class="aui-i-side" v-if="[0, 2, 5].includes(index)">{{ getWeekText(index) }}</span>
+        <span :class="`aui-i-block ${getClassByActiveCount(block.counts)}`"></span>
       </Tooltip>
     </div>
     <div class="aui-i-tips">
@@ -27,19 +30,18 @@ extendMoment(moment)
 
 const props = defineProps(['date2count'])
 
-const today = moment()
-const startDate = today.subtract(1, 'year').weekday(0)
-
 const blocks = computed(() =>{
-
+  const today = moment()
   const today1 = moment()
-  let curDay = startDate
+  let curDay = today.subtract(1, 'year').weekday(0)
   const days = []
   const hasMonth = new Set()
+  let c = 0
   while (true) {
     if (curDay.diff(today1, 'days') > 0) {
       break
     }
+    c += 1
     let curMonth = `${curDay.year()}-${curDay.month()}`
     const data = {
       'date': `${curDay.format('YYYY-MM-DD')} 周${getWeekday(curDay.weekday())}`,
@@ -55,6 +57,27 @@ const blocks = computed(() =>{
   }
   return days
 })
+
+const getWeekText = index => {
+  switch (index) {
+    case 0:
+      return '周一'
+    case 2:
+      return '周三'
+    case 5:
+      return '周六'
+    default:
+      return ''
+  }
+}
+
+const getClassByActiveCount = count => {
+  if (count >= 1 && count <= 2) return 'cl1'
+  if (count >= 3 && count <= 6) return 'cl2'
+  if (count >= 7 && count <= 15) return 'cl3'
+  if (count > 16) return 'cl4'
+  return 'cl0'
+}
 
 const getWeekday = wd => {
   switch (wd) {
@@ -76,7 +99,7 @@ const getWeekday = wd => {
 }
 
 const getDateRange = () => {
-  return [startDate.format('YYYY-MM-DD'), today.format('YYYY-MM-DD')]
+  return [moment().subtract(1, 'year').weekday(0).format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')]
 }
 
 defineExpose({
@@ -105,7 +128,7 @@ defineExpose({
   }
   .aui-theme-dark{
     .cl0{
-      background: #161b22;
+      background: #333;
     }
     .cl1{
       background: #0e4429;
@@ -125,20 +148,28 @@ defineExpose({
 <style scoped lang="less">
 .aui-user-active-trends{
   position: relative;
+  width: 100%;
+  border: 1px solid #e8eaec;
+  border-radius: 2px;
+
   .aui-i-blocks{
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    height: 190px;
-    padding: 20px;
-    border: 1px solid #e8eaec;
-    border-radius: 2px;
-    width: 73vw;
+    height: 100px;
+    align-content: flex-start;
+    margin: 40px 0 20px 80px;
 
     .aui-i-title{
       position: absolute;
-      top: -15px;
+      top: -20px;
       width: 30px;
+    }
+    .aui-i-side{
+      position: absolute;
+      top: 2px;
+      left: -35px;
+      font-size: 12px;
     }
   }
 
