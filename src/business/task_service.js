@@ -220,6 +220,39 @@ class TaskService {
             }
         })
     }
+
+    static resort(projectId, taskId, beforeTaskId) {
+        return Resource.put({
+            resource: 'project.resorted_task',
+            data: {
+                project_id: projectId,
+                task_id: taskId,
+                before_task_id: beforeTaskId
+            }
+        })
+    }
+
+    static resortToTop(projectId, taskId) {
+        return Resource.put({
+            resource: 'project.resorted_task',
+            data: {
+                project_id: projectId,
+                task_id: taskId,
+                before_task_id: -1
+            }
+        })
+    }
+
+    static resortToBottom(projectId, taskId) {
+        return Resource.put({
+            resource: 'project.resorted_task',
+            data: {
+                project_id: projectId,
+                task_id: taskId,
+                before_task_id: 0
+            }
+        })
+    }
 }
 
 export default TaskService;

@@ -19,6 +19,7 @@
                         </template>
                     </Dropdown>
                 </MenuItem>
+                <MenuItem name="works">工单</MenuItem>
                 <MenuItem name="epics">需求</MenuItem>
                 <MenuItem name="kanban">看板</MenuItem>
                 <MenuItem name="members">成员</MenuItem>

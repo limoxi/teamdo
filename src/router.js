@@ -19,6 +19,15 @@ const Routers = [{
     props: true,
     component: () => import('@/views/project/project.vue'),
     children: [{
+        path: 'works',
+        name: 'works',
+        component: () => import('@/views/project/works.vue'),
+        children: [{
+            path: 'arrange-lanes',
+            name: 'lanesArrangement',
+            component: () => import('@/views/project/lanes_arrange.vue'),
+        }]
+    }, {
         path: 'epics',
         name: 'epics',
         component: () => import('@/views/project/epics.vue')

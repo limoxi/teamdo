@@ -27,6 +27,7 @@ class Project {
         }
 
         this.needReloadEpics = false
+        this.needReloadWorks = false
     }
 
     getTagsByBiz(bizCode) {
