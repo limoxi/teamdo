@@ -2,7 +2,7 @@ import Resource from '@/utils/resource';
 
 class TagService {
 
-    static getTagsForProject(projectId, bizCode = 'normal_task') {
+    static getTagsForProject(projectId, bizCode = 'all') {
         return Resource.get({
             'resource': 'project.tags',
             'data': {

@@ -108,13 +108,13 @@ let shareContent = computed(() => {
   const contentList = []
   props.tasks.sort((a, b) => a.id > b.id)
   for (let task of props.tasks) {
-    let assignorName = task.users[0].nickname
+    let assignorNames = []
     task.users.forEach(user => {
       if (user.is_assignor) {
-        assignorName = user.nickname
+        assignorNames.push(`@${user.nickname}`)
       }
     })
-    let taskDesc = `- 【${task.typeName}∙${project.value.prefix}${task.id}】${task.name} @${assignorName}`
+    let taskDesc = `- 【${task.typeName}∙${project.value.prefix}${task.id}】${task.name} ${assignorNames.join(' ')}`
     contentList.push(taskDesc)
   }
   return contentList.join('  \n')

@@ -425,10 +425,6 @@ const resetStats = () => {
     overflow: scroll;
     margin-right: 15px;
 
-    .active-list-item {
-      border-left: 6px solid cornflowerblue;
-    }
-
     .aui-i-manager {
       font-size: 18px;
       color: indianred;

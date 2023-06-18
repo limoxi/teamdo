@@ -5,9 +5,9 @@
             <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
                 <MenuItem name="projects">项目</MenuItem>
                 <MenuItem name="tasks">任务</MenuItem>
-                <!--                <MenuItem name="works">工单</MenuItem>-->
+                <MenuItem name="works">工单</MenuItem>
                 <MenuItem name="users">用户</MenuItem>
-                <!--                <MenuItem name="settings">设置</MenuItem>-->
+                <MenuItem name="sys_settings">设置</MenuItem>
             </Menu>
 
         </div>
@@ -42,7 +42,7 @@ const onMenuChanged = (name) => {
     if (name !== activeName.value) {
         activeName.value = name;
         switch (name) {
-            case 'settings':
+            case 'sys_settings':
             case 'works':
                 Message.info('尽请期待！')
                 return

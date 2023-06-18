@@ -31,10 +31,6 @@ const Routers = [{
         name: 'members',
         component: () => import('@/views/project/members.vue')
     }, {
-        path: 'tags',
-        name: 'tags',
-        component: () => import('@/views/project/tags.vue')
-    }, {
         path: 'stats',
         name: 'stats',
         props: true,
@@ -67,6 +63,11 @@ const Routers = [{
         title: '我的任务清单'
     },
     component: () => import('@/views/user/user_tasks.vue'),
+}, {
+    name: 'sys_settings',
+    path: '/sys_settings',
+    props: true,
+    component: () => import('@/views/settings.vue')
 }];
 
 export default Routers;
