@@ -209,6 +209,20 @@ class Project {
     switchTaskFlashing(task) {
         return TaskService.switchTaskFlashing(this.id, task.id, !task.flashing)
     }
+
+    addBot(botId) {
+        return ProjectService.addBot(this.id, botId)
+    }
+
+    deleteBot(botId) {
+        return ProjectService.deleteBot(this.id, botId)
+    }
+
+    reloadBots() {
+        return ProjectService.getBots(this.id).then(records => {
+            this.bots = records
+        })
+    }
 }
 
 export default Project

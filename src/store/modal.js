@@ -35,11 +35,6 @@ const useModalStore = defineStore('modal', () => {
         project: null
     })
 
-    const botModal = ref({
-        show: false,
-        bot: null
-    })
-
     const laneModal = ref({
         show: false,
         lane: null,
@@ -97,11 +92,6 @@ const useModalStore = defineStore('modal', () => {
                 projectModal.value.project = data?.project || null
                 projectModal.value.show = true
                 break
-            case 'botModal':
-                projectId.value = data.projectId || 0
-                botModal.value.bot = data.bot || null
-                botModal.value.show = true
-                break
             case 'laneModal':
                 projectId.value = data.projectId || 0
                 laneModal.value.lane = data.lane || null
@@ -145,9 +135,6 @@ const useModalStore = defineStore('modal', () => {
             case 'projectModal':
                 projectModal.value.show = false
                 break
-            case 'botModal':
-                botModal.value.show = false
-                break
             case 'laneModal':
                 laneModal.value.show = false
                 break
@@ -169,7 +156,6 @@ const useModalStore = defineStore('modal', () => {
         userSelectModal,
         usersSelectModal,
         projectModal,
-        botModal,
         laneModal,
         taskModal,
         epicModal,

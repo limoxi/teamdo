@@ -104,28 +104,21 @@ class ProjectService {
         })
     }
 
-    static addBot(projectId, avatar, name, token, remark) {
-        return Resource.put({
-            'resource': 'project.bot',
+    static getBots(projectId) {
+        return Resource.get({
+            'resource': 'project.bots',
             'data': {
-                project_id: projectId,
-                avatar: avatar,
-                name: name,
-                token: token,
-                remark: remark
+                project_id: projectId
             }
         });
     }
 
-    static updateBot(projectId, botId, avatar, name, remark) {
-        return Resource.post({
+    static addBot(projectId, botId) {
+        return Resource.put({
             'resource': 'project.bot',
             'data': {
                 project_id: projectId,
-                id: botId,
-                name: name,
-                avatar: avatar,
-                remark: remark
+                bot_id: botId
             }
         });
     }
@@ -135,7 +128,7 @@ class ProjectService {
             'resource': 'project.bot',
             'data': {
                 project_id: projectId,
-                id: botId
+                bot_id: botId
             }
         });
     }

@@ -1,31 +1,29 @@
 <template>
   <Modal
-      v-model="botModal.show"
+      v-model="showModal"
       :title="title"
       width="500"
       @on-cancel="onCancel"
   >
-    <Form ref="botForm" :model="form" :rules="ruleValidate">
+    <Form ref="botForm" v-model="bot" :rules="ruleValidate">
       <FormItem class="aui-uploader-wrapper">
         <uploader
             ref="upload"
-            v-model:src="form.avatar"
+            v-model:src="bot.avatar"
         >
         </uploader>
       </FormItem>
       <FormItem label="名称" prop="name">
-        <Input v-model="form.name"
-               show-word-limit maxlength="24"
-        />
+        <Input v-model="bot.name" show-word-limit maxlength="24" />
       </FormItem>
       <FormItem label="Token" prop="token">
-        <Input v-model="form.token" show-word-limit maxlength="128"
+        <Input v-model="bot.token" show-word-limit maxlength="128"
                type="textarea"
                :autosize="{minRows: 1,maxRows: 2}"
         />
       </FormItem>
       <FormItem label="简介" prop="remark">
-        <Input v-model="form.remark" show-word-limit maxlength="32"/>
+        <Input v-model="bot.remark" show-word-limit maxlength="32"/>
       </FormItem>
     </Form>
     <template #footer>
@@ -36,32 +34,20 @@
 </template>
 
 <script setup>
-import ProjectService from '@/business/project_service'
+import BotService from '@/business/bot_service'
 import defaultBotAvatar from '@/assets/images/default-bot-avatar.png';
 import {computed, ref} from "vue"
 import {Message, Modal} from 'view-ui-plus'
 import Uploader from '@/components/uploader'
-import {useModalStore} from "@/store"
-import {storeToRefs} from "pinia";
 
-const modalStore = useModalStore()
-const {projectId, botModal} = storeToRefs(modalStore)
+const showModal = ref(false)
 const emit = defineEmits(['onSubmitted'])
-const form = ref({
-  avatar: defaultBotAvatar,
+const bot = ref({
+  id: 0,
   name: '',
   token: '',
+  avatar: defaultBotAvatar,
   remark: ''
-})
-
-modalStore.$subscribe((_, state) => {
-  const store = state.botModal
-  if (store.show) {
-    form.value.avatar = store.bot?.avatar || ''
-    form.value.name = store.bot?.name || ''
-    form.value.token = store.bot?.token || ''
-    form.value.remark = store.bot?.remark || ''
-  }
 })
 
 const botForm = ref(null)
@@ -75,7 +61,7 @@ const ruleValidate = {
 }
 
 let isCreateMode = computed(() => {
-  return !botModal.value.bot
+  return bot.value.id === 0
 })
 let title = computed(() => {
   return isCreateMode.value ? '添加机器人' : '编辑机器人';
@@ -84,18 +70,17 @@ let title = computed(() => {
 const onDelete = () => {
   Modal.confirm({
     title: '删除此机器人',
-    content: `确认删除机器人：${botModal.value.bot?.name}么`,
+    content: `确认删除机器人：${bot.value.name}么`,
     loading: true,
     onOk: () => {
-      ProjectService.deleteBot(
-          projectId.value,
-          botModal.value.bot?.id
+      BotService.deleteBot(
+          bot.value.id
       ).then(() => {
         Message.success('删除成功');
         resetForm();
         emit('onSubmitted');
         Modal.remove()
-        botModal.value.show = false
+        showModal.value = false
       }).catch(err => {
         Message.error(err.errMsg);
       });
@@ -107,32 +92,30 @@ const onSubmit = () => {
   botForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        ProjectService.addBot(
-            projectId.value,
-            form.value.avatar,
-            form.value.name,
-            form.value.token,
-            form.value.remark
+        BotService.addBot(
+            bot.value.name,
+            bot.value.token,
+            bot.value.avatar,
+            bot.value.remark
         ).then(() => {
           Message.success('添加成功');
           resetForm();
           emit('onSubmitted');
-          botModal.value.show = false
+          showModal.value = false
         }).catch(err => {
           Message.error(err.errMsg);
         });
       } else {
-        ProjectService.updateBot(
-            projectId.value,
-            botModal.value.bot?.id,
-            form.value.avatar,
-            form.value.name,
-            form.value.remark
+        BotService.updateBot(
+            bot.value.id,
+            bot.value.name,
+            bot.value.avatar,
+            bot.value.remark
         ).then(() => {
           Message.success('更新成功');
           resetForm();
           emit('onSubmitted');
-          botModal.value.show = false
+          showModal.value = false
         }).catch(err => {
           Message.error(err.errMsg);
         });
@@ -148,6 +131,17 @@ const resetForm = () => {
 const onCancel = () => {
   resetForm()
 }
+
+const show = (curBot = null) => {
+  if (curBot) {
+    bot.value = curBot
+  }
+  showModal.value = true
+}
+
+defineExpose({
+  show
+})
 
 </script>
 
