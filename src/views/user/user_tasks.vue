@@ -116,9 +116,8 @@ const loadUserTasks = async () => {
         tasks.value = resp.tasks
         if (resp.tasks.length > 0) {
             resp.tasks[0].users.forEach(user => {
-                if (user.is_assignor) {
+                if (user.is_assignor && user.id === props.userId) {
                     targetUser.value.nickname = user.nickname
-                    user.avatar && (targetUser.value.avatar = user.avatar)
                 }
             })
         }

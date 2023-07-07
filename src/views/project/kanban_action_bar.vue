@@ -63,10 +63,15 @@
           clearable
           v-model="selectedAssignorId"
           placeholder="执行人"
+          @on-query-change="(query) => {queryAssignor = query}"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+        <Option v-for="member in project.users.filter(user => {
+          return !!(PinyinMatch.match(user.nickname, queryAssignor))
+          || user.nickname === queryAssignor
+          || queryAssignor === ''
+        })" :value="member.id" :key="member.id">
           <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
             member.nickname
           }}
@@ -98,6 +103,7 @@ import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Message} from "view-ui-plus"
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
+import PinyinMatch from "pinyin-match";
 
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
@@ -119,6 +125,8 @@ const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
 let showShareModal = ref(false)
+
+const queryAssignor = ref('')
 
 watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {

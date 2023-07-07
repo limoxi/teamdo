@@ -2,8 +2,8 @@
   <div class="aui-project-settings">
     <List class="aui-i-menu" border split>
       <ListItem :class="`aui-i-menu-item ${activeMenu==='project'? 'active-list-item': ''}`" @click="onClickMenu('project')">项目配置</ListItem>
-      <ListItem :class="`aui-i-menu-item ${activeMenu==='bots'? 'active-list-item': ''}`" @click="onClickMenu('bots')">机器人配置</ListItem>
-      <ListItem :class="`aui-i-menu-item ${activeMenu==='tags'? 'active-list-item': ''}`" @click="onClickMenu('tags')">标签配置</ListItem>
+      <ListItem :class="`aui-i-menu-item ${activeMenu==='bots'? 'active-list-item': ''}`" @click="onClickMenu('bots')">机器人</ListItem>
+      <ListItem :class="`aui-i-menu-item ${activeMenu==='tags'? 'active-list-item': ''}`" @click="onClickMenu('tags')">标签</ListItem>
 
     </List>
     <div class="aui-i-content">
@@ -53,7 +53,7 @@ import TagService from '@/business/tag_service';
 
 const project = inject('project')
 
-const activeMenu = ref('tags')
+const activeMenu = ref('bots')
 const tagModal = ref(null)
 const botSelectModal = ref(null)
 

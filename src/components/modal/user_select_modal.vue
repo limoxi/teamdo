@@ -11,7 +11,6 @@
         v-model="userSelectModal.selectedUserId"
         clearable
         filterable
-        :remote-method="searchUser"
         @on-query-change="onQueryChange"
     >
       <Option :value="0" :key="0">无</Option>
@@ -34,7 +33,8 @@ import PinyinMatch from "pinyin-match";
 
 const name = 'userSelectModal'
 const modalStore = useModalStore()
-const {projectId, userSelectModal} = storeToRefs(modalStore)
+const {userSelectModal} = storeToRefs(modalStore)
+const props = defineProps(['projectId'])
 
 const selector = ref(null)
 const emit = defineEmits(['update:show', 'onSelect'])
@@ -43,8 +43,8 @@ let selectableUsers = ref([])
 
 const onVisibleChange = (isShow) => {
   if (!isShow) return
-  if (projectId.value > 0) {
-    getProjectUsers(projectId.value)
+  if (props.projectId > 0) {
+    getProjectUsers(props.projectId)
   } else {
     getAllUsers()
   }
@@ -75,9 +75,11 @@ const searchUser = (query) => {
 }
 
 const onQueryChange = query => {
-  if (query === '') {
-    selectableUsers.value = users.value
-  }
+  selectableUsers.value = users.value.filter(user => {
+    return !!(PinyinMatch.match(user.nickname, query))
+        || user.nickname === query
+        || query === ''
+  })
 }
 
 const onConfirmed = () => {

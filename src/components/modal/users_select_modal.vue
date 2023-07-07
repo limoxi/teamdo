@@ -24,14 +24,16 @@
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import UserSelector from '@/components/user_selector'
 import UserService from '@/business/user_service';
-import {ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {Message, Space} from "view-ui-plus";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 
 const name = 'assignorSelectModal'
 const modalStore = useModalStore()
-const {projectId, usersSelectModal} = storeToRefs(modalStore)
+const {usersSelectModal} = storeToRefs(modalStore)
+
+const projectId = inject('projectId')
 
 const selector = ref(null)
 const emit = defineEmits(['update:show', 'onSelect'])

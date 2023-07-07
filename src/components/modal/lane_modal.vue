@@ -50,7 +50,7 @@ modalStore.$subscribe((_, state) => {
   if (store.show) {
     form.value.id = store.lane?.id || 0
     form.value.name = store.mode === 'create' ? '' : store.lane?.name || ''
-    form.value.wip = store.lane?.wip || 8
+    form.value.wip = store.lane ? store.lane.wip : 8
     form.value.isEnd = store.lane?.isEnd || false
   }
 })
