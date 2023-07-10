@@ -6,8 +6,8 @@
                 <MenuItem name="projects">项目</MenuItem>
                 <MenuItem name="tasks">任务</MenuItem>
                 <MenuItem name="works">工单</MenuItem>
-                <MenuItem name="users">用户</MenuItem>
-                <MenuItem name="sys_settings">设置</MenuItem>
+                <MenuItem v-if="userStore?.hasPerm('系统管理员')" name="users">用户</MenuItem>
+                <MenuItem v-if="userStore?.hasPerm('系统管理员')" name="sys_settings">设置</MenuItem>
             </Menu>
 
         </div>
@@ -21,12 +21,14 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {useConfigStore, useModalStore} from "@/store"
+import {useConfigStore, useModalStore, useUserStore} from "@/store"
 import {storeToRefs} from "pinia";
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import {Message} from "view-ui-plus";
 
+
+const userStore = useUserStore()
 const modalStore = useModalStore()
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -42,7 +44,6 @@ const onMenuChanged = (name) => {
     if (name !== activeName.value) {
         activeName.value = name;
         switch (name) {
-            case 'sys_settings':
             case 'works':
                 Message.info('尽请期待！')
                 return

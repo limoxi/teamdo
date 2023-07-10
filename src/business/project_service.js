@@ -132,6 +132,28 @@ class ProjectService {
             }
         });
     }
+
+    static getBotTask(projectId, taskType) {
+        return Resource.get({
+            'resource': 'project.bot_task',
+            'data': {
+                project_id: projectId,
+                task_type: taskType
+            }
+        });
+    }
+
+    static setBotTask(projectId, botId, taskType, taskRule) {
+        return Resource.post({
+            'resource': 'project.bot_task',
+            'data': {
+                project_id: projectId,
+                bot_id: botId,
+                task_type: taskType,
+                task_rule: taskRule
+            }
+        });
+    }
 }
 
 export default ProjectService;

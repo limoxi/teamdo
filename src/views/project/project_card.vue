@@ -13,12 +13,12 @@
             />
           </Tooltip>
 
-          <Tooltip content="点击添加群机器人" placement="right">
+          <!-- <Tooltip content="点击添加群机器人" placement="right">
               <Icon type="logo-android"
                     size="22" color="#19be6b"
                     @click="onAddBot($event)"
               />
-          </Tooltip>
+          </Tooltip> -->
         </span>
       </template>
       <template #extra>
