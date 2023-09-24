@@ -61,7 +61,7 @@
                                                             v-for="childAssignorId in child.assignorIds"
                                                             :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
                                                     <b style="scale: 0.5; margin-left: 10px">{{
-                                                        project.getLane(child.laneId).name
+                                                        project.getLane(child.laneId, KANBAN_TYPE_KANBAN).name
                                                         }}(#{{ child.id }})</b>
                                                 </space>
                                             </Progress>
@@ -150,13 +150,14 @@ import helper from '@/utils/helper';
 import ActionBar from './epics_action_bar'
 import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
-import EpicTaskService from '@/business/epic_task_service';
-import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
+import EpicTaskService from '@/business/epic_task_service'
+import {getImportanceColor, getImportanceDesc} from '@/utils/constant'
 import {Message, Modal, Space} from "view-ui-plus";
 import axIcon from '@/assets/images/ax-icon.svg'
 import lhIcon from '@/assets/images/lh-icon.svg'
 import ProjectSelectModal from '@/components/modal/project_select_modal'
-import TaskService from "../../business/task_service";
+import TaskService from '@/business/task_service'
+import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
 
 const modalStore = useModalStore()
 

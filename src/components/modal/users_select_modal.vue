@@ -1,14 +1,14 @@
 <template>
   <Modal
       v-model="usersSelectModal.show"
-      title="用户列表"
+      :title="usersSelectModal.title || '用户选择'"
       width="400"
       @on-visible-change="onVisibleChange"
       @on-ok="onConfirmed"
   >
     <Space split>
-      <UserSelector :projectId="projectId" @on-selected="onSelectUser"></UserSelector>
-      <Space>
+      <UserSelector :projectId="projectId" :multi="true" @on-selected="onSelectUser"></UserSelector>
+      <Space style="flex-wrap: wrap">
         <div v-if="selectedUsers.length > 0" v-for="user in selectedUsers" :key="user.id" class="aui-i-selected-user">
           <Icon class="aui-i-del-btn" type="ios-close-circle" @click="onDeleteUser(user.id)"/>
           <Avatar shape="square" :src="user.avatar || defaultAvatar"></Avatar>
@@ -52,7 +52,7 @@ const onVisibleChange = async (isShow) => {
 }
 
 const onSelectUser = selectedUser => {
-  if (selectedUsers.value.length >= 2) {
+  if (usersSelectModal.value.limitCount !== -1 && selectedUsers.value.length >= usersSelectModal.value.limitCount) {
     Message.error('已达人数上限')
     return
   }

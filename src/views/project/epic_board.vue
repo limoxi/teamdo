@@ -1,14 +1,14 @@
 <template>
-  <div class="kanban-page" tabindex="0" style="outline: 0; overflow: hidden;"
+  <div class="epic-page" tabindex="0" style="outline: 0; overflow: hidden;"
        @keydown.left="onPressLeft"
        @keydown.right="onPressRight"
        @keydown.esc="onEsc"
   >
-    <action-bar @search="handleSearch" @on-fullscreen="onFullscreen"></action-bar>
+    <action-bar @search="handleSearch"></action-bar>
     <draggable
         :class="classNames"
         id="board"
-        v-model="project.kanbanLanes"
+        v-model="project.epicLanes"
         item-key="id"
         :animation="200"
         group="lanes"
@@ -27,7 +27,7 @@
             :index="index"
             :laneId="element.id"
             :projectId="projectId"
-            :kanbanType="KANBAN_TYPE_KANBAN"
+            :kanbanType="KANBAN_TYPE_EPIC"
         />
       </template>
       <div class="aui-i-blank"></div>
@@ -41,12 +41,12 @@
 <script setup>
 import Draggable from 'vuedraggable';
 import LaneCard from './lane_card';
-import ActionBar from './kanban_action_bar'
+import ActionBar from './epics_action_bar'
 import LaneModal from '@/components/modal/lane_modal'
 import LaneService from '@/business/lane_service'
 import {computed, inject, ref} from "vue"
 import {Message} from "view-ui-plus"
-import {KANBAN_TYPE_KANBAN} from "@/business/model/constant"
+import {KANBAN_TYPE_EPIC} from "@/business/model/constant"
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
@@ -80,7 +80,7 @@ const onEsc = () => {
 }
 
 const onListChange = (e) => {
-  LaneService.resort(projectId.value, project.value.kanbanLanes).then(() => {
+  LaneService.resort(projectId.value, project.value.epicLanes).then(() => {
     Message.success('排序完成');
   }).catch(err => {
     console.error(err);

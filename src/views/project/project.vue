@@ -74,6 +74,9 @@ const handleSelectUsers = (selectedUserIds, action, actionData) => {
         case 'selectAssignorsForTask':
             project.value.setTaskAssignors(actionData.laneId, actionData.taskId, selectedUserIds)
             break
+        case 'selectManagersForLane':
+            project.value.getLaneById(actionData.laneId).setManagers(selectedUserIds)
+            break
     }
 }
 

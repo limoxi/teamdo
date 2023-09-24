@@ -1,25 +1,49 @@
 import LaneService from "@/business/lane_service";
+import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
 
 class Lane {
-    constructor(project, data, posi = 1) {
+    constructor(project, data) {
         this.projectId = project.id
         this.id = data?.id ?? 0
         this.name = data?.name ?? ''
         this.wip = data?.wip ?? 8
         this.isEnd = data?.is_end ?? false
+        this.kanbanType = data?.kanban_type ?? KANBAN_TYPE_KANBAN
+        this.managerIds = data?.manager_ids ?? []
 
         this.isFirst = false
         this.isLast = false
-        switch (posi) {
-            case 0:
-                this.isFirst = true
-                break
-            case -1:
-                this.isLast = true
-        }
 
         this.tasks = []
         this.loadingTasks = false
+    }
+
+    setFirst() {
+        this.isFirst = true
+    }
+
+    setLast() {
+        this.isLast = true
+    }
+
+    isKanbanLane() {
+        return this.kanbanType === KANBAN_TYPE_KANBAN
+    }
+
+    isEpicLane() {
+        return this.kanbanType === KANBAN_TYPE_EPIC
+    }
+
+    isWorkLane() {
+        return this.kanbanType === KANBAN_TYPE_WORK
+    }
+
+    setManagers(managerIds) {
+        LaneService.setManagers(this.projectId, this.id, managerIds).then(() => {
+            this.managerIds = managerIds
+        }).catch(e => {
+            console.error(e)
+        })
     }
 
     refresh() {

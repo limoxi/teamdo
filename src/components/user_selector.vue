@@ -2,6 +2,7 @@
   <Select
       ref="selector"
       clearable
+      :multiple="multi"
       :filterable="true"
       :remote-method="searchUser"
       @on-query-change="onQueryChange"
@@ -32,6 +33,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  multi: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const selectableUsers = ref([])

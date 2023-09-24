@@ -23,10 +23,12 @@ const useModalStore = defineStore('modal', () => {
 
     const usersSelectModal = ref({
         show: false,
+        title: '',
         laneId: 0,
         taskId: 0,
         userSelected: false,
         selectedUserIds: [],
+        limitCount: 2,
         action: ''
     })
 
@@ -80,10 +82,12 @@ const useModalStore = defineStore('modal', () => {
                 break
             case 'usersSelectModal':
                 projectId.value = data?.projectId || 0
+                usersSelectModal.value.title = data?.title || ''
                 usersSelectModal.value.taskId = data?.taskId || 0
                 usersSelectModal.value.laneId = data?.laneId || 0
                 usersSelectModal.value.userSelected = false
                 usersSelectModal.value.selectedUserIds = data?.selectedUserIds || []
+                usersSelectModal.value.limitCount = data?.limitCount || 2
                 usersSelectModal.value.action = data?.action || ''
                 usersSelectModal.value.show = true
                 break

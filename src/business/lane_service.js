@@ -58,6 +58,17 @@ class LaneService {
         })
     }
 
+    static setManagers(projectId, laneId, managerIds) {
+        return Resource.post({
+            resource: 'project.lane.managers',
+            data: {
+                project_id: projectId,
+                lane_id: laneId,
+                manager_ids: managerIds
+            }
+        })
+    }
+
     static shuttleTask(projectId, taskId, targetLaneId, beforeTaskId) {
         return Resource.put({
             resource: 'project.shuttled_task',

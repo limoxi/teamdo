@@ -2,8 +2,10 @@
   <div class="aui-lane">
     <div :class="className">
       <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ tasks.length }}/{{ currLane.wip || '∞' }})</p>
-      <div>
-        <!--        <Icon v-if="index===0" type="logo-buffer" size="18" class="aui-i-action" @click="showTaskModel"/>-->
+      <div class="aui-i-actions">
+        <Icon v-if="displayMode==='card'" type="md-qr-scanner" size="18" class="aui-i-action" style="margin-right: 4px" @click="() => displayMode='table'"/>
+        <Icon v-if="displayMode==='table'" type="md-contract" size="18" class="aui-i-action" style="margin-right: 4px" @click="() => displayMode='card'"/>
+        <Icon type="ios-people" size="20" class="aui-i-action" @click="onSelectLaneManagers"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
           <template #list>
@@ -40,13 +42,19 @@
           @end="drag = false"
           @sort="onListChange"
       >
-        <template #item="{_, index}" :key="index">
+        <template #item="{_, index}">
           <task-card
+              v-if="currLane.isKanbanLane()"
               v-model:task="tasks[index]"
               :lane="currLane"
               :projectId="projectId"
-              :key="index"
           ></task-card>
+          <epic_card
+            v-else-if="currLane.isEpicLane()"
+            v-model:task="tasks[index]"
+            :lane="currLane"
+            :projectId="projectId"
+          ></epic_card>
         </template>
       </draggable>
     </template>
@@ -59,14 +67,15 @@ import Draggable from 'vuedraggable';
 import {computed, inject, onMounted, ref, watch} from "vue";
 import {Modal} from "view-ui-plus";
 import {useModalStore} from "@/store"
+import Epic_card from "./epic_card.vue";
 
 const modalStore = useModalStore()
 
-const props = defineProps(['laneId', 'projectId', 'index', 'filters'])
+const props = defineProps(['laneId', 'projectId', 'index', 'kanbanType', 'filters'])
 
 const project = inject('project')
 const currLane = computed(() => {
-  return project.value.getLane(props.laneId)
+  return project.value.getLane(props.laneId, props.kanbanType)
 })
 
 const tasks = computed({
@@ -79,6 +88,7 @@ const tasks = computed({
 })
 
 let drag = ref(false)
+const displayMode = ref('card')
 
 onMounted(() => {
   currLane.value.loadTasks(props.filters)
@@ -158,6 +168,18 @@ const showTaskModel = () => {
     projectId: props.projectId
   })
 }
+
+const onSelectLaneManagers = () => {
+  modalStore.show('usersSelectModal', {
+    title: '泳道管理员设置',
+    projectId: project.value.id,
+    laneId: currLane.value.id,
+    selectedUserIds: currLane.value.managerIds,
+    limitCount: -1,  // 不限人数
+    action: 'selectManagersForLane'
+  })
+}
+
 </script>
 
 <style scoped lang="less">
@@ -178,10 +200,14 @@ const showTaskModel = () => {
       font-weight: bold;
     }
 
-    .aui-i-action {
+    .aui-i-actions{
       &:hover {
-        transform: scale(1.2);
         cursor: auto;
+      }
+      .aui-i-action {
+        &:hover {
+          transform: scale(1.2);
+        }
       }
     }
   }

@@ -4,6 +4,7 @@ import {Message} from "view-ui-plus"
 import LaneService from "@/business/lane_service"
 import TaskService from "@/business/task_service"
 import Lane from './lane'
+import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
 
 class Project {
     constructor(projectData = undefined) {
@@ -13,20 +14,53 @@ class Project {
         this.users = projectData?.users ?? []
         this.tags = projectData?.tags ?? []
         this.bots = projectData?.bots ?? []
-        this.lanes = []
-        if (projectData?.lanes) {
-            projectData.lanes.forEach((laneData, index) => {
-                let posi = 1
-                if (index === 0) {
-                    posi = 0
-                } else if (index === projectData.lanes.length - 1) {
-                    posi = -1
-                }
-                this.lanes.push(new Lane(this, laneData, posi))
-            })
-        }
-
+        this.kanbanLanes = []
+        this.epicLanes = []
+        this.workLanes = []
         this.needReloadEpics = false
+
+        this.initLanes(projectData?.lanes || [])
+    }
+
+    initLanes(lanes) {
+        if (lanes.length === 0) {
+            return
+        }
+        lanes.forEach((laneData, _) => {
+            const lane = new Lane(this, laneData)
+            switch (laneData.kanban_type) {
+                case 'kanban':
+                    this.kanbanLanes.push(lane)
+                    break
+                case 'epic':
+                    this.epicLanes.push(lane)
+                    break
+                case 'work':
+                    this.workLanes.push(lane)
+                    break
+            }
+        })
+        const kll = this.kanbanLanes.length
+        if (kll > 0) {
+            this.kanbanLanes[0].setFirst()
+            if (kll > 1) {
+                this.kanbanLanes[kll - 1].setLast()
+            }
+        }
+        const ell = this.epicLanes.length
+        if (ell > 0) {
+            this.epicLanes[0].setFirst()
+            if (ell > 1) {
+                this.epicLanes[ell - 1].setLast()
+            }
+        }
+        const wll = this.workLanes.length
+        if (wll > 0) {
+            this.workLanes[0].setFirst()
+            if (wll > 1) {
+                this.workLanes[wll - 1].setLast()
+            }
+        }
     }
 
     getTagsByBiz(bizCode) {
@@ -73,24 +107,47 @@ class Project {
         })
     }
 
-    getLane(laneId) {
-        const lanes = this.lanes.filter(lane => lane.id === laneId)
+    getLaneById(laneId) {
+        let lanes = this.kanbanLanes.filter(lane => lane.id === laneId)
+        if (lanes.length > 0) return lanes[0]
+
+        lanes = this.epicLanes.filter(lane => lane.id === laneId)
+        if (lanes.length > 0) return lanes[0]
+
+        lanes = this.workLanes.filter(lane => lane.id === laneId)
+        if (lanes.length > 0) return lanes[0]
+
+        return null
+    }
+
+    getLane(laneId, kanbanType) {
+        let lanes = this.getLanesByKanbanType(kanbanType)
+        lanes = lanes.filter(lane => lane.id === laneId)
         if (lanes.length === 0) return null
         return lanes[0]
     }
 
-    getFirstLane() {
-        return this.lanes[0]
+    getLanesByKanbanType(kanbanType) {
+        switch (kanbanType) {
+            case KANBAN_TYPE_KANBAN:
+                return this.kanbanLanes
+            case KANBAN_TYPE_EPIC:
+                return this.epicLanes
+            case KANBAN_TYPE_WORK:
+                return this.workLanes
+        }
+        return []
     }
 
-    addLane(name, afterLaneId) {
-        return LaneService.addLane(this.id, name, afterLaneId).then((laneData) => {
-            const afterIndex = this.lanes.findIndex(lane => lane.id === afterLaneId)
+    addLane(name, kanbanType, afterLaneId) {
+        return LaneService.addLane(this.id, name, kanbanType, afterLaneId).then((laneData) => {
+            const lanes = this.getLanesByKanbanType(kanbanType)
+            const afterIndex = lanes.findIndex(lane => lane.id === afterLaneId)
             const newLane = new Lane(this, laneData)
             if (afterIndex < 0) {
-                this.lanes.push(newLane)
+                lanes.push(newLane)
             } else {
-                this.lanes.splice(afterIndex + 1, 0, newLane)
+                lanes.splice(afterIndex + 1, 0, newLane)
             }
         }).catch(err => {
             Message.error(err.errMsg)
@@ -100,10 +157,12 @@ class Project {
     updateLane(data) {
         return LaneService.updateLane(this.id, data).then((laneData) => {
             const newLane = new Lane(this, laneData)
-            newLane.tasks = this.getLane(newLane.id).tasks
-            const elIndex = this.lanes.findIndex(lane => lane.id === newLane.id)
+            const oldLane = this.getLane(newLane.id, newLane.kanbanType)
+            newLane.tasks = oldLane.tasks
+            const lanes = this.getLanesByKanbanType(newLane.kanbanType)
+            const elIndex = lanes.findIndex(lane => lane.id === newLane.id)
             if (elIndex >= 0) {
-                this.lanes[elIndex] = newLane
+                lanes[elIndex] = newLane
             }
         }).catch(err => {
             Message.error(err.errMsg)
@@ -111,40 +170,31 @@ class Project {
     }
 
     deleteLane(laneId) {
+        const lane = this.getLaneById(laneId)
         return LaneService.deleteLane(this.id, laneId).then(() => {
-            const elIndex = this.lanes.findIndex(lane => lane.id === laneId)
+            const lanes = this.getLanesByKanbanType(lane.kanbanType)
+            const elIndex = lanes.findIndex(lane => lane.id === laneId)
             if (elIndex >= 0) {
-                this.lanes.splice(elIndex, 1)
+                lanes.splice(elIndex, 1)
             }
         }).catch(err => {
             Message.error(err.errMsg)
         });
     }
 
-    // 获取泳道从开始到结算的距离
-    getLifeTimeOfLanes() {
-        let count = 0
-        for (const lane of this.lanes) {
-            count += 1
-            if (lane.isEnd) {
-                break
-            }
-        }
-        return count
-    }
-
-    refreshLanes(laneIds = undefined) {
-        const lids = laneIds ?? Object.keys(this.lanes.map(l => l.id))
+    refreshLanes(kanbanType, laneIds = undefined) {
+        const lanes = this.getLanesByKanbanType(kanbanType)
+        const lids = laneIds ?? Object.keys(lanes.map(l => l.id))
         for (const lid of lids) {
-            this.getLane(lid).refresh()
+            this.getLane(lid, kanbanType).refresh()
         }
     }
 
     shuttleTask(sourceLaneId, targetLaneId, task, beforeTaskId = 0, refresh = false) {
         LaneService.shuttleTask(this.id, task.id, targetLaneId, beforeTaskId).then(() => {
             if (refresh && sourceLaneId !== targetLaneId) {
-                this.getLane(sourceLaneId).removeTask(task)
-                this.getLane(targetLaneId).addTask(task)
+                this.getLaneById(sourceLaneId).removeTask(task)
+                this.getLaneById(targetLaneId).addTask(task)
             }
         }).catch(err => {
             console.error(err)
@@ -159,9 +209,10 @@ class Project {
             refreshingLaneIds.add(task.laneId)
             taskIds.add(task.id)
         }
+        const targetLane = this.getLaneById()
         refreshingLaneIds.add(targetLaneId)
         return LaneService.shuttleTasks(this.id, targetLaneId, Array.from(taskIds)).then(() => {
-            this.refreshLanes(Array.from(refreshingLaneIds))
+            this.refreshLanes(Array.from(refreshingLaneIds), targetLane.kanbanType)
         }).catch(err => {
             console.error(err)
             Message.error(err.errMsg || '批量操作失败');
@@ -182,7 +233,7 @@ class Project {
 
     setTaskAssignor(laneId, taskId, assignorId) {
         return TaskService.setAssignorForTask(this.id, taskId, assignorId).then(() => {
-            this.getLane(laneId).tasks.forEach(task => {
+            this.getLaneById(laneId).tasks.forEach(task => {
                 if (task.id === taskId) {
                     task.addAssignor(assignorId)
                 }
@@ -195,7 +246,7 @@ class Project {
 
     setTaskAssignors(laneId, taskId, assignorIds) {
         return TaskService.setAssignorsForTask(this.id, taskId, assignorIds).then(() => {
-            this.getLane(laneId).tasks.forEach(task => {
+            this.getLaneById(laneId).tasks.forEach(task => {
                 if (task.id === taskId) {
                     task.setAssignors(assignorIds)
                 }
