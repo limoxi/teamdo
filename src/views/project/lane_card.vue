@@ -130,7 +130,7 @@ const onListChange = (event) => {
 
   const sps = event.from.id.split('_')
   const sourceLaneId = parseInt(sps[sps.length - 1])
-  const targetLane = project.value.getLane(props.laneId)
+  const targetLane = project.value.getLane(props.laneId, props.kanbanType)
   const curTask = targetLane.getTask(parseInt(taskId))
   curTask.laneId = props.laneId
 

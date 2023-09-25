@@ -44,14 +44,14 @@ ProjectService.getProject(projectId).then(data => {
 })
 
 const handleAddTask = (newTask) => {
-    project.value.getLane(newTask.laneId).addTask(newTask)
+    project.value.getLaneById(newTask.laneId).addTask(newTask)
 }
 const handleUpdateTask = (updatedTask) => {
-    project.value.getLane(updatedTask.laneId).updateTask(updatedTask)
+    project.value.getLaneById(updatedTask.laneId).updateTask(updatedTask)
 }
 
 const handleDeleteTask = deletedTask => {
-    project.value.getLane(deletedTask.laneId).removeTask(deletedTask)
+    project.value.getLaneById(deletedTask.laneId).removeTask(deletedTask)
 }
 const handleSelectUser = (selectedUserId, action, actionData) => {
     switch (action) {
