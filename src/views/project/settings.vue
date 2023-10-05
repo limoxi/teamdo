@@ -37,7 +37,7 @@
             </div>
             <div>
               <CheckboxGroup v-model="botTask.laneIds" @on-change="onSaveBotTask">
-                <Checkbox style="margin-bottom: 5px" v-for="lane in project.lanes" :label="lane.id" border>{{ lane.name }}</Checkbox>
+                <Checkbox style="margin-bottom: 5px" v-for="lane in project.kanbanLanes" :label="lane.id" border>{{ lane.name }}</Checkbox>
               </CheckboxGroup>
             </div>
           </div>
@@ -84,12 +84,25 @@
 </template>
 
 <script setup>
-import {Avatar, Button, Card, Message, Modal, Option} from "view-ui-plus";
-import {computed, inject, ref} from "vue";
-import ProjectService from "@/business/project_service"
+import {
+  Avatar,
+  Button,
+  Card,
+  Checkbox,
+  CheckboxGroup,
+  Icon,
+  List,
+  ListItem,
+  Message,
+  Modal,
+  Option,
+  Tag
+} from 'view-ui-plus'
+import {computed, inject, ref} from 'vue'
+import ProjectService from '@/business/project_service'
 import TagModal from '@/components/modal/tag_modal'
 import BotSelectModal from '@/components/modal/bot_select_modal'
-import TagService from '@/business/tag_service';
+import TagService from '@/business/tag_service'
 import defaultBotAvatar from '@/assets/images/default-bot-avatar.png'
 
 const roleColumns = [

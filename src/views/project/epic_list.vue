@@ -119,7 +119,7 @@
         <Page size="small" v-model="targetPage.curPage" show-total show-sizer
               :page-size-opts="[10, 30, 50, 100]"
               @on-change="onPageChange" @on-page-size-change="onPageSizeChange"
-              style="text-align: right; margin:0 5px"
+              style="text-align: right; margin:5px"
               :total="targetPage.totalCount" :page-size="targetPage.pageSize"/>
     </div>
     <project-select-modal @onSelect="handleSelectProject"></project-select-modal>
@@ -162,7 +162,7 @@ const orderFields = ref(['-display_index'])
 const targetPage = ref({
     curPage: 1,
     maxPage: 1,
-    pageSize: 10,
+    pageSize: 30,
     totalCount: 0
 })
 
@@ -350,7 +350,6 @@ const onAddTask = () => {
   .aui-epic-tasks {
     max-height: calc(100vh - 126px);
     overflow-y: scroll;
-    margin: 5px;
     border: 1px solid #ddd;
     border-radius: 5px;
 

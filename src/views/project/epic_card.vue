@@ -12,7 +12,7 @@
         </Tooltip>
         <span @click="onCLickTaskNo" class="aui-i-id"># {{ task.id }}</span>
         <span :style="{color: getStatusColor(task.status)}">{{task.status}}</span>
-        <Badge :color="importanceColor" :text="`来源于 ${task.fromWhere}`"/>
+        <Badge :color="importanceColor" :text="`来源·${task.fromWhere}`"/>
       </Space>
       <div class="aui-i-action">
         <Button v-show="!lane.isFirst" icon="ios-undo" @click="onClickPre"></Button>
@@ -49,7 +49,7 @@
                  class="aui-i-tag" @click="onClickTag(tag)"
           />
         </template>
-        <Badge :color="importanceColor" :text="`截止于 ${helper.formatTime(task.expectedFinishedAt)}`"></Badge>
+        <Badge v-if="task.expectedFinishedAt" :color="importanceColor" :text="`截止于 ${helper.formatTime(task.expectedFinishedAt)}`"></Badge>
       </div>
       <div class="aui-i-extra">
         <Space :size="1" split>
@@ -136,14 +136,6 @@ let taskSelected = computed({
         selectedTasks.value.splice(index, 1)
       }
     }
-  }
-})
-
-const actionRight = computed(() => {
-  if (props.task.status === '已完成') {
-    return '46px'
-  } else {
-    return '5px'
   }
 })
 
@@ -363,9 +355,9 @@ const onClickLog = () => {
 
     .aui-i-action {
       position: absolute;
-      top: 10px;
-      right: v-bind(actionRight);
-      display: none;
+      top: 13px;
+      right: 5px;
+      //display: none;
 
       .ivu-btn-icon-only {
         width: 26px;

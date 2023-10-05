@@ -86,6 +86,9 @@ const projectId = inject('projectId')
 const currLane = computed(() => {
   return project.value.getLane(props.laneId, props.kanbanType)
 })
+const laneMinWidth = computed(() => {
+  return isEpicType(props.kanbanType) ? '400px' : '280px'
+})
 const drag = ref(false)
 
 const tasks = computed({
@@ -198,7 +201,7 @@ defineExpose({
 <style scoped lang="less">
 .aui-lane {
   outline: 0;
-  width: 280px;
+  width: v-bind(laneMinWidth);
   flex-shrink: 0;
   flex-grow: v-bind(laneWidthGrow);
   padding: 5px 5px 25px;
