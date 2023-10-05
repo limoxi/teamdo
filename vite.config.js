@@ -1,9 +1,7 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import autoprefixer from 'autoprefixer'
-import path from 'path'
 
-const srcPath = path.join(__dirname, 'src')
 const envPrefix = 'APP_'
 
 export default defineConfig({
@@ -13,9 +11,9 @@ export default defineConfig({
     ],
     envPrefix,
     resolve: {
-        alias: [
-            {find: /^@\//, replacement: `${srcPath}/`},
-        ],
+        alias: {
+            '@': '/src'
+        },
         extensions: ['.js', '.vue', '.json', '.less', '.css']
     },
     css: {
@@ -36,7 +34,7 @@ export default defineConfig({
         open: true,
         proxy: {
             '/iteamdo': {
-                target: 'http://api.ihome.com',
+                target: 'http://api.teamdo.com',
                 changeOrigin: true
             }
         }

@@ -29,8 +29,10 @@ a:hover, a:visited, a:link, a:active {
   color: inherit;
 }
 
+// 去除按钮默认的选中样式
 button:focus, button:active {
-  outline: 0;
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
 
@@ -50,6 +52,7 @@ button:focus, button:active {
 .aui-icon-scale {
   .ivu-icon {
     transform: scale(1.2);
+    vertical-align: top;
   }
 }
 
@@ -162,6 +165,14 @@ button:focus, button:active {
 
 .active-list-item {
   background: linear-gradient(to left, cornflowerblue 6px, 6px, white);
+}
+
+.hide{
+  display: none !important;
+}
+
+.bgt{
+  background-color: transparent !important;
 }
 
 @import "theme/dark.less";

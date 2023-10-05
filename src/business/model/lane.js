@@ -1,5 +1,6 @@
 import LaneService from "@/business/lane_service";
 import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
+import EpicTaskService from '@/business/epic_task_service'
 
 class Lane {
     constructor(project, data) {
@@ -50,13 +51,28 @@ class Lane {
         this.loadTasks()
     }
 
-    loadTasks(filters = {}) {
-        this.loadingTasks = true
-        LaneService.getTasks(this.projectId, this.id, filters).then(respData => {
-            this.tasks = respData.tasks
-        }).finally(() => {
-            this.loadingTasks = false
-        })
+    loadTasks(filters = {}, orderFields = []) {
+        switch (this.kanbanType) {
+            case KANBAN_TYPE_KANBAN:
+                this.loadingTasks = true
+                LaneService.getTasks(this.projectId, this.id, filters, orderFields).then(respData => {
+                    this.tasks = respData.tasks
+                }).finally(() => {
+                    this.loadingTasks = false
+                })
+                break
+            case KANBAN_TYPE_EPIC:
+                this.loadingTasks = true
+                EpicTaskService.getEpicTasks(this.projectId, this.id, filters, {
+                    'with_tags': true,
+                    'with_progress': true
+                }, orderFields).then(respData => {
+                    this.tasks = respData.tasks
+                }).finally(() => {
+                    this.loadingTasks = false
+                })
+                break
+        }
     }
 
     getTaskIndex(taskId) {

@@ -1,5 +1,6 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
+import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
 
 const useModalStore = defineStore('modal', () => {
 
@@ -40,6 +41,7 @@ const useModalStore = defineStore('modal', () => {
     const laneModal = ref({
         show: false,
         lane: null,
+        kanbanType: KANBAN_TYPE_KANBAN,
         mode: 'create'
     })
 
@@ -99,6 +101,7 @@ const useModalStore = defineStore('modal', () => {
             case 'laneModal':
                 projectId.value = data.projectId || 0
                 laneModal.value.lane = data.lane || null
+                laneModal.value.kanbanType = data.kanbanType || KANBAN_TYPE_KANBAN
                 laneModal.value.mode = data.mode || 'create'
                 laneModal.value.show = true
                 break

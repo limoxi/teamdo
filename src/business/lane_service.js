@@ -12,11 +12,12 @@ class LaneService {
         });
     }
 
-    static addLane(projectId, newLaneName, afterLaneId) {
+    static addLane(projectId, newLaneName, kanbanType, afterLaneId) {
         return Resource.put({
             'resource': 'project.lane',
             'data': {
                 'project_id': projectId,
+                'kanban_type': kanbanType,
                 'name': newLaneName,
                 'after_lane_id': afterLaneId
             }
@@ -46,12 +47,12 @@ class LaneService {
         });
     }
 
-    static resort(projectId, laneIds) {
+    static resort(projectId, lanes) {
         return Resource.put({
             'resource': 'project.resorted_lanes',
             'data': {
                 'project_id': parseInt(projectId),
-                'ids': laneIds.map(lane => {
+                'ids': lanes.map(lane => {
                     return parseInt(lane.id);
                 })
             }
@@ -92,20 +93,25 @@ class LaneService {
         });
     }
 
-    static async getTasks(projectId, laneId, filters = {}, curPage = 1, pageSize = 50) {
+    static async getTasks(projectId, laneId, filters = {}, orderFields = [], curPage = 1, pageSize = 50) {
+        const reqData = {
+            'project_id': projectId,
+            'lane_id': laneId,
+            'with_options': {
+                'with_users': true,
+                'with_tags': true
+            },
+            'filters': filters,
+            'cur_page': curPage,
+            'page_size': pageSize
+        }
+
+        if (orderFields.length > 0) {
+            reqData["order_fields"] = orderFields
+        }
         const respData = await Resource.get({
             'resource': 'project.lane.tasks',
-            'data': {
-                'project_id': projectId,
-                'lane_id': laneId,
-                'with_options': {
-                    'with_users': true,
-                    'with_tags': true
-                },
-                'filters': filters,
-                'cur_page': curPage,
-                'page_size': pageSize
-            }
+            'data': reqData
         })
         return {
             tasks: respData.tasks.map(taskData => new Task(taskData)),

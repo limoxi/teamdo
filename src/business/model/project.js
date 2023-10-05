@@ -5,6 +5,7 @@ import LaneService from "@/business/lane_service"
 import TaskService from "@/business/task_service"
 import Lane from './lane'
 import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
+import EpicTaskService from '@/business/epic_task_service'
 
 class Project {
     constructor(projectData = undefined) {
@@ -229,6 +230,14 @@ class Project {
 
     deleteTask(taskId) {
         return TaskService.deleteTask(this.id, taskId)
+    }
+
+    addEpicTask(taskData) {
+        return EpicTaskService.addEpicTask(this.id, taskData)
+    }
+
+    updateEpicTask(taskData) {
+        return EpicTaskService.updateEpicTask(this.id, taskData)
     }
 
     setTaskAssignor(laneId, taskId, assignorId) {

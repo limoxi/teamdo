@@ -8,11 +8,11 @@
         </template>
     </top-frame>
   <!-- modal -->
-    <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
     <task-log-modal/>
     <user-select-modal @onSelect="handleSelectUser"/>
     <users-select-modal @onSelect="handleSelectUsers"/>
-    <epic-modal @onFinish="onEpicChange"/>
+    <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
+    <epic-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
 </template>
 
 <script setup>
@@ -47,7 +47,13 @@ const handleAddTask = (newTask) => {
     project.value.getLaneById(newTask.laneId).addTask(newTask)
 }
 const handleUpdateTask = (updatedTask) => {
+  try{
     project.value.getLaneById(updatedTask.laneId).updateTask(updatedTask)
+  } catch (e) {
+    console.error(e)
+
+  }
+
 }
 
 const handleDeleteTask = deletedTask => {
@@ -78,10 +84,6 @@ const handleSelectUsers = (selectedUserIds, action, actionData) => {
             project.value.getLaneById(actionData.laneId).setManagers(selectedUserIds)
             break
     }
-}
-
-const onEpicChange = () => {
-    project.value.needReloadEpics = true
 }
 
 </script>

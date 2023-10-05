@@ -4,9 +4,12 @@ import defaultAvatar from '@/assets/images/default-avatar.webp';
 class EpicTask {
     constructor(taskData = undefined) {
         this.id = taskData?.id ?? 0
+        this.type = taskData?.type ?? 'REQ'
+        this.laneId = taskData?.lane_id ?? 0
         this.creatorId = taskData?.creator_id ?? 0
         this.name = taskData?.name ?? ''
         this.importance = taskData?.importance ?? 0
+        this.hasDesc = taskData?.has_desc ?? false
         this.desc = taskData?.desc ?? ''
         this.tags = taskData?.tags ?? []
         this.expectedFinishedAt = taskData?.expected_finished_at ?? ''

@@ -37,7 +37,7 @@
                         </Option>
                     </Select>
                 </FormItem>
-                <FormItem label="需求来源" prop="fromWhere">
+                <FormItem label="需求来源" prop="fromWhere" style="margin-left: 10px">
                     <Tag type="dot" closable v-if="form.fromWhere"
                          :color="selectedTag.color" @on-close="handleCloseTag"
                     >
@@ -108,7 +108,7 @@ const project = inject('project')
 const selectedTag = ref(null)
 const selectableTags = computed(() => [...project.value.getTagsByBiz('epic_task')])
 
-const emit = defineEmits(['onFinish'])
+const emit = defineEmits(['onAdd', 'onUpdate', 'onDelete'])
 
 const modalStore = useModalStore()
 const {epicModal} = storeToRefs(modalStore)
@@ -126,6 +126,9 @@ const ruleValidate = {
     ],
     remark: [
         {required: true, message: '需求变更记录不能为空', trigger: 'blur'}
+    ],
+    fromWhere: [
+        {required: true, message: '需求来源必须指明', trigger: 'blur'}
     ]
 }
 
@@ -173,7 +176,6 @@ const close = () => {
 }
 
 const actionDone = () => {
-    emit('onFinish')
     Message.success('操作成功');
     close()
 }
@@ -197,6 +199,7 @@ const handleCreateTag = (newTagName) => {
 }
 
 const handleSelectTag = (st) => {
+  console.log(st)
     const tagId = st.value
     if (tagId < 0) return
     const tag = selectableTags.value.filter(tag => tag.id === tagId)[0]
@@ -235,7 +238,8 @@ const handleSubmit = () => {
 
             if (isCreateMode.value) {
                 taskData.beforeTaskId = epicModal.value.beforeTaskId
-                EpicTaskService.addEpicTask(projectId, taskData).then(() => {
+                project.value.addEpicTask(taskData).then(newTask => {
+                    emit('onAdd', newTask)
                     actionDone()
                 }).catch(err => {
                     Message.error(err.errMsg || '操作失败')
@@ -245,7 +249,8 @@ const handleSubmit = () => {
             } else {
                 taskData.id = task.value.id
                 taskData.remark = form.value.remark
-                EpicTaskService.updateEpicTask(projectId, taskData).then(() => {
+                project.value.updateEpicTask(taskData).then(updatedTask => {
+                    emit('onUpdate', updatedTask)
                     actionDone()
                 }).catch(err => {
                     Message.error(err.errMsg || '操作失败')
@@ -267,6 +272,7 @@ const handleDelete = () => {
         onOk: () => {
             EpicTaskService.deleteEpicTask(
                 projectId, task.value.id).then(() => {
+                emit('onDelete')
                 actionDone()
             })
         }

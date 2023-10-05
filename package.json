@@ -11,7 +11,7 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue": "^4.3.4",
     "@vue/compiler-sfc": "^3.3.4",
     "autoprefixer-loader": "^3.2.0",
     "less": "^4.2.0",
@@ -30,8 +30,8 @@
     "@milkdown/theme-nord": "^6.5.4",
     "@milkdown/utils": "^6.5.4",
     "@milkdown/vue": "^6.5.4",
-    "autoprefixer": "^10.4.14",
-    "axios": "^1.4.0",
+    "autoprefixer": "^10.4.16",
+    "axios": "^1.5.1",
     "clipboard": "^2.0.11",
     "echarts": "^5.4.3",
     "js-cookie": "^3.0.5",
@@ -45,7 +45,7 @@
     "vite-plugin-html": "^3.2.0",
     "vue": "^3.3.4",
     "vue-echarts": "^6.6.1",
-    "vue-router": "^4.2.4",
+    "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
   }
 }

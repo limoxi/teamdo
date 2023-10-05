@@ -24,7 +24,7 @@
 
 <script setup>
 import {computed, inject, ref} from "vue";
-import {Message} from "view-ui-plus";
+import {FormItem, InputNumber, Message, Modal, Switch} from 'view-ui-plus'
 import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
 
@@ -67,7 +67,7 @@ const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        project.value.addLane(form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
+        project.value.addLane(form.value.name, laneModal.value.kanbanType, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
           modalStore.close('laneModal')
           Message.success('泳道已添加');
           resetForm();

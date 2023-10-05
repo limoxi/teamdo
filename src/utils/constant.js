@@ -79,12 +79,16 @@ const getImportanceColor = (imp) => {
 
 const getStatusColor = (statusText) => {
     switch (statusText) {
-        case "未开始":
+        case '未开始':
             return '#ff9900'
-        case "进行中":
+        case '进行中':
             return '#19be6b'
-        default:
+        case '已完成':
             return '#2b85e4'
+        case '已放弃':
+            return '#808695'
+        default:
+            return '#ff9900'
     }
 }
 

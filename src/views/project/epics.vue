@@ -105,7 +105,7 @@
                                     @click="onSetTop(task)"></Button>
                             <Button size="large" type="text" icon="md-add-circle"
                                     @click="onAddEpicBefore(index)"></Button>
-                            <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
+                            <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-filing"
                                     @click="onAddRelatedTask(task)"></Button>
                             <Button v-if="!task.isReplica || task.status !== '已放弃'" size="large" type="text"
                                     icon="md-create"
@@ -144,15 +144,15 @@
 </template>
 
 <script setup>
-import defaultAvatar from '@/assets/images/default-avatar.webp';
-import Draggable from 'vuedraggable';
-import helper from '@/utils/helper';
+import defaultAvatar from '@/assets/images/default-avatar.webp'
+import Draggable from 'vuedraggable'
+import helper from '@/utils/helper'
 import ActionBar from './epics_action_bar'
 import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service'
-import {getImportanceColor, getImportanceDesc} from '@/utils/constant'
-import {Message, Modal, Space} from "view-ui-plus";
+import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
+import {Message, Modal, Space} from 'view-ui-plus'
 import axIcon from '@/assets/images/ax-icon.svg'
 import lhIcon from '@/assets/images/lh-icon.svg'
 import ProjectSelectModal from '@/components/modal/project_select_modal'
@@ -218,21 +218,6 @@ const getLimitLineClass = (index) => {
     return ''
 }
 
-const getStatusColor = (status) => {
-    switch (status) {
-        case '未开始':
-            return '#ff9900'
-        case '进行中':
-            return '#19be6b'
-        case '已完成':
-            return '#2b85e4'
-        case '已放弃':
-            return '#808695'
-        default:
-            return '#ff9900'
-    }
-}
-
 const onAddEpicBefore = (beforeIndex) => {
     let beforeTaskId = 0
     if (beforeIndex >= 0) {
@@ -242,7 +227,7 @@ const onAddEpicBefore = (beforeIndex) => {
         }
     }
     modalStore.show('epicModal', {
-        projectId: projectId.value,
+        projectId: projectId,
         beforeTaskId: beforeTaskId
     })
 }
@@ -336,6 +321,7 @@ const onPageSizeChange = pageSize => {
 const loadPagedEpicTasks = async () => {
     EpicTaskService.getEpicTasks(
         projectId,
+        0,
         filters.value,
         {
             'with_tags': true,

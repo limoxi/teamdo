@@ -15,7 +15,7 @@
                 <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
                         @click="onClickFlash"></Button>
                 <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
-                <Button icon="ios-link" class="aui-icon-scale" @click="onAddRelation"></Button>
+                <Button icon="md-filing" class="aui-icon-scale" @click="onAddRelation"></Button>
                 <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
                     <Button icon="md-jet"/>
                     <template #list>
@@ -62,7 +62,7 @@
                 </template>
             </div>
             <div class="aui-i-extra">
-                <Space :size="4">
+                <Space :size="1" split>
                     <Icon type="md-quote" v-if="task.hasAttention"
                           style="cursor: pointer; font-size: 0.9rem"
                           @click="onClickAttention"
@@ -142,7 +142,7 @@ const emit = defineEmits(['onAdd', 'onRemove'])
 
 const project = inject('project')
 const lanes = computed(() => {
-    return project.value.lanes
+    return project.value.getLanesByKanbanType(props.lane.kanbanType) || []
 })
 const importanceDesc = computed(() => {
     return getImportanceDesc(props.task.importance)

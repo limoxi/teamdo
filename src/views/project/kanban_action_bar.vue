@@ -1,9 +1,9 @@
 <template>
   <div class="aui-kanban-action-bar">
     <div class="aui-i-left">
-      <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加任务</Button>
+      <Button type="text" icon="md-add" @click="onAddTask" class="aui-icon-scale">添加</Button>
       <Button type="text" @click="onSwitchMode">{{
-          selectModeOn ? `取消选择(${selectedTasks.length})` : '选择任务'
+          selectModeOn ? `取消选择(${selectedTasks.length})` : '选择'
         }}
       </Button>
       <Button type="text" v-if="selectModeOn && selectedTasks.length > 0" @click="onClickShare">分享</Button>
@@ -26,6 +26,9 @@
       </Dropdown>
     </div>
     <div class="aui-i-right">
+      <template v-if="kanbanType===KANBAN_TYPE_EPIC">
+        <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums-outline" class="aui-i-icon" style="font-weight: bold" @click="changeMode(LANE_DISPLAY_MODE_CARD)"/>
+      </template>
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
       <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
@@ -49,7 +52,7 @@
           v-model="selectedTagId"
           filterable
           clearable
-          placeholder="任务标签"
+          placeholder="标签"
           @onChange="handleSearch"
           class="aui-i-filter"
       >
@@ -59,6 +62,7 @@
       </Select>
 
       <Select
+          v-if="isKanbanType(kanbanType)"
           filterable
           clearable
           v-model="selectedAssignorId"
@@ -77,20 +81,34 @@
           }}
         </Option>
       </Select>
-      <!--      <Select-->
-      <!--          filterable-->
-      <!--          clearable-->
-      <!--          v-model="selectedCreatorId"-->
-      <!--          placeholder="创建人"-->
-      <!--          @on-change="handleSearch"-->
-      <!--          class="aui-i-filter"-->
-      <!--      >-->
-      <!--        <Option v-for="member in project.users" :value="member.id" :key="member.id">-->
-      <!--          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{-->
-      <!--            member.nickname-->
-      <!--          }}-->
-      <!--        </Option>-->
-      <!--      </Select>-->
+      <Select
+        v-if="isEpicType(kanbanType)"
+        filterable
+        clearable
+        v-model="selectedCreatorId"
+        placeholder="维护人"
+        @on-change="handleSearch"
+        class="aui-i-filter"
+      >
+        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+          <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
+            member.nickname
+          }}
+        </Option>
+      </Select>
+      <template v-if="isEpicType(kanbanType)">
+        <Select style="width:140px;margin-left: 5px" v-model="orderField" @on-change="handleSearch">
+          <Option value="display_index">自然排序</Option>
+          <Option value="id">按创建时间</Option>
+          <Option value="updated_at">按最后更新时间</Option>
+          <Option value="expected_finished_at">按截止时间</Option>
+          <Option value="importance">按优先级</Option>
+        </Select>
+        <Select style="width:70px;margin-left: 5px" v-model="orderDirection" @on-change="handleSearch">
+          <Option value="-">倒序</Option>
+          <Option value="+">顺序</Option>
+        </Select>
+      </template>
     </div>
   </div>
   <share-tasks-modal :tasks="selectedTasks" v-model:show="showShareModal"></share-tasks-modal>
@@ -100,10 +118,17 @@
 import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
-import {Message} from "view-ui-plus"
+import {Badge, Dropdown, DropdownItem, DropdownMenu, Icon, Message} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 import PinyinMatch from "pinyin-match";
+import {
+  isEpicType,
+  isKanbanType,
+  KANBAN_TYPE_EPIC,
+  LANE_DISPLAY_MODE_CARD,
+  LANE_DISPLAY_MODE_LIST
+} from '@/business/model/constant'
 
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
@@ -113,17 +138,22 @@ const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
 const selectModeOn = computed(() => taskMode.value === 'SELECT')
 
+const props = defineProps(['kanbanType', 'displayMode'])
+
 const configStore = useConfigStore()
 const {prioritySight} = storeToRefs(configStore)
 
 const project = inject('project')
-const projectId = computed(() => project.value.id)
+const projectId = inject('projectId')
+
 
 const filters = ref({})
-const emit = defineEmits(['search', 'onFullscreen'])
+const emit = defineEmits(['search', 'onFullscreen', 'onChangeDisplayMode'])
 const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 const selectedAssignorId = ref(0)
+const orderField = ref('display_index')
+const orderDirection = ref('-')
 let showShareModal = ref(false)
 
 const queryAssignor = ref('')
@@ -149,6 +179,10 @@ const onClickSwitch = (targetLaneId) => {
   });
 }
 
+const changeMode = mode => {
+  emit('onChangeDisplayMode', mode)
+}
+
 const handleSearch = () => {
   const filters = {}
   if (filteredTaskInfo.value) {
@@ -168,12 +202,16 @@ const handleSearch = () => {
   if (selectedTagId.value > 0) {
     filters['tag_id'] = selectedTagId.value
   }
-  emit('search', filters)
+  const orderFields = [`${orderDirection.value}${orderField.value}`]
+  emit('search', {
+    filters,
+    orderFields
+  })
 }
 
 const onClickShare = () => {
   if (selectedTasks.value.length === 0) {
-    Message.warning('还没有选择任务卡片！')
+    Message.warning('还没有选择卡片！')
     return
   }
   showShareModal.value = true
@@ -184,8 +222,19 @@ const onSwitchMode = () => {
 }
 
 const onAddTask = () => {
-  modalStore.show('taskModal', {
-    projectId: projectId.value
+  let modalName = ''
+  if (isKanbanType(props.kanbanType)) {
+    modalName = 'taskModal'
+  } else if (isEpicType(props.kanbanType)) {
+    modalName = 'epicModal'
+  }
+
+  if (modalName === '') {
+    Message.error('非法操作！')
+    return
+  }
+  modalStore.show(modalName, {
+    projectId: projectId
   })
 }
 
@@ -202,7 +251,7 @@ const onFreshTasks = () => {
   refreshing = true
   handleSearch()
   Message.success({
-    content: '刷新任务...',
+    content: '刷新中...',
     duration: 5,
     onClose: () => {
       refreshing = false

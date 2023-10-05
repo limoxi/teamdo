@@ -1,348 +1,450 @@
 <template>
-  <div :class="`aui-epic-task ${getLimitLineClass(index)}`"
-       :key="index"
-       :taskId="task.id">
-    <div class="aui-i-sider" :style="{background: getImportanceColor(task.importance)}"></div>
-
-    <Space direction="vertical">
-      <Space split
-             class="aui-i-taskTitleBar"
-             :style="`background: linear-gradient(to right, transparent 25%, ${getStatusColor(task.status)} 150%)`"
-      >
-        <i class="aui-i-id">#{{ task.id }}</i>
-        <span :style="`text-decoration: ${task.status === '已放弃'?'line-through': 'none'};`"
-              :class="taskCanDrag? 'aui-a-draggable' : ''">{{ task.name }}</span>
-        <Tooltip :content="task.updatedAt" placement="right">
-          <span style="font-size: 12px">{{ helper.formatTime(task.updatedAt) }}</span>
+  <div :class="headerClasses" :taskId="task.id">
+    <div class="aui-i-header">
+      <Space :size="1" split style="font-size: 12px">
+        <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
+        <Tooltip :content="creator.nickname" placement="right">
+          <Avatar
+            style="color:#ff9900;background-color: #e8eaec"
+            :src="creator.avatar"
+          >{{ creator.nickname[0] }}
+          </Avatar>
         </Tooltip>
-        <Badge :color="getStatusColor(task.status)" :text="task.status"/>
-        <span v-if="task.children.length === 0" style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <Poptip trigger="hover" v-else placement="right" transfer>
-          <span style="font-weight: bold">{{ task.progress }}%&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <template #title>
-            <p style="font-size: 12px">关联任务数: <b>{{ task.children.length }}</b></p>
-          </template>
-          <template #content>
-            <div class="aui-children-progress">
-              <Progress v-for="child in task.children" :key="child.id"
-                        :percent="child.progress"
-                        :stroke-width="10"
-                        :stroke-color="getStatusColor(child.status)"
-              >
-                <space>
-                  <b>{{ child.progress }}%</b>
-                  <Avatar size="small" style="margin-right: -15px"
-                          v-for="childAssignorId in child.assignorIds"
-                          :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
-                  <b style="scale: 0.5; margin-left: 10px">{{
-                      project.getLane(child.laneId).name
-                    }}(#{{ child.id }})</b>
-                </space>
-              </Progress>
-            </div>
-          </template>
-        </Poptip>
+        <span @click="onCLickTaskNo" class="aui-i-id"># {{ task.id }}</span>
+        <span :style="{color: getStatusColor(task.status)}">{{task.status}}</span>
+        <Badge :color="importanceColor" :text="`来源于 ${task.fromWhere}`"/>
       </Space>
-      <Space split>
-        <Tooltip :content="task.getCreator().nickname" placement="right">
-          <Avatar size="small" :src="task.getCreator().avatar"/>
-        </Tooltip>
-        <Badge color="#19be6b" :text="task.fromWhere"/>
-        <Badge :color="getImportanceColor(task.importance)"
-               :text="`${getImportanceDesc(task.importance)}(${task.importance})`"/>
-        <Tooltip v-if="task.expectedFinishedAt"
-                 :content="`截止于 ${task.expectedFinishedAt}`"
-                 placement="right">
-          <Icon style="font-size: 14px" type="md-alarm"/>
-          <span style="font-size: 12px">{{
-              helper.formatTime(task.expectedFinishedAt)
-            }}</span>
-        </Tooltip>
-        <a class="aui-i-link" v-if="task.docLink"
-           :href="task.docLink"
-           target="_blank">
-          <img :src="axIcon" style="width: 10px"/>
-          文档链接
-        </a>
-        <a class="aui-i-link" v-if="task.designLink"
-           :href="task.designLink" target="_blank">
-          <img :src="lhIcon" style="width: 10px;scale: 1.2"/>
-          设计链接
-        </a>
-      </Space>
-    </Space>
+      <div class="aui-i-action">
+        <Button v-show="!lane.isFirst" icon="ios-undo" @click="onClickPre"></Button>
+        <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
+                @click="onClickFlash"></Button>
+        <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
+        <Button icon="md-filing" class="aui-icon-scale" @click="onAddRelation"></Button>
+        <Dropdown
+          v-if="lanes.length > 1"
+          trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
+          <Button icon="md-jet"/>
+          <template #list>
+            <DropdownMenu>
+              <template v-for="l in lanes" :key="l.id">
+                <DropdownItem :name="l.id" v-if="lane.id !== l.id">
+                  {{ l.name }}
+                </DropdownItem>
+              </template>
+            </DropdownMenu>
+          </template>
+        </Dropdown>
+        <Button v-if="!lane.isLast"
+                icon="md-arrow-round-forward" class="aui-icon-scale" @click="onClickNext"></Button>
+      </div>
+    </div>
+    <div class="aui-i-body">
+      <div class="aui-i-name" @dblclick="onCLickName">
+        {{ task.name }}
+      </div>
+      <div class="aui-i-tags">
+        <Badge :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
+        <template v-for="(tag, index) in task.tags" :key="index">
+          <Badge v-if="index > 0" :color="tag.color" :text="tag.name"
+                 class="aui-i-tag" @click="onClickTag(tag)"
+          />
+        </template>
+        <Badge :color="importanceColor" :text="`截止于 ${helper.formatTime(task.expectedFinishedAt)}`"></Badge>
+      </div>
+      <div class="aui-i-extra">
+        <Space :size="1" split>
+          <Tooltip v-if="task.docLink" content="文档链接" placement="top">
+            <a class="aui-i-link"
+               :href="task.docLink"
+               target="_blank">
+              Doc
+            </a>
+          </Tooltip>
+          <Tooltip v-if="task.designLink" content="设计链接" placement="top">
+            <a class="aui-i-link"
+               :href="task.designLink" target="_blank">
+              Design
+            </a>
+          </Tooltip>
 
-    <div class="aui-i-extra">
-      <Button size="large" type="text" icon="md-trending-up"
-              v-if="taskCanDrag && (targetPage.curPage!==1 || index!==0)"
-              class="bolder-icon"
-              @click="onSetTop(task)"></Button>
-      <Button size="large" type="text" icon="md-add-circle"
-              @click="onAddEpicBefore(index)"></Button>
-      <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="logo-buffer"
-              @click="onAddRelatedTask(task)"></Button>
-      <Button v-if="!task.isReplica || task.status !== '已放弃'" size="large" type="text"
-              icon="md-create"
-              @click="onEdit(task)"></Button>
-      <Button v-if="task.status !== '已放弃'" size="large" type="text" icon="md-trash"
-              @click="onDelete(task)"></Button>
-      <Button size="large" type="text" icon="md-trending-down"
-              v-if="taskCanDrag && (targetPage.curPage!==targetPage.maxPage || index<tasks.length-1)"
-              class="bolder-icon"
-              @click="onSetBottom(task)"></Button>
-      <Button v-if="!task.isReplica" size="large" type="text" icon="md-share"
-              @click="onClickShare(task)"></Button>
-      <Button size="large" type="text" icon="ios-notifications"
-              @click="onClickLog(task)"></Button>
+          <Icon type="md-quote" v-if="task.hasAttention"
+                style="cursor: pointer; font-size: 0.9rem"
+                @click="onClickAttention"
+          />
+          <Icon type="md-paper" v-if="task.hasDesc"/>
+          <span>{{task.progress}}%</span>
+          <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
+        </Space>
+      </div>
     </div>
   </div>
-
 </template>
 
 <script setup>
-import {Button, Message, Modal, Space} from "view-ui-plus";
-import {computed, inject, onMounted, ref, watch} from "vue";
-import {useModalStore} from '@/store'
+
+import helper from '@/utils/helper';
+import TaskService from '@/business/task_service';
 import EpicTaskService from '@/business/epic_task_service';
-import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
-import TaskService from "../../business/task_service";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Checkbox,
+  Copy,
+  Dropdown, DropdownItem,
+  DropdownMenu,
+  Message,
+  Modal,
+  Space,
+  Tag,
+  Tooltip
+} from 'view-ui-plus'
+import {computed, inject} from "vue";
+import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {storeToRefs} from "pinia";
+import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
+import useSystemUsersStore from "@/store/system_users";
+import axIcon from '@/assets/images/ax-icon.svg'
+import lhIcon from '@/assets/images/lh-icon.svg'
+
+const systemUsersStore = useSystemUsersStore()
+const {id2user} = storeToRefs(systemUsersStore)
+
+const configStore = useConfigStore()
+const {prioritySight} = storeToRefs(configStore)
 
 const modalStore = useModalStore()
+const {usersSelectModal, taskModal} = storeToRefs(modalStore)
+
+const taskFilterStore = useTaskFilterStore()
+const {tagId} = storeToRefs(taskFilterStore)
+
+const taskModeStore = useTaskModeStore()
+const {mode, selectedTasks} = storeToRefs(taskModeStore)
+let taskSelected = computed({
+  get() {
+    return selectedTasks.value.filter(task => task.id === props.task.id).length > 0
+  },
+  set(selected) {
+    if (selected) {
+      if (selectedTasks.value.filter(task => task.id === props.task.id).length === 0) {
+        selectedTasks.value.push(props.task)
+      }
+    } else {
+      const index = selectedTasks.value.findIndex(t => t.id === props.task.id)
+      if (index >= 0) {
+        selectedTasks.value.splice(index, 1)
+      }
+    }
+  }
+})
+
+const actionRight = computed(() => {
+  if (props.task.status === '已完成') {
+    return '46px'
+  } else {
+    return '5px'
+  }
+})
+
+const props = defineProps(['task', 'lane'])
+const emit = defineEmits(['onAdd', 'onRemove'])
 
 const projectId = inject('projectId')
 const project = inject('project')
-
-watch(() => project.value.needReloadEpics, (newV, oldV) => {
-  if (newV) {
-    loadPagedEpicTasks()
-  }
-}, {deep: true})
-
-const drag = ref(false)
-const tasks = ref([])
-const loadingTasks = ref(true)
-const filters = ref({})
-const orderFields = ref(['-display_index'])
-
-const targetPage = ref({
-  curPage: 1,
-  maxPage: 1,
-  pageSize: 10,
-  totalCount: 0
+const lanes = computed(() => {
+  return project.value.epicLanes || []
+})
+const creator = computed(() => {
+  return props.task.getCreator()
 })
 
-// taskCanDrag 只有在自然排序模式下才可以自由拖拽排序
-const taskCanDrag = computed(() => {
-  return orderFields.value.join(',').includes('display_index')
+const importanceDesc = computed(() => {
+  return getImportanceDesc(props.task.importance)
 })
 
-const handleSearch = (data) => {
-  filters.value = data.filters
-  orderFields.value = data.orderFields
-  loadPagedEpicTasks()
-}
+const importanceColor = computed(() => {
+  return getImportanceColor(props.task.importance)
+})
 
-const onListChange = (event) => {
-  const taskId = event.item.getAttribute('taskId')
-  const targetTasks = [...event.to.children]
-  let beforeTaskId
-  targetTasks.forEach((el, index) => {
-    if (el.getAttribute('taskId') === taskId) {
-      if (index < targetTasks.length - 1) {
-        beforeTaskId = targetTasks[index + 1].getAttribute('taskId')
-      }
-    }
-  })
-  EpicTaskService.resort(project.value.id, parseInt(taskId), parseInt(beforeTaskId))
-}
-
-const getLimitLineClass = (index) => {
-  if (targetPage.value.curPage !== 1) {
-    return ''
-  }
-  if (index === 5) {
-    return 'aui-i-limitLine'
-  }
-  return ''
-}
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case '未开始':
-      return '#ff9900'
-    case '进行中':
-      return '#19be6b'
-    case '已完成':
+const taskNameColor = computed(() => {
+  switch (props.task.type) {
+    case 'REQ':
       return '#2b85e4'
-    case '已放弃':
-      return '#808695'
-    default:
+    case 'OPT':
       return '#ff9900'
+    case 'BUG':
+      return '#ed4014'
+    default:
+      return 'default'
   }
-}
+})
 
-const onAddEpicBefore = (beforeIndex) => {
-  let beforeTaskId = 0
-  if (beforeIndex >= 0) {
-    const beforeTask = tasks.value[beforeIndex]
-    if (beforeTask) {
-      beforeTaskId = beforeTask.id
-    }
+const taskColor = computed(() => {
+  if (prioritySight.value) {
+    return importanceColor.value
+  } else {
+    return taskNameColor.value
   }
-  modalStore.show('epicModal', {
-    projectId: projectId.value,
-    beforeTaskId: beforeTaskId
+})
+
+const onCLickTaskNo = () => {
+  const t = `#${props.task.id}`
+  Copy({
+    text: t,
+    successTip: `${t} 已复制`
   })
 }
 
-const onSetTop = task => {
-  EpicTaskService.resortToTop(projectId, task.id).then(() => {
-    loadPagedEpicTasks()
-  }).catch(err => {
-    Message.error(err.errMsg)
-  });
+const onCLickName = () => {
+  Copy({
+    text: props.task.name,
+    successTip: '用户故事已复制'
+  })
 }
 
-const onSetBottom = task => {
-  EpicTaskService.resortToBottom(projectId, task.id).then(() => {
-    loadPagedEpicTasks()
-  }).catch(err => {
-    Message.error(err.errMsg)
-  });
+const onClickNext = () => {
+  let targetLane;
+  for (let index in lanes.value) {
+    index = parseInt(index);
+    let cl = lanes.value[index];
+    if (cl.id === props.lane.id) {
+      targetLane = lanes.value[index + 1];
+      break;
+    }
+  }
+  switchLane(targetLane.id)
 }
 
-const onAddRelatedTask = (task) => {
+const onClickPre = () => {
+  let targetLane;
+  for (let index in lanes.value) {
+    index = parseInt(index);
+    let cl = lanes.value[index];
+    if (cl.id === props.lane.id) {
+      targetLane = lanes.value[index - 1];
+      break;
+    }
+  }
+  switchLane(targetLane.id)
+}
+
+let flashClass = computed(() => {
+  if (props.task.flashing) {
+    return 'aui-icon-scale red'
+  } else {
+    return 'aui-icon-scale'
+  }
+})
+let headerClasses = computed(() => {
+  if (props.task.flashing) {
+    return `aui-task aui-task-type-${props.task.type} animation-flash`
+  } else {
+    return `aui-task aui-task-type-${props.task.type}`
+  }
+})
+
+const onClickFlash = () => {
+  project.value.switchTaskFlashing(props.task).then(() => {
+    props.task.flashing = !props.task.flashing
+  }).catch(err => {
+    Message.error(err.errMsg || '操作失败');
+  })
+}
+
+const onCLickSwitch = (targetLaneId) => {
+  switchLane(targetLaneId)
+}
+
+const switchLane = (targetLaneId) => {
+  const sourceLaneId = props.task.laneId
+  project.value.shuttleTask(sourceLaneId, targetLaneId, props.task, -1, true)
+}
+
+const onAddRelation = () => {
   modalStore.show('taskModal', {
     projectId: projectId,
-    relatedTask: task
+    relatedTask: props.task
   })
 }
 
-const onEdit = (task) => {
-  EpicTaskService.getEpicTask(projectId, task.id).then(fullTask => {
+const onClickEdit = () => {
+  let readonly = false
+
+  EpicTaskService.getEpicTask(projectId, props.task.id).then(epicTask => {
     modalStore.show('epicModal', {
       projectId: projectId,
-      task: fullTask
+      task: epicTask,
+      readonly: readonly
     })
-  })
-
-}
-
-const onDelete = (task) => {
-  Modal.confirm({
-    title: '删除需求',
-    content: '<strong>确定要删除该需求么？</strong><p>删除后该需求和任务的关联将被解除</p>',
-    okText: '确认',
-    cancelText: '再想想',
-    onOk: () => {
-      EpicTaskService.deleteEpicTask(projectId, task.id).then(() => {
-        loadPagedEpicTasks()
-      }).catch(err => {
-        Message.error(err.errMsg || '操作失败')
-      });
-    }
+  }).catch(err => {
+    console.error(err)
+    Message.error(err.errMsg);
   });
 }
 
-const handleSelectProject = (selectedProjectId, action) => {
-  if (!sharingTask.value || !selectedProjectId) {
-    return
-  }
-  TaskService.shareTaskToProject(projectId, sharingTask.value.id, selectedProjectId).then(() => {
-    Message.success('操作成功')
-    sharingTask.value = null
-  }).catch(e => {
-    Message.error(e.errMsg || '操作失败')
-  })
+const onClickAttention = () => {
+  TaskService.getTask(project.value.id, props.task.id).then(nTask => {
+    let content = []
+    nTask.attentions.forEach(att => {
+      const f = att.checked ? '✅' : '⬜'
+      content.push(`</br>${f} ${att.content}</br>`)
+    })
+    Modal.warning({
+      title: '注意事项',
+      width: '600px',
+      content: content.join('')
+    });
+  }).catch(err => {
+    Message.error(err.errMsg);
+  });
 }
 
-const sharingTask = ref(null)
-const onClickShare = task => {
-  sharingTask.value = task
-  modalStore.show('projectSelectModal')
+const onClickTag = (tag) => {
+  if (tagId.value === tag.id) return
+  taskFilterStore.updateTagId(tag.id)
 }
 
-const onClickLog = (task) => {
+const onClickLog = () => {
   modalStore.show('taskLogModal', {
-    task: task
-  })
-}
-
-onMounted(() => {
-  loadPagedEpicTasks()
-})
-
-const onPageChange = page => {
-  loadPagedEpicTasks()
-}
-
-const onPageSizeChange = pageSize => {
-  targetPage.value.pageSize = pageSize
-  loadPagedEpicTasks()
-}
-
-const loadPagedEpicTasks = async () => {
-  EpicTaskService.getEpicTasks(
-      projectId,
-      filters.value,
-      {
-        'with_tags': true,
-        'with_users': true,
-        'with_children': true,
-        'with_progress': true
-      },
-      orderFields.value,
-      targetPage.value
-  ).then(resp => {
-    tasks.value = resp.tasks
-    targetPage.value.totalCount = resp.page_info.total_count
-    targetPage.value.maxPage = resp.page_info.max_page
-    loadingTasks.value = false
-  })
-}
-
-const onAddTask = () => {
-  modalStore.show('epicModal', {
-    projectId: projectId
+    task: props.task
   })
 }
 
 </script>
 
 <style scoped lang="less">
-.aui-epic-task {
+.aui-theme-light .aui-i-finish-tag strong {
+  color: #eee;
+}
+
+.aui-task {
   position: relative;
-  align-items: center;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  padding: 10px 15px;
-  border-bottom: 1px solid #ddd;
-
-  .aui-i-sider {
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-
-  .aui-i-extra {
-    visibility: hidden;
-  }
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 2px;
+  overflow: hidden;
 
   &:hover {
-    .aui-i-sider {
-      width: 5px;
+    .aui-i-header {
+      .aui-i-action {
+        display: inline-block;
+      }
+    }
+  }
+
+  .aui-i-finish-tag {
+    position: absolute;
+    top: -5px;
+    left: 215px;
+    transform: rotate(45deg);
+    background-color: #19be6b;
+    width: 80px;
+    height: 40px;
+    text-align: center;
+
+    strong {
+      position: absolute;
+      left: 20px;
+      bottom: 0;
+      width: max-content;
+      transform: scale(0.9);
+    }
+  }
+
+  .aui-i-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+
+    .aui-i-action {
+      position: absolute;
+      top: 10px;
+      right: v-bind(actionRight);
+      display: none;
+
+      .ivu-btn-icon-only {
+        width: 26px;
+        height: 26px;
+        border-radius: 4px;
+        border: none;
+      }
+    }
+  }
+
+  .aui-i-body {
+    margin-top: 5px;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    .aui-i-name {
+      min-height: 35px;
+      display: flex;
+      align-items: center;
+    }
+
+    .aui-i-users {
+      display: flex;
+      align-self: flex-start;
+      justify-content: flex-start;
+      cursor: pointer;
+    }
+
+    .aui-i-tags {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      margin: 10px 0;
+
+      .aui-i-tag {
+        &:hover {
+          cursor: pointer;
+          margin-left: 1px;
+          transition-duration: 0.3s;
+          transition-timing-function: ease-in;
+        }
+      }
     }
 
     .aui-i-extra {
-      visibility: visible;
+      color: grey;
+      position: absolute;
+      bottom: 2px;
+      right: 10px;
+      font-size: 10px;
+
+      .aui-i-link{
+      }
     }
   }
 
-  .aui-i-link {
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 12px;
+  .aui-task-type-sub_task {
+    min-height: 50px;
+  }
+
+}
+
+// 任务类型主题
+.aui-task-type-task {
+  .aui-i-header {
+    background-color: #FF9900;
   }
 }
+
+.aui-task-type-bug {
+  .aui-i-header {
+    background-color: #FD6E6A;
+  }
+}
+
+.red {
+  color: #c72606;
+}
+
 </style>

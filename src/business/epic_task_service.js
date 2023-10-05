@@ -1,10 +1,11 @@
 import Resource from '@/utils/resource'
-import EpicTask from "./model/epic";
+import EpicTask from './model/epic'
 
 class EpicTaskService {
-    static async getEpicTasks(projectId, filters = null, withOptions = null, orderFields = null, page = null) {
+    static async getEpicTasks(projectId, laneId, filters = null, withOptions = null, orderFields = [], page = null) {
         const data = {
-            'project_id': projectId
+            'project_id': projectId,
+            'lane_id': laneId
         }
         if (filters) {
             data['filters'] = filters
@@ -24,7 +25,7 @@ class EpicTaskService {
         }
 
         const respData = await Resource.get({
-            'resource': 'project.epic_tasks',
+            'resource': 'project.epic.lane_tasks',
             'data': data
         })
 
@@ -42,7 +43,8 @@ class EpicTaskService {
         if (withAll) {
             data['with_options'] = {
                 'with_users': true,
-                'with_tags': true
+                'with_tags': true,
+                'with_progress': true
             }
         }
 
@@ -53,11 +55,12 @@ class EpicTaskService {
         return new EpicTask(respData)
     }
 
-    static addEpicTask(projectId, task) {
-        return Resource.put({
+    static async addEpicTask(projectId, task) {
+        projectId = parseInt(projectId)
+        const respData = await Resource.put({
             'resource': 'project.epic_task',
             'data': {
-                'project_id': parseInt(projectId),
+                'project_id': projectId,
                 'before_task_id': task.beforeTaskId,
                 'name': task.name,
                 'importance': task.importance,
@@ -67,10 +70,12 @@ class EpicTaskService {
                 'tag_ids': task.tagIds
             }
         })
+        const newTaskId = respData.id
+        return EpicTaskService.getEpicTask(projectId, newTaskId)
     }
 
-    static updateEpicTask(projectId, task) {
-        return Resource.post({
+    static async updateEpicTask(projectId, task) {
+        await Resource.post({
             'resource': 'project.epic_task',
             'data': {
                 'project_id': projectId,
@@ -84,6 +89,7 @@ class EpicTaskService {
                 'tag_ids': task.tagIds
             }
         })
+        return EpicTaskService.getEpicTask(projectId, task.id)
     }
 
     static deleteEpicTask(projectId, taskId) {
