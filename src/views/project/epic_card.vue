@@ -7,7 +7,7 @@
           <Avatar
             style="color:#ff9900;background-color: #e8eaec"
             :src="creator.avatar"
-          >{{ creator.nickname[0] }}
+          >{{ (creator.nickname && creator.nickname[0]) || '' }}
           </Avatar>
         </Tooltip>
         <span @click="onCLickTaskNo" class="aui-i-id"># {{ task.id }}</span>

@@ -16,7 +16,7 @@
         <Button icon="md-jet" style="border: none;"/>
         <template #list>
           <DropdownMenu>
-            <template v-for="l in project.lanes" :key="l.id">
+            <template v-for="l in project.getLanesByKanbanType(kanbanType)" :key="l.id">
               <DropdownItem :name="l.id">
                 {{ l.name }}
               </DropdownItem>
@@ -56,7 +56,7 @@
           @onChange="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="tag in project.tags" :value="tag.id" :key="tag.id">
+        <Option v-for="tag in project.getTagsByKanbanType(kanbanType)" :value="tag.id" :key="tag.id">
           <Badge :color="tag.color" :text="tag.name"/>
         </Option>
       </Select>

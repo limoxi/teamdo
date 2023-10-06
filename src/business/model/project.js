@@ -4,7 +4,7 @@ import {Message} from "view-ui-plus"
 import LaneService from "@/business/lane_service"
 import TaskService from "@/business/task_service"
 import Lane from './lane'
-import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
+import {isEpicType, KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from './constant'
 import EpicTaskService from '@/business/epic_task_service'
 
 class Project {
@@ -72,6 +72,14 @@ class Project {
             }
         })
         return tags
+    }
+
+    getTagsByKanbanType(kanbanType) {
+        let tagBiz = 'normal_task'
+        if (isEpicType(kanbanType)) {
+            tagBiz = 'epic_task'
+        }
+        return this.getTagsByBiz(tagBiz)
     }
 
     reloadTags() {
@@ -210,10 +218,10 @@ class Project {
             refreshingLaneIds.add(task.laneId)
             taskIds.add(task.id)
         }
-        const targetLane = this.getLaneById()
+        const targetLane = this.getLaneById(targetLaneId)
         refreshingLaneIds.add(targetLaneId)
         return LaneService.shuttleTasks(this.id, targetLaneId, Array.from(taskIds)).then(() => {
-            this.refreshLanes(Array.from(refreshingLaneIds), targetLane.kanbanType)
+            this.refreshLanes(targetLane.kanbanType, Array.from(refreshingLaneIds))
         }).catch(err => {
             console.error(err)
             Message.error(err.errMsg || '批量操作失败');

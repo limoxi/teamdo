@@ -16,7 +16,7 @@
                 @sort="onListChange"
         >
             <template #item="{element:task, index}">
-                <div :class="`aui-epic-task ${getLimitLineClass(index)}`"
+                <div class="aui-epic-task"
                      :key="index"
                      :taskId="task.id">
                     <div class="aui-i-sider" :style="{background: getImportanceColor(task.importance)}"></div>
@@ -189,16 +189,6 @@ const onListChange = (event) => {
         }
     })
     EpicTaskService.resort(project.value.id, parseInt(taskId), parseInt(beforeTaskId))
-}
-
-const getLimitLineClass = (index) => {
-    if (targetPage.value.curPage !== 1) {
-        return ''
-    }
-    if (index === 5) {
-        return 'aui-i-limitLine'
-    }
-    return ''
 }
 
 const onAddEpicBefore = (beforeIndex) => {
