@@ -357,7 +357,7 @@ const onClickLog = () => {
       position: absolute;
       top: 13px;
       right: 5px;
-      //display: none;
+      display: none;
 
       .ivu-btn-icon-only {
         width: 26px;
