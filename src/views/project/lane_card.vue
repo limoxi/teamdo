@@ -19,51 +19,41 @@
         </Dropdown>
       </div>
     </div>
-    <template v-if="currLane.loadingTasks">
-<!--      <Skeleton class="aui-i-skeleton"-->
-<!--        loading-->
-<!--        animated-->
-<!--        :title="false"-->
-<!--        :paragraph="{ rows: 4, width: ['20%', '80%', '40%', '20%'] }"-->
-<!--      />-->
-    </template>
-    <template v-else>
-      <draggable
-        v-if="displayMode === LANE_DISPLAY_MODE_CARD"
-        :id="currLaneId"
-        class="aui-i-tasks"
-        v-model="tasks"
-        item-key="id"
-        :animation="200"
-        group="task"
-        :disabled="false"
-        ghostClass="ghost"
-        chosenClass="chosen"
-        handle=".aui-i-tasks > .aui-task > .aui-i-body"
-        @start="drag = true"
-        @end="drag = false"
-        @sort="onListChange"
-      >
-        <template #item="{element:task, index}">
-          <TaskCard
-            v-if="currLane.isKanbanLane()"
-            v-model:task="tasks[index]"
-            :lane="currLane"
-            :projectId="projectId"
-          ></TaskCard>
-          <EpicCard
-            v-else-if="currLane.isEpicLane()"
-            v-model:task="tasks[index]"
-            :lane="currLane"
-            :projectId="projectId"
-          ></EpicCard>
-        </template>
-      </draggable>
-      <EpicList
-        v-else
-        :lane="currLane"
-      ></EpicList>
-    </template>
+    <draggable
+      v-if="displayMode === LANE_DISPLAY_MODE_CARD"
+      :id="currLaneId"
+      class="aui-i-tasks"
+      v-model="tasks"
+      item-key="id"
+      :animation="200"
+      group="task"
+      :disabled="false"
+      ghostClass="ghost"
+      chosenClass="chosen"
+      handle=".aui-i-tasks > .aui-task > .aui-i-body"
+      @start="drag = true"
+      @end="drag = false"
+      @sort="onListChange"
+    >
+      <template #item="{element:task, index}">
+        <TaskCard
+          v-if="currLane.isKanbanLane()"
+          v-model:task="tasks[index]"
+          :lane="currLane"
+          :projectId="projectId"
+        ></TaskCard>
+        <EpicCard
+          v-else-if="currLane.isEpicLane()"
+          v-model:task="tasks[index]"
+          :lane="currLane"
+          :projectId="projectId"
+        ></EpicCard>
+      </template>
+    </draggable>
+    <EpicList
+      v-else
+      :lane="currLane"
+    ></EpicList>
   </div>
 </template>
 
