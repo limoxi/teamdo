@@ -33,9 +33,14 @@ export default defineConfig({
         port: 3000,
         open: true,
         proxy: {
-            '/iteamdo': {
-                target: 'http://api.teamdo.com',
-                changeOrigin: true
+            // '/iteamdo': {  // 使用远端服务时使用
+            //     target: 'http://api.teamdo.com',
+            //     changeOrigin: true
+            // },
+            '/iteamdo': {  // 本地启动服务端时使用
+                target: 'http://127.0.0.1:8341',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/iteamdo/, "")
             }
         }
     }
