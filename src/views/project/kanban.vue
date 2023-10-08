@@ -123,8 +123,10 @@ const handleSearch = (data) => {
     orderFields = data.orderFields
   }
 
-  for(const laneCardRef of laneCardRefs.value) {
-    laneCardRef.loadTasks(data.filters, orderFields)
+  for(const laneCardRef of laneCardRefs.value || []) {
+    if (laneCardRef) {
+      laneCardRef.loadTasks(data.filters, orderFields)
+    }
   }
 }
 

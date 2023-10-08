@@ -21,7 +21,7 @@
     </div>
     <draggable
       v-if="displayMode === LANE_DISPLAY_MODE_CARD"
-      :id="currLaneId"
+      :id="laneId"
       class="aui-i-tasks"
       v-model="tasks"
       item-key="id"
@@ -70,7 +70,6 @@ import {isEpicType, KANBAN_TYPE_EPIC, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_
 const modalStore = useModalStore()
 const emit = defineEmits(['onChangeDisplayMode'])
 const props = defineProps(['laneId', 'index', 'kanbanType', 'displayMode'])
-const currLaneId = computed(() => props.laneId)
 const project = inject('project')
 const projectId = inject('projectId')
 const currLane = computed(() => {
@@ -102,7 +101,7 @@ const className = computed(() => {
 })
 
 onMounted(() => {
-  loadTasks({}, [])
+  loadTasks({}, ['-display_index'])
 })
 
 const loadTasks = (filters, orderFields) => {
@@ -114,7 +113,7 @@ const changeMode = mode => {
 }
 
 const onListChange = (event) => {
-  if (event.from.id === currLaneId.value) {
+  if (event.from.id === String(props.laneId)) {
     if (event.from.id !== event.to.id) {
       return
     }
