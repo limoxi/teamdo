@@ -72,7 +72,35 @@
                 @click="onClickAttention"
           />
           <Icon type="md-paper" v-if="task.hasDesc"/>
-          <span>{{task.progress}}%</span>
+          <span
+            :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
+            v-if="task.children.length === 0"
+          >{{task.progress}}%</span>
+          <Poptip trigger="hover" v-else placement="top" transfer>
+            <span :style="{color:getStatusColor(task.status), cursor: 'pointer', fontWeight: 'bold'}">{{task.progress}}%</span>
+            <template #title>
+              <p style="font-size: 12px">关联任务数: <b>{{ task.children.length }}</b></p>
+            </template>
+            <template #content>
+              <div class="aui-children-progress">
+                <Progress v-for="child in task.children" :key="child.id"
+                          :percent="child.progress"
+                          :stroke-width="10"
+                          :stroke-color="getStatusColor(child.status)"
+                >
+                  <space>
+                    <b>{{ child.progress }}%</b>
+                    <Avatar size="small" style="margin-right: -15px"
+                            v-for="childAssignorId in child.assignorIds"
+                            :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
+                    <b style="scale: 0.5; margin-left: 10px">{{
+                        project.getLane(child.laneId, KANBAN_TYPE_KANBAN).name
+                      }}(#{{ child.id }})</b>
+                  </space>
+                </Progress>
+              </div>
+            </template>
+          </Poptip>
           <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
         </Space>
       </div>
@@ -92,11 +120,10 @@ import {
   Checkbox,
   Copy,
   Dropdown, DropdownItem,
-  DropdownMenu,
+  DropdownMenu, Icon,
   Message,
-  Modal,
+  Modal, Poptip,
   Space,
-  Tag,
   Tooltip
 } from 'view-ui-plus'
 import {computed, inject} from "vue";
@@ -106,6 +133,8 @@ import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/con
 import useSystemUsersStore from "@/store/system_users";
 import axIcon from '@/assets/images/ax-icon.svg'
 import lhIcon from '@/assets/images/lh-icon.svg'
+import defaultAvatar from '@/assets/images/default-avatar.webp'
+import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
 
 const systemUsersStore = useSystemUsersStore()
 const {id2user} = storeToRefs(systemUsersStore)
@@ -157,27 +186,6 @@ const importanceDesc = computed(() => {
 
 const importanceColor = computed(() => {
   return getImportanceColor(props.task.importance)
-})
-
-const taskNameColor = computed(() => {
-  switch (props.task.type) {
-    case 'REQ':
-      return '#2b85e4'
-    case 'OPT':
-      return '#ff9900'
-    case 'BUG':
-      return '#ed4014'
-    default:
-      return 'default'
-  }
-})
-
-const taskColor = computed(() => {
-  if (prioritySight.value) {
-    return importanceColor.value
-  } else {
-    return taskNameColor.value
-  }
 })
 
 const onCLickTaskNo = () => {
@@ -299,6 +307,12 @@ const onClickTag = (tag) => {
 
 const onClickLog = () => {
   modalStore.show('taskLogModal', {
+    task: props.task
+  })
+}
+
+const showRelatedTasks = () => {
+  modalStore.show('subTasksModal', {
     task: props.task
   })
 }

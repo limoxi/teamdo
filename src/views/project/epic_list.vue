@@ -78,18 +78,16 @@
                             <a class="aui-i-link" v-if="task.docLink"
                                :href="task.docLink"
                                target="_blank">
-                                <img :src="axIcon" alt="docLink" style="width: 10px"/>
-                                文档链接
+                                Doc
                             </a>
                             <a class="aui-i-link" v-if="task.designLink"
                                :href="task.designLink" target="_blank">
-                                <img :src="lhIcon" style="width: 10px;scale: 1.2" alt="desgLink"/>
-                                设计链接
+                                Design
                             </a>
                         </Space>
                     </Space>
 
-                    <div class="aui-i-extra">
+                    <div class="aui-i-extra hide">
                         <Button size="large" type="text" icon="md-trending-up"
                                 v-if="taskCanDrag && (targetPage.curPage!==1 || index!==0)"
                                 class="bolder-icon"
