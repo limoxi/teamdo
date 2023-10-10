@@ -95,7 +95,7 @@
 <script setup>
 import Editor from '@/components/editor/editor';
 import {computed, inject, ref} from "vue";
-import {FormItem, Message, Modal} from "view-ui-plus";
+import {Badge, DatePicker, FormItem, Icon, Message, Modal, Tag} from 'view-ui-plus'
 import {importanceOptions} from '@/utils/constant';
 import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
@@ -126,9 +126,6 @@ const ruleValidate = {
     ],
     remark: [
         {required: true, message: '需求变更记录不能为空', trigger: 'blur'}
-    ],
-    fromWhere: [
-        {required: true, message: '需求来源必须指明', trigger: 'blur'}
     ]
 }
 
@@ -199,7 +196,6 @@ const handleCreateTag = (newTagName) => {
 }
 
 const handleSelectTag = (st) => {
-  console.log(st)
     const tagId = st.value
     if (tagId < 0) return
     const tag = selectableTags.value.filter(tag => tag.id === tagId)[0]
@@ -218,10 +214,15 @@ const handleSubmit = () => {
     submitting = true
     taskForm.value.validate(async (valid) => {
         if (valid) {
+            if (!selectedTag.value) {
+                Message.warning('请填写需求来源！')
+                return
+            }
             const taskData = {
                 name: form.value.name.replace(/\s+/g, ""),
                 desc: editorInst.value.getContent(),
                 importance: form.value.importance * 1,
+                tagIds: [selectedTag.value.id],
                 metaData: {
                     'doc_link': form.value.docLink,
                     'design_link': form.value.designLink
@@ -229,11 +230,6 @@ const handleSubmit = () => {
             }
             if (form.value.expectedFinishedAt) {
                 taskData.expectedFinishedAt = moment(form.value.expectedFinishedAt).format('YYYY-MM-DD HH:mm:ss')
-            }
-
-            taskData.tagIds = []
-            if (selectedTag.value) {
-                taskData.tagIds = [selectedTag.value.id]
             }
 
             if (isCreateMode.value) {

@@ -5,9 +5,9 @@
             <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
                 <MenuItem name="projects">
                     <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
-            <span>
-              项目<Icon type="ios-arrow-down"></Icon>
-            </span>
+                        <span>
+                          项目<Icon type="ios-arrow-down"></Icon>
+                        </span>
                         <template #list>
                             <DropdownMenu>
                                 <DropdownItem v-for="p in projects" :key="p.id"
@@ -43,7 +43,7 @@ import {inject, onMounted, ref} from "vue";
 import {useRouter} from 'vue-router'
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
-import {Message} from "view-ui-plus";
+import {Dropdown, DropdownItem, DropdownMenu, Icon, MenuItem, Message} from 'view-ui-plus'
 import ProjectService from "../../../business/project_service";
 
 const router = useRouter()
@@ -83,7 +83,7 @@ const onMenuChanged = (name) => {
     }
 }
 const onSwitchProject = (pid) => {
-    window.location.href = `/project/${pid}/kanban`
+    window.location.href = window.location.pathname.replace(/\/project\/.*\//, `/project/${pid}/`)
 }
 const getProjects = () => {
     ProjectService.getLintProjects().then(data => {
