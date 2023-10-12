@@ -9,6 +9,9 @@ yarn.lock
 .yarnclean
 dist
 node_modules
+docs/node_modules
+docs/yarn.lock
+docs/.vitepress/cache
 
 deploy.py
 deploy_wz
