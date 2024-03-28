@@ -226,7 +226,7 @@ const actionDone = () => {
 }
 
 const onSelectUser = selectedUser => {
-  if (form.value.assignors.length >= 2) {
+  if (form.value.assignors.length >= 3) {
     Message.error('已达人数上限')
     return
   }
