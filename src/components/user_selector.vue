@@ -51,7 +51,9 @@ onMounted(() => {
       Message.error(e.errMsg || '获取项目成员失败')
     })
   } else {
-    UserService.getUsers().then(userList => {
+    UserService.getUsers({
+      'is_deleted': false
+    }).then(userList => {
       selectableUsers.value = userList
       users.value = userList
     }).catch(e => {
