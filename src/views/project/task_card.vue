@@ -71,12 +71,19 @@
                     <Icon v-if="task.parentId >0" type="md-link" style="cursor: pointer; font-size: 1rem"
                           @click="onClickEdit($event, true)"/>
 
-                    <Tooltip placement="top">
+                    <Tooltip v-if="storySight" placement="top">
                         <span>{{ task.sp }}/{{ task.passedSp }}</span>
                         <template #content>
                             <p>期望故事点：{{ task.sp }}</p>
                             <p>实际故事点：{{ task.passedSp }}</p>
                         </template>
+                    </Tooltip>
+                    <Tooltip v-else placement="top">
+                      <span>{{ task.duration }}/{{ task.currLaneDuration }}</span>
+                      <template #content>
+                        <p>任务持续时间：{{ task.duration }}</p>
+                        <p>泳道停留时间：{{ task.currLaneDuration }}</p>
+                      </template>
                     </Tooltip>
                     <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
                 </Space>
@@ -101,7 +108,7 @@ const systemUsersStore = useSystemUsersStore()
 const {id2user} = storeToRefs(systemUsersStore)
 
 const configStore = useConfigStore()
-const {prioritySight} = storeToRefs(configStore)
+const {prioritySight, storySight} = storeToRefs(configStore)
 
 const modalStore = useModalStore()
 const {usersSelectModal, taskModal} = storeToRefs(modalStore)

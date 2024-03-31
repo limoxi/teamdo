@@ -31,6 +31,8 @@
       </template>
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
+      <Icon v-if="storySight" type="md-speedometer" class="aui-i-icon" @click="configStore.switchStorySight"/>
+      <Icon v-else type="md-clock" class="aui-i-icon" @click="configStore.switchStorySight"/>
       <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
       <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
       <Input
@@ -141,7 +143,7 @@ const selectModeOn = computed(() => taskMode.value === 'SELECT')
 const props = defineProps(['kanbanType', 'displayMode'])
 
 const configStore = useConfigStore()
-const {prioritySight} = storeToRefs(configStore)
+const {prioritySight, storySight} = storeToRefs(configStore)
 
 const project = inject('project')
 const projectId = inject('projectId')

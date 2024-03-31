@@ -5,6 +5,7 @@ import helper from '@/utils/helper'
 const useConfigStore = defineStore('config', () => {
   let theme = ref(helper.storage.get('theme') || 'light')
   let prioritySight = ref(false)
+  let storySight = ref(false)
 
   const switchTheme = () => {
     if (theme.value === 'light') {
@@ -19,11 +20,17 @@ const useConfigStore = defineStore('config', () => {
     prioritySight.value = !prioritySight.value
   }
 
+  const switchStorySight = () => {
+    storySight.value = !storySight.value
+  }
+
   return {
     theme,
     prioritySight,
+    storySight,
     switchTheme,
-    switchKanbanSight
+    switchKanbanSight,
+    switchStorySight
   }
 })
 

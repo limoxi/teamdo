@@ -12,6 +12,8 @@ class Task {
         this.importance = taskData?.importance ?? 0
         this.sp = taskData?.sp ?? 0
         this.passedSp = taskData?.passed_sp ?? 0
+        this.duration = taskData?.duration ?? 0
+        this.currLaneDuration = taskData?.current_lane_duration ?? 0
         this.desc = taskData?.desc ?? ''
         this.hasDesc = taskData?.has_desc ?? false
         this.attentions = taskData?.attentions ?? []
