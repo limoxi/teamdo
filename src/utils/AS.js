@@ -6,7 +6,6 @@
  */
 let storage = window.localStorage;
 let browserAgent = navigator.userAgent;
-let notification = window.Notification;
 
 let AS = {
   currentMember: {
@@ -58,33 +57,6 @@ let AS = {
       return (browserAgent.indexOf('Gecko') > -1 && browserAgent.indexOf('KHTML') === -1);
     }
   },
-
-  initNotify(title, content, icon) {
-    if (notification !== 'denied') {
-      notification.requestPermission(function (permission) {
-        if (permission === "granted") {
-          if (notification.permission === 'granted') {
-            AS.notifer = {};
-            AS.notify = function (title, msg) {
-              if ('on' !== AS.storage.get('notify', 'on')) return;
-              if (!title || title.trim() === '') return;
-              if (AS.notifer[title]) {
-                AS.notifer[title].close();
-                AS.notifer[title] = void 0;
-              }
-              AS.notifer[title] = new notification(title, {
-                dir: 'ltr',
-                body: msg,
-                icon: icon
-              });
-            };
-          }
-        }
-      });
-    }
-    AS.storage.set('storageChanged', false);
-  },
-
 
   time() {
     let start = "2016-02-14 06:00:00";
