@@ -79,10 +79,10 @@
                         </template>
                     </Tooltip>
                     <Tooltip v-else placement="top">
-                      <span>{{ task.duration }}/{{ task.currLaneDuration }}</span>
+                      <span>{{ helper.formatHoursFromSeconds(task.duration) }}/{{ helper.formatHoursFromSeconds(task.currLaneDuration) }}</span>
                       <template #content>
-                        <p>任务持续时间：{{ task.duration }}</p>
-                        <p>泳道停留时间：{{ task.currLaneDuration }}</p>
+                        <p>任务持续时间：{{ helper.formatHoursFromSeconds(task.duration) }}</p>
+                        <p>泳道停留时间：{{ helper.formatHoursFromSeconds(task.currLaneDuration) }}</p>
                       </template>
                     </Tooltip>
                     <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>

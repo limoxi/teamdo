@@ -88,5 +88,24 @@ export default {
 
   formatTime(timeStr) {
     return moment(timeStr, 'YYYY-MM-DD HH:mm:ss').calendar()
+  },
+
+  formatHoursFromSeconds(seconds) {
+    const d = moment.duration(seconds, 'seconds')
+    let h = d.asHours()
+    if (h === 0){
+      return '0'
+    }
+    let unit = 'h'
+    if (h > 24) {
+      h = d.asDays()
+      unit = 'd'
+    }
+    if (parseFloat(h.toFixed(0)) === parseFloat(h.toFixed(1))) {
+      h = parseInt(h.toFixed(0))
+    } else {
+      h = h.toFixed(1)
+    }
+    return `${h}${unit}`
   }
 };
