@@ -95,7 +95,8 @@ const waitServerMessage = () => {
     const eventData = JSON.parse(event.data)
     new Notification(eventData.title, {
       body: eventData.content,
-      icon: location.origin + '/favicon.ico'
+      icon: location.origin + '/favicon.ico',
+      requireInteraction: true
     })
   }, false)
 }
