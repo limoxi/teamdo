@@ -28,11 +28,14 @@
 - 必须使用https，以便使用现代浏览器的桌面通知功能
 - nginx配置如下：
 ```
+server {
+    ---
+    proxy_read_timeout 24h;  # 读取后端服务器响应超时时间，需要很长
+    ---
+}
 location /iteamdo/message/ {
   proxy_http_version 1.1;  # 不能是1.0
   proxy_buffering off;  # 关闭缓冲
-  proxy_read_timeout 24h;  # 读取后端服务器响应超时时间，需要很长
-  proxy_connect_timeout 1h;  # 客户端连接超时时间
   proxy_set_header Connection '';  # 保持连接，避免close
   proxy_set_header X-Accel-Buffering no;  # 设置代理的响应头部，保持传输编码为 chunked
   proxy_pass http://backendapi.xxx.com;  # 后端服务地址

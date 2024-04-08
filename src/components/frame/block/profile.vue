@@ -81,7 +81,7 @@ const waitServerMessage = () => {
     headers: {
       'Authorization': Cookies.get('token'),
     },
-    heartbeatTimeout: 24 * 60 * 60 * 1000
+    heartbeatTimeout: 5 * 60 * 60 * 1000  // 最大5小时
   })
   es.onopen = event => {
     remoteServerEventStatus.value = 'success'
