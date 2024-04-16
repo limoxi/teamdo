@@ -90,6 +90,9 @@ const waitServerMessage = () => {
     console.error(event)
     remoteServerEventStatus.value = 'error'
   }
+  es.addEventListener('ping', event => {
+    remoteServerEventStatus.value = 'success'
+  }, false)
   es.addEventListener(`user_event_${uid.value}`, event => {
     remoteServerEventStatus.value = 'success'
     const eventData = JSON.parse(event.data)
