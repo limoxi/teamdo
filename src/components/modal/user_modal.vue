@@ -86,13 +86,9 @@ const handleSubmit = (valid, {username, nickname, password}) => {
         avatar: userForm.value.avatar,
         nickname: nickname,
       }
-      UserService.updateUser(updatedData).then(() => {
-        userStore.updateProfile(nickname, userForm.value.avatar)
+      userStore.updateProfile(updatedData).then(() => {
         showModel.value = false;
-        Message.success('修改信息成功~');
-      }).catch(err => {
-        Message.error(err.errMsg);
-      });
+      })
     }
   }
 }

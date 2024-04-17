@@ -40,8 +40,7 @@ const handleSubmit = (valid, {phone, password}) => {
   if (!valid) {
     return
   }
-  UserService.doLogin(phone, password).then(data => {
-    userStore.updateLoginInfo(data)
+  userStore.login(phone, password).then(() => {
     showModel.value = false;
     Message.success({
       content: '登陆成功, 正在跳转页面...',
@@ -49,9 +48,7 @@ const handleSubmit = (valid, {phone, password}) => {
         router.replace({name: 'projects'});
       }
     })
-  }).catch(err => {
-    Message.error(err.errMsg);
-  });
+  })
 }
 
 </script>
