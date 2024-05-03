@@ -99,7 +99,8 @@ class LaneService {
             'lane_id': laneId,
             'with_options': {
                 'with_users': true,
-                'with_tags': true
+                'with_tags': true,
+                'with_lane_stats': true
             },
             'filters': filters,
             'cur_page': curPage,
