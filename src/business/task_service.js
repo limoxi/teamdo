@@ -1,5 +1,6 @@
 import Resource from '@/utils/resource';
 import Task from "./model/task";
+import TaskActionLog from "./model/task_action_log"
 
 class TaskService {
 
@@ -182,18 +183,18 @@ class TaskService {
         })
     }
 
-    static getTaskLogs(projectId, taskId) {
-        return Resource.get({
+    static async getTaskLogs(projectId, taskId) {
+        const taskLogs = await Resource.get({
             'resource': 'project.task.logs',
             'data': {
                 'project_id': projectId,
                 'task_id': taskId,
                 'with_options': {
-                    'with_actor': true,
                     'with_lane': true
                 }
             }
         })
+        return taskLogs.map(taskLog => new TaskActionLog(taskLog))
     }
 
     static switchTaskFlashing(projectId, taskId, switchOn) {

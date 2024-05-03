@@ -94,18 +94,16 @@
 
 <script setup>
 
-import helper from '@/utils/helper';
-import TaskService from '@/business/task_service';
-import EpicTaskService from '@/business/epic_task_service';
+import helper from '@/utils/helper'
+import TaskService from '@/business/task_service'
+import EpicTaskService from '@/business/epic_task_service'
 import {Avatar, Badge, Button, Checkbox, Copy, Message, Modal, Space, Tooltip} from 'view-ui-plus'
-import {computed, inject} from "vue";
-import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
-import {storeToRefs} from "pinia";
-import {getImportanceColor, getImportanceDesc} from '@/utils/constant';
-import useSystemUsersStore from "@/store/system_users";
+import {computed, inject} from "vue"
+import {useUserStore, useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {storeToRefs} from "pinia"
+import {getImportanceColor, getImportanceDesc} from '@/utils/constant'
 
-const systemUsersStore = useSystemUsersStore()
-const {id2user} = storeToRefs(systemUsersStore)
+const userStore = useUserStore()
 
 const configStore = useConfigStore()
 const {prioritySight, storySight} = storeToRefs(configStore)
@@ -181,7 +179,7 @@ const taskColor = computed(() => {
 })
 
 const assignors = computed(() => {
-    return props.task.assignorIds.map(uid => id2user.value[uid])
+    return props.task.assignorIds.map(uid => userStore.getUser(uid))
 })
 
 const taskNo = `${project.value.prefix}${props.task.id}`

@@ -127,17 +127,13 @@ import {
   Tooltip
 } from 'view-ui-plus'
 import {computed, inject} from "vue";
-import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {useUserStore, useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia";
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
-import useSystemUsersStore from "@/store/system_users";
-import axIcon from '@/assets/images/ax-icon.svg'
-import lhIcon from '@/assets/images/lh-icon.svg'
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
 
-const systemUsersStore = useSystemUsersStore()
-const {id2user} = storeToRefs(systemUsersStore)
+const userStore = useUserStore()
 
 const configStore = useConfigStore()
 const {prioritySight} = storeToRefs(configStore)

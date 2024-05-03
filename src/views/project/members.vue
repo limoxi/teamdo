@@ -11,7 +11,7 @@
             @click="onSelectMember(pu)"
             :class="selectedMemberId === pu.id? 'active-list-item' : ''"
         >
-          <ListItemMeta :avatar="pu.avatar || defaultAvatar">
+          <ListItemMeta :avatar="userStore.getUser(pu.id)?.avatar ?? defaultAvatar">
             <template #title>
               {{ pu.nickname }}
               <Icon v-if="pu.is_manager" type="ios-ribbon" class="aui-i-manager"/>
@@ -114,7 +114,7 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, ref} from "vue";
-import {Button, ListItem, Message, Modal} from 'view-ui-plus'
+import {Button, ListItem, ListItemMeta, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
@@ -375,6 +375,7 @@ let memberTotalTaskCount = ref(0)
 let memberFinishedTaskCount = ref(0)
 let memberWorkingTaskCount = ref(0)
 let memberAbortTaskCount = ref(0)
+
 const onSelectMember = (member) => {
   if (member.id === selectedMemberId.value) return
 

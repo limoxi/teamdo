@@ -2,10 +2,10 @@ import {ref} from 'vue'
 import {defineStore} from 'pinia'
 import helper from '@/utils/helper'
 import defaultAvatar from '@/assets/images/default-avatar.webp'
-import Cookies from "js-cookie";
-import {Message} from "view-ui-plus";
-import {EventSourcePolyfill} from "event-source-polyfill";
-import UserService from "@/business/user_service";
+import Cookies from "js-cookie"
+import {Message} from "view-ui-plus"
+import {EventSourcePolyfill} from "event-source-polyfill"
+import UserService from "@/business/user_service"
 
 const useUserStore = defineStore('user', () => {
     let uid = ref(0)
@@ -14,6 +14,8 @@ const useUserStore = defineStore('user', () => {
     let roles = ref([])
     let sseStatus = ref('default')
     let sseClient = null
+
+    const id2user = ref({})
 
     uid.value = helper.storage.get('uid') || 0
     nickname.value = helper.storage.get('nickname') || ''
@@ -106,6 +108,14 @@ const useUserStore = defineStore('user', () => {
         }, false)
     }
 
+    const loadAllUsers = () => {
+        UserService.getUsers().then(users => {
+            users.forEach(user => {
+                id2user.value[user.id] = user
+            })
+        })
+    }
+
     const logout = () => {
         Cookies.remove('token');
         helper.storage.clear();
@@ -116,8 +126,15 @@ const useUserStore = defineStore('user', () => {
 
     // 处理直接刷新页面后链接丢失问题，此处进行重连
     if (uid.value > 0) {
-        console.log('reconnect.....')
         waitServerMessage()
+        loadAllUsers()
+    }
+
+    const getUser = userId => {
+        return id2user.value[userId] || {
+            avatar: '',
+            nickname: '未知'
+        }
     }
 
     return {
@@ -128,7 +145,8 @@ const useUserStore = defineStore('user', () => {
         hasPerm,
         updateProfile,
         login,
-        logout
+        logout,
+        getUser
     }
 })
 

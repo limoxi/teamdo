@@ -87,12 +87,10 @@
                                 <a class="aui-i-link" v-if="task.docLink"
                                    :href="task.docLink"
                                    target="_blank">
-                                    <img :src="axIcon" style="width: 10px"/>
                                     文档链接
                                 </a>
                                 <a class="aui-i-link" v-if="task.designLink"
                                    :href="task.designLink" target="_blank">
-                                    <img :src="lhIcon" style="width: 10px;scale: 1.2"/>
                                     设计链接
                                 </a>
                             </Space>
@@ -153,8 +151,6 @@ import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service'
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
 import {Message, Modal, Space} from 'view-ui-plus'
-import axIcon from '@/assets/images/ax-icon.svg'
-import lhIcon from '@/assets/images/lh-icon.svg'
 import ProjectSelectModal from '@/components/modal/project_select_modal'
 import TaskService from '@/business/task_service'
 import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'

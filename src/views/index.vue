@@ -8,9 +8,11 @@
         <strong>专注Yes</strong>
       </div>
       <div class="aui-i-action">
-        <Button type="text" @click="onShowLogin" v-if="hideEntry">登陆</Button>
-        <Button type="text" @click="onShowRegister" v-if="hideEntry">注册</Button>
-        <Button type="text" :to='{name: "projects"}' v-if="showEntry">项目列表</Button>
+        <space>
+          <Button type="text" @click="onShowLogin" v-if="hideEntry">登陆</Button>
+          <Button type="text" @click="onShowRegister" v-if="hideEntry">注册</Button>
+          <Button type="text" :to='{name: "projects"}' v-if="showEntry">项目列表</Button>
+        </space>
       </div>
     </div>
     <login-modal v-model:show="showLogin"></login-modal>
@@ -27,6 +29,7 @@
 import LoginModal from '../components/modal/login_modal';
 import UserModal from '../components/modal/user_modal';
 import helper from '@/utils/helper';
+import {Space} from 'view-ui-plus'
 
 export default {
   data() {
@@ -36,6 +39,7 @@ export default {
     }
   },
   components: {
+    Space,
     LoginModal,
     UserModal
   },
@@ -71,12 +75,20 @@ export default {
     position: fixed;
     width: 100vw;
     height: 100vh;
-    filter: blur(2px);
+    //filter: blur(2px);
     /*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
     background-image: url("@/assets/images/index-bg.svg");
     background-position: center center;
     background-repeat: no-repeat;
-    background-size: cover;
+    //background-size: cover;
+
+    &::before{
+      content: '';
+      backdrop-filter: blur(8px);
+      width: 100%;
+      height: 100%;
+      position: absolute;
+    }
   }
 
   .aui-i-welcome {
@@ -103,7 +115,7 @@ export default {
       font-size: 26px;
 
       .ivu-btn-text {
-        color: #555 !important;
+        color: #444 !important;
       }
     }
   }

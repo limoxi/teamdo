@@ -1,9 +1,11 @@
 <template>
   <Modal
-      style="top:10%"
+      style="top:8%"
+      width="50%"
       v-model="taskLogModal.show"
       :title="title"
       :footer-hide="true"
+      class="aui-task-log-modal"
   >
     <template v-if="loading">
       <Skeleton class="aui-i-skeleton"
@@ -19,7 +21,7 @@
           <span>参与人({{ users.length }})</span>
           <span>
             <Tooltip :content="user.nickname" v-for="user in users" :key="user.id" style="margin: 0 2px">
-            <Avatar :src="getUserAvatar(user.id)||defaultAvatar" size="small"></Avatar>
+            <Avatar :src="userStore.getUser(user.id)?.avatar ?? defaultAvatar" size="small"></Avatar>
           </Tooltip>
           </span>
         </Space>
@@ -28,32 +30,33 @@
         <TimelineItem
             v-for="log in logs" :key="log.id"
         >
-          <template v-if="['完成了任务', '开始了任务'].includes(log.action)" #dot>
-            <span v-if="log.action==='完成了任务'" class="aui-i-dot">🎉</span>
-            <span v-else-if="log.action==='开始了任务'" class="aui-i-dot">🚌</span>
+          <template v-if="['finish', 'start'].includes(log.action)" #dot>
+            <span v-if="log.action==='finish'" class="aui-i-dot">🎉</span>
+            <span v-else-if="log.action==='start'" class="aui-i-dot">🚌</span>
           </template>
-          <template v-else-if="log.action.startsWith('回退')" #dot>
-            <span class="aui-i-dot">😩</span>
+          <template v-else-if="log.action === 'switch_lane'" #dot>
+            <span v-if="log.getLaneSwitchDirection() === 'backward'" class="aui-i-dot">😩</span>
+            <span v-else-if="log.getLaneSwitchDirection() === 'forward'">🏊</span>
           </template>
-          <template v-else-if="log.action.startsWith('修改了任务')" #dot>
-            <span class="aui-i-dot">📝</span>
+          <template v-else-if="log.action === 'update'" #dot>
+            <span class="aui-i-dot">🖌️</span>
           </template>
           <p>
             <Space>
-              <span>{{ helper.formatTime(log.created_at) }}</span>
+              <span>{{ helper.formatTime(log.createdAt) }}</span>
               <span>
-              <Tooltip :content="log.actor.nickname">
-                <Avatar :src="log.actor.avatar||defaultAvatar" size="small"></Avatar>
-              </Tooltip>
-              {{ log.actor.nickname }}
-            </span>
-              <span>{{ parseAction(log, log.action) }}</span>
-              <template v-if="log.from_lane_id===log.to_lane_id && log.to_lane_id>0">
-                <span>在 <strong>{{ log.to_lane.name }}</strong></span>
+                <Tooltip :content="userStore.getUser(log.operatorId).nickname">
+                  <Avatar :src="userStore.getUser(log.operatorId).avatar||defaultAvatar" size="small"></Avatar>
+                </Tooltip>
+              </span>
+              <span>{{ log.getActionText() }}</span>
+              <template v-if="log.fromLaneId===log.toLaneId && log.toLaneId>0">
+                <span>@ <strong>{{ log.toLane.name }}</strong></span>
               </template>
               <template v-else>
-                <span v-if="log.from_lane_id>0">从 <strong>{{ log.from_lane.name }}</strong></span>
-                <span v-if="log.to_lane_id>0">到 <strong>{{ log.to_lane.name }}</strong></span>
+                <span v-if="log.fromLaneId>0"><strong>{{ log.fromLane.name }}</strong></span>
+                <span v-else><i>任务池</i></span>
+                <span v-if="log.toLaneId>0">➡️ <strong>{{ log.toLane.name }}</strong></span>
               </template>
             </Space>
           </p>
@@ -66,15 +69,17 @@
 
 <script setup>
 import {computed, inject, ref} from "vue";
-import {Message, Space} from "view-ui-plus";
+import {Avatar, Message, Modal, Skeleton, Space, Tag, Timeline, TimelineItem, Tooltip} from 'view-ui-plus'
 import TaskService from "@/business/task_service";
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import helper from '@/utils/helper';
-import {useModalStore} from "@/store"
+import {useUserStore, useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const {taskLogModal} = storeToRefs(modalStore)
+
+const userStore = useUserStore()
 
 const logs = ref([])
 const loading = ref(true)
@@ -98,11 +103,11 @@ modalStore.$subscribe((_, state) => {
   const store = state.taskLogModal
   if (store.show) {
     loading.value = true
-    TaskService.getTaskLogs(project.value.id, store.task.id).then(data => {
-      logs.value = data
+    TaskService.getTaskLogs(project.value.id, store.task.id).then(taskActionLogs => {
+      logs.value = taskActionLogs
       loading.value = false
     }).catch(err => {
-      Message.error(err.errMsg);
+      Message.error(err.message);
     });
   }
 })
@@ -111,42 +116,21 @@ const users = computed(() => {
   return taskLogModal.value.task?.users || []
 })
 
-const getUserAvatar = (userId) => {
-  for (let pu of project.value.users) {
-    if (pu.id === userId) {
-      return pu.avatar
-    }
-  }
-  return ''
-}
-
-const parseAction = (log, actionText) => {
-  let nameRp = '描述'
-  switch (log.type) {
-    case 'REQ':
-      nameRp = '用户故事'
-      break
-    case 'BUG':
-      nameRp = '问题描述'
-      break
-    case 'OPT':
-      nameRp = '优化概要'
-      break
-  }
-  actionText = actionText.replaceAll('name', nameRp)
-  actionText = actionText.replaceAll('type', '类型')
-  actionText = actionText.replaceAll('desc', '详细描述')
-  actionText = actionText.replaceAll('importance', '优先级')
-  actionText = actionText.replaceAll('sp', '故事点')
-  actionText = actionText.replaceAll('assignor_id', '执行者')
-  return actionText
-}
-
 </script>
 
-<style scoped lang="less">
-.aui-i-dot {
-  font-size: 18px;
-  vertical-align: -webkit-baseline-middle;
+<style lang="less">
+.aui-task-log-modal{
+  .ivu-modal-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .aui-i-dot {
+    font-size: 18px;
+    vertical-align: -webkit-baseline-middle;
+  }
 }
 </style>

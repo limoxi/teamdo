@@ -46,12 +46,14 @@ import BotModal from '@/components/modal/bot_modal';
 import ProjectCard from './project_card';
 import ProjectService from '@/business/project_service';
 import {onMounted, ref} from "vue";
-import {Message} from "view-ui-plus";
-import {useModalStore} from "@/store"
+import {Message, Result, Skeleton} from 'view-ui-plus'
+import {useUserStore, useModalStore} from "@/store"
 import ProjectActionBar from './project_action_bar'
 import PinyinMatch from "pinyin-match";
+import {storeToRefs} from 'pinia'
 
 const modalStore = useModalStore()
+const userStore = useUserStore()
 
 onMounted(() => {
     getProjects()
@@ -70,6 +72,11 @@ const getProjects = () => {
         projects.value = data;
         cachedProjects = data
         loadingProjects.value = false
+        projects.value.forEach(p => {
+          p.users.forEach(pu => {
+            pu.avatar = userStore.getUser(pu.id).avatar
+          })
+        })
     }).catch(err => {
         Message.error(err.errMsg)
     });
