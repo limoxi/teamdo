@@ -39,21 +39,19 @@
 </template>
 
 <script setup>
-import TopFrame from '@/components/frame/top_frame';
-import Header from '@/components/frame/header/header';
-import ProjectModal from '@/components/modal/project_modal';
-import BotModal from '@/components/modal/bot_modal';
-import ProjectCard from './project_card';
-import ProjectService from '@/business/project_service';
-import {onMounted, ref} from "vue";
+import TopFrame from '@/components/frame/top_frame'
+import Header from '@/components/frame/header/header'
+import ProjectModal from '@/components/modal/project_modal'
+import BotModal from '@/components/modal/bot_modal'
+import ProjectCard from './project_card'
+import ProjectService from '@/business/project_service'
+import {onMounted, ref} from "vue"
 import {Message, Result, Skeleton} from 'view-ui-plus'
-import {useUserStore, useModalStore} from "@/store"
+import {useModalStore} from "@/store"
 import ProjectActionBar from './project_action_bar'
-import PinyinMatch from "pinyin-match";
-import {storeToRefs} from 'pinia'
+import PinyinMatch from "pinyin-match"
 
 const modalStore = useModalStore()
-const userStore = useUserStore()
 
 onMounted(() => {
     getProjects()
@@ -72,11 +70,6 @@ const getProjects = () => {
         projects.value = data;
         cachedProjects = data
         loadingProjects.value = false
-        projects.value.forEach(p => {
-          p.users.forEach(pu => {
-            pu.avatar = userStore.getUser(pu.id).avatar
-          })
-        })
     }).catch(err => {
         Message.error(err.errMsg)
     });

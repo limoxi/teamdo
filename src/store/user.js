@@ -58,6 +58,7 @@ const useUserStore = defineStore('user', () => {
 
             initNotify()
             waitServerMessage()
+            loadAllUsers()
         }).catch(err => {
             Message.error(err.errMsg)
         })
@@ -74,7 +75,7 @@ const useUserStore = defineStore('user', () => {
         }
         if (Notification.permission !== 'granted') {
             Notification.requestPermission().then(permission => {
-                if(permission !== 'granted') {
+                if (permission !== 'granted') {
                     Message.warning('请打开桌面通知，以免漏接消息')
                 }
             })

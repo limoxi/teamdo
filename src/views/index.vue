@@ -75,12 +75,10 @@ export default {
     position: fixed;
     width: 100vw;
     height: 100vh;
-    //filter: blur(2px);
-    /*background-image: linear-gradient(-45deg, #FFC796 0%, #FF6B95 100%);*/
     background-image: url("@/assets/images/index-bg.svg");
     background-position: center center;
     background-repeat: no-repeat;
-    //background-size: cover;
+    background-size: cover;
 
     &::before{
       content: '';

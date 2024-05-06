@@ -18,18 +18,17 @@
     </div>
 </template>
 <script setup>
-import Logo from '@/components/frame/block/logo';
-import Profile from '@/components/frame/block/profile';
-import ThemeControl from '@/components/frame/block/theme_control';
-import {useConfigStore, useModalStore, useUserStore} from "@/store"
-import {storeToRefs} from "pinia";
-import {onMounted, ref} from "vue";
-import {useRouter} from "vue-router";
-import {Message} from "view-ui-plus";
+import Logo from '@/components/frame/block/logo'
+import Profile from '@/components/frame/block/profile'
+import ThemeControl from '@/components/frame/block/theme_control'
+import {useConfigStore, useUserStore} from "@/store"
+import {storeToRefs} from "pinia"
+import {onMounted, ref} from "vue"
+import {useRouter} from "vue-router"
+import {MenuItem, Message} from "view-ui-plus"
 
 
 const userStore = useUserStore()
-const modalStore = useModalStore()
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
 let activeName = ref('projects')

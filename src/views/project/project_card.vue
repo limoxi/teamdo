@@ -38,25 +38,27 @@
 </template>
 
 <script setup>
-import {Message, Modal} from 'view-ui-plus'
-import defaultAvatar from '@/assets/images/default-avatar.webp';
+import {Avatar, AvatarList, Card, Message, Modal, Tooltip} from 'view-ui-plus'
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import defaultBotAvatar from '@/assets/images/default-bot-avatar.png'
 import {useRouter} from 'vue-router'
-import {useModalStore} from "@/store";
-import ProjectService from "@/business/project_service";
+import {useModalStore, useUserStore} from "@/store"
+import ProjectService from "@/business/project_service"
+import {computed} from "vue";
 
 const modalStore = useModalStore()
+const userStore = useUserStore()
 const router = useRouter()
 
 const props = defineProps(['project'])
 const emit = defineEmits(['onDelete'])
 
-const avatars = props.project.users.map(user => {
+const avatars = computed(() => props.project.users.map(user => {
   return {
-    src: user.avatar || defaultAvatar,
+    src: userStore.getUser(user.id)?.avatar || defaultAvatar,
     tip: user.nickname
   }
-})
+}))
 
 const onClickBot = (e, bot) => {
   e.stopPropagation()

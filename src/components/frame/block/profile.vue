@@ -25,16 +25,14 @@
 </template>
 
 <script setup>
-import helper from '@/utils/helper'
 import PasswordModal from '../../modal/password_modal'
 import UserModal from '@/components/modal/user_modal'
 import Cookies from 'js-cookie'
-import {onBeforeUnmount, onMounted, ref} from "vue";
-import {storeToRefs} from 'pinia';
+import {onMounted, ref} from "vue"
+import {storeToRefs} from 'pinia'
 import {useUserStore} from '@/store'
 import {useRouter} from 'vue-router'
-import {Message} from 'view-ui-plus'
-import { EventSourcePolyfill } from 'event-source-polyfill'
+import {Badge, Dropdown, DropdownItem, DropdownMenu} from 'view-ui-plus'
 
 const router = useRouter()
 
@@ -47,7 +45,7 @@ let showPwdModel = ref(false)
 let showUserModel = ref(false)
 
 onMounted(() => {
-  let token = Cookies.get('token');
+  let token = Cookies.get('token')
   if (!token) {
     router.replace({'name': 'index'})
   }
@@ -55,20 +53,20 @@ onMounted(() => {
 
 const onClickItem = (name) => {
   if (name === 'modePwd') {
-    ShowPwdModel();
+    ShowPwdModel()
   } else if (name === 'modeProfile') {
-    showEditProfileModel();
+    showEditProfileModel()
   } else if (name === 'userTasks') {
     location.href = '/user_tasks'
   } else if (name === 'logout') {
-    logout();
+    logout()
   }
 }
 const ShowPwdModel = () => {
   showPwdModel.value = true
 }
 const showEditProfileModel = () => {
-  showUserModel.value = true;
+  showUserModel.value = true
 }
 const logout = () => {
   userStore.logout()
