@@ -60,6 +60,7 @@ class EpicTask {
         }
         const userStore = useUserStore()
         this.creator = userStore.getUser(this.creatorId)
+        this.creatorFilled = true
         return this.creator
     }
 }
