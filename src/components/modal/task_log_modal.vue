@@ -53,8 +53,12 @@
               <template v-if="log.fromLaneId===log.toLaneId && log.toLaneId>0">
                 <span>@ <strong>{{ log.toLane.name }}</strong></span>
               </template>
+              <template v-else-if="log.fromLaneId>0 && log.toLaneId===0">
+                <span>@ <strong>{{ log.fromLane.name }}</strong></span>
+              </template>
               <template v-else>
                 <span v-if="log.fromLaneId>0"><strong>{{ log.fromLane.name }}</strong></span>
+                <span v-else-if="log.fromLaneId===0 && log.toLaneId===0"></span>
                 <span v-else><i>任务池</i></span>
                 <span v-if="log.toLaneId>0">➡️ <strong>{{ log.toLane.name }}</strong></span>
               </template>
