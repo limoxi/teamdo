@@ -1,5 +1,5 @@
-import {inject} from "vue";
-import defaultAvatar from '@/assets/images/default-avatar.webp';
+import defaultAvatar from '@/assets/images/default-avatar.webp'
+import {useUserStore} from "@/store"
 
 class EpicTask {
     constructor(taskData = undefined) {
@@ -58,14 +58,8 @@ class EpicTask {
         if (this.creatorFilled) {
             return this.creator
         }
-        const project = inject('project')
-        for (const pu of project.value.users) {
-            if (pu.id === this.creatorId) {
-                this.creatorFilled = true
-                this.creator = pu
-                break
-            }
-        }
+        const userStore = useUserStore()
+        this.creator = userStore.getUser(this.creatorId)
         return this.creator
     }
 }
