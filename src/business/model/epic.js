@@ -22,7 +22,6 @@ class EpicTask {
         this.isReplica = taskData?.is_replica ?? false
 
         // need fill
-        this.creatorFilled = false
         this.creator = {
             id: this.creatorId,
             name: '未知',
@@ -55,12 +54,8 @@ class EpicTask {
     }
 
     getCreator() {
-        if (this.creatorFilled) {
-            return this.creator
-        }
         const userStore = useUserStore()
         this.creator = userStore.getUser(this.creatorId)
-        this.creatorFilled = true
         return this.creator
     }
 }
