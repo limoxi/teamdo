@@ -30,10 +30,15 @@
           clearable
           v-model="selectedCreatorId"
           placeholder="维护人"
+          @on-query-change="(query) => {queryAssignor = query}"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+        <Option v-for="member in project.users.filter(user => {
+          return !!(PinyinMatch.match(user.nickname, queryAssignor))
+          || user.nickname === queryAssignor
+          || queryAssignor === ''
+        })" :value="member.id" :key="member.id">
           <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
             member.nickname
           }}
@@ -56,12 +61,13 @@
 </template>
 
 <script setup>
-import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
-import defaultAvatar from '@/assets/images/default-avatar.webp';
+import {computed, inject, ref, watch} from 'vue'
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
-import {Message} from "view-ui-plus"
+import {Icon, Message} from "view-ui-plus"
 import {useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
-import {storeToRefs} from "pinia";
+import {storeToRefs} from "pinia"
+import PinyinMatch from "pinyin-match"
 
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
@@ -69,6 +75,8 @@ const {updated: updated} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {selectedTasks} = storeToRefs(taskModeStore)
+
+const queryAssignor = ref('')
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)

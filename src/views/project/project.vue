@@ -27,6 +27,7 @@ import {provide, ref} from 'vue'
 import ProjectService from "@/business/project_service"
 import Project from "@/business/model/project"
 import {Message} from "view-ui-plus"
+import {useUserStore} from "@/store"
 
 const props = defineProps(['projectId'])
 const projectId = parseInt(props.projectId)
@@ -35,9 +36,14 @@ provide('projectId', projectId)
 const project = ref(new Project({id: projectId}))
 provide('project', project)
 
-ProjectService.getProject(projectId).then(data => {
+const userStore = useUserStore()
+
+setTimeout(() => {
+  ProjectService.getProject(projectId).then(data => {
+    data.users.forEach(user => user.avatar = userStore.getUser(user.id).avatar)
     project.value = new Project(data)
-})
+  })
+}, 100)
 
 const handleAddTask = (newTask) => {
     project.value.getLaneById(newTask.laneId).addTask(newTask)

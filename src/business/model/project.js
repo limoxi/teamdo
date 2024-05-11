@@ -21,6 +21,8 @@ class Project {
         this.needReloadEpics = false
 
         this.initLanes(projectData?.lanes || [])
+
+        this.filled = false
     }
 
     initLanes(lanes) {

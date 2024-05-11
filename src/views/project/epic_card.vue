@@ -92,9 +92,10 @@
                     <b>{{ child.progress }}%</b>
                     <Avatar size="small" style="margin-right: -15px"
                             v-for="childAssignorId in child.assignorIds"
+                            :key="childAssignorId"
                             :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
                     <b style="scale: 0.5; margin-left: 10px">{{
-                        project.getLane(child.laneId, KANBAN_TYPE_KANBAN).name
+                        project.getLane(child.laneId, KANBAN_TYPE_KANBAN)?.name
                       }}(#{{ child.id }})</b>
                   </space>
                 </Progress>
@@ -110,9 +111,9 @@
 
 <script setup>
 
-import helper from '@/utils/helper';
-import TaskService from '@/business/task_service';
-import EpicTaskService from '@/business/epic_task_service';
+import helper from '@/utils/helper'
+import TaskService from '@/business/task_service'
+import EpicTaskService from '@/business/epic_task_service'
 import {
   Avatar,
   Badge,
@@ -126,17 +127,12 @@ import {
   Space,
   Tooltip
 } from 'view-ui-plus'
-import {computed, inject} from "vue";
-import {useUserStore, useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
-import {storeToRefs} from "pinia";
+import {computed, inject} from "vue"
+import {useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
+import {storeToRefs} from "pinia"
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
-
-const userStore = useUserStore()
-
-const configStore = useConfigStore()
-const {prioritySight} = storeToRefs(configStore)
 
 const modalStore = useModalStore()
 const {usersSelectModal, taskModal} = storeToRefs(modalStore)
