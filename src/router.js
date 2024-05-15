@@ -19,7 +19,7 @@ const Routers = [{
         title: '项目'
     },
     props: true,
-    component: () => import('@/views/project/project.vue'),
+    component: () => import('@/views/project/project_frame.vue'),
     children: [{
         path: 'epics',
         name: 'epics',

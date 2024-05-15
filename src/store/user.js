@@ -110,7 +110,7 @@ const useUserStore = defineStore('user', () => {
     }
 
     const loadAllUsers = () => {
-        UserService.getUsers().then(users => {
+        return UserService.getUsers().then(users => {
             users.forEach(user => {
                 id2user.value[user.id] = user
             })
@@ -147,7 +147,8 @@ const useUserStore = defineStore('user', () => {
         updateProfile,
         login,
         logout,
-        getUser
+        getUser,
+        loadAllUsers
     }
 })
 

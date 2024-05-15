@@ -1,18 +1,18 @@
 <template>
-    <top-frame>
-        <template #header>
-            <project-header/>
-        </template>
-        <template #content>
-            <router-view></router-view>
-        </template>
-    </top-frame>
+  <top-frame>
+    <template #header>
+      <project-header/>
+    </template>
+    <template #content>
+      <router-view></router-view>
+    </template>
+  </top-frame>
   <!-- modal -->
-    <task-log-modal/>
-    <user-select-modal @onSelect="handleSelectUser"/>
-    <users-select-modal @onSelect="handleSelectUsers"/>
-    <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
-    <epic-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
+  <task-log-modal/>
+  <user-select-modal @onSelect="handleSelectUser"/>
+  <users-select-modal @onSelect="handleSelectUsers"/>
+  <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
+  <epic-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
 </template>
 
 <script setup>
@@ -33,17 +33,14 @@ const props = defineProps(['projectId'])
 const projectId = parseInt(props.projectId)
 provide('projectId', projectId)
 
-const project = ref(new Project({id: projectId}))
-provide('project', project)
-
 const userStore = useUserStore()
 
-setTimeout(() => {
-  ProjectService.getProject(projectId).then(data => {
-    data.users.forEach(user => user.avatar = userStore.getUser(user.id).avatar)
-    project.value = new Project(data)
-  })
-}, 100)
+const project = ref(new Project({id: projectId}))
+await userStore.loadAllUsers()
+const projectData = await ProjectService.getProject(projectId)
+projectData.users.forEach(user => user.avatar = userStore.getUser(user.id).avatar)
+project.value = new Project(projectData)
+provide('project', project)
 
 const handleAddTask = (newTask) => {
     project.value.getLaneById(newTask.laneId).addTask(newTask)
