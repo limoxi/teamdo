@@ -142,13 +142,11 @@ const actionRight = computed(() => {
     }
 })
 
-const props = defineProps(['task', 'lane'])
+const props = defineProps(['task', 'lane', 'kanban'])
 const emit = defineEmits(['onAdd', 'onRemove'])
 
 const project = inject('project')
-const lanes = computed(() => {
-    return project.value.getLanesByKanbanType(props.lane.kanbanType) || []
-})
+const lanes = computed(() => props.kanban.lanes || [])
 const importanceDesc = computed(() => {
     return getImportanceDesc(props.task.importance)
 })

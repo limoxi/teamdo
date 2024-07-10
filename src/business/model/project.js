@@ -4,8 +4,8 @@ import {Message} from "view-ui-plus"
 import LaneService from "@/business/lane_service"
 import TaskService from "@/business/task_service"
 import Lane from './lane'
-import {isEpicType, KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from './constant'
 import EpicTaskService from '@/business/epic_task_service'
+import Kanban from './kanban'
 
 class Project {
     constructor(projectData = undefined) {
@@ -15,53 +15,9 @@ class Project {
         this.users = projectData?.users ?? []
         this.tags = projectData?.tags ?? []
         this.bots = projectData?.bots ?? []
-        this.kanbanLanes = []
-        this.epicLanes = []
-        this.workLanes = []
+        this.kanbans = (projectData?.kanbans ?? []).map(kanban => new Kanban(this, kanban))
+
         this.needReloadEpics = false
-
-        this.initLanes(projectData?.lanes || [])
-    }
-
-    initLanes(lanes) {
-        if (lanes.length === 0) {
-            return
-        }
-        lanes.forEach((laneData, _) => {
-            const lane = new Lane(this, laneData)
-            switch (laneData.kanban_type) {
-                case 'kanban':
-                    this.kanbanLanes.push(lane)
-                    break
-                case 'epic':
-                    this.epicLanes.push(lane)
-                    break
-                case 'work':
-                    this.workLanes.push(lane)
-                    break
-            }
-        })
-        const kll = this.kanbanLanes.length
-        if (kll > 0) {
-            this.kanbanLanes[0].setFirst()
-            if (kll > 1) {
-                this.kanbanLanes[kll - 1].setLast()
-            }
-        }
-        const ell = this.epicLanes.length
-        if (ell > 0) {
-            this.epicLanes[0].setFirst()
-            if (ell > 1) {
-                this.epicLanes[ell - 1].setLast()
-            }
-        }
-        const wll = this.workLanes.length
-        if (wll > 0) {
-            this.workLanes[0].setFirst()
-            if (wll > 1) {
-                this.workLanes[wll - 1].setLast()
-            }
-        }
     }
 
     getTagsByBiz(bizCode) {
@@ -76,9 +32,6 @@ class Project {
 
     getTagsByKanbanType(kanbanType) {
         let tagBiz = 'normal_task'
-        if (isEpicType(kanbanType)) {
-            tagBiz = 'epic_task'
-        }
         return this.getTagsByBiz(tagBiz)
     }
 
@@ -116,87 +69,20 @@ class Project {
         })
     }
 
-    getLaneById(laneId) {
-        let lanes = this.kanbanLanes.filter(lane => lane.id === laneId)
-        if (lanes.length > 0) return lanes[0]
-
-        lanes = this.epicLanes.filter(lane => lane.id === laneId)
-        if (lanes.length > 0) return lanes[0]
-
-        lanes = this.workLanes.filter(lane => lane.id === laneId)
-        if (lanes.length > 0) return lanes[0]
-
+    getKanbanById(kanbanId) {
+        if (this.kanbans.length === 0) {
+            return null
+        }
+        if (kanbanId === 0) {
+            return this.kanbans[0]
+        }
+        for(const kanban of this.kanbans){
+            console.log(kanban, '----------')
+            if (kanban.id === kanbanId) {
+                return kanban
+            }
+        }
         return null
-    }
-
-    getLane(laneId, kanbanType) {
-        let lanes = this.getLanesByKanbanType(kanbanType)
-        lanes = lanes.filter(lane => lane.id === laneId)
-        if (lanes.length === 0) return null
-        return lanes[0]
-    }
-
-    getLanesByKanbanType(kanbanType) {
-        switch (kanbanType) {
-            case KANBAN_TYPE_KANBAN:
-                return this.kanbanLanes
-            case KANBAN_TYPE_EPIC:
-                return this.epicLanes
-            case KANBAN_TYPE_WORK:
-                return this.workLanes
-        }
-        return []
-    }
-
-    addLane(name, kanbanType, afterLaneId) {
-        return LaneService.addLane(this.id, name, kanbanType, afterLaneId).then((laneData) => {
-            const lanes = this.getLanesByKanbanType(kanbanType)
-            const afterIndex = lanes.findIndex(lane => lane.id === afterLaneId)
-            const newLane = new Lane(this, laneData)
-            if (afterIndex < 0) {
-                lanes.push(newLane)
-            } else {
-                lanes.splice(afterIndex + 1, 0, newLane)
-            }
-        }).catch(err => {
-            Message.error(err.errMsg)
-        })
-    }
-
-    updateLane(data) {
-        return LaneService.updateLane(this.id, data).then((laneData) => {
-            const newLane = new Lane(this, laneData)
-            const oldLane = this.getLane(newLane.id, newLane.kanbanType)
-            newLane.tasks = oldLane.tasks
-            const lanes = this.getLanesByKanbanType(newLane.kanbanType)
-            const elIndex = lanes.findIndex(lane => lane.id === newLane.id)
-            if (elIndex >= 0) {
-                lanes[elIndex] = newLane
-            }
-        }).catch(err => {
-            Message.error(err.errMsg)
-        });
-    }
-
-    deleteLane(laneId) {
-        const lane = this.getLaneById(laneId)
-        return LaneService.deleteLane(this.id, laneId).then(() => {
-            const lanes = this.getLanesByKanbanType(lane.kanbanType)
-            const elIndex = lanes.findIndex(lane => lane.id === laneId)
-            if (elIndex >= 0) {
-                lanes.splice(elIndex, 1)
-            }
-        }).catch(err => {
-            Message.error(err.errMsg)
-        });
-    }
-
-    refreshLanes(kanbanType, laneIds = undefined) {
-        const lanes = this.getLanesByKanbanType(kanbanType)
-        const lids = laneIds ?? Object.keys(lanes.map(l => l.id))
-        for (const lid of lids) {
-            this.getLane(lid, kanbanType).refresh()
-        }
     }
 
     shuttleTask(sourceLaneId, targetLaneId, task, beforeTaskId = 0, refresh = false) {

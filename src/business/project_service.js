@@ -1,4 +1,5 @@
 import Resource from '@/utils/resource';
+import Project from '@/business/model/project'
 
 class ProjectService {
 
@@ -13,7 +14,8 @@ class ProjectService {
             'data': {
                 'with_options': {
                     'with_users': true,
-                    'with_bots': true
+                    'with_bots': true,
+                    'with_lint_kanbans': true
                 }
             }
         });
@@ -22,12 +24,16 @@ class ProjectService {
     static getLintProjects() {
         return Resource.get({
             'resource': 'project.projects',
-            'data': {}
+            'data': {
+                'with_options': {
+                    'with_lint_kanbans': true
+                }
+            }
         });
     }
 
-    static getProject(id, with_options = {}) {
-        return Resource.get({
+    static async getProject(id, with_options = {}) {
+        const data = await Resource.get({
             'resource': 'project.project',
             'data': {
                 'id': id,
@@ -35,17 +41,19 @@ class ProjectService {
                     'with_users': true,
                     'with_bots': true,
                     'with_tags': true,
-                    'with_lanes': true
+                    'with_kanbans': true
                 }
             }
-        });
+        })
+        return new Project(data)
     }
 
-    static createProject(name, desc) {
+    static createProject(name, initKanban, desc) {
         return Resource.put({
             'resource': 'project.project',
             'data': {
                 name: name,
+                init_kanban: initKanban,
                 desc: desc
             }
         });

@@ -23,13 +23,13 @@
 </template>
 
 <script setup>
-import {computed, inject, ref} from "vue";
+import {computed, inject, ref} from "vue"
 import {FormItem, InputNumber, Message, Modal, Switch} from 'view-ui-plus'
-import {useModalStore} from "@/store";
-import {storeToRefs} from "pinia";
+import {useModalStore} from "@/store"
+import {storeToRefs} from "pinia"
 
 const modalStore = useModalStore()
-const {projectId, laneModal} = storeToRefs(modalStore)
+const {laneModal} = storeToRefs(modalStore)
 
 const ruleValidate = {
   name: [
@@ -44,6 +44,9 @@ const form = ref({
   isEnd: false
 })
 const project = inject('project')
+const kanban = computed(() => {
+  return project.value.getKanbanById(laneModal.value.kanbanId)
+})
 
 modalStore.$subscribe((_, state) => {
   const store = state.laneModal
@@ -67,13 +70,13 @@ const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
       if (isCreateMode.value) {
-        project.value.addLane(form.value.name, laneModal.value.kanbanType, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
+        kanban.value.addLane(form.value.name, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
           modalStore.close('laneModal')
           Message.success('泳道已添加');
           resetForm();
         })
       } else {
-        project.value.updateLane(form.value).then(() => {
+        kanban.value.updateLane(form.value).then(() => {
           modalStore.close('laneModal')
           Message.success('更新成功');
           resetForm();

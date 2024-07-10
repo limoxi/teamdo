@@ -3,9 +3,7 @@
     <div :class="className">
       <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})</p>
       <div class="aui-i-actions">
-        <template v-if="isEpicType(kanbanType)">
-          <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action" @click="changeMode(LANE_DISPLAY_MODE_LIST)"/>
-        </template>
+        <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action" @click="changeMode(LANE_DISPLAY_MODE_LIST)"/>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
           <template #list>
@@ -37,48 +35,40 @@
     >
       <template #item="{element:task, index}">
         <TaskCard
-          v-if="currLane.isKanbanLane()"
           v-model:task="tasks[index]"
+          :kanban="kanban"
           :lane="currLane"
           :projectId="projectId"
         ></TaskCard>
-        <EpicCard
-          v-else-if="currLane.isEpicLane()"
-          v-model:task="tasks[index]"
-          :lane="currLane"
-          :projectId="projectId"
-        ></EpicCard>
       </template>
     </draggable>
     <EpicList
       v-else
+      :kanban="kanban"
       :lane="currLane"
     ></EpicList>
   </div>
 </template>
 
 <script setup>
-import {computed, inject, onMounted, ref, watch} from 'vue'
-import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal, Skeleton} from 'view-ui-plus'
+import {computed, inject, onMounted, ref} from 'vue'
+import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal} from 'view-ui-plus'
 import Draggable from 'vuedraggable'
 import {useModalStore} from '@/store'
-import EpicCard from '@/views/project/epic_card.vue'
 import EpicList from '@/views/project/epic_list.vue'
 import TaskCard from '@/views/project/task_card.vue'
-import {isEpicType, KANBAN_TYPE_EPIC, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
+import {LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
 
+const drag = ref(false)
 const modalStore = useModalStore()
 const emit = defineEmits(['onChangeDisplayMode'])
-const props = defineProps(['laneId', 'index', 'kanbanType', 'displayMode'])
+const props = defineProps(['laneId', 'index', 'kanban', 'displayMode'])
 const project = inject('project')
 const projectId = inject('projectId')
 const currLane = computed(() => {
-  return project.value.getLane(props.laneId, props.kanbanType)
+  return props.kanban.getLaneById(props.laneId)
 })
-const laneMinWidth = computed(() => {
-  return isEpicType(props.kanbanType) ? '400px' : '280px'
-})
-const drag = ref(false)
+
 
 const tasks = computed({
   get() {
@@ -179,7 +169,7 @@ const onClickAction = (name) => {
   }
 }
 
-const laneWidthGrow = isEpicType(props.kanbanType) ? 1 : 0
+const laneWidthGrow = 0
 
 defineExpose({
   loadTasks

@@ -12,27 +12,27 @@ class LaneService {
         });
     }
 
-    static addLane(projectId, newLaneName, kanbanType, afterLaneId) {
+    static addLane(projectId, kanbanId, newLaneName, afterLaneId) {
         return Resource.put({
             'resource': 'project.lane',
             'data': {
                 'project_id': projectId,
-                'kanban_type': kanbanType,
+                'kanban_id': kanbanId,
                 'name': newLaneName,
                 'after_lane_id': afterLaneId
             }
         });
     }
 
-    static updateLane(projectId, newLane) {
+    static updateLane(projectId, lane) {
         return Resource.post({
             'resource': 'project.lane',
             'data': {
                 'project_id': projectId,
-                'id': newLane.id,
-                'name': newLane.name,
-                'wip': newLane.wip,
-                'is_end': newLane.isEnd
+                'id': lane.id,
+                'name': lane.name,
+                'wip': lane.wip,
+                'is_end': lane.isEnd
             }
         });
     }

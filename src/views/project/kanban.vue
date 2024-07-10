@@ -5,7 +5,7 @@
        @keydown.esc="onEsc"
   >
     <action-bar @search="handleSearch" @on-fullscreen="onFullscreen"
-        :kanbanType="kanbanType" :displayMode="displayMode" @on-change-displayMode="onChangeDisplayMode"
+        :kanban="currKanban" :displayMode="displayMode" @on-change-displayMode="onChangeDisplayMode"
     ></action-bar>
     <draggable
         :class="classNames"
@@ -23,13 +23,14 @@
         @sort="onListChange"
     >
       <template #item="{element:lane, index}">
+        <EmptyLaneCard v-if="lane.isEmpty" :kanban="currKanban" :key="0"/>
         <LaneCard
-            v-if="showSingleLaneId === 0 || showSingleLaneId === lane.id"
+            v-else-if="!lane.isEmpty && (showSingleLaneId === 0 || showSingleLaneId === lane.id)"
             :ref="el => laneCardRefs[index] = el"
             :key="lane.id"
             :index="index"
             :laneId="lane.id"
-            :kanbanType="kanbanType"
+            :kanban="currKanban"
             :displayMode="displayMode"
             @on-change-displayMode="onChangeDisplayMode"
         />
@@ -43,37 +44,40 @@
 </template>
 
 <script setup>
-import Draggable from 'vuedraggable';
-import LaneCard from './lane_card';
+import Draggable from 'vuedraggable'
+import LaneCard from './lane_card'
+import EmptyLaneCard from './empty_lane_card'
 import ActionBar from './kanban_action_bar'
 import LaneModal from '@/components/modal/lane_modal'
 import LaneService from '@/business/lane_service'
 import {computed, inject, onBeforeUpdate, onMounted, ref} from 'vue'
 import {Message} from "view-ui-plus"
-import {isEpicType, isKanbanType, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
+import {LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
+import Lane from '@/business/model/lane'
 
 const laneCardRefs = ref([])
-const props = defineProps(['kanbanType'])
 const project = inject('project')
-const projectId = inject('projectId')
+
+const props = defineProps(['projectId', 'kanbanId'])
+const currKanban = computed(() => {
+  let kanbanId = parseInt(props.kanbanId) || 0
+  return project.value.getKanbanById(kanbanId) || {id: kanbanId}
+})
+
 const showSingleLaneId = ref(0)
 
 let drag = ref(false)
 let fullscreen = ref(false)
 
-const lanes = computed({
-  get: () => {
-    return isKanbanType(props.kanbanType)? project.value.kanbanLanes: isEpicType(props.kanbanType)? project.value.epicLanes: []
-  },
-  set: val => {
-    if (isKanbanType(props.kanbanType)) {
-      project.value.kanbanLanes = val
-    } else if (isEpicType(props.kanbanType)) {
-      project.value.epicLanes = val
-    }
+const lanes = computed(() => {
+  if (currKanban.value?.lanes?.length === 0) {
+    const emptyLane = new Lane(null, null, {isEmpty:true})
+    return [emptyLane]
+  } else {
+    return currKanban.value?.lanes || []
   }
 })
-const displayMode = ref(lanes.length === 1 ? LANE_DISPLAY_MODE_LIST : LANE_DISPLAY_MODE_CARD)
+const displayMode = ref(lanes.value.length === 1 ? LANE_DISPLAY_MODE_LIST : LANE_DISPLAY_MODE_CARD)
 
 const classNames = computed(() => {
   let cn = 'aui-board'
@@ -105,11 +109,11 @@ const onChangeDisplayMode = (mode, laneId=0) => {
 }
 
 const onListChange = (e) => {
-  LaneService.resort(projectId, project.value.getLanesByKanbanType(props.kanbanType)).then(() => {
-    Message.success('排序完成');
+  LaneService.resort(props.projectId, currKanban.value.getLanes()).then(() => {
+    Message.success('排序完成')
   }).catch(err => {
-    console.error(err);
-    Message.error('排序失败');
+    console.error(err)
+    Message.error('排序失败')
   })
 }
 

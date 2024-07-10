@@ -4,7 +4,7 @@
       :title="title"
       @on-ok="submit"
   >
-    <Form ref="projectForm" :model="form" :rules="ruleValidate" :label-width="80">
+    <Form ref="projectForm" :model="form" :rules="ruleValidate" :label-width="90">
       <FormItem label="项目名" prop="name">
         <Input v-model="form.name"/>
       </FormItem>
@@ -23,7 +23,7 @@ import ProjectService from '@/business/project_service';
 import {useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 import {computed, onMounted, ref} from "vue";
-import {Message} from "view-ui-plus";
+import {FormItem, Message, Modal, Switch} from 'view-ui-plus'
 
 const ruleValidate = {
   name: [

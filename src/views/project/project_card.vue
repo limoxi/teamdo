@@ -79,7 +79,8 @@ const onClickCard = () => {
   router.push({
     name: 'kanban',
     params: {
-      projectId: props.project.id
+      projectId: props.project.id,
+      kanbanId: props.project.kanbans.length > 0 ? props.project.kanbans[0].id : 0
     }
   })
 }

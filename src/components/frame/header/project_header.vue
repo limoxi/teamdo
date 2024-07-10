@@ -19,8 +19,7 @@
                         </template>
                     </Dropdown>
                 </MenuItem>
-                <MenuItem name="epics">需求</MenuItem>
-                <MenuItem name="kanban">看板</MenuItem>
+                <MenuItem v-for="kanban in kanbans" :key="kanban.id" :name="'kanban/'+kanban.id">{{ kanban.name }}</MenuItem>
                 <MenuItem name="members">成员</MenuItem>
                 <MenuItem name="stats">统计</MenuItem>
                 <MenuItem name="settings">设置</MenuItem>
@@ -39,7 +38,7 @@
 import Logo from '@/components/frame/block/logo';
 import Profile from '@/components/frame/block/profile';
 import ThemeControl from '@/components/frame/block/theme_control';
-import {inject, onMounted, ref} from "vue";
+import {computed, inject, onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {useConfigStore} from "@/store";
 import {storeToRefs} from "pinia";
@@ -52,45 +51,61 @@ const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
 
 const project = inject('project')
+const kanbans = computed(() => project.value.kanbans)
 const projects = ref([])
+
 
 let activeName = ref('kanban')
 
 onMounted(() => {
-    activeName.value = getDefaultActiveName()
+    activeName.value = `kanban/${kanbans.value[0]}`
     getProjects()
 })
 
-const getDefaultActiveName = () => {
-    let defaultName = 'kanban';
-    let path = router.currentRoute.value.path;
-    let splits = path.split('/');
-    let l = splits.length;
-    if (splits[l - 3] === 'project') {
-        defaultName = splits[l - 1];
-    }
-    return defaultName;
-}
 const onMenuChanged = (name) => {
     if (name !== activeName.value) {
         activeName.value = name;
+        const params = {
+          projectId: project.value.id
+        }
+        if (name.includes('kanban')) {
+          const sps = name.split('/')
+          name = sps[0]
+          params['kanbanId'] = sps[1]
+        }
         router.push({
             name: name,
-            params: {
-                projectId: project.value.id
-            }
+            params: params
         });
     }
 }
 const onSwitchProject = (pid) => {
-    window.location.href = window.location.pathname.replace(/\/project\/.*\//, `/project/${pid}/`)
+  alert(pid)
+  let newPath = window.location.pathname + ''
+  if (newPath.includes('kanban')) {
+    newPath = newPath.replace(/\/project\/.*\/kanban\/.*/, `/project/${pid}/kanban/${getFirstKanbanIdForProject(pid)}`)
+    console.log(newPath, '1111111111111111')
+  } else {
+    newPath = newPath.replace(/\/project\/.*\//, `/project/${pid}/`)
+    console.log(newPath, '22222222222222')
+  }
+  window.location.href = newPath
 }
 const getProjects = () => {
     ProjectService.getLintProjects().then(data => {
         projects.value = data;
     }).catch(err => {
         Message.error(err.errMsg)
-    });
+    })
+}
+
+const getFirstKanbanIdForProject = pid => {
+  for(const p of projects.value){
+    if (p.id === pid) {
+      return p.kanbans[0].id
+    }
+  }
+  return 0
 }
 </script>
 

@@ -23,20 +23,21 @@ import TaskLogModal from '@/components/modal/task_log_modal'
 import UserSelectModal from '@/components/modal/user_select_modal'
 import UsersSelectModal from '@/components/modal/users_select_modal'
 import EpicModal from '@/components/modal/epic_modal'
-import {provide, ref} from 'vue'
+import {onBeforeMount, provide, ref} from 'vue'
 import ProjectService from "@/business/project_service"
 import Project from "@/business/model/project"
 import {Message} from "view-ui-plus"
 
-const props = defineProps(['projectId'])
+const props = defineProps(['projectId', 'kanbanId'])
 const projectId = parseInt(props.projectId)
 provide('projectId', projectId)
-
-const project = ref(new Project({id: projectId}))
+const project = ref(new Project({
+  id: projectId
+}))
 provide('project', project)
 
-ProjectService.getProject(projectId).then(data => {
-    project.value = new Project(data)
+ProjectService.getProject(projectId).then(p => {
+  project.value = p
 })
 
 const handleAddTask = (newTask) => {

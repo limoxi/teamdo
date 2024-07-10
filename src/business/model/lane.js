@@ -1,22 +1,22 @@
 import LaneService from "@/business/lane_service";
-import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN, KANBAN_TYPE_WORK} from "./constant";
-import EpicTaskService from '@/business/epic_task_service'
 
 class Lane {
-    constructor(project, data) {
-        this.projectId = project.id
+    constructor(project, kanban, data) {
         this.id = data?.id ?? 0
         this.name = data?.name ?? ''
         this.wip = data?.wip ?? 8
         this.isEnd = data?.is_end ?? false
-        this.kanbanType = data?.kanban_type ?? KANBAN_TYPE_KANBAN
         this.managerIds = data?.manager_ids ?? []
 
         this.isFirst = false
         this.isLast = false
 
         this.tasks = []
-        this.loadingTasks = false
+
+        this.project = project
+        this.kanban = kanban
+
+        this.isEmpty = data?.isEmpty ?? false
     }
 
     setFirst() {
@@ -27,20 +27,8 @@ class Lane {
         this.isLast = true
     }
 
-    isKanbanLane() {
-        return this.kanbanType === KANBAN_TYPE_KANBAN
-    }
-
-    isEpicLane() {
-        return this.kanbanType === KANBAN_TYPE_EPIC
-    }
-
-    isWorkLane() {
-        return this.kanbanType === KANBAN_TYPE_WORK
-    }
-
     setManagers(managerIds) {
-        LaneService.setManagers(this.projectId, this.id, managerIds).then(() => {
+        LaneService.setManagers(this.project.id, this.id, managerIds).then(() => {
             this.managerIds = managerIds
         }).catch(e => {
             console.error(e)
@@ -52,27 +40,12 @@ class Lane {
     }
 
     loadTasks(filters = {}, orderFields = []) {
-        switch (this.kanbanType) {
-            case KANBAN_TYPE_KANBAN:
-                this.loadingTasks = true
-                LaneService.getTasks(this.projectId, this.id, filters, orderFields).then(respData => {
-                    this.tasks = respData.tasks
-                }).finally(() => {
-                    this.loadingTasks = false
-                })
-                break
-            case KANBAN_TYPE_EPIC:
-                this.loadingTasks = true
-                EpicTaskService.getEpicTasks(this.projectId, this.id, filters, {
-                    'with_tags': true,
-                    'with_progress': true
-                }, orderFields).then(respData => {
-                    this.tasks = respData.tasks
-                }).finally(() => {
-                    this.loadingTasks = false
-                })
-                break
-        }
+        this.loadingTasks = true
+        LaneService.getTasks(this.project.id, this.id, filters, orderFields).then(respData => {
+            this.tasks = respData.tasks
+        }).finally(() => {
+            this.loadingTasks = false
+        })
     }
 
     getTaskIndex(taskId) {

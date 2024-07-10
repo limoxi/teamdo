@@ -52,7 +52,7 @@
                                                         v-for="childAssignorId in child.assignorIds"
                                                         :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
                                                 <b style="scale: 0.5; margin-left: 10px">{{
-                                                    project.getLane(child.laneId, KANBAN_TYPE_KANBAN).name
+                                                    kanban.getLaneById(child.laneId).name
                                                     }}(#{{ child.id }})</b>
                                             </space>
                                         </Progress>
@@ -134,14 +134,13 @@ import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/con
 import {Avatar, Badge, Icon, Message, Modal, Page, Poptip, Space, Tooltip} from 'view-ui-plus'
 import ProjectSelectModal from '@/components/modal/project_select_modal'
 import TaskService from '@/business/task_service'
-import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
 
 const modalStore = useModalStore()
 
 const projectId = inject('projectId')
 const project = inject('project')
 
-const props = defineProps(['lane'])
+const props = defineProps(['lane', 'kanban'])
 const currLaneId = props.lane.id
 
 watch(() => project.value.needReloadEpics, (newV, oldV) => {

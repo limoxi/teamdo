@@ -16,7 +16,7 @@
         <Button icon="md-jet" style="border: none;"/>
         <template #list>
           <DropdownMenu>
-            <template v-for="l in project.getLanesByKanbanType(kanbanType)" :key="l.id">
+            <template v-for="l in kanban.lanes" :key="l.id">
               <DropdownItem :name="l.id">
                 {{ l.name }}
               </DropdownItem>
@@ -26,7 +26,7 @@
       </Dropdown>
     </div>
     <div class="aui-i-right">
-      <template v-if="kanbanType===KANBAN_TYPE_EPIC">
+      <template v-if="false">
         <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums-outline" class="aui-i-icon" style="font-weight: bold" @click="changeMode(LANE_DISPLAY_MODE_CARD)"/>
       </template>
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
@@ -58,13 +58,12 @@
           @onChange="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="tag in project.getTagsByKanbanType(kanbanType)" :value="tag.id" :key="tag.id">
+        <Option v-for="tag in project.getTagsByKanbanType(kanban.id)" :value="tag.id" :key="tag.id">
           <Badge :color="tag.color" :text="tag.name"/>
         </Option>
       </Select>
 
       <Select
-          v-if="isKanbanType(kanbanType)"
           filterable
           clearable
           v-model="selectedAssignorId"
@@ -84,7 +83,7 @@
         </Option>
       </Select>
       <Select
-        v-if="isEpicType(kanbanType)"
+        v-if="false"
         filterable
         clearable
         v-model="selectedCreatorId"
@@ -98,7 +97,7 @@
           }}
         </Option>
       </Select>
-      <template v-if="isEpicType(kanbanType)">
+      <template v-if="false">
         <Select style="width:140px;margin-left: 5px" v-model="orderField" @on-change="handleSearch">
           <Option value="display_index">自然排序</Option>
           <Option value="id">按创建时间</Option>
@@ -117,17 +116,14 @@
 </template>
 
 <script setup>
-import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
-import defaultAvatar from '@/assets/images/default-avatar.webp';
+import {computed, inject, ref, watch} from 'vue'
+import defaultAvatar from '@/assets/images/default-avatar.webp'
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Badge, Dropdown, DropdownItem, DropdownMenu, Icon, Message} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
-import {storeToRefs} from "pinia";
-import PinyinMatch from "pinyin-match";
+import {storeToRefs} from "pinia"
+import PinyinMatch from "pinyin-match"
 import {
-  isEpicType,
-  isKanbanType,
-  KANBAN_TYPE_EPIC,
   LANE_DISPLAY_MODE_CARD,
   LANE_DISPLAY_MODE_LIST
 } from '@/business/model/constant'
@@ -140,7 +136,7 @@ const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
 const selectModeOn = computed(() => taskMode.value === 'SELECT')
 
-const props = defineProps(['kanbanType', 'displayMode'])
+const props = defineProps(['kanban', 'displayMode'])
 
 const configStore = useConfigStore()
 const {prioritySight, storySight} = storeToRefs(configStore)
@@ -224,18 +220,7 @@ const onSwitchMode = () => {
 }
 
 const onAddTask = () => {
-  let modalName = ''
-  if (isKanbanType(props.kanbanType)) {
-    modalName = 'taskModal'
-  } else if (isEpicType(props.kanbanType)) {
-    modalName = 'epicModal'
-  }
-
-  if (modalName === '') {
-    Message.error('非法操作！')
-    return
-  }
-  modalStore.show(modalName, {
+  modalStore.show('taskModal', {
     projectId: projectId
   })
 }

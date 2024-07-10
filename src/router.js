@@ -1,5 +1,3 @@
-import {KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN} from '@/business/model/constant'
-
 const Routers = [{
     name: 'index',
     path: '/',
@@ -21,14 +19,9 @@ const Routers = [{
     props: true,
     component: () => import('@/views/project/project.vue'),
     children: [{
-        path: 'epics',
-        name: 'epics',
-        props: route => ({kanbanType: KANBAN_TYPE_EPIC}),
-        component: () => import('@/views/project/kanban.vue')
-    }, {
-        path: 'kanban',
+        path: 'kanban/:kanbanId',
         name: 'kanban',
-        props: route => ({kanbanType: KANBAN_TYPE_KANBAN}),
+        props: true,
         component: () => import('@/views/project/kanban.vue')
     }, {
         path: 'members',
