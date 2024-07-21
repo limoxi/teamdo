@@ -105,7 +105,7 @@
         </Select>
       </FormItem>
       <FormItem label="详细描述" prop="desc">
-        <Editor v-if="!isCreateMode && task.createdAt<'2024-07-20 00:00:00'" ref="editorInst" :content="form.desc"/>
+        <Editor v-if="!isCreateMode && task.createdAt<'2024-07-22 00:00:00'" ref="editorInst" :content="form.desc"/>
         <TipTapEditor v-else ref="editorInst" :content="form.desc"></TipTapEditor>
       </FormItem>
     </Form>

@@ -87,7 +87,7 @@
         <Button v-if="form.designLink !== ''" type="text" @click="onOpenLink(form.designLink)">打开</Button>
       </FormItem>
       <FormItem label="详细描述" prop="desc">
-        <Editor v-if="!isCreateMode && task.createdAt < '2024-07-20'" ref="editorInst" :content="form.desc"/>
+        <Editor v-if="!isCreateMode && task.createdAt < '2024-07-22'" ref="editorInst" :content="form.desc"/>
         <TipTapEditor v-else ref="editorInst" :content="form.desc"></TipTapEditor>
       </FormItem>
     </Form>
