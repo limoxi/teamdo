@@ -101,6 +101,7 @@ defineExpose({
     gap: 0.25rem;
     text-align: left;
     width: 100%;
+    color: whitesmoke;
 
     &:hover {
       background-color: #222;

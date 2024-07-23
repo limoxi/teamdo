@@ -7,9 +7,9 @@ import ViewUIPlus from 'view-ui-plus'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import '@/business/event_bus'
-import 'view-ui-plus/dist/styles/viewuiplus.css'
 import 'remixicon/fonts/remixicon.css'
 import 'vue3-colorpicker/style.css'
+import 'view-ui-plus/dist/styles/viewuiplus.css'
 import Cookies from 'js-cookie'
 import './echarts'
 import Vue3ColorPicker from 'vue3-colorpicker'
@@ -46,10 +46,12 @@ app
 .use(createPinia())
 .use(PrimeVue, {
     theme: {
-        preset: Aura
+        preset: Aura,
+        options: {
+            darkModeSelector: '.aui-theme-dark'
+        }
     },
-    ripple: true,
-    darkModeSelector: '.aui-theme-dark'
+    ripple: true
 })
 .use(ViewUIPlus)
 .use(Vue3ColorPicker)

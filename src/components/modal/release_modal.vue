@@ -2,28 +2,26 @@
   <Modal
     v-model="showModal"
     :title="title"
-    width="500"
+    width="80"
+    style="top:25px"
     @on-cancel="onCancel"
   >
     <Form ref="releaseForm" :model="release" :rules="ruleValidate">
       <FormItem label="版本" prop="version">
-        <Input v-model="release.version" show-word-limit maxlength="16"/>
+        <Input style="width:15vw" v-model="release.version" show-word-limit maxlength="16"/>
       </FormItem>
-      <FormItem label="标识" prop="label">
-        <Select v-model="release.label" style="width:120px">
-          <Option v-for="option in labelOptions" :key="option.value" :value="option.value">
-            {{option.label}}
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem label="标题" prop="title">
-        <Input v-model="release.title" show-word-limit maxlength="24"/>
+      <FormItem label="描述" prop="title">
+        <Space>
+          <Select v-model="release.label" style="display:inline-block;width:8vw">
+            <Option v-for="option in labelOptions" :key="option.value" :value="option.value">
+              {{option.label}}
+            </Option>
+          </Select>
+          <Input style="width: 60vw" v-model="release.title" show-word-limit maxlength="24"/>
+        </Space>
       </FormItem>
       <FormItem label="详情" prop="detail">
-        <Input v-model="release.detail"
-               type="textarea"
-               :autosize="{minRows: 1}"
-        />
+        <TipTapEditor ref="editorInst" :content="release.detail"></TipTapEditor>
       </FormItem>
     </Form>
     <template #footer>
@@ -34,8 +32,9 @@
 
 <script setup>
 import {computed, ref} from 'vue'
-import {Form, FormItem, Message, Modal} from 'view-ui-plus'
+import {Form, FormItem, Message, Modal, Space} from 'view-ui-plus'
 import ReleaseService from '@/business/release_service'
+import TipTapEditor from '@/components/editor_tiptap/editor'
 
 const labelOptions = [{
   'label': '里程碑',
@@ -48,6 +47,7 @@ const labelOptions = [{
   'value': 'bugfix'
 }]
 
+const editorInst = ref(null)
 const showModal = ref(false)
 const emit = defineEmits(['onSubmitted'])
 const release = ref({
@@ -79,12 +79,13 @@ const onSubmit = () => {
   releaseForm.value.validate((valid) => {
     if (valid) {
       let outlines = []
+      const detail = editorInst.value.getContent()
       if (isCreateMode.value) {
         ReleaseService.newRelease(
           release.value.version,
           release.value.label,
           release.value.title,
-          release.value.detail,
+          detail,
           outlines
         ).then(() => {
           Message.success('添加成功')
@@ -100,7 +101,7 @@ const onSubmit = () => {
           release.value.version,
           release.value.label,
           release.value.title,
-          release.value.detail,
+          detail,
           outlines
         ).then(() => {
           Message.success('更新成功')
@@ -136,6 +137,6 @@ defineExpose({
 
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 
 </style>
