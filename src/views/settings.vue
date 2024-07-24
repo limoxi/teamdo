@@ -25,7 +25,7 @@
         </List>
         <div class="aui-i-content">
           <template v-if="activeMenu === 'sys'">
-            <H3>开发中...</H3>
+            <Title :level="3">开发中...</Title>
           </template>
           <template v-else-if="activeMenu === 'roles'">
             <Button icon="md-add" @click="" style="margin-bottom: 15px">添加角色</Button>
@@ -42,7 +42,7 @@
           </template>
           <template v-else-if="activeMenu === 'releases'">
             <Button icon="md-add" @click="releaseModal.show()" class="aui-i-add-btn">发布更新</Button>
-            <Releases ref="releasesRef"/>
+            <Releases ref="releasesRef" @on-click-release="releaseModal.show"/>
           </template>
         </div>
       </div>

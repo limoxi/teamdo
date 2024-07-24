@@ -3,7 +3,6 @@
     v-if="editor"
     :editor="editor"
     :should-show="(inst) => {
-        console.log(inst.state.selection.empty)
         return !inst.editor.isActive('image') && !inst.state.selection.empty
       }"
     :tippy-options="{ duration: 100 }"
@@ -22,7 +21,7 @@
   </BubbleMenu>
   <Popover ref="showColorPicker" :baseZIndex="9999" appendTo="body">
     <ColorPicker :debounce="100" :isWidget="true" format="hex"
-                 pickerType="fk" roundHistory="true" shape="circle" @pureColorChange="onChangeColor"/>
+                 pickerType="fk" :roundHistory="true" shape="circle" @pureColorChange="onChangeColor"/>
   </Popover>
 </template>
 
@@ -32,6 +31,7 @@ import {BubbleMenu} from '@tiptap/vue-3'
 import Button from 'primevue/button'
 import Menubar from 'primevue/menubar'
 import Popover from 'primevue/popover'
+import {ColorPicker} from 'vue3-colorpicker'
 import {ref} from 'vue'
 
 const props = defineProps(['editor'])

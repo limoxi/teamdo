@@ -12,7 +12,6 @@ import 'vue3-colorpicker/style.css'
 import 'view-ui-plus/dist/styles/viewuiplus.css'
 import Cookies from 'js-cookie'
 import './echarts'
-import Vue3ColorPicker from 'vue3-colorpicker'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -54,5 +53,4 @@ app
     ripple: true
 })
 .use(ViewUIPlus)
-.use(Vue3ColorPicker)
 .mount('#app')

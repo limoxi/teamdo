@@ -20,7 +20,7 @@
           <Input style="width: 60vw" v-model="release.title" show-word-limit maxlength="24"/>
         </Space>
       </FormItem>
-      <FormItem label="详情" prop="detail">
+      <FormItem prop="detail">
         <TipTapEditor ref="editorInst" :content="release.detail"></TipTapEditor>
       </FormItem>
     </Form>
@@ -78,7 +78,7 @@ let title = computed(() => {
 const onSubmit = () => {
   releaseForm.value.validate((valid) => {
     if (valid) {
-      let outlines = []
+      const outlines = editorInst.value.getOutlines()
       const detail = editorInst.value.getContent()
       if (isCreateMode.value) {
         ReleaseService.newRelease(
@@ -125,8 +125,12 @@ const onCancel = () => {
 }
 
 const show = (curRelease = null) => {
-  if (curRelease) {
-    release.value = curRelease
+  if (curRelease?.id > 0) {
+    release.value.id = curRelease.id
+    release.value.version = curRelease.version
+    release.value.label = curRelease.label
+    release.value.title = curRelease.title
+    release.value.detail = curRelease.detail
   }
   showModal.value = true
 }

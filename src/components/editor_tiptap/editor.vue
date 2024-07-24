@@ -17,7 +17,7 @@ import {Color} from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
 import {ImagePreview} from 'view-ui-plus'
 import BubbleMenuBlock from './bubble_menu'
-import {ref} from 'vue'
+import {ref, watch} from 'vue'
 import {Link} from '@tiptap/extension-link'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
@@ -26,6 +26,11 @@ import suggestion from './slash/suggestion.js'
 import {Placeholder} from '@tiptap/extension-placeholder'
 
 const props = defineProps(['readonly', 'content'])
+watch(props, (newV, oldV) => {
+  if (newV.content) {
+    setContent(newV.content)
+  }
+})
 
 const showImage = ref(false)
 const previewImages = ref([])
@@ -64,13 +69,16 @@ const onClickEditor = e => {
   }
 }
 
+const setContent = (content) => {
+  editor.value.commands.setContent(content)
+}
+
 defineExpose({
   getContent: () => {
     return editor.value.getHTML()
   },
   getAttentions: () => {
     const jsonData = editor.value.getJSON()
-    console.log(jsonData)
     let attentions = []
     for (const item of jsonData.content) {
       if (item.type === 'taskList') {
@@ -98,7 +106,32 @@ defineExpose({
     return attentions
 
   },
-  resetContent: (text) => editor.value.commands.setContent(text)
+  getOutlines: () => {
+    const jsonData = editor.value.getJSON()
+    let outlines = []
+    for (const item of jsonData.content) {
+      if (item.type === 'bulletList') {
+        for (const taskItem of item.content) {
+          if (taskItem.type === 'listItem') {
+            let content = ''
+            for (const innerItem of taskItem.content) {
+              if (innerItem.type === 'paragraph') {
+                for (const textItem of innerItem.content) {
+                  if (textItem.type === 'text') {
+                    content = textItem.text
+                  }
+                }
+              }
+            }
+            outlines.push(content)
+          }
+        }
+      }
+    }
+    return outlines
+
+  },
+  resetContent: (text) => setContent(text)
 })
 
 </script>
