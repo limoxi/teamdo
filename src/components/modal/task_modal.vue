@@ -307,7 +307,7 @@ const handleDelete = () => {
 </script>
 
 <style lang="less" scoped>
-:deep(.aui-task-model) {
+.aui-task-model {
   .aui-i-spRemark {
     margin-left: 10px;
     color: darkgrey;
@@ -340,17 +340,17 @@ const handleDelete = () => {
     .aui-i-assignor {
       position: relative;
       margin-right: 5px;
-    }
 
-    .aui-i-del-btn {
-      position: absolute;
-      font-size: 18px;
-      top: -15px;
-      right: -8px;
-      z-index: 1;
+      .aui-i-del-btn {
+        position: absolute;
+        font-size: 18px;
+        top: -15px;
+        right: -8px;
+        z-index: 1;
 
-      &:hover {
-        cursor: pointer;
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }
