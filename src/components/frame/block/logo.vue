@@ -6,7 +6,10 @@
 </template>
 
 <script>
+import {Icon} from 'view-ui-plus'
+
 export default {
+  components: {Icon},
   data() {
     return {
       showHelp: false
@@ -16,7 +19,7 @@ export default {
     onClickLogo() {
       this.$router.push({
         'name': 'projects'
-      });
+      })
     }
   }
 }

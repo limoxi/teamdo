@@ -1,7 +1,7 @@
 <template>
   <div v-if="editor">
     <BubbleMenuBlock :editor="editor"/>
-    <editor-content v-if="editor" :editor="editor" class="tiptap-editor-wrapper" @click="onClickEditor"/>
+    <editor-content v-if="editor" :editor="editor" :class="classes" @click="onClickEditor"/>
   </div>
   <ImagePreview
     v-model="showImage"
@@ -17,7 +17,7 @@ import {Color} from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
 import {ImagePreview} from 'view-ui-plus'
 import BubbleMenuBlock from './bubble_menu'
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {Link} from '@tiptap/extension-link'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
@@ -30,6 +30,15 @@ watch(props, (newV, oldV) => {
   if (newV.content) {
     setContent(newV.content)
   }
+})
+
+const classes = computed(() => {
+  return [
+    'tiptap-editor-wrapper',
+    {
+      'no-border': props.readonly
+    }
+  ]
 })
 
 const showImage = ref(false)

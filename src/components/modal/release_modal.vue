@@ -2,7 +2,7 @@
   <Modal
     v-model="showModal"
     :title="title"
-    width="80"
+    width="70"
     style="top:25px"
     @on-cancel="onCancel"
   >

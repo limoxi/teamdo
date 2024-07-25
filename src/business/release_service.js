@@ -13,6 +13,22 @@ class ReleaseService {
         })
     }
 
+    static getLatestRelease() {
+        return Resource.get({
+            'resource': 'system.latest_release',
+            'data': {}
+        })
+    }
+
+    static getReleaseById(releaseId) {
+        return Resource.get({
+            'resource': 'system.release',
+            'data': {
+                id: releaseId
+            }
+        })
+    }
+
     static newRelease(version, label, title, detail, outlines) {
         return Resource.put({
             'resource': 'system.release',
