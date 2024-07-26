@@ -16,6 +16,20 @@
     <div class="item" v-else>
       No result
     </div>
+    <Modal
+      v-model="showLinkModal"
+      :closable="false"
+      :draggable="true"
+      footer-hide
+      @on-cancel="onCloseLinkModal"
+      :z-index="9999"
+    >
+      <div style="display: flex;justify-content: space-between;align-items: baseline">
+        <Input placeholder="输入链接地址..." v-model="linkUrl" type="url" clearable border
+               style="width: 85%"/>
+        <Button label="确定" severity="success" text @click="onConfirmLink"/>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -23,8 +37,12 @@
 
 import {ref, watch} from 'vue'
 import Button from 'primevue/button'
+import {Input, Modal} from 'view-ui-plus'
 
 const selectedIndex = ref(0)
+const linkUrl = ref('')
+const showLinkModal = ref(false)
+const currItem = ref(null)
 
 const props = defineProps({
   items: Array,
@@ -69,9 +87,29 @@ const enterHandler = () => {
 const selectItem = (index) => {
   const item = props.items[index]
 
+  if (item.title === 'Image') {
+    showLinkModal.value = true
+    currItem.value = item
+    return
+  }
+
   if (item) {
     props.command(item)
   }
+}
+
+const onConfirmLink = () => {
+  if (currItem.value) {
+    currItem.value.src = linkUrl.value
+    props.command(currItem.value)
+    onCloseLinkModal()
+  }
+}
+
+const onCloseLinkModal = () => {
+  showLinkModal.value = false
+  linkUrl.value = ''
+  currItem.value = null
 }
 
 defineExpose({

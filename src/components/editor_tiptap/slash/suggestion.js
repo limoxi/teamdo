@@ -5,29 +5,7 @@ import tippy from 'tippy.js'
 export default {
     items: ({query}) => {
         return [{
-            title: 'Heading 1',
-            icon: 'ri-h-1',
-            command: ({editor, range}) => {
-                editor
-                .chain()
-                .focus()
-                .deleteRange(range)
-                .setNode('heading', {level: 1})
-                .run()
-            }
-        }, {
-            title: 'Heading 2',
-            icon: 'ri-h-2',
-            command: ({editor, range}) => {
-                editor
-                .chain()
-                .focus()
-                .deleteRange(range)
-                .setNode('heading', {level: 2})
-                .run()
-            }
-        }, {
-            title: 'Heading 3',
+            title: 'Heading',
             icon: 'ri-h-3',
             command: ({editor, range}) => {
                 editor
@@ -38,7 +16,31 @@ export default {
                 .run()
             }
         }, {
-            title: 'Bullet List',
+            title: 'TaskList',
+            icon: 'ri-list-check-3',
+            command: ({editor, range}) => {
+                editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .toggleTaskList()
+                .run()
+            }
+        }, {
+            title: 'Image',
+            icon: 'ri-image-add-line',
+            command: ({editor, range, props}) => {
+                if (props?.src) {
+                    editor
+                    .chain()
+                    .focus()
+                    .deleteRange(range)
+                    .setImage({src: props.src})
+                    .run()
+                }
+            }
+        }, {
+            title: 'BulletList',
             icon: 'ri-list-unordered',
             command: ({editor, range}) => {
                 editor
@@ -49,7 +51,7 @@ export default {
                 .run()
             }
         }, {
-            title: 'Numbered List',
+            title: 'NumberedList',
             icon: 'ri-list-ordered',
             command: ({editor, range}) => {
                 editor
@@ -57,17 +59,6 @@ export default {
                 .focus()
                 .deleteRange(range)
                 .toggleOrderedList()
-                .run()
-            }
-        }, {
-            title: 'Task List',
-            icon: 'ri-list-check-3',
-            command: ({editor, range}) => {
-                editor
-                .chain()
-                .focus()
-                .deleteRange(range)
-                .toggleTaskList()
                 .run()
             }
         }, {
@@ -82,7 +73,7 @@ export default {
                 .run()
             }
         }, {
-            title: 'Code Block',
+            title: 'CodeBlock',
             icon: 'ri-code-s-slash-line',
             command: ({editor, range}) => {
                 editor
@@ -135,8 +126,6 @@ export default {
 
                     return true
                 }
-
-                console.log(component.ref)
 
                 return component.ref?.onKeyDown(props)
             },

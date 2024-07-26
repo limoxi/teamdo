@@ -9,9 +9,7 @@ export default Extension.create({
             suggestion: {
                 char: '/',
                 command: ({editor, range, props}) => {
-                    console.log(11111111111)
-                    console.log(range, props)
-                    props.command({editor, range})
+                    props.command({editor, range, props})
                 }
             }
         }

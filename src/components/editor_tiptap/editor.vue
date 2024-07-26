@@ -69,6 +69,15 @@ const editor = useEditor({
   ],
   content: props.content,
   editable: !props.readonly
+  // editorProps: {
+  //   handlePaste: function (view, event, slice) {
+  //     const items = Array.from(event.clipboardData?.items || [])
+  //     for (const item of items) {
+  //       console.log(item)
+  //     }
+  //     return false // not handled use default behaviour
+  //   }
+  // }
 })
 
 const onClickEditor = e => {
