@@ -24,6 +24,9 @@ import TaskList from '@tiptap/extension-task-list'
 import SlashPlugin from './slash/plugin.js'
 import suggestion from './slash/suggestion.js'
 import {Placeholder} from '@tiptap/extension-placeholder'
+import Resource from '@/utils/resource'
+import FileHandler from '@tiptap-pro/extension-file-handler'
+import Video from '@/components/editor_tiptap/video'
 
 const props = defineProps(['readonly', 'content'])
 watch(props, (newV, oldV) => {
@@ -40,6 +43,8 @@ const classes = computed(() => {
     }
   ]
 })
+
+const validMimeTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'video/webm', 'video/mp4']
 
 const showImage = ref(false)
 const previewImages = ref([])
@@ -60,24 +65,52 @@ const editor = useEditor({
       inline: true,
       allowBase64: true
     }),
+    Video.configure({
+      inline: true,
+      allowBase64: true
+    }),
     SlashPlugin.configure({
       suggestion
     }),
     Placeholder.configure({
       placeholder: 'Type / to browse options'
+    }),
+    FileHandler.configure({
+      onPaste: (currentEditor, files, htmlContent) => {
+        files.forEach(file => {
+          console.log(file)
+          if (!validMimeTypes.includes(file.type)) {
+            alert('不支持的文件类型')
+            return true
+          }
+          if (htmlContent) {
+            // if there is htmlContent, stop manual insertion & let other extensions handle insertion via inputRule
+            // you could extract the pasted file from this url string and upload it to a server for example
+            console.log(htmlContent) // eslint-disable-line no-console
+            return false
+          }
+
+          if (file.size / 1024 / 1024 > 100) {
+            alert('只支持100M以下的文件！')
+            return true
+          }
+          const fileType = file.type.split('/')[0]
+
+          Resource.uploadFile(file, true).then(data => {
+            currentEditor.chain().insertContentAt(currentEditor.state.selection.anchor, {
+              type: fileType,
+              attrs: {
+                src: data.path
+              }
+            }).focus().run()
+          })
+        })
+      }
     })
   ],
   content: props.content,
-  editable: !props.readonly
-  // editorProps: {
-  //   handlePaste: function (view, event, slice) {
-  //     const items = Array.from(event.clipboardData?.items || [])
-  //     for (const item of items) {
-  //       console.log(item)
-  //     }
-  //     return false // not handled use default behaviour
-  //   }
-  // }
+  editable: !props.readonly,
+  editorProps: {}
 })
 
 const onClickEditor = e => {

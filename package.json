@@ -32,6 +32,7 @@
     "@milkdown/vue": "^6.5.4",
     "@primevue/themes": "^4.0.0",
     "@remixicon/vue": "^4.2.0",
+    "@tiptap-pro/extension-file-handler": "^2.10.5",
     "@tiptap/core": "^2.5.4",
     "@tiptap/extension-bubble-menu": "^2.5.0",
     "@tiptap/extension-color": "^2.5.1",
