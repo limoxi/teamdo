@@ -1,14 +1,15 @@
 <template>
   <div @click="configStore.switchTheme" :class="theme">
-    {{ desc }}
+    {{desc}}
     <Icon :type="btnType"/>
   </div>
 </template>
 
 <script setup>
-import {computed} from "vue";
-import {useConfigStore} from "@/store";
-import {storeToRefs} from "pinia";
+import {computed} from 'vue'
+import {useConfigStore} from '@/store'
+import {storeToRefs} from 'pinia'
+import {Icon} from 'view-ui-plus'
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)

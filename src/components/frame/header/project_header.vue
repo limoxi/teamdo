@@ -1,49 +1,60 @@
 <template>
-    <div class="aui-header">
-        <logo></logo>
-        <div class="aui-i-menu">
-            <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
-                <MenuItem name="projects">
-                    <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
+  <div class="aui-header">
+    <logo></logo>
+    <div class="aui-i-menu">
+      <Menu mode="horizontal" :theme="theme" :active-name="activeName" @on-select="onMenuChanged">
+        <MenuItem name="projects">
+          <Dropdown transfer placement="right-start" @on-click="onSwitchProject">
                         <span>
                           项目<Icon type="ios-arrow-down"></Icon>
                         </span>
-                        <template #list>
-                            <DropdownMenu>
-                                <DropdownItem v-for="p in projects" :key="p.id"
-                                              :disabled="p.id === project.id"
-                                              :name="p.id"
-                                >{{ p.name }}
-                                </DropdownItem>
-                            </DropdownMenu>
-                        </template>
-                    </Dropdown>
-                </MenuItem>
-                <MenuItem v-for="kanban in kanbans" :key="kanban.id" :name="'kanban/'+kanban.id">{{ kanban.name }}</MenuItem>
-                <MenuItem name="members">成员</MenuItem>
-                <MenuItem name="stats">统计</MenuItem>
-                <MenuItem name="settings">设置</MenuItem>
-            </Menu>
-        </div>
-        <theme-control></theme-control>
-        <div class="aui-i-subtitle">
-            <strong>{{ project.name }}</strong>
-        </div>
-        <div class="aui-i-profile">
-            <profile></profile>
-        </div>
+            <template #list>
+              <DropdownMenu>
+                <DropdownItem v-for="p in projects" :key="p.id"
+                              :disabled="p.id === project.id"
+                              :name="p.id"
+                >{{p.name}}
+                </DropdownItem>
+              </DropdownMenu>
+            </template>
+          </Dropdown>
+        </MenuItem>
+        <MenuItem v-for="kanban in kanbans" :key="kanban.id" :name="'kanban/'+kanban.id">{{kanban.name}}</MenuItem>
+        <MenuItem name="members">成员</MenuItem>
+        <MenuItem name="stats">统计</MenuItem>
+        <MenuItem name="settings">设置</MenuItem>
+      </Menu>
     </div>
+    <theme-control></theme-control>
+    <div class="aui-i-subtitle">
+      <strong>{{project.name}}</strong>
+    </div>
+    <div class="aui-i-profile">
+      <profile></profile>
+    </div>
+  </div>
+
+  <Icon type="ios-megaphone" class="aui-release-btn" @click="releaseRef?.show"/>
+  <ThemeControl/>
+  <div class="aui-i-subtitle">
+    <strong>{{project.name}}</strong>
+  </div>
+  <div class="aui-i-profile">
+    <profile></profile>
+  </div>
+  <ReleaseViewModal ref="releaseRef"/>
 </template>
 <script setup>
-import Logo from '@/components/frame/block/logo';
-import Profile from '@/components/frame/block/profile';
-import ThemeControl from '@/components/frame/block/theme_control';
+import Logo from '@/components/frame/block/logo'
+import Profile from '@/components/frame/block/profile'
+import ThemeControl from '@/components/frame/block/theme_control'
 import {computed, inject, onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {useConfigStore} from "@/store";
-import {storeToRefs} from "pinia";
+import {useConfigStore} from '@/store'
+import {storeToRefs} from 'pinia'
 import {Dropdown, DropdownItem, DropdownMenu, Icon, MenuItem, Message} from 'view-ui-plus'
-import ProjectService from "../../../business/project_service";
+import ProjectService from '../../../business/project_service'
+import ReleaseViewModal from '@/components/modal/release_view_modal.vue'
 
 const router = useRouter()
 
@@ -56,28 +67,29 @@ const projects = ref([])
 
 
 let activeName = ref('kanban')
+const releaseRef = ref(null)
 
 onMounted(() => {
-    activeName.value = `kanban/${kanbans.value[0]}`
-    getProjects()
+  activeName.value = `kanban/${kanbans.value[0]}`
+  getProjects()
 })
 
 const onMenuChanged = (name) => {
-    if (name !== activeName.value) {
-        activeName.value = name;
-        const params = {
-          projectId: project.value.id
-        }
-        if (name.includes('kanban')) {
-          const sps = name.split('/')
-          name = sps[0]
-          params['kanbanId'] = sps[1]
-        }
-        router.push({
-            name: name,
-            params: params
-        });
+  if (name !== activeName.value) {
+    activeName.value = name
+    const params = {
+      projectId: project.value.id
     }
+    if (name.includes('kanban')) {
+      const sps = name.split('/')
+      name = sps[0]
+      params['kanbanId'] = sps[1]
+    }
+    router.push({
+      name: name,
+      params: params
+    })
+  }
 }
 const onSwitchProject = (pid) => {
   alert(pid)
@@ -92,15 +104,15 @@ const onSwitchProject = (pid) => {
   window.location.href = newPath
 }
 const getProjects = () => {
-    ProjectService.getLintProjects().then(data => {
-        projects.value = data;
-    }).catch(err => {
-        Message.error(err.errMsg)
-    })
+  ProjectService.getLintProjects().then(data => {
+    projects.value = data
+  }).catch(err => {
+    Message.error(err.errMsg)
+  })
 }
 
 const getFirstKanbanIdForProject = pid => {
-  for(const p of projects.value){
+  for (const p of projects.value) {
     if (p.id === pid) {
       return p.kanbans[0].id
     }
@@ -113,6 +125,15 @@ const getFirstKanbanIdForProject = pid => {
 .aui-header {
   .aui-i-subtitle {
     font-size: 16px;
+  }
+
+  .aui-release-btn {
+    font-size: 18px;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.1);
+    }
   }
 }
 </style>

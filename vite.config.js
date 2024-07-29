@@ -25,7 +25,7 @@ export default defineConfig({
         postcss: {
             plugins: [
                 autoprefixer
-            ],
+            ]
         }
     },
     server: {
@@ -40,7 +40,7 @@ export default defineConfig({
             '/iteamdo': {  // 本地启动服务端时使用
                 target: 'http://127.0.0.1:8341',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/iteamdo/, "")
+                rewrite: (path) => path.replace(/^\/iteamdo/, '')
             }
         }
     }

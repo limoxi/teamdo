@@ -1,20 +1,20 @@
 <template>
   <Modal
-      v-model="showModal"
-      :title="title"
-      width="500"
-      @on-cancel="onCancel"
+    v-model="showModal"
+    :title="title"
+    width="500"
+    @on-cancel="onCancel"
   >
-    <Form ref="botForm" v-model="bot" :rules="ruleValidate">
+    <Form ref="botForm" :model="bot" :rules="ruleValidate">
       <FormItem class="aui-uploader-wrapper">
         <uploader
-            ref="upload"
-            v-model:src="bot.avatar"
+          ref="upload"
+          v-model:src="bot.avatar"
         >
         </uploader>
       </FormItem>
       <FormItem label="名称" prop="name">
-        <Input v-model="bot.name" show-word-limit maxlength="24" />
+        <Input v-model="bot.name" show-word-limit maxlength="24"/>
       </FormItem>
       <FormItem label="Token" prop="token">
         <Input v-model="bot.token" show-word-limit maxlength="128"
@@ -35,9 +35,9 @@
 
 <script setup>
 import BotService from '@/business/bot_service'
-import defaultBotAvatar from '@/assets/images/default-bot-avatar.png';
-import {computed, ref} from "vue"
-import {Message, Modal} from 'view-ui-plus'
+import defaultBotAvatar from '@/assets/images/default-bot-avatar.png'
+import {computed, ref} from 'vue'
+import {FormItem, Message, Modal} from 'view-ui-plus'
 import Uploader from '@/components/uploader'
 
 const showModal = ref(false)
@@ -64,7 +64,7 @@ let isCreateMode = computed(() => {
   return bot.value.id === 0
 })
 let title = computed(() => {
-  return isCreateMode.value ? '添加机器人' : '编辑机器人';
+  return isCreateMode.value ? '添加机器人' : '编辑机器人'
 })
 
 const onDelete = () => {
@@ -74,18 +74,18 @@ const onDelete = () => {
     loading: true,
     onOk: () => {
       BotService.deleteBot(
-          bot.value.id
+        bot.value.id
       ).then(() => {
-        Message.success('删除成功');
-        resetForm();
-        emit('onSubmitted');
+        Message.success('删除成功')
+        resetForm()
+        emit('onSubmitted')
         Modal.remove()
         showModal.value = false
       }).catch(err => {
-        Message.error(err.errMsg);
-      });
+        Message.error(err.errMsg)
+      })
     }
-  });
+  })
 }
 
 const onSubmit = () => {
@@ -93,39 +93,39 @@ const onSubmit = () => {
     if (valid) {
       if (isCreateMode.value) {
         BotService.addBot(
-            bot.value.name,
-            bot.value.token,
-            bot.value.avatar,
-            bot.value.remark
+          bot.value.name,
+          bot.value.token,
+          bot.value.avatar,
+          bot.value.remark
         ).then(() => {
-          Message.success('添加成功');
-          resetForm();
-          emit('onSubmitted');
+          Message.success('添加成功')
+          resetForm()
+          emit('onSubmitted')
           showModal.value = false
         }).catch(err => {
-          Message.error(err.errMsg);
-        });
+          Message.error(err.errMsg)
+        })
       } else {
         BotService.updateBot(
-            bot.value.id,
-            bot.value.name,
-            bot.value.avatar,
-            bot.value.remark
+          bot.value.id,
+          bot.value.name,
+          bot.value.avatar,
+          bot.value.remark
         ).then(() => {
-          Message.success('更新成功');
-          resetForm();
-          emit('onSubmitted');
+          Message.success('更新成功')
+          resetForm()
+          emit('onSubmitted')
           showModal.value = false
         }).catch(err => {
-          Message.error(err.errMsg);
-        });
+          Message.error(err.errMsg)
+        })
       }
     }
   })
 }
 
 const resetForm = () => {
-  botForm.value.resetFields();
+  botForm.value.resetFields()
 }
 
 const onCancel = () => {

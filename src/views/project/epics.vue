@@ -150,7 +150,7 @@ import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service'
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
-import {Message, Modal, Space} from 'view-ui-plus'
+import {Avatar, Badge, Icon, Message, Modal, Page, Poptip, Result, Skeleton, Space, Tooltip} from 'view-ui-plus'
 import ProjectSelectModal from '@/components/modal/project_select_modal'
 import TaskService from '@/business/task_service'
 import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'

@@ -1,8 +1,8 @@
 <template>
   <Dropdown :style="dropDownStyle" trigger="click" placement="bottom-end" @on-click="onClickItem">
     <Avatar v-if="avatar" :src="avatar" class="aui-profile-avatar"/>
-    <Avatar v-else style="background-color: #2d8cf0">{{ nickname[0] }}</Avatar>
-    <Badge style="position: absolute; bottom: 0;display: inline-block" :status="sseStatus" />
+    <Avatar v-else style="background-color: #2d8cf0">{{nickname[0]}}</Avatar>
+    <Badge style="position: absolute; bottom: 0;display: inline-block" :status="sseStatus"/>
 
     <template #list>
       <DropdownMenu>
@@ -14,12 +14,12 @@
     </template>
 
     <password-modal
-        v-model:show="showPwdModel"
+      v-model:show="showPwdModel"
     ></password-modal>
     <user-modal
-        v-model:show="showUserModel"
-        :user="{'nickname': nickname, 'avatar': avatar}"
-        mode="update"
+      v-model:show="showUserModel"
+      :user="{'nickname': nickname, 'avatar': avatar}"
+      mode="update"
     ></user-modal>
   </Dropdown>
 </template>
@@ -28,7 +28,7 @@
 import PasswordModal from '../../modal/password_modal'
 import UserModal from '@/components/modal/user_modal'
 import Cookies from 'js-cookie'
-import {onMounted, ref} from "vue"
+import {onMounted, ref} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useUserStore} from '@/store'
 import {useRouter} from 'vue-router'

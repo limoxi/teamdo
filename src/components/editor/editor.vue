@@ -4,15 +4,16 @@
 </template>
 
 <script setup>
-import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/core';
-import {getMarkdown, replaceAll} from '@milkdown/utils';
-import {listener} from '@milkdown/plugin-listener';
-import {useEditor, VueEditor} from '@milkdown/vue';
-import {nord} from '@milkdown/theme-nord';
-import {gfm} from '@milkdown/preset-gfm';
-import {onBeforeUnmount, ref, watch} from "vue";
-import {tooltip} from "@milkdown/plugin-tooltip";
+import {defaultValueCtx, Editor, editorViewOptionsCtx, rootCtx} from '@milkdown/core'
+import {getMarkdown, replaceAll} from '@milkdown/utils'
+import {listener} from '@milkdown/plugin-listener'
+import {useEditor, VueEditor} from '@milkdown/vue'
+import {nord} from '@milkdown/theme-nord'
+import {gfm} from '@milkdown/preset-gfm'
+import {onBeforeUnmount, ref, watch} from 'vue'
+import {tooltip} from '@milkdown/plugin-tooltip'
 import slash from './slash'
+import {ImagePreview} from 'view-ui-plus'
 
 const props = defineProps(['readonly', 'content'])
 
@@ -23,16 +24,16 @@ let ei
 
 const {editor} = useEditor((root) => {
   ei = Editor.make()
-      .config((ctx) => {
-        ctx.set(rootCtx, root)
-        ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
-        ctx.set(defaultValueCtx, props.content)
-      })
-      .use(nord)
-      .use(gfm)
-      .use(tooltip)
-      .use(slash)
-      .use(listener)
+  .config((ctx) => {
+    ctx.set(rootCtx, root)
+    ctx.set(editorViewOptionsCtx, {editable: () => !props.readonly})
+    ctx.set(defaultValueCtx, props.content)
+  })
+  .use(nord)
+  .use(gfm)
+  .use(tooltip)
+  .use(slash)
+  .use(listener)
 
   return ei
 })
@@ -65,11 +66,15 @@ const resetContent = (content) => {
   previewImages.value = []
 }
 
+const getAttentions = () => {
+  return []
+}
+
 onBeforeUnmount(() => {
   ei.destroy()
 })
 
-defineExpose({getContent, resetContent})
+defineExpose({getContent, resetContent, getAttentions})
 
 </script>
 

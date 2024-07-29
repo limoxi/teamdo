@@ -1,6 +1,6 @@
-import Resource from '@/utils/resource';
-import Task from "./model/task";
-import TaskActionLog from "./model/task_action_log"
+import Resource from '@/utils/resource'
+import Task from './model/task'
+import TaskActionLog from './model/task_action_log'
 
 class TaskService {
 
@@ -16,18 +16,18 @@ class TaskService {
         }
 
         if (page) {
-            data['cur_page'] = page.cur_page;
-            data['count_per_page'] = page.count_per_page;
+            data['cur_page'] = page.cur_page
+            data['count_per_page'] = page.count_per_page
         }
 
         if (withOptions) {
-            data['with_options'] = withOptions;
+            data['with_options'] = withOptions
         }
 
         return Resource.get({
             'resource': 'project.tasks',
             'data': data
-        });
+        })
     }
 
     static async getUserTasks(filters, page, orderFields = null) {
@@ -40,7 +40,7 @@ class TaskService {
                 'with_project': true
             },
             'cur_page': page.curPage,
-            'page_size': page.pageSize,
+            'page_size': page.pageSize
         }
         if (orderFields.length > 0) {
             data['order_fields'] = orderFields
@@ -49,7 +49,7 @@ class TaskService {
         const respData = await Resource.get({
             'resource': 'user.projects_tasks',
             'data': data
-        });
+        })
         return {
             tasks: respData.tasks.map(task => new Task(task)),
             pageInfo: respData.page_info
@@ -67,18 +67,18 @@ class TaskService {
         }
 
         if (page) {
-            data['cur_page'] = page.curPage;
-            data['page_size'] = page.pageSize;
+            data['cur_page'] = page.curPage
+            data['page_size'] = page.pageSize
         }
 
         if (withOptions) {
-            data['with_options'] = withOptions;
+            data['with_options'] = withOptions
         }
 
         const respData = await Resource.get({
             'resource': 'user.joined_tasks',
             'data': data
-        });
+        })
         return {
             tasks: respData.tasks.map(task => new Task(task)),
             pageInfo: respData.page_info
@@ -99,7 +99,7 @@ class TaskService {
         let data = {
             'project_id': projectId,
             'task_id': taskId
-        };
+        }
         if (withAll) {
             data['with_options'] = {
                 'with_users': true,
@@ -145,6 +145,7 @@ class TaskService {
                 'assignor_ids': task.assignorIds,
                 'parent_id': task.relatedTaskId,
                 'desc': task.desc,
+                'meta_data': task.metaData,
                 'tag_ids': task.tagIds
             }
         })
@@ -223,4 +224,4 @@ class TaskService {
     }
 }
 
-export default TaskService;
+export default TaskService
