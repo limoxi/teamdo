@@ -30,15 +30,11 @@
           clearable
           v-model="selectedCreatorId"
           placeholder="维护人"
-          @on-query-change="(query) => {queryAssignor = query}"
+          :remote-method="searchUser"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in project.users.filter(user => {
-          return !!(PinyinMatch.match(user.nickname, queryAssignor))
-          || user.nickname === queryAssignor
-          || queryAssignor === ''
-        })" :value="member.id" :key="member.id">
+        <Option v-for="member in selectableUsers" :value="member.id" :key="member.id">
           <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
             member.nickname
           }}
@@ -67,7 +63,7 @@ import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Icon, Message} from "view-ui-plus"
 import {useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia"
-import PinyinMatch from "pinyin-match"
+import PinyinMatch from "pinyin-match";
 
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
@@ -75,8 +71,6 @@ const {updated: updated} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {selectedTasks} = storeToRefs(taskModeStore)
-
-const queryAssignor = ref('')
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
@@ -92,6 +86,8 @@ const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
 let showShareModal = ref(false)
 
+const selectableUsers = ref(project.value?.users || [])
+
 watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
     onSwitchMode()
@@ -104,6 +100,14 @@ watch(updated, (newVal, oldVal) => {
     updated.value = false
   }
 })
+
+const searchUser = (query) => {
+  selectableUsers.value = project.value?.users.filter(user => {
+    return !!(PinyinMatch.match(user.nickname, query))
+        || user.nickname === query
+        || query === ''
+  })
+}
 
 const handleSearch = () => {
   const filters = {}

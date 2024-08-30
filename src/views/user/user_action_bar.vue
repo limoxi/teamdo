@@ -1,30 +1,30 @@
 <template>
-    <div class="aui-users-bar">
-        <div class="aui-i-left">
-            <Button type="text" icon="md-add" @click="onInviteUser" class="aui-icon-scale">邀请用户</Button>
-        </div>
-        <div class="aui-i-right">
-            <Icon type="md-refresh" class="aui-i-icon" @click="onFreshUsers"/>
-            <Input
-                    placeholder="搜索用户"
-                    :border="false"
-                    style="width: 150px"
-                    class="aui-i-filter"
-                    v-model="filteredUser"
-                    clearable
-                    @on-change="handleSearch"
-            >
-                <template #prefix>
-                    <Icon type="ios-search"/>
-                </template>
-            </Input>
-        </div>
+  <div class="aui-users-bar">
+    <div class="aui-i-left">
+      <Button type="text" icon="md-add" @click="onInviteUser" class="aui-icon-scale">邀请用户</Button>
     </div>
+    <div class="aui-i-right">
+      <Icon type="md-refresh" class="aui-i-icon" @click="onFreshUsers"/>
+      <Input
+          placeholder="搜索用户"
+          :border="false"
+          style="width: 150px"
+          class="aui-i-filter"
+          v-model="filteredUser"
+          clearable
+          @on-change="handleSearch"
+      >
+        <template #prefix>
+          <Icon type="ios-search"/>
+        </template>
+      </Input>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import {ref} from 'vue'
-import {Message} from "view-ui-plus"
+import {Icon, Message} from "view-ui-plus"
 
 const filters = ref({})
 const emit = defineEmits(['search'])
@@ -32,31 +32,31 @@ const filteredUser = ref('')
 
 const handleSearch = (force = false) => {
 
-    emit('search', {
-        'nickname': filteredUser.value,
-        'force': force
-    })
+  emit('search', {
+    'nickname': filteredUser.value,
+    'force': force
+  })
 }
 
 const onInviteUser = () => {
-    Message.info('尽请期待！')
+  Message.info('尽请期待！')
 }
 
 let refreshing = false
 const onFreshUsers = () => {
-    if (refreshing) {
-        Message.warning('请勿频繁刷新...')
-        return
+  if (refreshing) {
+    Message.warning('请勿频繁刷新...')
+    return
+  }
+  refreshing = true
+  handleSearch(true)
+  Message.success({
+    content: '刷新列表...',
+    duration: 5,
+    onClose: () => {
+      refreshing = false
     }
-    refreshing = true
-    handleSearch(true)
-    Message.success({
-        content: '刷新列表...',
-        duration: 5,
-        onClose: () => {
-            refreshing = false
-        }
-    })
+  })
 }
 
 </script>

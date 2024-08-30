@@ -4,8 +4,8 @@
     <editor-content v-if="editor" :editor="editor" :class="classes" @click="onClickEditor"/>
   </div>
   <ImagePreview
-    v-model="showImage"
-    :preview-list="previewImages"/>
+      v-model="showImage"
+      :preview-list="previewImages"/>
 </template>
 
 <script setup>
@@ -126,7 +126,11 @@ const setContent = (content) => {
 
 defineExpose({
   getContent: () => {
-    return editor.value.getHTML()
+    let content = editor.value.getHTML()
+    if (content === '<p></p>') {  // fix empty situation
+      content = ''
+    }
+    return content
   },
   getAttentions: () => {
     const jsonData = editor.value.getJSON()

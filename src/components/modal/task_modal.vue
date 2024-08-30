@@ -1,16 +1,16 @@
 <template>
   <Modal
-    v-model="taskModal.show"
-    :closable="false"
-    :lock-scroll="true"
-    :mask-closable="false"
-    class="aui-task-model"
-    footer-hide
-    style="top:8%"
-    width="65%"
+      v-model="taskModal.show"
+      :closable="false"
+      :lock-scroll="true"
+      :mask-closable="false"
+      class="aui-task-model"
+      footer-hide
+      style="top:8%"
+      width="65%"
   >
     <template #header>
-      <div class="aui-i-title">{{title}}</div>
+      <div class="aui-i-title">{{ title }}</div>
       <div class="aui-i-action-bar">
         <Icon v-if="!isCreateMode" class="aui-i-action-btn delete" type="md-trash" @click="handleDelete"/>
         <Icon class="aui-i-action-btn save" type="md-done-all" @click="handleSubmit"/>
@@ -26,14 +26,14 @@
       <FormItem label="任务类型" prop="type" style="float: left">
         <Select v-model="form.type" aria-label="typeSelector" style="width:180px">
           <Option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
-            {{option.label}}
+            {{ option.label }}
           </Option>
         </Select>
       </FormItem>
       <FormItem label="优先级" prop="importance" style="display: inline-block">
         <Select v-model="form.importance" aria-label="importanceSelector" style="width:180px">
           <Option v-for="option in importanceOptions" :key="option.value" :value="option.value">
-            {{option.label}}
+            {{ option.label }}
           </Option>
         </Select>
       </FormItem>
@@ -46,20 +46,20 @@
       </FormItem>
       <FormItem :label="nameLabel" prop="name">
         <Input
-          v-model="form.name"
-          :autosize="{minRows: 1,maxRows: 3}"
-          :maxlength="48"
-          :placeholder="form.type==='REQ'?'某人可以在何时何处做某事': ''"
-          show-word-limit
-          style="width: 90%" type="textarea"></Input>
+            v-model="form.name"
+            :autosize="{minRows: 1,maxRows: 3}"
+            :maxlength="48"
+            :placeholder="form.type==='REQ'?'某人可以在何时何处做某事': ''"
+            show-word-limit
+            style="width: 90%" type="textarea"></Input>
       </FormItem>
       <FormItem label="故事点" prop="sp">
         <InputNumber
-          v-model="form.sp"
-          :max="28"
-          :min="0"
-          :precision="0"
-          :step="1"
+            v-model="form.sp"
+            :max="28"
+            :min="0"
+            :precision="0"
+            :step="1"
         ></InputNumber>
         <span class="aui-i-spRemark">
               <Icon type="md-alert"/>
@@ -78,7 +78,7 @@
           </span>
         </span>
         <span v-if="userCount > 0" class="aui-i-users">
-              <span>参与者({{userCount}})&nbsp;&nbsp;</span>
+              <span>参与者({{ userCount }})&nbsp;&nbsp;</span>
               <Tooltip v-for="user in task.users" :key="user.id" :content="user.nickname">
                 <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
               </Tooltip>
@@ -89,22 +89,22 @@
              :color="tag.color" closable type="dot"
              @on-close="handleCloseTag(tag)"
         >
-          {{tag.name}}
+          {{ tag.name }}
         </Tag>
         <Select
-          v-model="selectedTagId"
-          class="aui-i-tagFilter"
-          clearable
-          filterable
-          placeholder="添加标签"
-          @on-select="handleSelectTag"
+            v-model="selectedTagId"
+            class="aui-i-tagFilter"
+            clearable
+            filterable
+            placeholder="添加标签"
+            @on-select="handleSelectTag"
         >
           <Option v-for="tag in project.getTagsByBiz('normal_task')" :key="tag.id" :value="tag.id">
             <Badge :color="tag.color" :text="tag.name"/>
           </Option>
         </Select>
       </FormItem>
-      <FormItem label="详细描述" prop="desc">
+      <FormItem label="详细描述" prop="desc" v-if="taskModal.show">
         <Editor v-if="!isCreateMode && task.createdAt<'2024-07-22 00:00:00'" ref="editorInst" :content="form.desc"/>
         <TipTapEditor v-else ref="editorInst" :content="form.desc"></TipTapEditor>
       </FormItem>
@@ -200,8 +200,6 @@ modalStore.$subscribe((_, state) => {
     form.value.assignors = store.task?.users.filter(u => u.is_assignor) || []
     form.value.tags = store.task?.tags || []
     form.value.desc = store.task?.desc || ''
-
-    editorInst.value.resetContent(store.task?.desc || '')
     selectedTagId.value = ''
   }
 })

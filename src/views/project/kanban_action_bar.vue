@@ -27,7 +27,8 @@
     </div>
     <div class="aui-i-right">
       <template v-if="kanbanType===KANBAN_TYPE_EPIC">
-        <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums-outline" class="aui-i-icon" style="font-weight: bold" @click="changeMode(LANE_DISPLAY_MODE_CARD)"/>
+        <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums-outline" class="aui-i-icon"
+              style="font-weight: bold" @click="changeMode(LANE_DISPLAY_MODE_CARD)"/>
       </template>
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
@@ -69,30 +70,27 @@
           clearable
           v-model="selectedAssignorId"
           placeholder="执行人"
-          @on-query-change="(query) => {queryAssignor = query}"
+          :remote-method="searchUser"
           @on-change="handleSearch"
           class="aui-i-filter"
       >
-        <Option v-for="member in project.users.filter(user => {
-          return !!(PinyinMatch.match(user.nickname, queryAssignor))
-          || user.nickname === queryAssignor
-          || queryAssignor === ''
-        })" :value="member.id" :key="member.id">
+        <Option v-for="member in selectableUsers" :value="member.id" :key="member.id">
           <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
             member.nickname
           }}
         </Option>
       </Select>
       <Select
-        v-if="isEpicType(kanbanType)"
-        filterable
-        clearable
-        v-model="selectedCreatorId"
-        placeholder="维护人"
-        @on-change="handleSearch"
-        class="aui-i-filter"
+          v-if="isEpicType(kanbanType)"
+          filterable
+          clearable
+          v-model="selectedCreatorId"
+          placeholder="维护人"
+          :remote-method="searchUser"
+          @on-change="handleSearch"
+          class="aui-i-filter"
       >
-        <Option v-for="member in project.users" :value="member.id" :key="member.id">
+        <Option v-for="member in selectableUsers" :value="member.id" :key="member.id">
           <img class="aui-user-selector-avatar" :src="member.avatar || defaultAvatar" alt="avatar"/> {{
             member.nickname
           }}
@@ -117,7 +115,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onBeforeUnmount, onDeactivated, ref, watch} from 'vue'
+import {computed, inject, ref, watch} from 'vue'
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import ShareTasksModal from '@/components/modal/share_tasks_modal'
 import {Badge, Dropdown, DropdownItem, DropdownMenu, Icon, Message} from 'view-ui-plus'
@@ -158,7 +156,7 @@ const orderField = ref('display_index')
 const orderDirection = ref('-')
 let showShareModal = ref(false)
 
-const queryAssignor = ref('')
+const selectableUsers = ref(project.value?.users || [])
 
 watch(showShareModal, (newVal, oldVal) => {
   if (!newVal) {
@@ -183,6 +181,14 @@ const onClickSwitch = (targetLaneId) => {
 
 const changeMode = mode => {
   emit('onChangeDisplayMode', mode)
+}
+
+const searchUser = (query) => {
+  selectableUsers.value = project.value?.users.filter(user => {
+    return !!(PinyinMatch.match(user.nickname, query))
+        || user.nickname === query
+        || query === ''
+  })
 }
 
 const handleSearch = () => {
