@@ -20,7 +20,7 @@ jobs:
       - name: install
         working-directory: ./docs
         run:
-          yarn install --frozen-lockfile
+          yarn install
 
       - name: Build
         working-directory: ./docs
