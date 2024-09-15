@@ -1,18 +1,17 @@
 <template>
   <Layout>
     <template #home-hero-after>
-      <video loop :src="videoSrc" autoplay muted></video>
+      <video loop :src="withBase('assets/home_video.webm')" autoplay muted></video>
     </template>
   </Layout>
 </template>
 
 <script setup>
-import {ref} from 'vue'
 import DefaultTheme from 'vitepress/theme'
+import {withBase} from 'vitepress'
 
 const {Layout} = DefaultTheme
 
-const videoSrc = ref('assets/home_video.webm')
 </script>
 
 <style scoped lang="less">
