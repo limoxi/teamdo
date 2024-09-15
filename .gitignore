@@ -5,7 +5,6 @@
 .git
 .idea
 .fleet
-yarn.lock
 .yarnclean
 dist
 node_modules
