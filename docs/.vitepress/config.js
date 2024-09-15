@@ -3,6 +3,7 @@ import {defineConfig} from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: "TeamDo",
+    base: "/teamdo/",
     description: "Docs of TeamDo",
     appearance: 'force-dark',
     themeConfig: {
