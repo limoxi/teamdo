@@ -5,11 +5,12 @@
 .git
 .idea
 .fleet
+yarn.lock
 .yarnclean
 dist
 node_modules
 docs/node_modules
-docs/yarn.lock
+!docs/yarn.lock
 docs/.vitepress/cache
 
 deploy.py

@@ -16,8 +16,14 @@ jobs:
         with:
           node-version: 20
           cache: yarn
-      - run: yarn add vitepress
+
+      - name: install
+        working-directory: ./docs
+        run:
+          yarn install --frozen-lockfile
+
       - name: Build
+        working-directory: ./docs
         run: yarn docs:build
 
       - name: Deploy
