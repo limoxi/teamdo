@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+      - run: yarn add vitepress
       - name: Build
         run: yarn docs:build
 
