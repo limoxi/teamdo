@@ -91,18 +91,10 @@
         >
           {{ tag.name }}
         </Tag>
-        <Select
-            v-model="selectedTagId"
+        <TagSelector
             class="aui-i-tagFilter"
-            clearable
-            filterable
-            placeholder="添加标签"
-            @on-select="handleSelectTag"
-        >
-          <Option v-for="tag in project.getTagsByBiz('normal_task')" :key="tag.id" :value="tag.id">
-            <Badge :color="tag.color" :text="tag.name"/>
-          </Option>
-        </Select>
+            :tags="project.getTagsByBiz('normal_task')"
+            @on-selected="handleSelectTag"/>
       </FormItem>
       <FormItem label="详细描述" prop="desc" v-if="taskModal.show">
         <Editor v-if="!isCreateMode && task.createdAt<'2024-07-22 00:00:00'" ref="editorInst" :content="form.desc"/>
@@ -116,8 +108,9 @@ import TipTapEditor from '@/components/editor_tiptap/editor'
 import Editor from '@/components/editor/editor'
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import UserSelector from '@/components/user_selector'
+import TagSelector from '@/components/tag_selector'
 import {computed, inject, ref} from 'vue'
-import {Avatar, Badge, FormItem, Icon, InputNumber, Message, Modal, Tag, Tooltip} from 'view-ui-plus'
+import {Avatar, FormItem, Icon, InputNumber, Message, Modal, Option, Select, Tag, Tooltip} from 'view-ui-plus'
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
 import {useModalStore} from '@/store'
@@ -174,7 +167,7 @@ const nameLabel = computed(() => {
   }
 })
 
-let form = ref({
+const form = ref({
   type: 'REQ',
   name: '',
   importance: '0',
@@ -186,30 +179,27 @@ let form = ref({
 const taskForm = ref(null)
 const editorInst = ref(null)
 
-let selectedTagId = ref('')
-
 const emit = defineEmits(['onAdd', 'onUpdate', 'onDelete'])
 
-modalStore.$subscribe((_, state) => {
-  const store = state.taskModal
-  if (store.show) {
-    form.value.type = store.task?.type || 'REQ'
-    form.value.name = store.task?.name || ''
-    form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
-    form.value.sp = store.task?.sp || 0
-    form.value.assignors = store.task?.users.filter(u => u.is_assignor) || []
-    form.value.tags = store.task?.tags || []
-    form.value.desc = store.task?.desc || ''
-    selectedTagId.value = ''
+modalStore.$onAction(({name, store, args, after}) => {
+  store = store.taskModal
+  if (name === 'show' && args.length > 0 && args[0] === 'taskModal') {
+    after(() => {
+      form.value.type = store.task?.type || 'REQ'
+      form.value.name = store.task?.name || ''
+      form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
+      form.value.sp = store.task?.sp || 0
+      form.value.assignors = store.task?.users.filter(u => u.is_assignor) || []
+      form.value.tags = store.task?.tags || []
+      form.value.desc = store.task?.desc || ''
+    })
   }
 })
 
-const handleSelectTag = (selectedTag) => {
-  const tagId = selectedTag.value
+const handleSelectTag = (tagId) => {
   if (form.value.tags.filter(tag => tag.id === tagId).length > 0) return
   const tag = project.value.tags.filter(tag => tag.id === tagId && tag.biz_code === 'normal_task')[0]
   form.value.tags.push(tag)
-  selectedTagId.value = ''
 }
 
 const close = () => {

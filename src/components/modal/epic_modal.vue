@@ -1,16 +1,16 @@
 <template>
   <Modal
-    v-model="epicModal.show"
-    style="top:8%"
-    class="aui-task-model"
-    width="80%"
-    :lock-scroll="true"
-    footer-hide
-    :mask-closable="false"
-    :closable="false"
+      v-model="epicModal.show"
+      style="top:8%"
+      class="aui-task-model"
+      width="80%"
+      :lock-scroll="true"
+      footer-hide
+      :mask-closable="false"
+      :closable="false"
   >
     <template #header>
-      <div class="aui-i-title">{{title}}</div>
+      <div class="aui-i-title">{{ title }}</div>
       <div class="aui-i-action-bar">
         <Icon v-if="!isReadOnly && !isCreateMode" class="aui-i-action-btn delete" type="md-trash"
               @click="handleDelete"/>
@@ -26,14 +26,14 @@
     >
       <FormItem v-if="!isReadOnly && !isCreateMode" label="变更说明" prop="remark">
         <Input
-          v-model="form.remark"
-          style="width: 70%"/>
+            v-model="form.remark"
+            style="width: 70%"/>
       </FormItem>
       <div style="display: flex; flex-direction: row; justify-content: flex-start">
         <FormItem label="优先级" prop="importance">
           <Select v-model="form.importance" style="width:180px" aria-label="importanceSelector">
             <Option v-for="option in importanceOptions" :value="option.value" :key="option.value">
-              {{option.label}}
+              {{ option.label }}
             </Option>
           </Select>
         </FormItem>
@@ -41,16 +41,16 @@
           <Tag type="dot" closable v-if="form.fromWhere"
                :color="selectedTag.color" @on-close="handleCloseTag"
           >
-            {{form.fromWhere}}
+            {{ form.fromWhere }}
           </Tag>
           <Select
-            v-if="!form.fromWhere"
-            filterable
-            allow-create
-            clearable
-            @on-select="handleSelectTag"
-            @on-create="handleCreateTag"
-            class="aui-i-tagFilter"
+              v-if="!form.fromWhere"
+              filterable
+              allow-create
+              clearable
+              @on-select="handleSelectTag"
+              @on-create="handleCreateTag"
+              class="aui-i-tagFilter"
           >
             <Option v-for="tag in selectableTags" :value="tag.id" :key="tag.id">
               <Badge :color="tag.color" :text="tag.name"/>
@@ -60,30 +60,30 @@
       </div>
       <FormItem label="截止时间" prop="expectedFinishedAt">
         <DatePicker
-          type="datetime"
-          v-model="form.expectedFinishedAt"
-          format="yyyy-MM-dd HH:mm"
-          style="width: 180px"/>
+            type="datetime"
+            v-model="form.expectedFinishedAt"
+            format="yyyy-MM-dd HH:mm"
+            style="width: 180px"/>
       </FormItem>
       <FormItem label="需求概述" prop="name">
         <Input
-          type="textarea"
-          :autosize="{minRows: 1,maxRows: 3}"
-          show-word-limit
-          :maxlength="48"
-          v-model="form.name"
-          style="width: 48%"/>
+            type="textarea"
+            :autosize="{minRows: 1,maxRows: 3}"
+            show-word-limit
+            :maxlength="48"
+            v-model="form.name"
+            style="width: 48%"/>
       </FormItem>
       <FormItem label="文档链接" prop="docLink">
         <Input
-          v-model="form.docLink"
-          style="width: 70%"/>
+            v-model="form.docLink"
+            style="width: 70%"/>
         <Button v-if="form.docLink !== ''" type="text" @click="onOpenLink(form.docLink)">打开</Button>
       </FormItem>
       <FormItem label="设计链接" prop="designLink">
         <Input
-          v-model="form.designLink"
-          style="width: 70%"/>
+            v-model="form.designLink"
+            style="width: 70%"/>
         <Button v-if="form.designLink !== ''" type="text" @click="onOpenLink(form.designLink)">打开</Button>
       </FormItem>
       <FormItem label="详细描述" prop="desc">
@@ -148,25 +148,27 @@ let form = ref({
 const taskForm = ref(null)
 const editorInst = ref()
 
-modalStore.$subscribe((_, state) => {
-  const store = state.epicModal
-  if (store.show) {
-    if (!['', '未知'].includes(store.task?.fromWhere || '')) {
-      form.value.fromWhere = store.task.fromWhere
-    }
-    form.value.name = store.task?.name ?? ''
-    form.value.importance = store.task?.importance + ''
-    form.value.expectedFinishedAt = store.task?.expectedFinishedAt ?? ''
-    form.value.docLink = store.task?.docLink ?? ''
-    form.value.designLink = store.task?.designLink ?? ''
-    form.value.desc = store.task?.desc ?? ''
-    if ((store.task?.tags ?? []).length > 0) {
-      selectedTag.value = store.task.tags[0]
-    }
-    form.value.remark = ''
+modalStore.$onAction(({name, store, args, after}) => {
+  store = store.epicModal
+  if (name === 'show' && args.length > 0 && args[0] === 'epicModal') {
+    after(() => {
+      if (!['', '未知'].includes(store.task?.fromWhere || '')) {
+        form.value.fromWhere = store.task.fromWhere
+      }
+      form.value.name = store.task?.name ?? ''
+      form.value.importance = store.task?.importance + ''
+      form.value.expectedFinishedAt = store.task?.expectedFinishedAt ?? ''
+      form.value.docLink = store.task?.docLink ?? ''
+      form.value.designLink = store.task?.designLink ?? ''
+      form.value.desc = store.task?.desc ?? ''
+      if ((store.task?.tags ?? []).length > 0) {
+        selectedTag.value = store.task.tags[0]
+      }
+      form.value.remark = ''
 
-    editorInst.value.resetContent(store.task?.desc ?? '')
-    submitting = false
+      editorInst.value.resetContent(store.task?.desc ?? '')
+      submitting = false
+    })
   }
 })
 
@@ -269,7 +271,7 @@ const handleDelete = () => {
     cancelText: '再想想',
     onOk: () => {
       EpicTaskService.deleteEpicTask(
-        projectId, task.value.id).then(() => {
+          projectId, task.value.id).then(() => {
         emit('onDelete')
         actionDone()
       })
