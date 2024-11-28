@@ -80,7 +80,7 @@ export default {
     background-repeat: no-repeat;
     background-size: cover;
 
-    &::before{
+    &::before {
       content: '';
       backdrop-filter: blur(8px);
       width: 100%;
@@ -114,6 +114,13 @@ export default {
 
       .ivu-btn-text {
         color: #444 !important;
+        border-radius: 15px;
+        padding: 0 15px;
+
+        &:hover {
+          color: #bbb !important;
+          background: #444;
+        }
       }
     }
   }

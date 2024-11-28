@@ -192,7 +192,9 @@ const handleCreateTag = (newTagName) => {
       biz_code: bizCode,
       name: newTagName,
       color: color
-    }
+    }.catch(err => {
+      Message.error(err.errMsg)
+    })
     selectableTags.value.push(newTag)
     form.value.fromWhere = newTagName
     selectedTag.value = newTag
@@ -274,6 +276,8 @@ const handleDelete = () => {
           projectId, task.value.id).then(() => {
         emit('onDelete')
         actionDone()
+      }).catch(err => {
+        Message.error(err.errMsg)
       })
     }
   })

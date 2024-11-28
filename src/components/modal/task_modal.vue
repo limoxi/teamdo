@@ -259,6 +259,8 @@ const handleSubmit = () => {
         project.value.addTask(taskData).then((newTask) => {
           emit('onAdd', newTask)
           actionDone()
+        }).catch(err => {
+          Message.error(err.errMsg)
         }).finally(() => {
           submitting = false
         })
@@ -287,6 +289,8 @@ const handleDelete = () => {
       project.value.deleteTask(task.value.id).then(() => {
         emit('onDelete', task.value)
         actionDone()
+      }).catch(err => {
+        Message.error(err.errMsg || '操作失败')
       })
     }
   })
