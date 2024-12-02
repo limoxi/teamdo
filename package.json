@@ -12,6 +12,9 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs"
   },
+  "resolutions": {
+    "prosemirror-model": "1.23.0"
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/compiler-sfc": "^3.5.13",
@@ -34,7 +37,7 @@
     "@milkdown/vue": "^6.5.4",
     "@primevue/themes": "^4.2.4",
     "@remixicon/vue": "^4.5.0",
-    "@tiptap-pro/extension-file-handler": "^2.14.0",
+    "@tiptap-pro/extension-file-handler": "^2.16.3",
     "@tiptap/core": "^2.10.3",
     "@tiptap/extension-bubble-menu": "^2.10.3",
     "@tiptap/extension-color": "^2.10.3",
@@ -62,7 +65,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "moment-range": "^4.0.2",
-    "pinia": "^2.2.7",
+    "pinia": "^2.2.8",
     "pinyin-match": "^1.2.6",
     "primevue": "^4.2.4",
     "qs": "^6.13.1",

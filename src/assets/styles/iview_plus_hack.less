@@ -1,0 +1,40 @@
+// hacking iview_plus => https://github.com/limoxi/ViewUIPlus
+// custom theme
+
+// 修改列表项hover样式 --start
+.hovered-list-item {
+  margin: 0 3px !important;
+  border-radius: 4px !important;
+}
+
+.ivu-select-dropdown > .ivu-dropdown-menu > .ivu-dropdown-item {
+  .hovered-list-item();
+}
+
+.ivu-select-dropdown > .ivu-select-dropdown-list > .ivu-select-item {
+  .hovered-list-item();
+}
+
+// 修改列表项hover样式 --end
+
+.ivu-menu-horizontal {
+  height: auto !important;
+  line-height: initial !important;
+}
+
+.ivu-menu > .ivu-menu-item {
+  margin: 0 12px !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  border: none !important;
+
+  &:hover {
+    background-color: #f3f3f3 !important;
+  }
+}
+
+.ivu-menu-dark > .ivu-menu-item {
+  &:hover {
+    background-color: #777 !important;
+  }
+}
