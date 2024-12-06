@@ -69,12 +69,12 @@
       <FormItem label="执行者" prop="assignors">
         <UserSelector :projectId="project.id" @on-selected="onSelectUser"></UserSelector>
         <span v-if="form.assignors.length > 0" class="aui-i-assignors">
-          <span v-for="au in form.assignors" :key="au.id" class="aui-i-assignor">
-            <Icon v-if="!task?.isFinished()" class="aui-i-del-btn" type="ios-close-circle"
-                  @click="onDeleteUser(au.id)"/>
-            <Tooltip :content="au.nickname">
-              <Avatar :src="au.avatar || defaultAvatar" shape="square"></Avatar>
-            </Tooltip>
+          <span class="aui-i-assignor" v-for="au in form.assignors" :key="au.id">
+            <span class="aui-i-assignor-del">
+              <Icon v-if="!task?.isFinished()" class="aui-i-btn" type="md-trash"
+                    @click="onDeleteUser(au.id)"/>
+            </span>
+            <Avatar :src="au.avatar || defaultAvatar"></Avatar>
           </span>
         </span>
         <span v-if="userCount > 0" class="aui-i-users">
@@ -333,15 +333,23 @@ const handleDelete = () => {
       position: relative;
       margin-right: 5px;
 
-      .aui-i-del-btn {
+      .aui-i-assignor-del {
+        display: none;
         position: absolute;
+        top: -7px;
+        text-align: center;
+        color: indianred;
         font-size: 18px;
-        top: -15px;
-        right: -8px;
-        z-index: 1;
+        width: 32px;
+        height: 32px;
+        border-radius: 100px;
+        background: rgba(0, 0, 0, 0.4);
+      }
 
-        &:hover {
-          cursor: pointer;
+      &:hover {
+        .aui-i-assignor-del {
+          display: inline-block;
+          z-index: 1;
         }
       }
     }
