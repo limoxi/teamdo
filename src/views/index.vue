@@ -4,8 +4,8 @@
     <div class="aui-i-welcome">
       <div class="aui-i-logo">TeamDo</div>
       <div>
-        <strong>嘈杂No，</strong>
-        <strong>专注Yes</strong>
+        <strong style="font-size: 18px">“{{ getOutline(0) }}，</strong>
+        <strong style="font-size: 18px">{{ getOutline(1) }}”</strong>
       </div>
       <div class="aui-i-action">
         <space>
@@ -35,7 +35,8 @@ export default {
   data() {
     return {
       showLogin: false,
-      showRegister: false
+      showRegister: false,
+      randomIndex: Math.floor(Math.random() * 2)
     }
   },
   components: {
@@ -62,6 +63,13 @@ export default {
     },
     onRegistered() {
       this.showLogin = true;
+    },
+    getOutline(index) {
+      const outlines = [
+        ['嘈杂No', '专注Yes'],
+        ['人生如戏', '戏如人生']
+      ]
+      return outlines[this.randomIndex][index]
     }
   }
 }
