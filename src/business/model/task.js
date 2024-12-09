@@ -64,6 +64,10 @@ class Task {
         this.assignorIds = assignorIds
     }
 
+    setTags(tags) {
+        this.tags = tags
+    }
+
 }
 
 export default Task

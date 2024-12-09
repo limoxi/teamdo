@@ -12,6 +12,19 @@ class TagService {
         })
     }
 
+    static getByIdsForProjectBiz(projectId, bizCode, tagIds) {
+        return Resource.get({
+            'resource': 'project.tags',
+            'data': {
+                'project_id': projectId,
+                'biz_code': bizCode,
+                'filters': {
+                    'id__in': tagIds
+                }
+            }
+        })
+    }
+
     static addTag(projectId, bizCode, name, color) {
         return Resource.put({
             'resource': 'project.tag',

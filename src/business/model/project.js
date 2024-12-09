@@ -276,6 +276,19 @@ class Project {
         })
     }
 
+    setTagsForTask(laneId, taskId, tagIds) {
+        return TaskService.setTagsForTask(this.id, taskId, tagIds).then(newTags => {
+            this.getLaneById(laneId).tasks.forEach(task => {
+                if (task.id === taskId) {
+                    task.setTags(newTags || [])
+                }
+            })
+        }).catch(err => {
+            console.error(err)
+            Message.error(err.errMsg || '设置标签失败')
+        })
+    }
+
     switchTaskFlashing(task) {
         return TaskService.switchTaskFlashing(this.id, task.id, !task.flashing)
     }

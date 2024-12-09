@@ -10,8 +10,11 @@
       <UserSelector :projectId="projectId" :multi="true" @on-selected="onSelectUser"></UserSelector>
       <Space style="flex-wrap: wrap">
         <div v-if="selectedUsers.length > 0" v-for="user in selectedUsers" :key="user.id" class="aui-i-selected-user">
-          <Icon class="aui-i-del-btn" type="ios-close-circle" @click="onDeleteUser(user.id)"/>
-          <Avatar shape="square" :src="user.avatar || defaultAvatar"></Avatar>
+          <span class="aui-i-selected-user-del">
+              <Icon class="aui-i-btn" type="md-trash"
+                    @click="onDeleteUser(user.id)"/>
+            </span>
+          <Avatar :src="user.avatar || defaultAvatar"></Avatar>
         </div>
         <p v-else>未选择</p>
       </Space>
@@ -24,8 +27,8 @@
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import UserSelector from '@/components/user_selector'
 import UserService from '@/business/user_service';
-import {computed, inject, ref} from "vue";
-import {Message, Space} from "view-ui-plus";
+import {inject, ref} from "vue";
+import {Icon, Message, Modal, Space} from "view-ui-plus";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 
@@ -57,7 +60,7 @@ const onSelectUser = selectedUser => {
     return
   }
 
-  if(selectedUsers.value.filter(user => user.id === selectedUser.id).length > 0) {
+  if (selectedUsers.value.filter(user => user.id === selectedUser.id).length > 0) {
     Message.warning('请勿重复选择')
     return
   }
@@ -66,7 +69,7 @@ const onSelectUser = selectedUser => {
 }
 
 const onDeleteUser = deletedUserId => {
-  const index = selectedUsers.value.findIndex(u =>u.id === deletedUserId)
+  const index = selectedUsers.value.findIndex(u => u.id === deletedUserId)
   selectedUsers.value.splice(index, 1)
 }
 
@@ -81,18 +84,31 @@ const onConfirmed = () => {
 </script>
 
 <style scoped lang="less">
-  .aui-i-selected-user{
-    position: relative;
-    .aui-i-del-btn{
-      position: absolute;
-      font-size: 16px;
-      top: -8px;
-      right: -8px;
-      z-index: 1;
+.aui-i-selected-user {
+  position: relative;
 
-      &:hover{
-        cursor: pointer;
-      }
+  .aui-i-selected-user-del {
+    display: none;
+    position: absolute;
+    top: 0;
+    text-align: center;
+    color: indianred;
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 100px;
+    background: rgba(0, 0, 0, 0.4);
+
+    i {
+      vertical-align: bottom;
     }
   }
+
+  &:hover {
+    .aui-i-selected-user-del {
+      display: inline-block;
+      z-index: 1;
+    }
+  }
+}
 </style>

@@ -33,6 +33,17 @@ const useModalStore = defineStore('modal', () => {
         action: ''
     })
 
+    const tagsSelectModal = ref({
+        show: false,
+        title: '',
+        projectId: 0,
+        laneId: 0,
+        taskId: 0,
+        tagSelected: false,
+        selectedTagIds: [],
+        action: ''
+    })
+
     const projectModal = ref({
         show: false,
         project: null
@@ -93,6 +104,16 @@ const useModalStore = defineStore('modal', () => {
                 usersSelectModal.value.action = data?.action || ''
                 usersSelectModal.value.show = true
                 break
+            case 'tagsSelectModal':
+                projectId.value = data?.projectId || 0
+                tagsSelectModal.value.projectId = projectId.value
+                tagsSelectModal.value.laneId = data?.laneId || 0
+                tagsSelectModal.value.taskId = data?.taskId || 0
+                tagsSelectModal.value.tagSelected = false
+                tagsSelectModal.value.selectedTagIds = data?.selectedTagIds || []
+                tagsSelectModal.value.action = data?.action || ''
+                tagsSelectModal.value.show = true
+                break
             case 'projectModal':
                 projectId.value = data?.project?.id || 0
                 projectModal.value.project = data?.project || null
@@ -138,6 +159,9 @@ const useModalStore = defineStore('modal', () => {
             case 'usersSelectModal':
                 usersSelectModal.value.show = false
                 break
+            case 'tagsSelectModal':
+                tagsSelectModal.value.show = false
+                break
             case 'projectModal':
                 projectModal.value.show = false
                 break
@@ -165,6 +189,7 @@ const useModalStore = defineStore('modal', () => {
         projectSelectModal,
         userSelectModal,
         usersSelectModal,
+        tagsSelectModal,
         projectModal,
         laneModal,
         taskModal,

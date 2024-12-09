@@ -56,7 +56,6 @@ class TaskService {
         }
     }
 
-
     static async getUserJoinedTasks(filters = null, withOptions = null, orderFields = null, page = null, userId = 0) {
         let data = {
             'user_id': userId,
@@ -180,6 +179,17 @@ class TaskService {
                 'project_id': projectId,
                 'task_id': taskId,
                 'assignor_ids': assignorIds
+            }
+        })
+    }
+
+    static setTagsForTask(projectId, taskId, tagIds) {
+        return Resource.post({
+            'resource': 'project.task.tags',
+            'data': {
+                'project_id': projectId,
+                'task_id': taskId,
+                'tag_ids': tagIds
             }
         })
     }

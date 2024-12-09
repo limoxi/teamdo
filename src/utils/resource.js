@@ -88,7 +88,7 @@ class Resource {
                 })
             }
         } catch (err) {
-            console.log(err)
+            console.error(err)
             if (err instanceof ResourceException) {
                 throw err
             }

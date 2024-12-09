@@ -11,6 +11,7 @@
   <task-log-modal/>
   <user-select-modal @onSelect="handleSelectUser"/>
   <users-select-modal @onSelect="handleSelectUsers"/>
+  <tags-select-modal @onSelect="handleSelectTags"/>
   <task-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
   <epic-modal @onAdd="handleAddTask" @onUpdate="handleUpdateTask" @onDelete="handleDeleteTask"/>
 </template>
@@ -22,6 +23,7 @@ import TaskModal from '@/components/modal/task_modal'
 import TaskLogModal from '@/components/modal/task_log_modal'
 import UserSelectModal from '@/components/modal/user_select_modal'
 import UsersSelectModal from '@/components/modal/users_select_modal'
+import TagsSelectModal from '@/components/modal/tags_select_modal'
 import EpicModal from '@/components/modal/epic_modal'
 import {provide, ref} from 'vue'
 import ProjectService from "@/business/project_service"
@@ -43,10 +45,10 @@ project.value = new Project(projectData)
 provide('project', project)
 
 const handleAddTask = (newTask) => {
-    project.value.getLaneById(newTask.laneId).addTask(newTask)
+  project.value.getLaneById(newTask.laneId).addTask(newTask)
 }
 const handleUpdateTask = (updatedTask) => {
-  try{
+  try {
     project.value.getLaneById(updatedTask.laneId).updateTask(updatedTask)
   } catch (e) {
     console.error(e)
@@ -56,33 +58,37 @@ const handleUpdateTask = (updatedTask) => {
 }
 
 const handleDeleteTask = deletedTask => {
-    project.value.getLaneById(deletedTask.laneId).removeTask(deletedTask)
+  project.value.getLaneById(deletedTask.laneId).removeTask(deletedTask)
 }
 const handleSelectUser = (selectedUserId, action, actionData) => {
-    switch (action) {
-        case 'selectAssignorForTask':
-            project.value.setTaskAssignor(actionData.laneId, actionData.taskId, selectedUserId)
-            break
-        case 'addProjectMember':
-            project.value.addUser(selectedUserId).then(() => {
-                Message.success('添加成员成功，正在刷新...');
-            }).catch(err => {
-                console.error(err)
-                Message.error(err.errMsg || '添加成员失败');
-            })
-            break
-    }
+  switch (action) {
+    case 'selectAssignorForTask':
+      project.value.setTaskAssignor(actionData.laneId, actionData.taskId, selectedUserId)
+      break
+    case 'addProjectMember':
+      project.value.addUser(selectedUserId).then(() => {
+        Message.success('添加成员成功，正在刷新...');
+      }).catch(err => {
+        console.error(err)
+        Message.error(err.errMsg || '添加成员失败');
+      })
+      break
+  }
 }
 
 const handleSelectUsers = (selectedUserIds, action, actionData) => {
-    switch (action) {
-        case 'selectAssignorsForTask':
-            project.value.setTaskAssignors(actionData.laneId, actionData.taskId, selectedUserIds)
-            break
-        case 'selectManagersForLane':
-            project.value.getLaneById(actionData.laneId).setManagers(selectedUserIds)
-            break
-    }
+  switch (action) {
+    case 'selectAssignorsForTask':
+      project.value.setTaskAssignors(actionData.laneId, actionData.taskId, selectedUserIds)
+      break
+    case 'selectManagersForLane':
+      project.value.getLaneById(actionData.laneId).setManagers(selectedUserIds)
+      break
+  }
+}
+
+const handleSelectTags = (selectedTagIds, action, actionData) => {
+  project.value.setTagsForTask(actionData.laneId, actionData.taskId, selectedTagIds)
 }
 
 </script>
