@@ -2,7 +2,7 @@
   <Modal
       v-model="tagsSelectModal.show"
       title="标签选择"
-      width="800"
+      width="600"
       @on-visible-change="onVisibleChange"
       @on-ok="onConfirmed"
   >

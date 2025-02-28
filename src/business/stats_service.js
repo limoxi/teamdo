@@ -31,6 +31,15 @@ class StatsService {
     })
   }
 
+  static getStatsForProjectUsers(projectId) {
+    return Resource.get({
+      'resource': 'stats.project.users',
+      'data': {
+        'project_id': projectId,
+      }
+    })
+  }
+
   static getStatsForProjectUser(projectId, userId) {
     return Resource.get({
       'resource': 'stats.project.user',

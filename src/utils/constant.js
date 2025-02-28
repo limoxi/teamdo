@@ -87,9 +87,50 @@ const getStatusColor = (statusText) => {
             return '#2b85e4'
         case '已放弃':
             return '#808695'
+        case 0:
+            return '#ff9900'
+        case 1:
+            return '#19be6b'
+        case 2:
+            return '#2b85e4'
+        case 3:
+            return '#808695'
         default:
             return '#ff9900'
     }
+}
+
+const TASK_STATUS_NOT_START = 0  // 未开始
+const TASK_STATUS_WORKING = 1  // 进行中
+const TASK_STATUS_FINISHED = 2  // 已完成
+const TASK_STATUS_ABORT = 3  // 已废弃
+
+const taskStatus2Num = (statusText) => {
+    switch (statusText){
+        case 'not_start':
+            return TASK_STATUS_NOT_START
+        case 'working':
+            return TASK_STATUS_WORKING
+        case 'finished':
+            return TASK_STATUS_FINISHED
+        case 'abort':
+            return TASK_STATUS_ABORT
+    }
+    return -1
+}
+
+const taskStatus2Text = (statusNum) => {
+    switch (statusNum){
+        case TASK_STATUS_NOT_START:
+            return '未开始'
+        case TASK_STATUS_WORKING:
+            return '进行中'
+        case TASK_STATUS_FINISHED:
+            return '已完成'
+        case TASK_STATUS_ABORT:
+            return '已废弃'
+    }
+    return 'unknown'
 }
 
 export {
@@ -98,6 +139,8 @@ export {
     taskTypeOptions,
     taskType2Name,
     taskType2Color,
+    taskStatus2Num,
+    taskStatus2Text,
     getImportanceDesc,
     getImportanceColor,
     getStatusColor

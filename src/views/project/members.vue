@@ -4,6 +4,7 @@
       <List border size="large">
         <ListItem>
           <Button v-if="isManager" icon="md-add" @click="onAddMember" class="aui-i-add-btn">添加新成员</Button>
+          <Button type='text' style='margin-right:0' @click="selectedMemberId = 0">成员任务一览 >>></Button>
         </ListItem>
         <ListItem
             v-for="pu in project.users"
@@ -28,7 +29,15 @@
       </List>
     </div>
 
-    <div class="aui-i-member-stats">
+    <div class="aui-i-members-stats" v-if="selectedMemberId === 0">
+      <v-chart
+          class="aui-i-chart"
+          :theme="theme"
+          autoresize
+          :option="membersTaskOptions"
+          :loading="loadingCharts"></v-chart>
+    </div>
+    <div class="aui-i-member-stats" v-if="selectedMemberId > 0">
       <div>
         <Row :gutter="12" class="aui-i-row">
           <Col span="6">
@@ -84,7 +93,7 @@
             />
           </Space>
         </div>
-        <div class="aui-i-charts" v-if="selectedMemberId > 0">
+        <div class="aui-i-charts">
           <Row :gutter="24" class="aui-i-row">
             <Col span="12">
               <v-chart
@@ -113,20 +122,21 @@
 import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
-import {computed, inject, ref} from "vue";
+import {computed, inject, onMounted, ref} from "vue";
 import {Button, ListItem, ListItemMeta, Message, Modal} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
 import moment from "moment";
 import {storeToRefs} from "pinia";
-import {taskType2Name} from "../../utils/constant";
+import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "../../utils/constant";
 import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
 const userActiveTrends = ref(null)
 const date2userActiveCount = ref({})
+const sortMembersStatsAction = ref('-total')  // not_start, working, finished, abort, total
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -204,6 +214,194 @@ const finishedTaskLineOptions = ref({
   },
   series: []
 })
+
+const membersTaskOptions = ref({
+  tooltip: {
+    trigger: 'axis'
+  },
+  backgroundColor: 'transparent',
+  darkMode: theme.value === 'dark',
+  grid: {
+    show: false, // 隐藏网格
+    borderWidth: 0, // 去除边框
+    backgroundColor: 'transparent'
+  },
+  legend: {
+    type: 'plain',
+    show: true
+  },
+  xAxis: {
+    type: 'value',
+    show: false,
+    splitLine: {
+      show: false // 隐藏 x 轴的分割线
+    },
+    areaStyle: {
+      show: false
+    },
+  },
+  yAxis: {
+    type: 'category',
+    data: [],
+    splitLine: {
+      show: false // 隐藏 y 轴的分割线
+    },
+    areaStyle: {
+      show: false
+    },
+  },
+  toolbox: {
+    show: true,
+    right: 0,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  series: []
+})
+
+onMounted(() => {
+  loadAllMembersData()
+})
+
+const sortUsers = (userId2data, sortBy) => {
+  let sortAction = 'asc'
+  sortBy = sortBy.replaceAll('+', '')
+  let sps = sortBy.split('-')
+  if(sps.length === 2){
+    sortAction = 'desc'
+    sortBy = sps[1]
+  }
+
+  // 定义排序值计算函数
+  const getSortValue = (userData) => {
+    if (sortBy === 'total') {
+      // 计算总数量：所有状态值之和
+      return Object.values(userData).reduce((sum, val) => sum + val, 0);
+    } else {
+      // 获取指定状态的值（不存在时返回0）
+      const k = taskStatus2Num[sortBy]
+      return userData[k] || 0;
+    }
+  };
+
+  // 执行排序
+  return Object.keys(userId2data).sort((a, b) => {
+    const valueA = getSortValue(userId2data[a]);
+    const valueB = getSortValue(userId2data[b]);
+
+    // 主排序条件：按目标值降序
+    if (valueB !== valueA) {
+      if (sortAction === 'desc') {
+        return valueA - valueB; // 降序排列
+      } else {
+        return valueB - valueA;
+      }
+    }
+    return 1
+  });
+}
+
+const loadAllMembersData = () => {
+  if (selectedMemberId.value > 0) return
+
+  loadingCharts.value = true
+  StatsService.getStatsForProjectUsers(project.value.id).then(respData => {
+    const userId2data = {}
+    Object.keys(respData).forEach(k => {
+      const v = respData[k]
+      const vData = {}
+      Object.keys(v).forEach(dk => {
+        vData[parseInt(dk)] = v[dk]
+      })
+      userId2data[parseInt(k)] = vData
+    })
+    console.log(userId2data)
+
+    const sortedUserIds = sortUsers(userId2data, sortMembersStatsAction.value)
+    const taskStatus2counts = {
+      0: [],
+      1: [],
+      2: [],
+      3: []
+    }
+    for (let userId of sortedUserIds){
+      userId = parseInt(userId)
+      const userData = userId2data[userId]
+      Object.keys(userData).forEach(statusNum => {
+        taskStatus2counts[statusNum].push(userData[statusNum])
+      })
+    }
+
+    const series = []
+    for(const statusNum of [3, 2, 0, 1]){
+      const statusText = taskStatus2Text(statusNum)
+      series.push({
+        data: taskStatus2counts[statusNum],
+        type: 'bar',
+        stack: 'stack',
+        color: getStatusColor(statusNum),
+        label: {
+          show: false,
+        },
+        name: statusText
+      })
+    }
+
+    membersTaskOptions.value['yAxis']['data'] = sortedUserIds.filter(uid => {
+      return !!project.value.getUser(parseInt(uid))
+    }).map(uid => {
+      return project.value.getUser(parseInt(uid)).nickname
+    })
+
+    changeBorderRadius(series)
+    membersTaskOptions.value['series'] = series
+
+    loadingCharts.value = false
+  })
+}
+
+const changeBorderRadius = (series) => {
+  const stackInfo = {};
+  for (let i = 0; i < series[0].data.length; ++i) {
+    for (let j = 0; j < series.length; ++j) {
+      const stackName = series[j].stack;
+      if (!stackName) {
+        continue;
+      }
+      if (!stackInfo[stackName]) {
+        stackInfo[stackName] = {
+          stackStart: [],
+          stackEnd: []
+        };
+      }
+      const info = stackInfo[stackName];
+      const data = series[j].data[i];
+      if (data && data !== '-') {
+        if (info.stackStart[i] == null) {
+          info.stackStart[i] = j;
+        }
+        info.stackEnd[i] = j;
+      }
+    }
+  }
+  for (let i = 0; i < series.length; ++i) {
+    const data = series[i].data;
+    const info = stackInfo[series[i].stack];
+    for (let j = 0; j < series[i].data.length; ++j) {
+      // const isStart = info.stackStart[j] === i;
+      const isEnd = info.stackEnd[j] === i;
+      const topBorder = isEnd ? 30 : 0;
+      const bottomBorder = 0;
+      data[j] = {
+        value: data[j],
+        itemStyle: {
+          borderRadius: [bottomBorder, topBorder, topBorder, bottomBorder]
+        }
+      };
+    }
+  }
+}
 
 const onAddMember = () => {
   modalStore.show('userSelectModal', {
@@ -434,6 +632,17 @@ const resetStats = () => {
 
     .ivu-list-item-meta {
       align-items: flex-end;
+    }
+  }
+
+  .aui-i-members-stats{
+    min-width: 75vw;
+    height: calc(100vh - 80px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    .aui-i-chart {
+      height: 100%;
     }
   }
 
