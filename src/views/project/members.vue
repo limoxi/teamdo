@@ -340,8 +340,6 @@ const loadAllMembersData = () => {
       })
     }
 
-    console.log(taskStatus2counts, '--------------')
-
     const series = []
     for(const statusNum of [3, 2, 0, 1]){
       const statusText = taskStatus2Text(statusNum)
@@ -363,7 +361,7 @@ const loadAllMembersData = () => {
       return project.value.getUser(parseInt(uid)).nickname
     })
 
-    // changeBorderRadius(series)
+    changeBorderRadius(series)
     membersTaskOptions.value['series'] = series
 
     loadingCharts.value = false
