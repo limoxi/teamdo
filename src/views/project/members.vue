@@ -302,6 +302,10 @@ const sortUsers = (userId2data, sortBy) => {
   });
 }
 
+const projectUserIds = computed(() => {
+  return project.value.users.map(u => u.id)
+})
+
 const loadAllMembersData = () => {
   if (selectedMemberId.value > 0) return
 
@@ -309,6 +313,9 @@ const loadAllMembersData = () => {
   StatsService.getStatsForProjectUsers(project.value.id).then(respData => {
     const userId2data = {}
     Object.keys(respData).forEach(k => {
+      if (!projectUserIds.value.some(puid => puid === parseInt(k))){
+        return
+      }
       const v = respData[k]
       const vData = {}
       Object.keys(v).forEach(dk => {
@@ -333,13 +340,15 @@ const loadAllMembersData = () => {
       })
     }
 
+    console.log(taskStatus2counts, '--------------')
+
     const series = []
     for(const statusNum of [3, 2, 0, 1]){
       const statusText = taskStatus2Text(statusNum)
       series.push({
         data: taskStatus2counts[statusNum],
         type: 'bar',
-        stack: 'stack',
+        stack: 's',
         color: getStatusColor(statusNum),
         label: {
           show: false,
@@ -354,7 +363,7 @@ const loadAllMembersData = () => {
       return project.value.getUser(parseInt(uid)).nickname
     })
 
-    changeBorderRadius(series)
+    // changeBorderRadius(series)
     membersTaskOptions.value['series'] = series
 
     loadingCharts.value = false
