@@ -20,7 +20,7 @@
       </div>
     </div>
     <draggable
-      v-if="displayMode === LANE_DISPLAY_MODE_CARD"
+      v-if="!kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_CARD"
       :id="laneId"
       class="aui-i-tasks"
       v-model="tasks"
@@ -51,9 +51,14 @@
       </template>
     </draggable>
     <EpicList
-      v-else
+        v-else-if="!kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_LIST"
       :lane="currLane"
     ></EpicList>
+    <MemberStatsCard
+        v-else-if="kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_CARD"
+        :lane="currLane"
+    >
+    </MemberStatsCard>
   </div>
 </template>
 
@@ -61,13 +66,18 @@
 import {computed, inject, onMounted, ref, watch} from 'vue'
 import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal, Skeleton} from 'view-ui-plus'
 import Draggable from 'vuedraggable'
-import {useModalStore} from '@/store'
+import {useConfigStore, useModalStore} from '@/store'
 import EpicCard from '@/views/project/epic_card.vue'
 import EpicList from '@/views/project/epic_list.vue'
 import TaskCard from '@/views/project/task_card.vue'
+import MemberStatsCard from '@/views/project/member_stats_card.vue'
 import {isEpicType, KANBAN_TYPE_EPIC, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
+import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
+const configStore = useConfigStore()
+const {kanbanMemberStatsSight} = storeToRefs(configStore)
+
 const emit = defineEmits(['onChangeDisplayMode'])
 const props = defineProps(['laneId', 'index', 'kanbanType', 'displayMode'])
 const project = inject('project')

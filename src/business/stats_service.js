@@ -50,6 +50,16 @@ class StatsService {
     })
   }
 
+  static getStatsForProjectUsersInLane(projectId, laneId) {
+    return Resource.get({
+      'resource': 'stats.project.kanban.lane.users',
+      'data': {
+        'project_id': projectId,
+        'lane_id': laneId,
+      }
+    })
+  }
+
   static getDailyActiveStatsForProjectUser(projectId, userId, dateRange = undefined) {
     return Resource.get({
       'resource': 'stats.project.user.active.daily',

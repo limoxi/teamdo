@@ -6,6 +6,7 @@ const useConfigStore = defineStore('config', () => {
   let theme = ref(helper.storage.get('theme') || 'light')
   let prioritySight = ref(false)
   let storySight = ref(false)
+  let kanbanMemberStatsSight = ref(false)
 
   const switchTheme = () => {
     if (theme.value === 'light') {
@@ -24,13 +25,19 @@ const useConfigStore = defineStore('config', () => {
     storySight.value = !storySight.value
   }
 
+  const switchKanbanMemberStatsSight = () => {
+    kanbanMemberStatsSight.value = !kanbanMemberStatsSight.value
+  }
+
   return {
     theme,
     prioritySight,
     storySight,
+    kanbanMemberStatsSight,
     switchTheme,
     switchKanbanSight,
-    switchStorySight
+    switchStorySight,
+    switchKanbanMemberStatsSight
   }
 })
 

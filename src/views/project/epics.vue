@@ -145,7 +145,7 @@
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import Draggable from 'vuedraggable'
 import helper from '@/utils/helper'
-import ActionBar from './epics_action_bar'
+import ActionBar from './kanban_action_bar'
 import {computed, inject, onMounted, ref, watch} from "vue"
 import {useModalStore} from '@/store'
 import EpicTaskService from '@/business/epic_task_service'

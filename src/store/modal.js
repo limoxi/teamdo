@@ -29,7 +29,7 @@ const useModalStore = defineStore('modal', () => {
         taskId: 0,
         userSelected: false,
         selectedUserIds: [],
-        limitCount: 3,
+        limitCount: 5,
         action: ''
     })
 

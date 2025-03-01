@@ -27,15 +27,19 @@
     </div>
     <div class="aui-i-right">
       <template v-if="kanbanType===KANBAN_TYPE_EPIC">
-        <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums-outline" class="aui-i-icon"
+        <Icon v-if="displayMode===LANE_DISPLAY_MODE_LIST" type="ios-albums" class="aui-i-icon"
               style="font-weight: bold" @click="changeMode(LANE_DISPLAY_MODE_CARD)"/>
       </template>
       <Icon type="md-qr-scanner" class="aui-i-icon" @click="onExpand"/>
       <Icon type="md-refresh" class="aui-i-icon" @click="onFreshTasks"/>
-      <Icon v-if="storySight" type="md-speedometer" class="aui-i-icon" @click="configStore.switchStorySight"/>
-      <Icon v-else type="md-clock" class="aui-i-icon" @click="configStore.switchStorySight"/>
-      <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
-      <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
+      <template v-if="kanbanType===KANBAN_TYPE_KANBAN">
+        <Icon v-if="storySight" type="md-speedometer" class="aui-i-icon" @click="configStore.switchStorySight"/>
+        <Icon v-else type="md-clock" class="aui-i-icon" @click="configStore.switchStorySight"/>
+        <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
+        <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
+        <Icon v-if="kanbanMemberStatsSight" type="ios-albums" style="font-weight: bold" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight" />
+        <Icon v-else type="ios-people" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight" />
+      </template>
       <Input
           placeholder="筛选编号或内容"
           :border="false"
@@ -125,7 +129,7 @@ import PinyinMatch from "pinyin-match";
 import {
   isEpicType,
   isKanbanType,
-  KANBAN_TYPE_EPIC,
+  KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN,
   LANE_DISPLAY_MODE_CARD,
   LANE_DISPLAY_MODE_LIST
 } from '@/business/model/constant'
@@ -141,7 +145,7 @@ const selectModeOn = computed(() => taskMode.value === 'SELECT')
 const props = defineProps(['kanbanType', 'displayMode'])
 
 const configStore = useConfigStore()
-const {prioritySight, storySight} = storeToRefs(configStore)
+const {prioritySight, storySight, kanbanMemberStatsSight} = storeToRefs(configStore)
 
 const project = inject('project')
 const projectId = inject('projectId')

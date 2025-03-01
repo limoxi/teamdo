@@ -133,6 +133,7 @@ const useUserStore = defineStore('user', () => {
 
     const getUser = userId => {
         return id2user.value[userId] || {
+            id: 0,
             avatar: '',
             nickname: '未知'
         }
