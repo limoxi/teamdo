@@ -1,15 +1,18 @@
 # TeamDo
+
 简单高效的团队任务管理工具
 
 ![image](https://user-images.githubusercontent.com/7345689/192682303-7184742b-794a-4dfe-b649-5328bf5a63b9.png)
 
 # 如何在本地(windows机器)使用
+
 > 后端服务默认端口8341
+
 ```
 0. 从release中将iteamdo.exe下载到本地
 1. 确保本地已安装mysql
 2. 创建database：
-    CREATE DATABASE tapster DEFAULT CHARSET UTF8MB4;
+    CREATE DATABASE teamdo DEFAULT CHARSET UTF8MB4;
 3. 授权用户：
     grant all on teamdo.* to teamdo@'127.0.0.1' identified by 'test'
 4. 初始化表
@@ -24,10 +27,13 @@
 ```
 
 # 开启服务端消息推送
+
 > 该功能通过SSE实现,要求及配置如下
+
 - 现代浏览器对于keep-alive的连接都有时间限制，比如Chrome在1min后会断开连接，此时会触发SourceEvent重连
 - 必须使用https，以便使用现代浏览器的桌面通知功能
 - nginx配置如下：
+
 ```
 server {
     ---
@@ -44,4 +50,5 @@ location /iteamdo/message/ {
 ```
 
 # 本地开发依赖
+
 - Node v20.12.1 LTS

@@ -4,7 +4,8 @@
       <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})</p>
       <div class="aui-i-actions">
         <template v-if="isEpicType(kanbanType)">
-          <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action" @click="changeMode(LANE_DISPLAY_MODE_LIST)"/>
+          <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action"
+                @click="changeMode(LANE_DISPLAY_MODE_LIST)"/>
         </template>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
@@ -20,63 +21,66 @@
       </div>
     </div>
     <draggable
-      v-if="!kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_CARD"
-      :id="laneId"
-      class="aui-i-tasks"
-      v-model="tasks"
-      item-key="id"
-      :animation="200"
-      group="task"
-      :disabled="false"
-      ghostClass="ghost"
-      chosenClass="chosen"
-      handle=".aui-i-tasks > .aui-task > .aui-i-body"
-      @start="drag = true"
-      @end="drag = false"
-      @sort="onListChange"
+        v-if="!kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_CARD"
+        :id="laneId"
+        class="aui-i-tasks"
+        v-model="tasks"
+        item-key="id"
+        :animation="200"
+        group="task"
+        :disabled="false"
+        ghostClass="ghost"
+        chosenClass="chosen"
+        handle=".aui-i-tasks > .aui-task > .aui-i-body"
+        @start="drag = true"
+        @end="drag = false"
+        @sort="onListChange"
     >
       <template #item="{element:task, index}">
         <TaskCard
-          v-if="currLane.isKanbanLane()"
-          v-model:task="tasks[index]"
-          :lane="currLane"
-          :projectId="projectId"
+            v-if="currLane.isKanbanLane()"
+            v-model:task="tasks[index]"
+            :lane="currLane"
+            :projectId="projectId"
         ></TaskCard>
         <EpicCard
-          v-else-if="currLane.isEpicLane()"
-          v-model:task="tasks[index]"
-          :lane="currLane"
-          :projectId="projectId"
+            v-else-if="currLane.isEpicLane()"
+            v-model:task="tasks[index]"
+            :lane="currLane"
+            :projectId="projectId"
         ></EpicCard>
       </template>
     </draggable>
     <EpicList
         v-else-if="!kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_LIST"
-      :lane="currLane"
+        :lane="currLane"
     ></EpicList>
     <MemberStatsCard
         v-else-if="kanbanMemberStatsSight && displayMode === LANE_DISPLAY_MODE_CARD"
         :lane="currLane"
+        @onSelectMember="onSelectMemberOnStatsCard"
     >
     </MemberStatsCard>
   </div>
 </template>
 
 <script setup>
-import {computed, inject, onMounted, ref, watch} from 'vue'
-import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal, Skeleton} from 'view-ui-plus'
+import {computed, inject, onMounted, ref} from 'vue'
+import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal} from 'view-ui-plus'
 import Draggable from 'vuedraggable'
-import {useConfigStore, useModalStore} from '@/store'
+import {useConfigStore, useModalStore, useTaskFilterStore} from '@/store'
 import EpicCard from '@/views/project/epic_card.vue'
 import EpicList from '@/views/project/epic_list.vue'
 import TaskCard from '@/views/project/task_card.vue'
 import MemberStatsCard from '@/views/project/member_stats_card.vue'
-import {isEpicType, KANBAN_TYPE_EPIC, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
+import {isEpicType, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const configStore = useConfigStore()
 const {kanbanMemberStatsSight} = storeToRefs(configStore)
+
+const taskFilterStore = useTaskFilterStore()
 
 const emit = defineEmits(['onChangeDisplayMode'])
 const props = defineProps(['laneId', 'index', 'kanbanType', 'displayMode'])
@@ -189,6 +193,10 @@ const onClickAction = (name) => {
   }
 }
 
+const onSelectMemberOnStatsCard = (memberId) => {
+  taskFilterStore.updateAssignorId(memberId)
+}
+
 const laneWidthGrow = isEpicType(props.kanbanType) ? 1 : 0
 
 defineExpose({
@@ -216,10 +224,11 @@ defineExpose({
       font-weight: bold;
     }
 
-    .aui-i-actions{
+    .aui-i-actions {
       &:hover {
         cursor: auto;
       }
+
       .aui-i-action {
         &:hover {
           transform: scale(1.2);

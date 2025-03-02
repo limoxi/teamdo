@@ -37,8 +37,9 @@
         <Icon v-else type="md-clock" class="aui-i-icon" @click="configStore.switchStorySight"/>
         <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
         <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
-        <Icon v-if="kanbanMemberStatsSight" type="ios-albums" style="font-weight: bold" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight" />
-        <Icon v-else type="ios-people" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight" />
+        <Icon v-if="kanbanMemberStatsSight" type="ios-albums" style="font-weight: bold" class="aui-i-icon"
+              @click="configStore.switchKanbanMemberStatsSight"/>
+        <Icon v-else type="ios-people" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight"/>
       </template>
       <Input
           placeholder="筛选编号或内容"
@@ -129,14 +130,15 @@ import PinyinMatch from "pinyin-match";
 import {
   isEpicType,
   isKanbanType,
-  KANBAN_TYPE_EPIC, KANBAN_TYPE_KANBAN,
+  KANBAN_TYPE_EPIC,
+  KANBAN_TYPE_KANBAN,
   LANE_DISPLAY_MODE_CARD,
   LANE_DISPLAY_MODE_LIST
 } from '@/business/model/constant'
 
 const modalStore = useModalStore()
 const taskFilterStore = useTaskFilterStore()
-const {tagId: selectedTagId, updated: updated} = storeToRefs(taskFilterStore)
+const {tagId: selectedTagId, assignorId: selectedAssignorId, updated: updated} = storeToRefs(taskFilterStore)
 
 const taskModeStore = useTaskModeStore()
 const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
@@ -155,7 +157,6 @@ const filters = ref({})
 const emit = defineEmits(['search', 'onFullscreen', 'onChangeDisplayMode'])
 const filteredTaskInfo = ref('')
 const selectedCreatorId = ref(0)
-const selectedAssignorId = ref(0)
 const orderField = ref('display_index')
 const orderDirection = ref('-')
 let showShareModal = ref(false)
@@ -172,6 +173,7 @@ watch(updated, (newVal, oldVal) => {
   if (newVal) {
     handleSearch()
     updated.value = false
+    kanbanMemberStatsSight.value = false
   }
 })
 

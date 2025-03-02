@@ -1,29 +1,43 @@
 <template>
   <div class="aui-members-stats-card">
-    <Card :bordered="false" class="aui-member-stats-card" v-for="member in members" :key="member.id" :style="{height: `${member.heightPercent}%`}">
-      <div>
-        <Avatar :src="member.avatar">{{ member.nickname[0] }}</Avatar>
-        {{ member.nickname }} · {{ member.taskCount }}
-      </div>
-
-    </Card>
+    <div class="aui-i-busy-members">
+      <Card :bordered="false" class="aui-i-member-card"
+            v-for="member in busyMembers" :key="member.id"
+            @click="onClickBusyMember(member.id)"
+      >
+        <div>
+          <Avatar :src="member.avatar">{{ member.nickname[0] }}</Avatar>
+          {{ member.nickname }} · <b>{{ member.taskCount }}</b>
+        </div>
+      </Card>
+    </div>
+    <div class="aui-i-idle-members">
+      <Card :bordered="false" class="aui-i-member-card" v-for="member in idleMembers" :key="member.id">
+        <div>
+          <Avatar :src="member.avatar">{{ member.nickname[0] }}</Avatar>
+          {{ member.nickname }}
+        </div>
+      </Card>
+    </div>
   </div>
 </template>
 
 <script setup>
 
-import {ref, inject, onMounted} from "vue"
+import {inject, onMounted, ref} from "vue"
 import StatsService from '@/business/stats_service'
 import {Avatar} from "view-ui-plus";
 import {useUserStore} from "@/store";
 
+const emit = defineEmits(['onSelectMember'])
 const props = defineProps(['lane'])
 const totalTaskCount = ref(props.lane.tasks.length)
 const project = inject('project')
 
 const userStore = useUserStore()
 
-const members = ref([])
+const busyMembers = ref([])
+const idleMembers = ref([])
 
 onMounted(() => {
   loadMembersData()
@@ -37,7 +51,7 @@ const loadMembersData = () => {
     })
 
     const realTaskCount = Object.values(userId2taskCount).reduce((total, count) => total + count)
-    if (realTaskCount > totalTaskCount.value){
+    if (realTaskCount > totalTaskCount.value) {
       totalTaskCount.value = realTaskCount
     }
 
@@ -45,64 +59,74 @@ const loadMembersData = () => {
       uid = parseInt(uid)
       const taskCount = userId2taskCount[uid]
       const user = userStore.getUser(uid)
-      const p = taskCount/totalTaskCount.value * 100
-      members.value.push({
+      busyMembers.value.push({
         id: user.id,
         nickname: user.nickname,
         avatar: user.avatar,
         taskCount: taskCount,
-        heightPercent: p
       })
     }
+
+    setTimeout(() => {
+      project.value.users.forEach(pu => {
+        if (!sortedUserIds.includes(pu.id)) {
+          idleMembers.value.push({
+            id: pu.id,
+            nickname: pu.nickname,
+            avatar: pu.avatar,
+            taskCount: 0,
+          })
+        }
+      })
+    }, 100)
 
   })
 }
 
-const getWeightedColor = (colorSeries, memberTaskCount, totalCount) => {
-  let hue = 240  // 色系
-  switch (colorSeries) {
-    case 'red':
-      hue = 0
-          break
-    case 'blue':
-      hue = 240
-          break
-    case 'green':
-      hue = 147
-          break
-    case 'yellow':
-      hue = 39
-          break
-  }
-  // 默认配置
-  let saturation = 60   // 饱和度
-  const lightness = 50  // 亮度
-
-  // 处理权重范围
-  const safeMin = Math.min(minWeight, maxWeight);
-  const safeMax = Math.max(minWeight, maxWeight);
-
-  // 计算权重比例（0-1之间）
-  let ratio = (weight - safeMin) / (safeMax - safeMin || 1); // 避免除以0
-  ratio = Math.max(0, Math.min(1, ratio)); // 限制在0-1范围
-
-  // 计算当前亮度（权重越大亮度越低）
-  saturation = minLightness + (1 - ratio) * (maxLightness - minLightness);
-
-  // 返回HSL颜色字符串
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+const onClickBusyMember = (memberId) => {
+  emit('onSelectMember', memberId)
 }
 
 </script>
 
 <style scoped lang="less">
-.aui-members-stats-card{
+.aui-members-stats-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: scroll;
 
-  .aui-member-stats-card{
+  .aui-i-busy-members {
+    margin-bottom: 5px;
+  }
+
+  .aui-i-idle-members {
+    &::before {
+      content: '==== 未出现的成员 ====';
+      display: block;
+      width: 100%;
+      text-align: center;
+      color: gray;
+    }
+  }
+
+  .aui-i-busy-members, .aui-i-idle-members {
     display: flex;
-    align-items: center;
-    margin-bottom: 2px;
+    flex-wrap: wrap;
+    gap: 2px;
+    justify-content: flex-start;
+
+    .aui-i-member-card {
+      min-width: 40%;
+      max-width: 50%;
+      flex: 1;
+      display: inline-block;
+
+      .ivu-card-body {
+        padding: 4px !important;
+      }
+    }
   }
 }
 
