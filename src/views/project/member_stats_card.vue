@@ -11,7 +11,7 @@
         </div>
       </Card>
     </div>
-    <div class="aui-i-idle-members">
+    <div v-if="idleMembers.length > 0" class="aui-i-idle-members">
       <Card :bordered="false" class="aui-i-member-card" v-for="member in idleMembers" :key="member.id">
         <div>
           <Avatar :src="member.avatar">{{ member.nickname[0] }}</Avatar>
@@ -67,9 +67,10 @@ const loadMembersData = () => {
       })
     }
 
+    if (realTaskCount > 50) return
     setTimeout(() => {
       project.value.users.forEach(pu => {
-        if (!sortedUserIds.includes(pu.id)) {
+        if (!sortedUserIds.includes(pu.id+'')) {
           idleMembers.value.push({
             id: pu.id,
             nickname: pu.nickname,
@@ -79,7 +80,6 @@ const loadMembersData = () => {
         }
       })
     }, 100)
-
   })
 }
 
@@ -88,6 +88,12 @@ const onClickBusyMember = (memberId) => {
 }
 
 </script>
+
+<style lang="less">
+.aui-members-stats-card .aui-i-member-card .ivu-card-body{
+  padding: 6px 4px !important;
+}
+</style>
 
 <style scoped lang="less">
 .aui-members-stats-card {
