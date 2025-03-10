@@ -44,7 +44,6 @@ onMounted(() => {
 })
 
 const loadMembersData = () => {
-  console.log(props.lane.tasks)
   StatsService.getStatsForProjectUsersInLane(project.value.id, props.lane.id).then(userId2taskCount => {
     const sortedUserIds = Object.keys(userId2taskCount).sort((a, b) => {
       return userId2taskCount[b] - userId2taskCount[a]

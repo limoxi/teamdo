@@ -129,7 +129,7 @@ import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
 import moment from "moment";
 import {storeToRefs} from "pinia";
-import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "../../utils/constant";
+import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "@/utils/constant";
 import {useRouter} from 'vue-router'
 
 const router = useRouter()
@@ -261,8 +261,73 @@ const membersTaskOptions = ref({
 })
 
 onMounted(() => {
-  loadAllMembersData()
+  if (project.value.id === 34) {  // 暂时固定
+    loadAllMembersTaskData()
+  } else {
+    loadAllMembersData()
+  }
 })
+
+const loadAllMembersTaskData = () => {
+  if (selectedMemberId.value > 0) return
+
+  const statsLaneIds = [487, 503, 555, 595]  // 暂时固定
+  loadingCharts.value = true
+  StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, statsLaneIds).then(respData => {
+    const userId2count = {}
+    Object.keys(respData).forEach(k => {
+      if (!projectUserIds.value.some(puid => puid === parseInt(k))){
+        return
+      }
+      userId2count[parseInt(k)] = parseInt(respData[k])
+    })
+
+    // 填充所有项目成员
+    project.value.users.forEach(user => {
+      if (user.id in userId2count) {
+
+      } else {
+        userId2count[user.id] = 0
+      }
+    })
+
+    const sortedUserIds = Object.keys(userId2count).sort((a, b) => {
+      if (userId2count[b] === userId2count[a]) return -1
+      return userId2count[a] - userId2count[b]
+    })
+
+    const seriesData = []
+    for (let userId of sortedUserIds){
+      userId = parseInt(userId)
+      seriesData.push({
+        value: userId2count[userId],
+        itemStyle: {
+          borderRadius: [0, 30, 30, 0]
+        }
+      })
+    }
+
+    const series = [{
+      data: seriesData,
+      type: 'bar',
+      color: '#19be6b',
+      label: {
+        show: false,
+      },
+      name: '今日新增'
+    }]
+
+    membersTaskOptions.value['yAxis']['data'] = sortedUserIds.filter(uid => {
+      return !!project.value.getUser(parseInt(uid))
+    }).map(uid => {
+      return project.value.getUser(parseInt(uid)).nickname
+    })
+
+    membersTaskOptions.value['series'] = series
+
+    loadingCharts.value = false
+  })
+}
 
 const sortUsers = (userId2data, sortBy) => {
   let sortAction = 'asc'
@@ -323,7 +388,6 @@ const loadAllMembersData = () => {
       })
       userId2data[parseInt(k)] = vData
     })
-    console.log(userId2data)
 
     const sortedUserIds = sortUsers(userId2data, sortMembersStatsAction.value)
     const taskStatus2counts = {

@@ -31,11 +31,25 @@ class StatsService {
     })
   }
 
+  // getStatsForProjectUsers 项目成员各任务状态的数量
   static getStatsForProjectUsers(projectId) {
     return Resource.get({
       'resource': 'stats.project.users',
       'data': {
         'project_id': projectId,
+        'view': 'task_count_by_status'
+      }
+    })
+  }
+
+  // getTaskCountStatsForProjectUsersInLanes 项目成员在泳道中的新任务数量
+  static getTaskCountStatsForProjectUsersInLanes(projectId, laneIds) {
+    return Resource.get({
+      'resource': 'stats.project.users',
+      'data': {
+        'project_id': projectId,
+        'lane_ids': laneIds.join(','),
+        'view': 'new_task_count_in_lanes'
       }
     })
   }
