@@ -100,7 +100,7 @@ const useModalStore = defineStore('modal', () => {
                 usersSelectModal.value.laneId = data?.laneId || 0
                 usersSelectModal.value.userSelected = false
                 usersSelectModal.value.selectedUserIds = data?.selectedUserIds || []
-                usersSelectModal.value.limitCount = data?.limitCount || 3
+                usersSelectModal.value.limitCount = data?.limitCount || 5
                 usersSelectModal.value.action = data?.action || ''
                 usersSelectModal.value.show = true
                 break
