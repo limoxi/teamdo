@@ -150,8 +150,8 @@ class Project {
         return []
     }
 
-    addLane(name, kanbanType, afterLaneId) {
-        return LaneService.addLane(this.id, name, kanbanType, afterLaneId).then((laneData) => {
+    addLane(name, kanbanType, roles, afterLaneId) {
+        return LaneService.addLane(this.id, name, kanbanType, roles, afterLaneId).then((laneData) => {
             const lanes = this.getLanesByKanbanType(kanbanType)
             const afterIndex = lanes.findIndex(lane => lane.id === afterLaneId)
             const newLane = new Lane(this, laneData)

@@ -12,13 +12,14 @@ class LaneService {
         });
     }
 
-    static addLane(projectId, newLaneName, kanbanType, afterLaneId) {
+    static addLane(projectId, newLaneName, kanbanType, roles, afterLaneId) {
         return Resource.put({
             'resource': 'project.lane',
             'data': {
                 'project_id': projectId,
                 'kanban_type': kanbanType,
                 'name': newLaneName,
+                'roles': roles,
                 'after_lane_id': afterLaneId
             }
         });
@@ -32,6 +33,7 @@ class LaneService {
                 'id': newLane.id,
                 'name': newLane.name,
                 'wip': newLane.wip,
+                'roles': newLane.roles,
                 'is_end': newLane.isEnd
             }
         });

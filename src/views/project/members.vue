@@ -30,6 +30,22 @@
     </div>
 
     <div class="aui-i-members-stats" v-if="selectedMemberId === 0">
+      <div class="aui-i-lanes">
+        <Space split>
+          <LaneSelector
+              class="aui-i-laneFilter"
+              size="small"
+              :lanes="project.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))"
+              @on-selected="onSelectLane"/>
+          <Space style="flex-wrap: wrap">
+            <div v-if="selectedLanes.length > 0" v-for="lane in selectedLanes" :key="lane.id" class="aui-i-selected-lane">
+              <Tag closable @on-close="onRemoveSelectedLane(lane)">{{ lane.name }}</Tag>
+            </div>
+            <p v-else>未选择</p>
+          </Space>
+          <Button size="small" @click="loadAllMembersTaskData">刷新</Button>
+        </Space>
+      </div>
       <v-chart
           class="aui-i-chart"
           :theme="theme"
@@ -123,7 +139,7 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
-import {Button, ListItem, ListItemMeta, Message, Modal} from 'view-ui-plus'
+import {Button, ListItem, ListItemMeta, Message, Modal, Space, Tag} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
@@ -131,6 +147,7 @@ import moment from "moment";
 import {storeToRefs} from "pinia";
 import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "@/utils/constant";
 import {useRouter} from 'vue-router'
+import LaneSelector from "@/components/lane_selector.vue";
 
 const router = useRouter()
 
@@ -262,6 +279,7 @@ const membersTaskOptions = ref({
 
 onMounted(() => {
   if (project.value.id === 34) {  // 暂时固定
+    selectedLanes.value = project.value.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))
     loadAllMembersTaskData()
   } else {
     loadAllMembersData()
@@ -271,7 +289,7 @@ onMounted(() => {
 const loadAllMembersTaskData = () => {
   if (selectedMemberId.value > 0) return
 
-  const statsLaneIds = [487, 503, 555, 595]  // 暂时固定
+  const statsLaneIds = selectedLanes.value.map(lane => lane.id)
   loadingCharts.value = true
   StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, statsLaneIds).then(respData => {
     const userId2count = {}
@@ -327,6 +345,21 @@ const loadAllMembersTaskData = () => {
 
     loadingCharts.value = false
   })
+}
+
+const onSelectLane = selectedLaneId => {
+  if (selectedLanes.value.filter(lane => lane.id === selectedLaneId).length > 0) {
+    Message.warning('请勿重复选择')
+    return
+  }
+  const filteredTags = project.value.kanbanLanes.filter(lane => lane.id === selectedLaneId)
+
+  selectedLanes.value.push(filteredTags[0])
+}
+
+const onRemoveSelectedLane = removingLane => {
+  const index = selectedLanes.value.findIndex(lane => lane.id === removingLane.id)
+  selectedLanes.value.splice(index, 1)
 }
 
 const sortUsers = (userId2data, sortBy) => {
@@ -640,6 +673,7 @@ const onOpenTasks = (e, member) => {
 }
 
 let selectedMemberId = ref(0)
+let selectedLanes = ref([])
 let memberTotalTaskCount = ref(0)
 let memberFinishedTaskCount = ref(0)
 let memberWorkingTaskCount = ref(0)
@@ -711,6 +745,10 @@ const resetStats = () => {
     height: calc(100vh - 80px);
     overflow-y: scroll;
     overflow-x: hidden;
+
+    .aui-i-lanes{
+      margin-bottom: 10px;
+    }
 
     .aui-i-chart {
       height: 100%;
