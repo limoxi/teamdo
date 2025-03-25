@@ -7,6 +7,11 @@
           <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action"
                 @click="changeMode(LANE_DISPLAY_MODE_LIST)"/>
         </template>
+        <template v-else>
+          <Icon v-if="kanbanMemberStatsSight" type="ios-albums" size="20" class="aui-i-action"
+                @click="onSwitchKanbanMemberStatsSight"/>
+          <Icon v-else type="ios-people" class="aui-i-action" size="20"  @click="onSwitchKanbanMemberStatsSight"/>
+        </template>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
           <template #list>
@@ -65,7 +70,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onMounted, ref} from 'vue'
+import {computed, inject, onMounted, ref, watch} from 'vue'
 import {Dropdown, DropdownItem, DropdownMenu, Icon, Modal} from 'view-ui-plus'
 import Draggable from 'vuedraggable'
 import {useConfigStore, useModalStore, useTaskFilterStore} from '@/store'
@@ -78,12 +83,15 @@ import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
 const configStore = useConfigStore()
-const {kanbanMemberStatsSight} = storeToRefs(configStore)
+const {closeKanbanMemberStatsSight} = storeToRefs(configStore)
 
 const taskFilterStore = useTaskFilterStore()
 
 const emit = defineEmits(['onChangeDisplayMode'])
 const props = defineProps(['laneId', 'index', 'kanbanType', 'displayMode'])
+
+const kanbanMemberStatsSight = ref(false)
+
 const project = inject('project')
 const projectId = inject('projectId')
 const currLane = computed(() => {
@@ -112,6 +120,12 @@ const className = computed(() => {
     cn += ' hide'
   }
   return cn
+})
+
+watch(closeKanbanMemberStatsSight, (newVal, oldVal) => {
+  if (newVal) {
+    kanbanMemberStatsSight.value = false
+  }
 })
 
 onMounted(() => {
@@ -195,6 +209,12 @@ const onClickAction = (name) => {
 
 const onSelectMemberOnStatsCard = (memberId) => {
   taskFilterStore.updateAssignorId(memberId)
+  kanbanMemberStatsSight.value = false
+  configStore.closeAllKanbanMemberStatsSight()
+}
+
+const onSwitchKanbanMemberStatsSight = () => {
+  kanbanMemberStatsSight.value = !kanbanMemberStatsSight.value
 }
 
 const laneWidthGrow = isEpicType(props.kanbanType) ? 1 : 0

@@ -37,9 +37,6 @@
         <Icon v-else type="md-clock" class="aui-i-icon" @click="configStore.switchStorySight"/>
         <Icon v-if="prioritySight" type="md-glasses" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
         <Icon v-else type="md-eye" class="aui-i-icon" @click="configStore.switchKanbanSight"/>
-        <Icon v-if="kanbanMemberStatsSight" type="ios-albums" style="font-weight: bold" class="aui-i-icon"
-              @click="configStore.switchKanbanMemberStatsSight"/>
-        <Icon v-else type="ios-people" class="aui-i-icon" @click="configStore.switchKanbanMemberStatsSight"/>
       </template>
       <Input
           placeholder="筛选编号或内容"
@@ -147,7 +144,7 @@ const selectModeOn = computed(() => taskMode.value === 'SELECT')
 const props = defineProps(['kanbanType', 'displayMode'])
 
 const configStore = useConfigStore()
-const {prioritySight, storySight, kanbanMemberStatsSight} = storeToRefs(configStore)
+const {prioritySight, storySight} = storeToRefs(configStore)
 
 const project = inject('project')
 const projectId = inject('projectId')
@@ -173,7 +170,6 @@ watch(updated, (newVal, oldVal) => {
   if (newVal) {
     handleSearch()
     updated.value = false
-    kanbanMemberStatsSight.value = false
   }
 })
 
