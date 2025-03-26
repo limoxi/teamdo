@@ -330,7 +330,8 @@ const loadAllMembersTaskData = () => {
       type: 'bar',
       color: '#19be6b',
       label: {
-        show: false,
+        show: true,
+        position: 'right'
       },
       name: '今日新增'
     }]
@@ -446,7 +447,8 @@ const loadAllMembersData = () => {
         stack: 's',
         color: getStatusColor(statusNum),
         label: {
-          show: false,
+          show: true,
+          position: 'right'
         },
         name: statusText
       })
