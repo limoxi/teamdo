@@ -13,7 +13,7 @@
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
       </FormItem>
       <FormItem label="角色" prop="roles">
-        <RoleSelector v-model="form.name"
+        <RoleSelector v-model="form.role"
                       @on-selected="selectedRole => form.role = selectedRole"
         ></RoleSelector>
       </FormItem>

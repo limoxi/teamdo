@@ -31,13 +31,21 @@
 
     <div class="aui-i-members-stats" v-if="selectedMemberId === 0">
       <div class="aui-i-lanes">
-        <Space split>
+        <Space split :size="2">
+          <DatePicker
+              type="date"
+              format="yyyy年MM月dd日"
+              v-model="selectedDate"
+              size="small"
+              show-week-numbers
+              placeholder="选择日期"
+              style="width: 150px" />
           <LaneSelector
               class="aui-i-laneFilter"
               size="small"
               :lanes="project.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))"
               @on-selected="onSelectLane"/>
-          <Space style="flex-wrap: wrap">
+          <Space style="flex-wrap: wrap" :size="1">
             <div v-if="selectedLanes.length > 0" v-for="lane in selectedLanes" :key="lane.id" class="aui-i-selected-lane">
               <Tag closable @on-close="onRemoveSelectedLane(lane)">{{ lane.name }}</Tag>
             </div>
@@ -45,6 +53,9 @@
           </Space>
           <Button size="small" @click="loadAllMembersTaskData">刷新</Button>
         </Space>
+      </div>
+      <div v-if="totalMembersTaskCount > 0">
+        任务总数：<b>{{ totalMembersTaskCount }}</b>
       </div>
       <v-chart
           class="aui-i-chart"
@@ -139,7 +150,7 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
-import {Button, ListItem, ListItemMeta, Message, Modal, Space, Tag} from 'view-ui-plus'
+import {Button, DatePicker, ListItem, ListItemMeta, Message, Modal, Space, Tag} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
@@ -154,6 +165,8 @@ const router = useRouter()
 const userActiveTrends = ref(null)
 const date2userActiveCount = ref({})
 const sortMembersStatsAction = ref('-total')  // not_start, working, finished, abort, total
+const selectedDate = ref(moment().toDate())
+const totalMembersTaskCount = ref(0)
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -278,7 +291,7 @@ const membersTaskOptions = ref({
 })
 
 onMounted(() => {
-  if (project.value.id === 34) {  // 暂时固定
+  if (project.value.id === 34 || project.value.id === 1) {  // 暂时固定
     selectedLanes.value = project.value.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))
     loadAllMembersTaskData()
   } else {
@@ -290,8 +303,12 @@ const loadAllMembersTaskData = () => {
   if (selectedMemberId.value > 0) return
 
   const statsLaneIds = selectedLanes.value.map(lane => lane.id)
+  let fromLaneRole = '研发'
   loadingCharts.value = true
-  StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, statsLaneIds).then(respData => {
+  const statsDate = moment(selectedDate.value).format('YYYY-MM-DD')
+  StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, fromLaneRole, statsLaneIds, statsDate).then(resp => {
+    const respData = resp.user_data
+    totalMembersTaskCount.value = resp.total_task_count
     const userId2count = {}
     Object.keys(respData).forEach(k => {
       if (!projectUserIds.value.some(puid => puid === parseInt(k))){

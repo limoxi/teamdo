@@ -8,6 +8,7 @@
       :remote-method="searchRole"
       @on-query-change="onQueryChange"
       @on-select="onSelectRole"
+      @on-clear="onClearRole"
       style="width: 150px"
   >
     <Option v-for="role in selectableRoles" :value="role" :key="role">
@@ -36,27 +37,31 @@ const props = defineProps({
   }
 })
 
-const selectableRoles = ref([])
-const roles = ref(['研发', '测试', '产品'])
+const roles = ['研发', '测试', '产品']
+const selectableRoles = ref(roles)
 
 onMounted(() => {
 
 })
 
 const searchRole = (query) => {
-  selectableRoles.value = roles.value.filter(role => {
+  selectableRoles.value = roles.filter(role => {
     return !!(PinyinMatch.match(role, query)) || role === query
   })
 }
 
 const onSelectRole = selectedRole => {
-  emit('onSelected', roles.value.find(role => role === selectedRole.value))
+  emit('onSelected', roles.find(role => role === selectedRole.value))
   selector.value.setQuery(null)
+}
+
+const onClearRole = () => {
+  emit('onSelected', '')
 }
 
 const onQueryChange = query => {
   if (query === '') {
-    selectableRoles.value = roles.value
+    selectableRoles.value = roles
   }
 }
 

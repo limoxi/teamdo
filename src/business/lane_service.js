@@ -26,6 +26,10 @@ class LaneService {
     }
 
     static updateLane(projectId, newLane) {
+        const roles = []
+        if (newLane.role) {
+            roles.push(newLane.role)
+        }
         return Resource.post({
             'resource': 'project.lane',
             'data': {
@@ -33,7 +37,7 @@ class LaneService {
                 'id': newLane.id,
                 'name': newLane.name,
                 'wip': newLane.wip,
-                'roles': newLane.roles,
+                'roles': roles,
                 'is_end': newLane.isEnd
             }
         });

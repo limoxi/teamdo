@@ -43,12 +43,14 @@ class StatsService {
   }
 
   // getTaskCountStatsForProjectUsersInLanes 项目成员在泳道中的新任务数量
-  static getTaskCountStatsForProjectUsersInLanes(projectId, laneIds) {
+  static getTaskCountStatsForProjectUsersInLanes(projectId, fromLaneRole, laneIds, statsDate) {
     return Resource.get({
       'resource': 'stats.project.users',
       'data': {
         'project_id': projectId,
+        'from_lane_role': fromLaneRole,
         'lane_ids': laneIds.join(','),
+        'stats_date': statsDate,
         'view': 'new_task_count_in_lanes'
       }
     })
