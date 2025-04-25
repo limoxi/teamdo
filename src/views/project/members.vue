@@ -55,9 +55,10 @@
         </Space>
       </div>
       <div v-if="totalMembersTaskCount > 0">
-        任务总数：<b>{{ totalMembersTaskCount }}</b>
+        任务总数：<b style="cursor: pointer" @click="onClickTotalTasks">{{ totalMembersTaskCount }}</b>
       </div>
       <v-chart
+          @click="onClickMemberTasksChart"
           class="aui-i-chart"
           :theme="theme"
           autoresize
@@ -143,6 +144,7 @@
       </div>
     </div>
   </div>
+  <TasksCardModal ref="tasksCardModal"/>
 </template>
 
 <script setup>
@@ -159,6 +161,7 @@ import {storeToRefs} from "pinia";
 import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "@/utils/constant";
 import {useRouter} from 'vue-router'
 import LaneSelector from "@/components/lane_selector.vue";
+import TasksCardModal from '@/components/modal/tasks_card_modal.vue'
 
 const router = useRouter()
 
@@ -167,6 +170,9 @@ const date2userActiveCount = ref({})
 const sortMembersStatsAction = ref('-total')  // not_start, working, finished, abort, total
 const selectedDate = ref(moment().toDate())
 const totalMembersTaskCount = ref(0)
+const memberId2taskIds = ref({})
+const allMemberTaskIds = ref([])
+const tasksCardModal = ref(null)
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -299,6 +305,21 @@ onMounted(() => {
   }
 })
 
+const onClickMemberTasksChart = (e) => {
+  const memberName = e.name
+  const member = project.value.getUserByName(memberName)
+  if (!member) return
+
+  const taskIds = memberId2taskIds.value[member.id]
+  if (taskIds.length === 0) return
+
+  tasksCardModal.value.show(`${memberName} · ${taskIds.length}`, project.value.id, taskIds)
+}
+
+const onClickTotalTasks = () => {
+  tasksCardModal.value.show(`总任务 · ${totalMembersTaskCount.value}`, project.value.id, allMemberTaskIds.value)
+}
+
 const loadAllMembersTaskData = () => {
   if (selectedMemberId.value > 0) return
 
@@ -307,7 +328,9 @@ const loadAllMembersTaskData = () => {
   loadingCharts.value = true
   const statsDate = moment(selectedDate.value).format('YYYY-MM-DD')
   StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, fromLaneRole, statsLaneIds, statsDate).then(resp => {
-    const respData = resp.user_data
+    memberId2taskIds.value = resp.user_data.user_tasks
+    allMemberTaskIds.value = resp.total_task_ids
+    const respData = resp.user_data.user_task_count
     totalMembersTaskCount.value = resp.total_task_count
     const userId2count = {}
     Object.keys(respData).forEach(k => {

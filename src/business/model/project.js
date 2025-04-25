@@ -99,6 +99,14 @@ class Project {
         }
     }
 
+    getUserByName(userName) {
+        for (const pu of this.users) {
+            if (pu.nickname === userName) {
+                return pu
+            }
+        }
+    }
+
     reloadUsers() {
         if (this.id <= 0) return
         return ProjectService.getProjectMembers(this.id).then(data => {

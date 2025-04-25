@@ -56,6 +56,28 @@ class TaskService {
         }
     }
 
+    static async getTasksByIdsInProject(projectId, taskIds) {
+        let data = {
+            'project_id': projectId,
+            'filters': {
+                'id__in': taskIds,
+            },
+            'with_options': {
+                'with_lane': true,
+                'with_tags': true,
+                'with_users': true,
+            },
+            'cur_page': 1,
+            'page_size': taskIds.length
+        }
+
+        const respData = await Resource.get({
+            'resource': 'project.tasks',
+            'data': data
+        })
+        return respData.tasks.map(task => new Task(task))
+    }
+
     static async getUserJoinedTasks(filters = null, withOptions = null, orderFields = null, page = null, userId = 0) {
         let data = {
             'user_id': userId,
