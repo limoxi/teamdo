@@ -99,6 +99,14 @@ class Project {
         }
     }
 
+    getUserByName(userName) {
+        for (const pu of this.users) {
+            if (pu.nickname === userName) {
+                return pu
+            }
+        }
+    }
+
     reloadUsers() {
         if (this.id <= 0) return
         return ProjectService.getProjectMembers(this.id).then(data => {
@@ -150,8 +158,8 @@ class Project {
         return []
     }
 
-    addLane(name, kanbanType, afterLaneId) {
-        return LaneService.addLane(this.id, name, kanbanType, afterLaneId).then((laneData) => {
+    addLane(name, kanbanType, roles, afterLaneId) {
+        return LaneService.addLane(this.id, name, kanbanType, roles, afterLaneId).then((laneData) => {
             const lanes = this.getLanesByKanbanType(kanbanType)
             const afterIndex = lanes.findIndex(lane => lane.id === afterLaneId)
             const newLane = new Lane(this, laneData)

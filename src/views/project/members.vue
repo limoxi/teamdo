@@ -30,7 +30,35 @@
     </div>
 
     <div class="aui-i-members-stats" v-if="selectedMemberId === 0">
+      <div class="aui-i-lanes">
+        <Space split :size="2">
+          <DatePicker
+              type="date"
+              format="yyyy年MM月dd日"
+              v-model="selectedDate"
+              size="small"
+              show-week-numbers
+              placeholder="选择日期"
+              style="width: 150px" />
+          <LaneSelector
+              class="aui-i-laneFilter"
+              size="small"
+              :lanes="project.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))"
+              @on-selected="onSelectLane"/>
+          <Space style="flex-wrap: wrap" :size="1">
+            <div v-if="selectedLanes.length > 0" v-for="lane in selectedLanes" :key="lane.id" class="aui-i-selected-lane">
+              <Tag closable @on-close="onRemoveSelectedLane(lane)">{{ lane.name }}</Tag>
+            </div>
+            <p v-else>未选择</p>
+          </Space>
+          <Button size="small" @click="loadAllMembersTaskData">刷新</Button>
+        </Space>
+      </div>
+      <div v-if="totalMembersTaskCount > 0">
+        任务总数：<b style="cursor: pointer" @click="onClickTotalTasks">{{ totalMembersTaskCount }}</b>
+      </div>
       <v-chart
+          @click="onClickMemberTasksChart"
           class="aui-i-chart"
           :theme="theme"
           autoresize
@@ -116,6 +144,7 @@
       </div>
     </div>
   </div>
+  <TasksCardModal ref="tasksCardModal"/>
 </template>
 
 <script setup>
@@ -123,7 +152,7 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
-import {Button, ListItem, ListItemMeta, Message, Modal} from 'view-ui-plus'
+import {Button, DatePicker, ListItem, ListItemMeta, Message, Modal, Space, Tag} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
@@ -131,12 +160,19 @@ import moment from "moment";
 import {storeToRefs} from "pinia";
 import {getStatusColor, taskStatus2Num, taskStatus2Text, taskType2Name} from "@/utils/constant";
 import {useRouter} from 'vue-router'
+import LaneSelector from "@/components/lane_selector.vue";
+import TasksCardModal from '@/components/modal/tasks_card_modal.vue'
 
 const router = useRouter()
 
 const userActiveTrends = ref(null)
 const date2userActiveCount = ref({})
 const sortMembersStatsAction = ref('-total')  // not_start, working, finished, abort, total
+const selectedDate = ref(moment().toDate())
+const totalMembersTaskCount = ref(0)
+const memberId2taskIds = ref({})
+const allMemberTaskIds = ref([])
+const tasksCardModal = ref(null)
 
 const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
@@ -261,19 +297,41 @@ const membersTaskOptions = ref({
 })
 
 onMounted(() => {
-  if (project.value.id === 34) {  // 暂时固定
+  if (project.value.id === 34 || project.value.id === 1) {  // 暂时固定
+    selectedLanes.value = project.value.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))
     loadAllMembersTaskData()
   } else {
     loadAllMembersData()
   }
 })
 
+const onClickMemberTasksChart = (e) => {
+  const memberName = e.name
+  const member = project.value.getUserByName(memberName)
+  if (!member) return
+
+  const taskIds = memberId2taskIds.value[member.id]
+  if (taskIds.length === 0) return
+
+  tasksCardModal.value.show(`${memberName} · ${taskIds.length}`, project.value.id, taskIds)
+}
+
+const onClickTotalTasks = () => {
+  tasksCardModal.value.show(`总任务 · ${totalMembersTaskCount.value}`, project.value.id, allMemberTaskIds.value)
+}
+
 const loadAllMembersTaskData = () => {
   if (selectedMemberId.value > 0) return
 
-  const statsLaneIds = [487, 503, 555, 595]  // 暂时固定
+  const statsLaneIds = selectedLanes.value.map(lane => lane.id)
+  let fromLaneRole = '研发'
   loadingCharts.value = true
-  StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, statsLaneIds).then(respData => {
+  const statsDate = moment(selectedDate.value).format('YYYY-MM-DD')
+  StatsService.getTaskCountStatsForProjectUsersInLanes(project.value.id, fromLaneRole, statsLaneIds, statsDate).then(resp => {
+    memberId2taskIds.value = resp.user_data.user_tasks
+    allMemberTaskIds.value = resp.total_task_ids
+    const respData = resp.user_data.user_task_count
+    totalMembersTaskCount.value = resp.total_task_count
     const userId2count = {}
     Object.keys(respData).forEach(k => {
       if (!projectUserIds.value.some(puid => puid === parseInt(k))){
@@ -312,7 +370,8 @@ const loadAllMembersTaskData = () => {
       type: 'bar',
       color: '#19be6b',
       label: {
-        show: false,
+        show: true,
+        position: 'right'
       },
       name: '今日新增'
     }]
@@ -327,6 +386,21 @@ const loadAllMembersTaskData = () => {
 
     loadingCharts.value = false
   })
+}
+
+const onSelectLane = selectedLaneId => {
+  if (selectedLanes.value.filter(lane => lane.id === selectedLaneId).length > 0) {
+    Message.warning('请勿重复选择')
+    return
+  }
+  const filteredTags = project.value.kanbanLanes.filter(lane => lane.id === selectedLaneId)
+
+  selectedLanes.value.push(filteredTags[0])
+}
+
+const onRemoveSelectedLane = removingLane => {
+  const index = selectedLanes.value.findIndex(lane => lane.id === removingLane.id)
+  selectedLanes.value.splice(index, 1)
 }
 
 const sortUsers = (userId2data, sortBy) => {
@@ -413,7 +487,8 @@ const loadAllMembersData = () => {
         stack: 's',
         color: getStatusColor(statusNum),
         label: {
-          show: false,
+          show: true,
+          position: 'right'
         },
         name: statusText
       })
@@ -640,6 +715,7 @@ const onOpenTasks = (e, member) => {
 }
 
 let selectedMemberId = ref(0)
+let selectedLanes = ref([])
 let memberTotalTaskCount = ref(0)
 let memberFinishedTaskCount = ref(0)
 let memberWorkingTaskCount = ref(0)
@@ -711,6 +787,10 @@ const resetStats = () => {
     height: calc(100vh - 80px);
     overflow-y: scroll;
     overflow-x: hidden;
+
+    .aui-i-lanes{
+      margin-bottom: 10px;
+    }
 
     .aui-i-chart {
       height: 100%;

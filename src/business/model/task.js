@@ -33,6 +33,7 @@ class Task {
 
     this.tags = taskData?.tags ?? []
     this.users = taskData?.users ?? []
+    this.lane = taskData?.lane ?? {}
 
     this.projectId = taskData?.project_id ?? 0
     if (taskData?.project) {

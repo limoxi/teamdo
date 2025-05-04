@@ -12,6 +12,11 @@
       <FormItem label="WIP" prop="wip" v-if="!isCreateMode">
         <InputNumber :max="15" :min="0" v-model="form.wip" :editable="false"></InputNumber>
       </FormItem>
+      <FormItem label="角色" prop="roles">
+        <RoleSelector v-model="form.role"
+                      @on-selected="selectedRole => form.role = selectedRole"
+        ></RoleSelector>
+      </FormItem>
       <FormItem label="终结泳道" prop="isEnd" v-if="!isCreateMode">
         <Switch v-model="form.isEnd"/>
       </FormItem>
@@ -25,6 +30,7 @@
 <script setup>
 import {computed, inject, ref} from "vue";
 import {FormItem, InputNumber, Message, Modal, Switch} from 'view-ui-plus'
+import RoleSelector from '@/components/role_selector'
 import {useModalStore} from "@/store";
 import {storeToRefs} from "pinia";
 
@@ -41,6 +47,7 @@ const form = ref({
   id: 0,
   name: '',
   wip: 8,  // 默认
+  role: '',
   isEnd: false
 })
 const project = inject('project')
@@ -51,6 +58,7 @@ modalStore.$subscribe((_, state) => {
     form.value.id = store.lane?.id || 0
     form.value.name = store.mode === 'create' ? '' : store.lane?.name || ''
     form.value.wip = store.lane ? store.lane.wip : 8
+    form.value.role = store.lane ? (store.lane.roles ? store.lane.roles[0] : '') : ''
     form.value.isEnd = store.lane?.isEnd || false
   }
 })
@@ -66,8 +74,16 @@ const title = computed(() => {
 const confirm = () => {
   laneForm.value.validate((valid) => {
     if (valid) {
+      const roles = []
+      if (form.value.role !== '') {
+        roles.push(form.value.role)
+      }
       if (isCreateMode.value) {
-        project.value.addLane(form.value.name, laneModal.value.kanbanType, laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
+        project.value.addLane(
+            form.value.name,
+            laneModal.value.kanbanType,
+            roles,
+            laneModal.value.lane ? laneModal.value.lane.id : 0).then(() => {
           modalStore.close('laneModal')
           Message.success('泳道已添加');
           resetForm();

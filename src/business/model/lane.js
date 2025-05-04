@@ -8,6 +8,8 @@ class Lane {
         this.id = data?.id ?? 0
         this.name = data?.name ?? ''
         this.wip = data?.wip ?? 8
+        this.roles = data?.roles ?? []
+
         this.isEnd = data?.is_end ?? false
         this.kanbanType = data?.kanban_type ?? KANBAN_TYPE_KANBAN
         this.managerIds = data?.manager_ids ?? []
