@@ -5,13 +5,13 @@
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
         <Tooltip :content="creator.nickname" placement="right">
           <Avatar
-            style="color:#ff9900;background-color: #e8eaec"
-            :src="creator.avatar"
+              style="color:#ff9900;background-color: #e8eaec"
+              :src="creator.avatar"
           >{{ (creator.nickname && creator.nickname[0]) || '' }}
           </Avatar>
         </Tooltip>
         <span @click="onCLickTaskNo" class="aui-i-id"># {{ task.id }}</span>
-        <span :style="{color: getStatusColor(task.status)}">{{task.status}}</span>
+        <span :style="{color: getStatusColor(task.status)}">{{ task.status }}</span>
         <Badge :color="importanceColor" :text="`来源·${task.fromWhere}`"/>
       </Space>
       <div class="aui-i-action">
@@ -21,8 +21,8 @@
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
         <Button icon="md-filing" class="aui-icon-scale" @click="onAddRelation"></Button>
         <Dropdown
-          v-if="lanes.length > 1"
-          trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
+            v-if="lanes.length > 1"
+            trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
             <DropdownMenu>
@@ -49,7 +49,8 @@
                  class="aui-i-tag" @click="onClickTag(tag)"
           />
         </template>
-        <Badge v-if="task.expectedFinishedAt" :color="importanceColor" :text="`截止于 ${helper.formatTime(task.expectedFinishedAt)}`"></Badge>
+        <Badge v-if="task.expectedFinishedAt" :color="importanceColor"
+               :text="`截止于 ${helper.formatTime(task.expectedFinishedAt)}`"></Badge>
       </div>
       <div class="aui-i-extra">
         <Space :size="1" split>
@@ -73,11 +74,12 @@
           />
           <Icon type="md-paper" v-if="task.hasDesc"/>
           <span
-            :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
-            v-if="task.children.length === 0"
-          >{{task.progress}}%</span>
+              :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
+              v-if="task.children.length === 0"
+          >{{ task.progress }}%</span>
           <Poptip trigger="hover" v-else placement="top" transfer>
-            <span :style="{color:getStatusColor(task.status), cursor: 'pointer', fontWeight: 'bold'}">{{task.progress}}%</span>
+            <span
+                :style="{color:getStatusColor(task.status), cursor: 'pointer', fontWeight: 'bold'}">{{ task.progress }}%</span>
             <template #title>
               <p style="font-size: 12px">关联任务数: <b>{{ task.children.length }}</b></p>
             </template>
@@ -120,10 +122,14 @@ import {
   Button,
   Checkbox,
   Copy,
-  Dropdown, DropdownItem,
-  DropdownMenu, Icon,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  Icon,
   Message,
-  Modal, Poptip,
+  Modal,
+  Poptip,
+  Progress,
   Space,
   Tooltip
 } from 'view-ui-plus'
@@ -417,7 +423,7 @@ const showRelatedTasks = () => {
       right: 10px;
       font-size: 10px;
 
-      .aui-i-link{
+      .aui-i-link {
       }
     }
   }

@@ -66,7 +66,7 @@
 <script setup>
 import MessageService from '@/business/message_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp'
-import {FormItem, Message, Option} from "view-ui-plus";
+import {FormItem, Input, Message, Modal, Option, Radio, RadioGroup} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
 import Editor from "../editor/editor"
 
@@ -109,7 +109,7 @@ let shareContent = computed(() => {
   props.tasks.sort((a, b) => a.id > b.id)
   for (let task of props.tasks) {
     let assignorNames = []
-    task.users.forEach(user => {
+    task.users?.forEach(user => {
       if (user.is_assignor) {
         assignorNames.push(`@${user.nickname}`)
       }

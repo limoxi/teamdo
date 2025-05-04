@@ -74,13 +74,15 @@
               <Icon v-if="!task?.isFinished()" class="aui-i-btn" type="md-trash"
                     @click="onDeleteUser(au.id)"/>
             </span>
-            <Avatar :src="au.avatar || defaultAvatar"></Avatar>
+            <Avatar class="aui-avatar-alter" :src="au.avatar">{{ au.nickname[0] }}</Avatar>
           </span>
         </span>
         <span v-if="userCount > 0" class="aui-i-users">
               <span>参与者({{ userCount }})&nbsp;&nbsp;</span>
               <Tooltip v-for="user in task.users" :key="user.id" :content="user.nickname">
-                <Avatar :src="user.avatar||defaultAvatar" size="small"></Avatar>
+                <Avatar class="aui-avatar-alter" :src="user.avatar" size="small">
+                  {{ user.nickname[0] }}
+                </Avatar>
               </Tooltip>
             </span>
       </FormItem>
@@ -106,7 +108,6 @@
 <script setup>
 import TipTapEditor from '@/components/editor_tiptap/editor'
 import Editor from '@/components/editor/editor'
-import defaultAvatar from '@/assets/images/default-avatar.webp'
 import UserSelector from '@/components/user_selector'
 import TagSelector from '@/components/tag_selector'
 import {computed, inject, ref} from 'vue'
@@ -141,15 +142,19 @@ const userCount = computed(() => {
   return (task.value?.users || []).length
 })
 
+const isRelationMode = computed(() => {
+  return !!taskModal.value.relatedTask
+})
+
 const title = computed(() => {
   let t = ''
-  if (taskModal.value.relatedTask) {
+  if (isRelationMode.value) {
     t = '添加关联任务'
   } else {
     t = task.value ? '任务详情' : '添加任务'
   }
 
-  if (taskModal.value.relatedTask && taskModal.value.relatedTask.isEpicTask()) {
+  if (isRelationMode.value) {
     t += ` · #${taskModal.value.relatedTask.id}`
   }
 

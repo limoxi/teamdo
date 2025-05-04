@@ -46,7 +46,9 @@
               <span>{{ helper.formatTime(log.createdAt) }}</span>
               <span>
                 <Tooltip :content="userStore.getUser(log.operatorId).nickname">
-                  <Avatar :src="userStore.getUser(log.operatorId).avatar||defaultAvatar" size="small"></Avatar>
+                  <Avatar class="aui-avatar-alter" :src="userStore.getUser(log.operatorId).avatar" size="small">
+                    {{ userStore.getUser(log.operatorId).nickname[0] }}
+                  </Avatar>
                 </Tooltip>
               </span>
               <span>{{ log.getActionText() }}</span>
@@ -73,11 +75,11 @@
 
 <script setup>
 import {computed, inject, ref} from "vue";
-import {Avatar, Message, Modal, Skeleton, Space, Tag, Timeline, TimelineItem, Tooltip} from 'view-ui-plus'
+import {Avatar, Message, Modal, Skeleton, Space, Timeline, TimelineItem, Tooltip} from 'view-ui-plus'
 import TaskService from "@/business/task_service";
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import helper from '@/utils/helper';
-import {useUserStore, useModalStore} from "@/store"
+import {useModalStore, useUserStore} from "@/store"
 import {storeToRefs} from "pinia";
 
 const modalStore = useModalStore()
@@ -123,7 +125,7 @@ const users = computed(() => {
 </script>
 
 <style lang="less">
-.aui-task-log-modal{
+.aui-task-log-modal {
   .ivu-modal-header {
     position: sticky;
     top: 0;

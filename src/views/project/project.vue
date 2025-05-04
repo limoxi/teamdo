@@ -25,7 +25,7 @@ import UserSelectModal from '@/components/modal/user_select_modal'
 import UsersSelectModal from '@/components/modal/users_select_modal'
 import TagsSelectModal from '@/components/modal/tags_select_modal'
 import EpicModal from '@/components/modal/epic_modal'
-import {provide, ref} from 'vue'
+import {onMounted, provide, ref} from 'vue'
 import ProjectService from "@/business/project_service"
 import Project from "@/business/model/project"
 import {Message} from "view-ui-plus"
@@ -37,12 +37,18 @@ provide('projectId', projectId)
 
 const userStore = useUserStore()
 
+onMounted(() => {
+  getProjects()
+})
+
 const project = ref(new Project({id: projectId}))
+const projects = ref([])
 await userStore.loadAllUsers()
 const projectData = await ProjectService.getProject(projectId)
 projectData.users.forEach(user => user.avatar = userStore.getUser(user.id).avatar)
 project.value = new Project(projectData)
 provide('project', project)
+provide('projects', projects)
 
 const handleAddTask = (newTask) => {
   project.value.getLaneById(newTask.laneId).addTask(newTask)
@@ -52,9 +58,7 @@ const handleUpdateTask = (updatedTask) => {
     project.value.getLaneById(updatedTask.laneId).updateTask(updatedTask)
   } catch (e) {
     console.error(e)
-
   }
-
 }
 
 const handleDeleteTask = deletedTask => {
@@ -89,6 +93,14 @@ const handleSelectUsers = (selectedUserIds, action, actionData) => {
 
 const handleSelectTags = (selectedTagIds, action, actionData) => {
   project.value.setTagsForTask(actionData.laneId, actionData.taskId, selectedTagIds)
+}
+
+const getProjects = () => {
+  ProjectService.getLintProjects().then(data => {
+    projects.value = data
+  }).catch(err => {
+    Message.error(err.errMsg)
+  })
 }
 
 </script>

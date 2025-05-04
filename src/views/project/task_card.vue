@@ -4,18 +4,43 @@
       <strong>已完成</strong>
     </div>
     <div class="aui-i-header">
-      <div>
+      <div class="aui-i-title">
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
-        <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
-          {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
-        </Tag>
+        <template v-if="titleTips.length > 0">
+          <i class="aui-i-title-tip-flag"></i>
+          <Poptip trigger="hover" placement="right" transfer>
+            <template #content>
+              <p v-for="tip in titleTips">{{ tip }}</p>
+            </template>
+            <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
+              {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
+            </Tag>
+          </Poptip>
+        </template>
+        <template v-else>
+          <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
+            {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
+          </Tag>
+        </template>
       </div>
       <div class="aui-i-action">
         <Button v-show="!lane.isFirst" icon="ios-undo" @click="onClickPre"></Button>
         <Button v-show="task.status !== '已完成'" icon="ios-flash" :class="flashClass"
                 @click="onClickFlash"></Button>
         <Button icon="md-qr-scanner" class="aui-icon-scale" @click="onClickEdit"></Button>
-        <Button icon="md-filing" class="aui-icon-scale" @click="onAddRelation"></Button>
+        <!--        <Button icon="md-filing" class="aui-icon-scale" @click="onAddRelation"></Button>-->
+        <Dropdown v-show="!task.isReplica" trigger="click" transfer placement="right-start" @on-click="onClickShare">
+          <Button icon="md-share"/>
+          <template #list>
+            <DropdownMenu>
+              <template v-for="p in projects" :key="p.id">
+                <DropdownItem :name="p.id" v-if="project.id !== p.id">
+                  {{ p.name }}
+                </DropdownItem>
+              </template>
+            </DropdownMenu>
+          </template>
+        </Dropdown>
         <Dropdown trigger="click" transfer placement="right-start" @on-click="onCLickSwitch">
           <Button icon="md-jet"/>
           <template #list>
@@ -50,7 +75,7 @@
                    :content="assignor.nickname" placement="top"
                    style="margin-right: -5px">
             <Avatar
-                style="color:#ff9900;background-color: #e8eaec"
+                class="aui-avatar-alter"
                 :src="assignor.avatar"
             >{{ assignor.nickname[0] }}
             </Avatar>
@@ -100,7 +125,21 @@
 import helper from '@/utils/helper'
 import TaskService from '@/business/task_service'
 import EpicTaskService from '@/business/epic_task_service'
-import {Avatar, Badge, Button, Checkbox, Copy, Icon, Message, Modal, Space, Tooltip} from 'view-ui-plus'
+import {
+  Avatar,
+  Badge,
+  Button,
+  Checkbox,
+  Copy,
+  DropdownItem,
+  DropdownMenu,
+  Icon,
+  Message,
+  Modal,
+  Poptip,
+  Space,
+  Tooltip
+} from 'view-ui-plus'
 import {computed, inject} from "vue"
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore, useUserStore} from '@/store'
 import {storeToRefs} from "pinia"
@@ -149,6 +188,8 @@ const props = defineProps(['task', 'lane'])
 const emit = defineEmits(['onAdd', 'onRemove'])
 
 const project = inject('project')
+const projects = inject('projects')
+
 const lanes = computed(() => {
   return project.value.getLanesByKanbanType(props.lane.kanbanType) || []
 })
@@ -186,6 +227,17 @@ const assignors = computed(() => {
 })
 
 const taskNo = `${project.value.prefix}${props.task.id}`
+
+const titleTips = computed(() => {
+  if (props.task.master.id) {
+    return [`来自: ${props.task.master.project_name} · ${props.task.master.lane_name}`]
+  }
+  if (props.task.replicas.length > 0) {
+    return props.task.replicas.map(r => `${r.project_name} · ${r.lane_name}`)
+  }
+
+  return []
+})
 
 const onCLickTaskNo = () => {
   let pre = ''
@@ -314,6 +366,14 @@ const onClickEdit = (e, getParent = false) => {
   }
 }
 
+const onClickShare = (targetProjectId) => {
+  TaskService.shareTaskToProject(project.value.id, props.task.id, targetProjectId).then(() => {
+    Message.success('操作成功')
+  }).catch(e => {
+    Message.error(e.errMsg || '分享任务失败')
+  })
+}
+
 const onClickAttention = () => {
   TaskService.getTask(project.value.id, props.task.id).then(nTask => {
     let content = []
@@ -411,6 +471,14 @@ const onSelectTags = () => {
     justify-content: space-between;
     font-size: 14px;
     font-weight: bold;
+
+    .aui-i-title-tip-flag {
+      width: 8px;
+      height: 4px;
+      position: absolute;
+      top: 0px;
+      background: red;
+    }
 
     .aui-i-action {
       position: absolute;

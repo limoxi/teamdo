@@ -13,7 +13,7 @@
                 <DropdownItem v-for="p in projects" :key="p.id"
                               :disabled="p.id === project.id"
                               :name="p.id"
-                >{{p.name}}
+                >{{ p.name }}
                 </DropdownItem>
               </DropdownMenu>
             </template>
@@ -30,7 +30,7 @@
     <Icon type="ios-megaphone" class="aui-release-btn" @click="releaseRef?.show"/>
     <ThemeControl/>
     <div class="aui-i-subtitle">
-      <strong>{{project.name}}</strong>
+      <strong>{{ project.name }}</strong>
     </div>
     <div class="aui-i-profile">
       <profile></profile>
@@ -46,8 +46,7 @@ import {inject, onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {useConfigStore} from '@/store'
 import {storeToRefs} from 'pinia'
-import {Dropdown, DropdownItem, DropdownMenu, Icon, MenuItem, Message} from 'view-ui-plus'
-import ProjectService from '../../../business/project_service'
+import {Dropdown, DropdownItem, DropdownMenu, Icon, MenuItem} from 'view-ui-plus'
 import ReleaseViewModal from '@/components/modal/release_view_modal.vue'
 
 const router = useRouter()
@@ -56,14 +55,13 @@ const configStore = useConfigStore()
 const {theme} = storeToRefs(configStore)
 
 const project = inject('project')
-const projects = ref([])
+const projects = inject('projects')
 
 let activeName = ref('kanban')
 const releaseRef = ref(null)
 
 onMounted(() => {
   activeName.value = getDefaultActiveName()
-  getProjects()
 })
 
 const getDefaultActiveName = () => {
@@ -90,13 +88,7 @@ const onMenuChanged = (name) => {
 const onSwitchProject = (pid) => {
   window.location.href = window.location.pathname.replace(/\/project\/.*\//, `/project/${pid}/`)
 }
-const getProjects = () => {
-  ProjectService.getLintProjects().then(data => {
-    projects.value = data
-  }).catch(err => {
-    Message.error(err.errMsg)
-  })
-}
+
 </script>
 
 <style lang="less" scoped>
