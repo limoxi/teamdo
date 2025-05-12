@@ -39,14 +39,15 @@
               size="small"
               show-week-numbers
               placeholder="选择日期"
-              style="width: 150px" />
+              style="width: 150px"/>
           <LaneSelector
               class="aui-i-laneFilter"
               size="small"
               :lanes="project.kanbanLanes.filter(lane => lane.roles.includes('研发') || lane.roles.includes('测试'))"
               @on-selected="onSelectLane"/>
           <Space style="flex-wrap: wrap" :size="1">
-            <div v-if="selectedLanes.length > 0" v-for="lane in selectedLanes" :key="lane.id" class="aui-i-selected-lane">
+            <div v-if="selectedLanes.length > 0" v-for="lane in selectedLanes" :key="lane.id"
+                 class="aui-i-selected-lane">
               <Tag closable @on-close="onRemoveSelectedLane(lane)">{{ lane.name }}</Tag>
             </div>
             <p v-else>未选择</p>
@@ -152,7 +153,21 @@ import _ from 'lodash'
 import VChart from 'vue-echarts';
 import defaultAvatar from '@/assets/images/default-avatar.webp';
 import {computed, inject, onMounted, ref} from "vue";
-import {Button, DatePicker, ListItem, ListItemMeta, Message, Modal, Space, Tag} from 'view-ui-plus'
+import {
+  Button,
+  Col,
+  CountUp,
+  DatePicker,
+  Icon,
+  List,
+  ListItem,
+  ListItemMeta,
+  Message,
+  Modal,
+  Space,
+  Tag,
+  Text
+} from 'view-ui-plus'
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import StatsService from '@/business/stats_service'
 import UserActiveTrends from '@/components/user_active_trends'
@@ -334,7 +349,7 @@ const loadAllMembersTaskData = () => {
     totalMembersTaskCount.value = resp.total_task_count
     const userId2count = {}
     Object.keys(respData).forEach(k => {
-      if (!projectUserIds.value.some(puid => puid === parseInt(k))){
+      if (!projectUserIds.value.some(puid => puid === parseInt(k))) {
         return
       }
       userId2count[parseInt(k)] = parseInt(respData[k])
@@ -355,7 +370,7 @@ const loadAllMembersTaskData = () => {
     })
 
     const seriesData = []
-    for (let userId of sortedUserIds){
+    for (let userId of sortedUserIds) {
       userId = parseInt(userId)
       seriesData.push({
         value: userId2count[userId],
@@ -407,7 +422,7 @@ const sortUsers = (userId2data, sortBy) => {
   let sortAction = 'asc'
   sortBy = sortBy.replaceAll('+', '')
   let sps = sortBy.split('-')
-  if(sps.length === 2){
+  if (sps.length === 2) {
     sortAction = 'desc'
     sortBy = sps[1]
   }
@@ -452,7 +467,7 @@ const loadAllMembersData = () => {
   StatsService.getStatsForProjectUsers(project.value.id).then(respData => {
     const userId2data = {}
     Object.keys(respData).forEach(k => {
-      if (!projectUserIds.value.some(puid => puid === parseInt(k))){
+      if (!projectUserIds.value.some(puid => puid === parseInt(k))) {
         return
       }
       const v = respData[k]
@@ -470,7 +485,7 @@ const loadAllMembersData = () => {
       2: [],
       3: []
     }
-    for (let userId of sortedUserIds){
+    for (let userId of sortedUserIds) {
       userId = parseInt(userId)
       const userData = userId2data[userId]
       Object.keys(userData).forEach(statusNum => {
@@ -479,7 +494,7 @@ const loadAllMembersData = () => {
     }
 
     const series = []
-    for(const statusNum of [3, 2, 0, 1]){
+    for (const statusNum of [3, 2, 0, 1]) {
       const statusText = taskStatus2Text(statusNum)
       series.push({
         data: taskStatus2counts[statusNum],
@@ -782,13 +797,13 @@ const resetStats = () => {
     }
   }
 
-  .aui-i-members-stats{
+  .aui-i-members-stats {
     min-width: 75vw;
     height: calc(100vh - 80px);
     overflow-y: scroll;
     overflow-x: hidden;
 
-    .aui-i-lanes{
+    .aui-i-lanes {
       margin-bottom: 10px;
     }
 

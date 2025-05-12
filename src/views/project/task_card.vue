@@ -6,11 +6,28 @@
     <div class="aui-i-header">
       <div class="aui-i-title">
         <Checkbox v-model="taskSelected" v-if="mode==='SELECT'"/>
-        <template v-if="titleTips.length > 0">
-          <i class="aui-i-title-tip-flag"></i>
-          <Poptip trigger="hover" placement="right" transfer>
+        <span class="aui-i-share-tag" v-if="showShareBox">
+          <Icon type="logo-rss"/>
+        </span>
+        <template v-if="showShareBox">
+          <Poptip :title="shareBoxTitle" trigger="hover" placement="right" transfer
+                  popper-class="aui-share-poptip"
+                  @on-popper-show="onShowShareBox">
             <template #content>
-              <p v-for="tip in titleTips">{{ tip }}</p>
+              <template v-if="loadingShareData">
+                <Skeleton loading animated>
+                  <SkeletonItem width="280px" height="140px"/>
+                </Skeleton>
+              </template>
+              <template v-else>
+                <div class="aui-i-share-tasks">
+                  <SimpleTaskCard
+                      :show_project="true"
+                      v-for="task in shareBoxTasks"
+                      :task="task"
+                  ></SimpleTaskCard>
+                </div>
+              </template>
             </template>
             <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
               {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
@@ -137,13 +154,15 @@ import {
   Message,
   Modal,
   Poptip,
+  SkeletonItem,
   Space,
   Tooltip
 } from 'view-ui-plus'
-import {computed, inject} from "vue"
+import {computed, inject, ref} from "vue"
 import {useConfigStore, useModalStore, useTaskFilterStore, useTaskModeStore, useUserStore} from '@/store'
 import {storeToRefs} from "pinia"
 import {getImportanceColor, getImportanceDesc} from '@/utils/constant'
+import SimpleTaskCard from "@/components/simple_task_card.vue";
 
 const userStore = useUserStore()
 
@@ -228,16 +247,38 @@ const assignors = computed(() => {
 
 const taskNo = `${project.value.prefix}${props.task.id}`
 
-const titleTips = computed(() => {
-  if (props.task.master.id) {
-    return [`来自: ${props.task.master.project_name} · ${props.task.master.lane_name}`]
+const loadingShareData = ref(true)
+
+const shareBoxTasks = ref([])
+
+const showShareBox = computed(() => {
+  return props.task.isReplica || props.task.isMaster
+})
+const shareBoxTitle = computed(() => {
+  if (props.task.isReplica) {
+    return '来源任务'
   }
-  if (props.task.replicas.length > 0) {
-    return props.task.replicas.map(r => `${r.project_name} · ${r.lane_name}`)
+  if (props.task.isMaster) {
+    return '分享目标'
   }
 
-  return []
+  return ''
 })
+
+const onShowShareBox = () => {
+  if (!loadingShareData.value) return
+  if (props.task.isMaster) {
+    TaskService.getReplicaTasksByMasterId(props.task.id).then(respTasks => {
+      shareBoxTasks.value = respTasks
+      loadingShareData.value = false
+    })
+  } else if (props.task.isReplica) {
+    TaskService.getTaskById(props.task.masterId).then(respTask => {
+      shareBoxTasks.value = [respTask]
+      loadingShareData.value = false
+    })
+  }
+}
 
 const onCLickTaskNo = () => {
   let pre = ''
@@ -424,6 +465,34 @@ const onSelectTags = () => {
 
 </script>
 
+<style lang="less">
+.aui-share-poptip {
+  .ivu-poptip-title:after {
+    height: 0 !important;
+  }
+
+  .ivu-poptip-body {
+    width: 100%;
+    padding: 8px 8px !important;
+    background-color: #eee;
+    overflow-y: scroll;
+    max-height: 277px;
+
+    .aui-i-share-tasks {
+      overflow-y: scroll;
+      height: 100%;
+      width: 270px;
+
+      .aui-task {
+        width: 100%;
+        background-color: #fff;
+      }
+    }
+  }
+}
+
+</style>
+
 <style scoped lang="less">
 .aui-theme-light .aui-i-finish-tag strong {
   color: #eee;
@@ -466,19 +535,21 @@ const onSelectTags = () => {
     }
   }
 
+  .aui-i-share-tag {
+    position: absolute;
+    top: 0px;
+    left: 2px;
+    text-align: center;
+    color: #9f7cc1;
+    transform: rotate(-90deg);
+    z-index: 0;
+  }
+
   .aui-i-header {
     display: flex;
     justify-content: space-between;
     font-size: 14px;
     font-weight: bold;
-
-    .aui-i-title-tip-flag {
-      width: 8px;
-      height: 4px;
-      position: absolute;
-      top: 0px;
-      background: red;
-    }
 
     .aui-i-action {
       position: absolute;

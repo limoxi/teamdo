@@ -3,6 +3,7 @@ class Task {
     this.id = taskData?.id ?? 0
     this.type = taskData?.type ?? 'REQ'
     this.typeName = taskData?.type_name ?? '需求'
+    this.masterId = taskData?.master_id ?? 0
     this.parentId = taskData?.parent_id ?? 0
     this.parentCategory = taskData?.parent_category ?? ''
     this.creatorId = taskData?.creator_id ?? 0
@@ -25,6 +26,7 @@ class Task {
     this.laneId = taskData?.lane_id ?? 0
     this.laneName = ''
     this.progress = taskData?.progress ?? 0
+    this.isMaster = taskData?.is_master ?? false
     this.isReplica = taskData?.is_replica ?? false
 
     if (this.expectedFinishedAt) {

@@ -9,15 +9,16 @@
           {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
         <Tag v-if="task.lane" class="aui-i-id">
-          {{task.lane.name}}
+          {{ task.lane.name }}
         </Tag>
       </div>
     </div>
     <div class="aui-i-body">
       <div class="aui-i-name" @dblclick="onCLickName">
-        {{ task.name }}
+        <p>{{ task.name }}</p>
       </div>
       <div class="aui-i-tags">
+        <Badge v-if="show_project && projectName" :text="projectName" status="default"></Badge>
         <Badge class="aui-i-tag-imp"
                :color="importanceColor" :text="`${importanceDesc}(${task.importance})`"></Badge>
         <Badge v-if="task.type === 'BUG'" color="#ed4014" text="BUG"></Badge>
@@ -35,11 +36,6 @@
                 :src="assignor.avatar"
             >{{ assignor.nickname[0] }}
             </Avatar>
-          </Tooltip>
-        </template>
-        <template v-else>
-          <Tooltip content="添加执行人" placement="right">
-            <Avatar icon="md-add" style="font-size: 21px"></Avatar>
           </Tooltip>
         </template>
       </div>
@@ -99,9 +95,17 @@ const actionRight = computed(() => {
   }
 })
 
-const props = defineProps(['task'])
+const props = defineProps(['task', 'show_project'])
 
 const project = inject('project')
+const projects = inject('projects')
+
+const projectName = computed(() => {
+  const targets = projects.value.filter(p => p.id === props.task.projectId)
+  if (targets.length > 0) return targets[0].name
+  return ''
+})
+
 const importanceDesc = computed(() => {
   return getImportanceDesc(props.task.importance)
 })
@@ -271,6 +275,7 @@ const onClickLog = () => {
       min-height: 35px;
       display: flex;
       align-items: center;
+      white-space: normal;
     }
 
     .aui-i-users {
