@@ -384,7 +384,7 @@ const onClickEdit = (e, getParent = false) => {
   }
 
   if (getEpicTask) {
-    EpicTaskService.getEpicTask(projectId, targetTaskId).then(epicTask => {
+    EpicTaskService.getEpicTaskById(targetTaskId).then(epicTask => {
       modalStore.show('epicModal', {
         projectId: project.value.id,
         task: epicTask,
@@ -537,7 +537,7 @@ const onSelectTags = () => {
 
   .aui-i-share-tag {
     position: absolute;
-    top: 0px;
+    top: 0;
     left: 2px;
     text-align: center;
     color: #9f7cc1;

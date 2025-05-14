@@ -296,7 +296,6 @@ const loadPagedEpicTasks = async () => {
         'with_tags': true,
         'with_users': true,
         'with_children': true,
-        'with_progress': true
       },
       orderFields.value,
       targetPage.value

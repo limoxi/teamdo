@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import {FormItem, Icon, Message, Modal, Option, Radio, RadioGroup} from "view-ui-plus";
+import {FormItem, Icon, Input, Message, Modal, Option, Radio, RadioGroup} from "view-ui-plus";
 import TagService from '@/business/tag_service';
 import {colors} from '@/utils/constant'
 import {computed, ref} from "vue";

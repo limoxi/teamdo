@@ -26,7 +26,7 @@ import ProjectService from "@/business/project_service";
 import UserService from '@/business/user_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp'
 import {ref} from "vue";
-import {Message, Option} from "view-ui-plus";
+import {Message, Modal, Option} from "view-ui-plus";
 import {useModalStore} from '@/store'
 import {storeToRefs} from "pinia";
 import PinyinMatch from "pinyin-match";

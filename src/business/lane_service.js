@@ -107,7 +107,6 @@ class LaneService {
         'with_users': true,
         'with_tags': true,
         'with_lane_stats': true,
-        'with_replicas': true,
       },
       'filters': filters,
       'cur_page': curPage,

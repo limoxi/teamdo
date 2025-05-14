@@ -23,15 +23,21 @@
           :rules="ruleValidate"
           @submit.prevent
     >
-      <FormItem label="任务类型" prop="type" style="float: left">
-        <Select v-model="form.type" aria-label="typeSelector" style="width:180px">
+      <FormItem v-if="isRelationMode" label="项目" prop="projectId" style="float: left; margin-right: 15px;">
+        <ProjectSelector
+            style="width:220px"
+            v-model:projectId="form.projectId"
+        ></ProjectSelector>
+      </FormItem>
+      <FormItem label="任务类型" prop="type" style="display: inline-block">
+        <Select v-model="form.type" aria-label="typeSelector" style="width:150px">
           <Option v-for="option in taskTypeOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </Option>
         </Select>
       </FormItem>
       <FormItem label="优先级" prop="importance" style="display: inline-block">
-        <Select v-model="form.importance" aria-label="importanceSelector" style="width:180px">
+        <Select v-model="form.importance" aria-label="importanceSelector" style="width:150px">
           <Option v-for="option in importanceOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </Option>
@@ -110,12 +116,14 @@ import TipTapEditor from '@/components/editor_tiptap/editor'
 import Editor from '@/components/editor/editor'
 import UserSelector from '@/components/user_selector'
 import TagSelector from '@/components/tag_selector'
+import ProjectSelector from '@/components/project_selector'
 import {computed, inject, ref} from 'vue'
-import {Avatar, FormItem, Icon, InputNumber, Message, Modal, Option, Select, Tag, Tooltip} from 'view-ui-plus'
+import {Avatar, FormItem, Icon, Input, InputNumber, Message, Modal, Option, Select, Tag, Tooltip} from 'view-ui-plus'
 import {importanceOptions, taskTypeOptions} from '@/utils/constant'
 import helper from '@/utils/helper'
 import {useModalStore} from '@/store'
 import {storeToRefs} from 'pinia'
+import TaskService from "@/business/task_service";
 
 const project = inject('project')
 const projectId = computed(() => project.value.id)
@@ -135,7 +143,7 @@ const ruleValidate = {
   ],
   importance: [
     {required: true, message: '请选择优先级', trigger: 'blur'}
-  ]
+  ],
 }
 
 const userCount = computed(() => {
@@ -173,6 +181,7 @@ const nameLabel = computed(() => {
 })
 
 const form = ref({
+  projectId: projectId.value + '',
   type: 'REQ',
   name: '',
   importance: '0',
@@ -193,6 +202,7 @@ modalStore.$onAction(({name, store, args, after}) => {
       form.value.type = store.task?.type || 'REQ'
       form.value.name = store.task?.name || ''
       form.value.importance = (store.task?.importance || store.relatedTask?.importance || 0) + ''
+      form.value.projectId = store.relatedTask?.projectId || projectId.value
       form.value.sp = store.task?.sp || 0
       form.value.assignors = store.task?.users.filter(u => u.is_assignor) || []
       form.value.tags = store.task?.tags || []
@@ -260,7 +270,15 @@ const handleSubmit = () => {
           attentions: editorInst.value.getAttentions()
         }
       }
-      if (isCreateMode.value) {
+      if (isRelationMode.value) {
+        TaskService.addTask(form.value.projectId, taskData).then((newTask) => {
+          actionDone()
+        }).catch(err => {
+          Message.error(err.errMsg)
+        }).finally(() => {
+          submitting = false
+        })
+      } else if (isCreateMode.value) {
         project.value.addTask(taskData).then((newTask) => {
           emit('onAdd', newTask)
           actionDone()

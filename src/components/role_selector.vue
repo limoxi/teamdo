@@ -2,7 +2,7 @@
   <Select
       ref="selector"
       clearable
-      :value="modalValue"
+      :value="modelValue"
       :multiple="multi"
       :filterable="true"
       :remote-method="searchRole"
@@ -31,7 +31,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  modalValue: {
+  modelValue: {
     type: String,
     default: ''
   }

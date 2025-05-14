@@ -57,6 +57,16 @@
             </Option>
           </Select>
         </FormItem>
+        <FormItem v-if="isReadOnly" label="负责人" prop="creatorId" style="margin-left: 10px">
+          <Tooltip :content="creator.nickname" placement="top"
+                   style="margin-right: -5px">
+            <Avatar
+                class="aui-avatar-alter"
+                :src="creator.avatar"
+            >{{ creator.nickname[0] }}
+            </Avatar>
+          </Tooltip>
+        </FormItem>
       </div>
       <FormItem label="截止时间" prop="expectedFinishedAt">
         <DatePicker
@@ -96,9 +106,9 @@
 <script setup>
 import Editor from '@/components/editor/editor'
 import {computed, inject, ref} from 'vue'
-import {Badge, DatePicker, FormItem, Icon, Message, Modal, Tag} from 'view-ui-plus'
+import {Avatar, Badge, DatePicker, FormItem, Icon, Input, Message, Modal, Option, Tag, Tooltip} from 'view-ui-plus'
 import {importanceOptions} from '@/utils/constant'
-import {useModalStore} from '@/store'
+import {useModalStore, useUserStore} from '@/store'
 import {storeToRefs} from 'pinia'
 import EpicTaskService from '@/business/epic_task_service'
 import TagService from '@/business/tag_service'
@@ -133,6 +143,13 @@ const ruleValidate = {
 
 const title = computed(() => {
   return task.value ? `需求详情 #${task.value.id}` : '添加需求'
+})
+
+const userStore = useUserStore()
+const creator = computed(() => {
+  if (!isReadOnly.value) return {}
+
+  return userStore.getUser(task.value.creatorId)
 })
 
 let form = ref({

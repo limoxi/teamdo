@@ -73,36 +73,29 @@
                 @click="onClickAttention"
           />
           <Icon type="md-paper" v-if="task.hasDesc"/>
-          <span
-              :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
-              v-if="task.children.length === 0"
-          >{{ task.progress }}%</span>
-          <Poptip trigger="hover" v-else placement="top" transfer>
-            <span
-                :style="{color:getStatusColor(task.status), cursor: 'pointer', fontWeight: 'bold'}">{{ task.progress }}%</span>
-            <template #title>
-              <p style="font-size: 12px">关联任务数: <b>{{ task.children.length }}</b></p>
-            </template>
+          <Poptip v-if="task.isParent" trigger="hover" placement="right" transfer
+                  popper-class="aui-children-poptip"
+                  @on-popper-show="onShowChildrenBox">
             <template #content>
-              <div class="aui-children-progress">
-                <Progress v-for="child in task.children" :key="child.id"
-                          :percent="child.progress"
-                          :stroke-width="10"
-                          :stroke-color="getStatusColor(child.status)"
-                >
-                  <space>
-                    <b>{{ child.progress }}%</b>
-                    <Avatar size="small" style="margin-right: -15px"
-                            v-for="childAssignorId in child.assignorIds"
-                            :key="childAssignorId"
-                            :src="project.getUser(childAssignorId)?.avatar || defaultAvatar"/>
-                    <b style="scale: 0.5; margin-left: 10px">{{
-                        project.getLane(child.laneId, KANBAN_TYPE_KANBAN)?.name
-                      }}(#{{ child.id }})</b>
-                  </space>
-                </Progress>
-              </div>
+              <template v-if="loadingChildren">
+                <Skeleton loading animated>
+                  <SkeletonItem width="280px" height="140px"/>
+                </Skeleton>
+              </template>
+              <template v-else>
+                <div class="aui-i-children-tasks">
+                  <SimpleTaskCard
+                      :show_project="true"
+                      v-for="task in children"
+                      :task="task"
+                  ></SimpleTaskCard>
+                </div>
+              </template>
             </template>
+            <!--            <Icon type="md-filing" style="font-size: 12px"/>-->
+            <span
+                :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
+            >{{ task.progress }}%</span>
           </Poptip>
           <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
         </Space>
@@ -129,16 +122,15 @@ import {
   Message,
   Modal,
   Poptip,
-  Progress,
+  SkeletonItem,
   Space,
   Tooltip
 } from 'view-ui-plus'
-import {computed, inject} from "vue"
+import {computed, inject, onMounted, ref} from "vue"
 import {useModalStore, useTaskFilterStore, useTaskModeStore} from '@/store'
 import {storeToRefs} from "pinia"
 import {getImportanceColor, getImportanceDesc, getStatusColor} from '@/utils/constant'
-import defaultAvatar from '@/assets/images/default-avatar.webp'
-import {KANBAN_TYPE_KANBAN} from '@/business/model/constant'
+import SimpleTaskCard from "@/components/simple_task_card.vue";
 
 const modalStore = useModalStore()
 const {usersSelectModal, taskModal} = storeToRefs(modalStore)
@@ -178,12 +170,23 @@ const creator = computed(() => {
   return props.task.getCreator()
 })
 
+const loadingChildren = ref(true)
+const children = ref([])
+
 const importanceDesc = computed(() => {
   return getImportanceDesc(props.task.importance)
 })
 
 const importanceColor = computed(() => {
   return getImportanceColor(props.task.importance)
+})
+
+onMounted(() => {
+  if (props.task.isParent) {
+    setInterval(() => {
+      loadingChildren.value = true
+    }, 30 * 1000)
+  }
 })
 
 const onCLickTaskNo = () => {
@@ -315,7 +318,46 @@ const showRelatedTasks = () => {
   })
 }
 
+const onShowChildrenBox = () => {
+  if (!loadingChildren.value) return
+
+  if (!props.task.isParent) return
+
+  TaskService.getChildrenById(props.task.id).then(respTasks => {
+    children.value = respTasks
+    loadingChildren.value = false
+  })
+}
+
 </script>
+
+<style lang="less">
+.aui-children-poptip {
+  .ivu-poptip-title:after {
+    height: 0 !important;
+  }
+
+  .ivu-poptip-body {
+    width: 100%;
+    padding: 8px 8px !important;
+    background-color: #eee;
+    overflow-y: scroll;
+    max-height: 277px;
+
+    .aui-i-children-tasks {
+      overflow-y: scroll;
+      height: 100%;
+      width: 270px;
+
+      .aui-task {
+        width: 100%;
+        background-color: #fff;
+      }
+    }
+  }
+}
+
+</style>
 
 <style scoped lang="less">
 .aui-theme-light .aui-i-finish-tag strong {

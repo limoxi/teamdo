@@ -23,7 +23,7 @@ import ProjectService from '@/business/project_service';
 import {useModalStore} from "@/store"
 import {storeToRefs} from "pinia";
 import {computed, onMounted, ref} from "vue";
-import {Message} from "view-ui-plus";
+import {FormItem, Input, Message, Modal} from "view-ui-plus";
 
 const ruleValidate = {
   name: [

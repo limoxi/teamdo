@@ -36,7 +36,6 @@ class TaskService {
       'with_options': {
         'with_tags': true,
         'with_users': true,
-        'with_progress': true,
         'with_project': true
       },
       'cur_page': page.curPage,
@@ -91,6 +90,29 @@ class TaskService {
       },
       'cur_page': 1,
       'page_size': 20
+    }
+
+    const respData = await Resource.get({
+      'resource': 'task.tasks',
+      'data': data
+    })
+    return respData.tasks.map(task => new Task(task))
+  }
+
+  static async getChildrenById(id) {
+    let data = {
+      'filters': {
+        'parent_id': id,
+        'master_id': 0,
+        'is_deleted': false
+      },
+      'with_options': {
+        'with_lane': true,
+        'with_tags': true,
+        'with_users': true,
+      },
+      'cur_page': 1,
+      'page_size': 99
     }
 
     const respData = await Resource.get({

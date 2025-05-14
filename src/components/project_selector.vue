@@ -2,6 +2,7 @@
   <Select
       ref="selector"
       clearable
+      :model-value="projectId"
       :filterable="true"
       :remote-method="searchProject"
       @on-query-change="onQueryChange"
@@ -15,14 +16,13 @@
 </template>
 
 <script setup>
-import {Message, Option} from "view-ui-plus";
+import {Option} from "view-ui-plus";
 import PinyinMatch from "pinyin-match";
-import {onMounted, ref} from "vue";
-import ProjectService from "@/business/project_service";
+import {inject, ref} from "vue";
 
 const selector = ref(null)
 
-const emit = defineEmits(['onSelected'])
+const emit = defineEmits(['update:projectId', 'onSelected'])
 const props = defineProps({
   projectId: {
     type: Number,
@@ -30,21 +30,8 @@ const props = defineProps({
   }
 })
 
-const allProjects = ref([])
-const validProjects = ref([])
-
-onMounted(() => {
-  getProjects()
-})
-
-const getProjects = () => {
-  ProjectService.getLintProjects().then(data => {
-    allProjects.value = data
-    validProjects.value = data
-  }).catch(err => {
-    Message.error(err.errMsg)
-  })
-}
+const allProjects = inject('projects')
+const validProjects = ref(allProjects.value)
 
 const searchProject = (query) => {
   validProjects.value = allProjects.value.filter(project => {
@@ -54,7 +41,7 @@ const searchProject = (query) => {
 
 const onSelectProject = selectedProjectId => {
   console.log(selectedProjectId, '-------------')
-  emit('onSelected', selectedProjectId.value)
+  emit('update:projectId', selectedProjectId.value)
   selector.value.setQuery(null)
 }
 
