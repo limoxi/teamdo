@@ -36,7 +36,6 @@ onMounted(() => {
 })
 
 const onSelectProject = target => {
-  alert(`select ======> ${target.value}`)
   selectedProjectId.value = target.value
   emit('onSelect', target.value)
   selector.value.setQuery(null)
