@@ -92,10 +92,10 @@
                 </div>
               </template>
             </template>
-            <!--            <Icon type="md-filing" style="font-size: 12px"/>-->
-            <span
-                :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"
-            >{{ task.progress }}%</span>
+            <Icon type="md-filing" style="font-size: 12px"/>
+            <!--            <span-->
+            <!--                :style="{color:getStatusColor(task.status), fontWeight: 'bold'}"-->
+            <!--            >{{ task.progress }}%</span>-->
           </Poptip>
           <span @click="onClickLog" style="cursor: pointer">{{ helper.formatTime(task.updatedAt) }}</span>
         </Space>

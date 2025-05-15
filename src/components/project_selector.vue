@@ -1,10 +1,7 @@
 <template>
   <Select
       ref="selector"
-      clearable
-      :model-value="projectId"
-      :filterable="true"
-      :remote-method="searchProject"
+      :model-value="selectedProjectId"
       @on-query-change="onQueryChange"
       @on-select="onSelectProject"
       style="width: 150px"
@@ -18,11 +15,11 @@
 <script setup>
 import {Option} from "view-ui-plus";
 import PinyinMatch from "pinyin-match";
-import {inject, ref} from "vue";
+import {inject, onMounted, ref} from "vue";
 
 const selector = ref(null)
 
-const emit = defineEmits(['update:projectId', 'onSelected'])
+const emit = defineEmits(['onSelect'])
 const props = defineProps({
   projectId: {
     type: Number,
@@ -31,24 +28,26 @@ const props = defineProps({
 })
 
 const allProjects = inject('projects')
-const validProjects = ref(allProjects.value)
+const validProjects = ref([])
+const selectedProjectId = ref(props.projectId || 0)
 
-const searchProject = (query) => {
-  validProjects.value = allProjects.value.filter(project => {
-    return !!(PinyinMatch.match(project.name, query)) || project.name === query
-  })
-}
+onMounted(() => {
+  validProjects.value = allProjects.value
+})
 
-const onSelectProject = selectedProjectId => {
-  console.log(selectedProjectId, '-------------')
-  emit('update:projectId', selectedProjectId.value)
+const onSelectProject = target => {
+  alert(`select ======> ${target.value}`)
+  selectedProjectId.value = target.value
+  emit('onSelect', target.value)
   selector.value.setQuery(null)
 }
 
 const onQueryChange = query => {
-  if (query === '') {
-    validProjects.value = allProjects.value
-  }
+  validProjects.value = allProjects.value.filter(project => {
+    return !!(PinyinMatch.match(project.name, query))
+        || project.name === query
+        || query === ''
+  })
 }
 
 </script>

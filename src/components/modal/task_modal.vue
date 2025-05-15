@@ -26,7 +26,8 @@
       <FormItem v-if="isRelationMode" label="项目" prop="projectId" style="float: left; margin-right: 15px;">
         <ProjectSelector
             style="width:220px"
-            v-model:projectId="form.projectId"
+            :projectId="form.projectId"
+            @on-select="v => form.projectId=v"
         ></ProjectSelector>
       </FormItem>
       <FormItem label="任务类型" prop="type" style="display: inline-block">

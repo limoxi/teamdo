@@ -45,7 +45,6 @@
                 style="cursor: pointer; font-size: 0.9rem"
                 @click="onClickAttention"
           />
-          <Icon type="md-paper" v-if="task.hasDesc"/>
           <Tooltip v-if="storySight" placement="top">
             <span>{{ task.sp }}/{{ task.passedSp }}</span>
             <template #content>
@@ -177,7 +176,7 @@ let headerClasses = computed(() => {
 })
 
 const onClickAttention = () => {
-  TaskService.getTask(project.value.id, props.task.id).then(nTask => {
+  TaskService.getTaskById(props.task.id).then(nTask => {
     let content = []
     nTask.attentions.forEach(att => {
       const f = att.checked ? '✅' : '⬜'
