@@ -52,3 +52,5 @@ location /iteamdo/message/ {
 # 本地开发依赖
 
 - Node v20.12.1 LTS
+- Yarn v4.x
+- Vite v6.x

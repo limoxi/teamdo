@@ -66,9 +66,8 @@
 <script setup>
 import MessageService from '@/business/message_service';
 import defaultAvatar from '@/assets/images/default-avatar.webp'
-import {FormItem, Input, Message, Modal, Option, Radio, RadioGroup} from "view-ui-plus";
+import {FormItem, Input, Message, Modal, Option, Radio, RadioGroup, Select} from "view-ui-plus";
 import {computed, inject, ref} from 'vue'
-import Editor from "../editor/editor"
 
 const editorInst = ref()
 const project = inject('project')

@@ -97,16 +97,27 @@
         <Button v-if="form.designLink !== ''" type="text" @click="onOpenLink(form.designLink)">打开</Button>
       </FormItem>
       <FormItem label="详细描述" prop="desc">
-        <Editor v-if="!isCreateMode && task.createdAt < '2024-07-22'" ref="editorInst" :content="form.desc"/>
-        <TipTapEditor v-else ref="editorInst" :content="form.desc"></TipTapEditor>
+        <TipTapEditor ref="editorInst" :content="form.desc"></TipTapEditor>
       </FormItem>
     </Form>
   </Modal>
 </template>
 <script setup>
-import Editor from '@/components/editor/editor'
 import {computed, inject, ref} from 'vue'
-import {Avatar, Badge, DatePicker, FormItem, Icon, Input, Message, Modal, Option, Tag, Tooltip} from 'view-ui-plus'
+import {
+  Avatar,
+  Badge,
+  DatePicker,
+  FormItem,
+  Icon,
+  Input,
+  Message,
+  Modal,
+  Option,
+  Select,
+  Tag,
+  Tooltip
+} from 'view-ui-plus'
 import {importanceOptions} from '@/utils/constant'
 import {useModalStore, useUserStore} from '@/store'
 import {storeToRefs} from 'pinia'
