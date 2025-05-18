@@ -72,7 +72,7 @@
 
 import helper from '@/utils/helper'
 import TaskService from '@/business/task_service'
-import {Avatar, Badge, Copy, Icon, Message, Modal, Space, Tooltip} from 'view-ui-plus'
+import {Avatar, Badge, Copy, Icon, Message, Modal, Space, Tag, Tooltip} from 'view-ui-plus'
 import {computed, inject} from "vue"
 import {useConfigStore, useModalStore, useUserStore} from '@/store'
 import {storeToRefs} from "pinia"

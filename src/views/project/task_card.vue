@@ -15,9 +15,7 @@
                   @on-popper-show="onShowShareBox">
             <template #content>
               <template v-if="loadingShareData">
-                <Skeleton loading animated>
-                  <SkeletonItem width="280px" height="140px"/>
-                </Skeleton>
+                <SkeletonItem loading animated width="270px" height="140px"/>
               </template>
               <template v-else>
                 <div class="aui-i-share-tasks">
@@ -467,6 +465,8 @@ const onSelectTags = () => {
 
 <style lang="less">
 .aui-share-poptip {
+  min-width: 277px;
+
   .ivu-poptip-title:after {
     height: 0 !important;
   }

@@ -1,10 +1,10 @@
 <template>
   <Modal
-    v-model="showModal"
-    :title="title"
-    width="70"
-    style="top:25px"
-    @on-cancel="onCancel"
+      v-model="showModal"
+      :title="title"
+      width="70"
+      style="top:25px"
+      @on-cancel="onCancel"
   >
     <Form ref="releaseForm" :model="release" :rules="ruleValidate">
       <FormItem label="版本" prop="version">
@@ -14,14 +14,14 @@
         <Space>
           <Select v-model="release.label" style="display:inline-block;width:8vw">
             <Option v-for="option in labelOptions" :key="option.value" :value="option.value">
-              {{option.label}}
+              {{ option.label }}
             </Option>
           </Select>
           <Input style="width: 60vw" v-model="release.title" show-word-limit maxlength="24"/>
         </Space>
       </FormItem>
       <FormItem prop="detail">
-        <TipTapEditor ref="editorInst" :content="release.detail"></TipTapEditor>
+        <Editor ref="editorInst" :content="release.detail"></Editor>
       </FormItem>
     </Form>
     <template #footer>
@@ -34,7 +34,7 @@
 import {computed, ref} from 'vue'
 import {Form, FormItem, Message, Modal, Space} from 'view-ui-plus'
 import ReleaseService from '@/business/release_service'
-import TipTapEditor from '@/components/editor_tiptap/editor'
+import Editor from '@/components/editor/editor'
 
 const labelOptions = [{
   'label': '里程碑',
@@ -82,11 +82,11 @@ const onSubmit = () => {
       const detail = editorInst.value.getContent()
       if (isCreateMode.value) {
         ReleaseService.newRelease(
-          release.value.version,
-          release.value.label,
-          release.value.title,
-          detail,
-          outlines
+            release.value.version,
+            release.value.label,
+            release.value.title,
+            detail,
+            outlines
         ).then(() => {
           Message.success('添加成功')
           resetForm()
@@ -97,12 +97,12 @@ const onSubmit = () => {
         })
       } else {
         ReleaseService.updateRelease(
-          release.value.id,
-          release.value.version,
-          release.value.label,
-          release.value.title,
-          detail,
-          outlines
+            release.value.id,
+            release.value.version,
+            release.value.label,
+            release.value.title,
+            detail,
+            outlines
         ).then(() => {
           Message.success('更新成功')
           resetForm()

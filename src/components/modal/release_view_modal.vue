@@ -1,17 +1,17 @@
 <template>
   <Modal
-    v-model="showModal"
-    width="80"
-    style="top:25px"
-    footer-hide
-    @on-cancel="onCancel"
+      v-model="showModal"
+      width="80"
+      style="top:25px"
+      footer-hide
+      @on-cancel="onCancel"
   >
     <div class="aui-content" v-if="release">
       <Title :level="3" class="aui-i-title">
-        {{releaseLabel}} v{{release.version}} {{release.title}}
-        <i class="aui-i-time">{{release.created_at}}</i>
+        {{ releaseLabel }} v{{ release.version }} {{ release.title }}
+        <i class="aui-i-time">{{ release.created_at }}</i>
       </Title>
-      <TipTapEditor ref="editorInst" :content="release.detail" :readonly="true"/>
+      <Editor ref="editorInst" :content="release.detail" :readonly="true"/>
     </div>
     <div v-else>
       暂无更新
@@ -23,7 +23,7 @@
 import {computed, onMounted, ref} from 'vue'
 import {Modal} from 'view-ui-plus'
 import ReleaseService from '@/business/release_service'
-import TipTapEditor from '@/components/editor_tiptap/editor.vue'
+import Editor from '@/components/editor/editor.vue'
 import helper from '@/utils/helper'
 
 const editorInst = ref(null)

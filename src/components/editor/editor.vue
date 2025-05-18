@@ -26,7 +26,7 @@ import suggestion from './slash/suggestion.js'
 import {Placeholder} from '@tiptap/extension-placeholder'
 import Resource from '@/utils/resource'
 import FileHandler from '@tiptap-pro/extension-file-handler'
-import Video from '@/components/editor_tiptap/video'
+import Video from '@/components/editor/video'
 
 const props = defineProps(['readonly', 'content'])
 watch(props, (newV, oldV) => {

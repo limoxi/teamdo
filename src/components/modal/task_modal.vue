@@ -106,13 +106,13 @@
             @on-selected="handleSelectTag"/>
       </FormItem>
       <FormItem label="详细描述" prop="desc" v-if="taskModal.show">
-        <TipTapEditor ref="editorInst" :content="form.desc"></TipTapEditor>
+        <Editor ref="editorInst" :content="form.desc"></Editor>
       </FormItem>
     </Form>
   </Modal>
 </template>
 <script setup>
-import TipTapEditor from '@/components/editor_tiptap/editor'
+import Editor from '@/components/editor/editor'
 import UserSelector from '@/components/user_selector'
 import TagSelector from '@/components/tag_selector'
 import ProjectSelector from '@/components/project_selector'

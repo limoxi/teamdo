@@ -97,7 +97,7 @@
         <Button v-if="form.designLink !== ''" type="text" @click="onOpenLink(form.designLink)">打开</Button>
       </FormItem>
       <FormItem label="详细描述" prop="desc">
-        <TipTapEditor ref="editorInst" :content="form.desc"></TipTapEditor>
+        <Editor ref="editorInst" :content="form.desc"></Editor>
       </FormItem>
     </Form>
   </Modal>
@@ -124,7 +124,7 @@ import {storeToRefs} from 'pinia'
 import EpicTaskService from '@/business/epic_task_service'
 import TagService from '@/business/tag_service'
 import moment from 'moment/moment'
-import TipTapEditor from '@/components/editor_tiptap/editor.vue'
+import Editor from '@/components/editor/editor.vue'
 
 const projectId = inject('projectId')
 const project = inject('project')
