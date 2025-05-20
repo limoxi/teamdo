@@ -8,8 +8,8 @@
         <Tag :color="taskColor" @click="onCLickTaskNo" class="aui-i-id">
           {{ task.typeName }}&nbsp;∙&nbsp;{{ taskNo }}
         </Tag>
-        <Tag v-if="task.lane" class="aui-i-id">
-          {{ task.lane.name }}
+        <Tag class="aui-i-id">
+          {{ task.laneId > 0 ? task.lane?.name : task.status }}
         </Tag>
       </div>
     </div>

@@ -111,6 +111,14 @@
           <Option value="+">顺序</Option>
         </Select>
       </template>
+      <ButtonGroup style="margin-left: 10px">
+        <Button :type="kanbanViewMode==='card'?'primary':'default'" @click="()=> kanbanViewMode='card'">
+          <Icon type="ios-card" style="font-size: 22px;vertical-align: bottom"/>
+        </Button>
+        <Button :type="kanbanViewMode==='table'?'primary':'default'" @click="()=> kanbanViewMode='table'">
+          <Icon type="md-grid" style="font-size: 18px;vertical-align: bottom"/>
+        </Button>
+      </ButtonGroup>
     </div>
   </div>
   <share-tasks-modal :tasks="selectedTasks" v-model:show="showShareModal"></share-tasks-modal>
@@ -142,6 +150,8 @@ const {mode: taskMode, selectedTasks} = storeToRefs(taskModeStore)
 const selectModeOn = computed(() => taskMode.value === 'SELECT')
 
 const props = defineProps(['kanbanType', 'displayMode'])
+
+const kanbanViewMode = ref('card')
 
 const configStore = useConfigStore()
 const {prioritySight, storySight} = storeToRefs(configStore)
