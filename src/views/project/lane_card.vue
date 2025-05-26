@@ -1,7 +1,9 @@
 <template>
   <div :class="`aui-lane ${displayMode===LANE_DISPLAY_MODE_LIST?'bgt':''}`">
     <div :class="className">
-      <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})</p>
+      <p class="aui-i-title">{{ currLane.name }}&nbsp;∙&nbsp;({{ currLane.tasks.length }}/{{ currLane.wip || '∞' }})
+        <Loading v-if="currLane.loadingTasks" style="top:-15px"/>
+      </p>
       <div class="aui-i-actions">
         <template v-if="isEpicType(kanbanType)">
           <Icon v-if="displayMode===LANE_DISPLAY_MODE_CARD" type="ios-map-outline" size="18" class="aui-i-action"
@@ -10,7 +12,7 @@
         <template v-else>
           <Icon v-if="kanbanMemberStatsSight" type="ios-albums" size="20" class="aui-i-action"
                 @click="onSwitchKanbanMemberStatsSight"/>
-          <Icon v-else type="ios-people" class="aui-i-action" size="20"  @click="onSwitchKanbanMemberStatsSight"/>
+          <Icon v-else type="ios-people" class="aui-i-action" size="20" @click="onSwitchKanbanMemberStatsSight"/>
         </template>
         <Dropdown placement="bottom-end" @on-click="onClickAction">
           <Icon type="md-more" size="22" class="aui-i-action"/>
@@ -80,6 +82,7 @@ import TaskCard from '@/views/project/task_card.vue'
 import MemberStatsCard from '@/views/project/member_stats_card.vue'
 import {isEpicType, LANE_DISPLAY_MODE_CARD, LANE_DISPLAY_MODE_LIST} from '@/business/model/constant'
 import {storeToRefs} from "pinia";
+import Loading from "@/components/loading.vue";
 
 const modalStore = useModalStore()
 const configStore = useConfigStore()
